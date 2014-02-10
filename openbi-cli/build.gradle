@@ -1,0 +1,36 @@
+apply plugin: 'application'
+apply plugin: 'java'
+apply plugin: 'eclipse'
+
+version = '0.1'
+mainClassName = 'org.openbusinessintelligence.cli.Main'
+
+jar {
+    manifest {
+		attributes 'Implementation-Title': 'Open BI CLI', 'Implementation-Version': version, 'Main-Class': mainClassName
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile group: 'commons-collections', name: 'commons-collections', version: '3.2'
+	compile fileTree(dir: 'C:/Program Files/Java/lib/common')
+    compile project(':openbi-core')
+	runtime fileTree(dir: 'C:/Program Files/Java/lib/common')
+    testCompile group: 'junit', name: 'junit', version: '4.+'
+}
+
+test {
+    systemProperties 'property': 'value'
+}
+
+uploadArchives {
+    repositories {
+       flatDir {
+           dirs 'repos'
+       }
+    }
+}
