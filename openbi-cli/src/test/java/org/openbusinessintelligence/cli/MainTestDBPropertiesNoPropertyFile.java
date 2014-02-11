@@ -27,9 +27,9 @@ public class MainTestDBPropertiesNoPropertyFile {
 		initArguments();
 		//
 		arguments[3] = "com.sap.db.jdbc.Driver";
-		arguments[5] = "jdbc:sap://localhost:30015/HAN";
-		arguments[7] = "system";
-		arguments[9] = "SAP2hana";
+		arguments[5] = "jdbc:sap://msas120i:30115/HID";
+		arguments[7] = "sugarcrm";
+		arguments[9] = "Sommer2013!";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -39,7 +39,7 @@ public class MainTestDBPropertiesNoPropertyFile {
 		}
 	}
 
-	@Test
+	/*@Test
 	public void testTeradata () {
 		
 		initArguments();
@@ -55,5 +55,5 @@ public class MainTestDBPropertiesNoPropertyFile {
 		catch (Exception e) {
 			fail("Exception: \n" + e);
 		}
-	}
+	}*/
 }

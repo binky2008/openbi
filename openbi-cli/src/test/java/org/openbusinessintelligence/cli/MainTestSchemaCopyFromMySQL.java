@@ -48,7 +48,7 @@ public class MainTestSchemaCopyFromMySQL {
 		}
 	}
 
-	@Test
+	/*@Test
 	public void testMySQLtoPostgreSQL() {
 		
 		initArguments();
@@ -114,5 +114,5 @@ public class MainTestSchemaCopyFromMySQL {
 		catch (Exception e) {
 			fail("Exception: \n" + e.getMessage() + "\n" + e.getStackTrace());
 		}
-	}
+	}*/
 }

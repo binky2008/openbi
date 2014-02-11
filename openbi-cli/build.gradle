@@ -5,6 +5,10 @@ apply plugin: 'eclipse'
 version = '0.1'
 mainClassName = 'org.openbusinessintelligence.cli.Main'
 
+dependencies {
+  compile project(':openbi-core')
+}
+
 jar {
     manifest {
 		attributes 'Implementation-Title': 'Open BI CLI', 'Implementation-Version': version, 'Main-Class': mainClassName

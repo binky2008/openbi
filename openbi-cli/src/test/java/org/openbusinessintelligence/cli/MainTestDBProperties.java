@@ -20,12 +20,13 @@ public class MainTestDBProperties {
 		
 	}
 
-	/*@Test
+	@Test
 	public void testMySQL() {
 		
 		initArguments();
 		//
 		arguments[3] = "mysql_localhost_sugarcrm";
+		arguments[5] = "";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -41,6 +42,7 @@ public class MainTestDBProperties {
 		initArguments();
 		//
 		arguments[3] = "postgresql_localhost_postgres_sugarcrm";
+		arguments[5] = "";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -55,7 +57,8 @@ public class MainTestDBProperties {
 		
 		initArguments();
 		//
-		arguments[3] = "sqlserver_localhost_sugarcrm";
+		arguments[3] = "sqlserver_localhost_test";
+		arguments[5] = "";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -70,7 +73,8 @@ public class MainTestDBProperties {
 		
 		initArguments();
 		//
-		arguments[3] = "db2_localhost_sugarcrm";
+		arguments[3] = "db2_localhost_sample_sugarcrm";
+		arguments[5] = "";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -86,6 +90,7 @@ public class MainTestDBProperties {
 		initArguments();
 		//
 		arguments[3] = "oracle_localhost_sugarcrm";
+		arguments[5] = "";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -93,7 +98,7 @@ public class MainTestDBProperties {
 		catch (Exception e) {
 			fail("Exception: \n" + e);
 		}
-	}*/
+	}
 
 	@Test
 	public void testInformix() {
@@ -116,7 +121,7 @@ public class MainTestDBProperties {
 		
 		initArguments();
 		//
-		arguments[3] = "hana_msas120i_sugarcrm";
+		arguments[3] = "hana_msas120i_01_sugarcrm";
 		arguments[5] = "HDBKeywords";
 		// Perform test
 		try {

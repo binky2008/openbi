@@ -24,16 +24,17 @@ public class MainTestTableCopyFromMySQL {
 		arguments[13] = "true";
 		arguments[14] = "-dropifexists";
 		arguments[15] = "true";
+		//arguments[16] = "-trgdbconnkeywordfile";
 		
 	}
 	
 	public void initSourceMySQL() {
 		// Source properties
-		arguments[3] = "mysql_localhost_sugarcrm";
-		arguments[5] = "campaigns";
+		arguments[3] = "mysql_localhost_test";
+		arguments[5] = "tab_test";
 	}
 
-	@Test
+	/*@Test
 	public void testMySQLtoMySQL() {
 		
 		initArguments();
@@ -41,7 +42,7 @@ public class MainTestTableCopyFromMySQL {
 		//
 		arguments[7] = "mysql_localhost_dwhstage";
 		arguments[9] = "dwhstage";
-		arguments[11] = "stg_campaigns";
+		arguments[11] = "stg_tab_test";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -58,9 +59,9 @@ public class MainTestTableCopyFromMySQL {
 		initArguments();
 		initSourceMySQL();
 		//
-		arguments[7] = "postgresql_localhost_postgres_dwhstage";
-		arguments[9] = "dwhstage";
-		arguments[11] = "stg_campaigns";
+		arguments[7] = "postgresql_localhost_postgres_test";
+		arguments[9] = "test";
+		arguments[11] = "stg_tab_test";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -76,9 +77,9 @@ public class MainTestTableCopyFromMySQL {
 		initArguments();
 		initSourceMySQL();
 		//
-		arguments[7] = "oracle_localhost_dwhstage";
-		arguments[9] = "dwhstage";
-		arguments[11] = "stg_campaigns";
+		arguments[7] = "oracle_localhost_test";
+		arguments[9] = "test";
+		arguments[11] = "stg_tab_test";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -94,9 +95,27 @@ public class MainTestTableCopyFromMySQL {
 		initArguments();
 		initSourceMySQL();
 		//
-		arguments[7] = "db2_localhost_dwhstage";
-		arguments[9] = "dwhstage";
-		arguments[11] = "stg_campaigns";
+		arguments[7] = "db2_localhost_sample_test";
+		arguments[9] = "test";
+		arguments[11] = "stg_tab_test";
+		// Perform test
+		try {
+			Main.main(arguments);
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
+
+	@Test
+	public void testMySQLtoInformix() {
+		
+		initArguments();
+		initSourceMySQL();
+		//
+		arguments[7] = "informix_localhost_test";
+		arguments[9] = "test";
+		arguments[11] = "stg_tab_test";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -112,9 +131,28 @@ public class MainTestTableCopyFromMySQL {
 		initArguments();
 		initSourceMySQL();
 		//
-		arguments[7] = "sqlserver_localhost_dwh";
-		arguments[9] = "stage";
-		arguments[11] = "stg_campaigns";
+		arguments[7] = "sqlserver_localhost_test";
+		arguments[9] = "dbo";
+		arguments[11] = "stg_tab_test";
+		// Perform test
+		try {
+			Main.main(arguments);
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}*/
+
+	@Test
+	public void testMySQLtoHANA() {
+		
+		initArguments();
+		initSourceMySQL();
+		//
+		arguments[7] = "hana_msas120i_01_dwh_stage";
+		arguments[9] = "dwh_stage";
+		arguments[11] = "stg_tab_test";
+		//arguments[17] = "HDBKeywords";
 		// Perform test
 		try {
 			Main.main(arguments);

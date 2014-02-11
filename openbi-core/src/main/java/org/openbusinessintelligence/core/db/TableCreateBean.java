@@ -71,7 +71,11 @@ public class TableCreateBean {
     	
     	DatabaseMetaData dbmd = targetCon.getConnection().getMetaData();
     	ResultSet tables;
-    	if (targetCon.getDatabaseProductName().toUpperCase().contains("ORACLE") || targetCon.getDatabaseProductName().toUpperCase().contains("DB2")) {
+    	if (
+    		targetCon.getDatabaseProductName().toUpperCase().contains("ORACLE") ||
+    		targetCon.getDatabaseProductName().toUpperCase().contains("DB2") ||
+    		targetCon.getDatabaseProductName().toUpperCase().contains("HDB")
+    	) {
     		tables = dbmd.getTables(null, targetSchema.toUpperCase(), targetTable.toUpperCase(), null);
     	}
     	else {
