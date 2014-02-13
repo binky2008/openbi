@@ -41,7 +41,7 @@ public class MainTestTableCopyFromSQLServer {
 		arguments[13] = "SalesOrderDetail";
 	}
 
-	@Test
+	/*@Test
 	public void testSQLServerToMySQL() {
 		
 		initArguments();
@@ -155,5 +155,5 @@ public class MainTestTableCopyFromSQLServer {
 		catch (Exception e) {
 			fail("Exception: \n" + e);
 		}
-	}
+	}*/
 }

@@ -4,6 +4,7 @@ public class TypeConversionBean {
 
     private String sourceProductName;
     private String sourceColumnType;
+    private String sourceColumnTypeAttribute;
     private int sourceColumnLength;
     private int sourceColumnPrecision;
     private int sourceColumnScale;
@@ -11,6 +12,7 @@ public class TypeConversionBean {
     //
     private String targetProductName;
     private String targetColumnType;
+    private String targetColumnTypeAttribute;
     private int targetColumnLength;
     private int targetColumnPrecision;
     private int targetColumnScale;
@@ -58,6 +60,16 @@ public class TypeConversionBean {
     
     // Conversion method
     public void convert() {
+    	
+    	sourceColumnTypeAttribute = "";
+    	targetColumnTypeAttribute = "";
+    	
+    	// Search for type attribute(s)
+    	if (sourceColumnType.split(" ").length > 1) {
+    		sourceColumnTypeAttribute = sourceColumnType.split(" ",2)[1];
+    		sourceColumnType = sourceColumnType.split(" ",2)[0];
+    	}
+    	
     	// Source definition
     	if (sourceColumnPrecision > 0) {
     		sourceColumnDefinition += "(" + sourceColumnPrecision + "," + sourceColumnScale + ")";
@@ -65,6 +77,7 @@ public class TypeConversionBean {
     	else if (sourceColumnLength > 0) {
     		sourceColumnDefinition += "(" + sourceColumnLength + ")";
     	}
+    	sourceColumnDefinition += " " + sourceColumnTypeAttribute;
 
    		targetColumnLength = 0;
    		targetColumnPrecision = 0;
@@ -74,7 +87,10 @@ public class TypeConversionBean {
     	// set target column properties
         // Same data type if RDBMSs are the same
    		if (targetProductName.toUpperCase().equals(sourceProductName.toUpperCase())) {
+   			
        		targetColumnType = sourceColumnType;
+       		targetColumnTypeAttribute = sourceColumnTypeAttribute;
+       		
        		if (targetProductName.toUpperCase().contains("MYSQL") && sourceColumnType.contains("CHAR")) {
                 if (sourceColumnLength > 255) {
                     targetColumnType = "LONGTEXT";
@@ -85,24 +101,54 @@ public class TypeConversionBean {
                 }
        		}
        		else if (
-           			sourceColumnType.contains("TINY") ||
-           			sourceColumnType.contains("SMALL") ||
-           			sourceColumnType.contains("MEDIUM") ||
-           			sourceColumnType.contains("BIG") ||
-           			sourceColumnType.contains("LONG") ||
-           			sourceColumnType.contains("SERIAL") ||
-           			sourceColumnType.contains("DATE") ||
-           			sourceColumnType.contains("TIME") ||
-           			sourceColumnType.contains("YEAR") ||
-           			sourceColumnType.contains("CLOB") ||
-           			sourceColumnType.contains("BLOB")
+       			sourceColumnType.contains("BOOL") ||
+           		sourceColumnType.contains("TINY") ||
+           		sourceColumnType.contains("SMALL") ||
+           		sourceColumnType.contains("MEDIUM") ||
+           		sourceColumnType.contains("BIG") ||
+           		sourceColumnType.contains("LONG") ||
+           		sourceColumnType.contains("SERIAL") ||
+           		sourceColumnType.contains("FLOAT") ||
+           		sourceColumnType.contains("DOUBLE") ||
+           		sourceColumnType.contains("UNSIGNED") ||
+           		sourceColumnType.contains("MONEY") ||
+           		sourceColumnType.contains("TEXT") ||
+           		sourceColumnType.contains("DATE") ||
+           		sourceColumnType.contains("TIME") ||
+           		sourceColumnType.contains("YEAR") ||
+           		sourceColumnType.contains("CLOB") ||
+           		sourceColumnType.contains("BLOB") ||
+           		sourceColumnType.contains("XML") ||
+           		sourceColumnType.contains("JSON") ||
+           		// PostgreSQL types
+           		sourceColumnType.contains("INT2") ||
+           		sourceColumnType.contains("INT4") ||
+           		sourceColumnType.contains("INT8") ||
+           		sourceColumnType.contains("FLOAT4") ||
+           		sourceColumnType.contains("FLOAT8") ||
+           		sourceColumnType.contains("BYTEA") ||
+           		sourceColumnType.contains("TXID") ||
+           		sourceColumnType.contains("UUID") ||
+           		sourceColumnType.contains("CIDR") ||
+           		sourceColumnType.contains("INET") ||
+           		sourceColumnType.contains("MACADDR") ||
+           		sourceColumnType.contains("TSQUERY") ||
+           		sourceColumnType.contains("TSVECTOR") ||
+           		sourceColumnType.contains("BOX") ||
+           		sourceColumnType.contains("CIRCLE") ||
+           		sourceColumnType.contains("LINE") ||
+           		sourceColumnType.contains("LSEG") ||
+           		sourceColumnType.contains("PATH") ||
+           		sourceColumnType.contains("POINT") ||
+           		sourceColumnType.contains("POLYGON")
            	) {
        			// For TINY*, SMALL*, BIG* and DATE/TIME no length, precision and scale needed
        		}
-       		else if (sourceColumnType.contains("CHAR") ||
-               		sourceColumnType.contains("BIT") ||
-               		sourceColumnType.contains("INT") ||
-               		sourceColumnType.contains("BINAR")
+       		else if (
+       			sourceColumnType.contains("CHAR") ||
+               	sourceColumnType.contains("BIT") ||
+               	sourceColumnType.contains("INT") ||
+               	sourceColumnType.contains("BINAR")
             ) {
                	targetColumnLength = sourceColumnLength;
        		}
@@ -200,6 +246,44 @@ public class TypeConversionBean {
        		targetColumnPrecision = 0;
        		targetColumnScale = 0;
         }
+   		// PostgreSQL special types
+        else if (
+	   		sourceColumnType.contains("TXID") ||
+	   		sourceColumnType.contains("UUID") ||
+	   		sourceColumnType.contains("CIDR") ||
+	   		sourceColumnType.contains("INET") ||
+	   		sourceColumnType.contains("MACADDR")
+   		) {
+        	if (targetProductName.toUpperCase().contains("ORACLE")) {
+        		targetColumnType = "VARCHAR2";
+        	}
+        	else {
+        		targetColumnType = "VARCHAR";
+        	}
+			targetColumnLength = 255;
+        }
+        else if (
+	   		sourceColumnType.contains("TSQUERY") ||
+	   		sourceColumnType.contains("TSVECTOR") ||
+	   		sourceColumnType.contains("BOX") ||
+	   		sourceColumnType.contains("CIRCLE") ||
+	   		sourceColumnType.contains("LINE") ||
+	   		sourceColumnType.contains("LSEG") ||
+	   		sourceColumnType.contains("PATH") ||
+	   		sourceColumnType.contains("POINT") ||
+	   		sourceColumnType.contains("POLYGON")
+   		) {
+        	if (
+        		targetProductName.toUpperCase().contains("ORACLE") ||
+        		targetProductName.toUpperCase().contains("DB2") ||
+        		targetProductName.toUpperCase().contains("HDB")
+        	) {
+        		targetColumnType = "CLOB";
+        	}
+        	else {
+        		targetColumnType = "TEXT";
+        	}
+        }
         // CHAR and VARCHAR types
     	else if (sourceColumnType.contains("CHAR") && sourceColumnLength == 1) {
        		targetColumnType = "CHAR (1)";
@@ -282,6 +366,7 @@ public class TypeConversionBean {
        		targetColumnPrecision = 0;
        		targetColumnScale = 0;
        	}
+   		// Date/time types
        	else if (
        			sourceColumnType.contains("DATE") ||
        			sourceColumnType.contains("TIME") ||
@@ -306,6 +391,75 @@ public class TypeConversionBean {
        		targetColumnPrecision = 0;
        		targetColumnScale = 0;
        	}
+   		// Big text types
+       	else if (
+       			sourceColumnType.contains("CLOB") ||
+       			sourceColumnType.contains("TEXT") ||
+       			sourceColumnType.contains("JSON")
+       		) {
+       		if (targetProductName.toUpperCase().contains("MYSQL")) {
+        		targetColumnType = "LONGTEXT";
+           		targetColumnLength = 0;
+    		}
+       		else if  (
+           		targetProductName.toUpperCase().contains("POSTGRES") ||
+           		targetProductName.toUpperCase().contains("INFORMIX")
+           	) {
+        		targetColumnType = "TEXT";
+           		targetColumnLength = 0;
+    		}
+       		else if (targetProductName.toUpperCase().contains("MICROSOFT")) {
+       			targetColumnType = "VARCHAR";
+       			targetColumnLength = -1;
+    		}
+       		else if (
+       			targetProductName.toUpperCase().contains("ORACLE") ||
+       			targetProductName.toUpperCase().contains("DB2")
+       		) {
+        		targetColumnType = "CLOB";
+           		targetColumnLength = 0;
+    		}
+       	}
+   		// XML type
+       	else if (
+   				sourceColumnType.contains("XML")
+       		) {
+       		if (targetProductName.toUpperCase().contains("MYSQL")) {
+        		targetColumnType = "LONGTEXT";
+    		}
+       		else if (
+       			targetProductName.toUpperCase().contains("POSTGRES") ||
+       			targetProductName.toUpperCase().contains("INFORMIX")
+       			) {
+        		targetColumnType = "TEXT";
+    		}
+       		else if (targetProductName.toUpperCase().contains("ORACLE")) {
+        		targetColumnType = "XMLTYPE";
+    		}
+       		else if (targetProductName.toUpperCase().contains("HDB")) {
+        		targetColumnType = "CLOB";
+    		}
+       		else {
+        		targetColumnType = "XML";
+    		}
+       	}
+   		// BLOB types
+       	else if (
+       		sourceColumnType.contains("BLOB") ||
+       		sourceColumnType.contains("BYTEA")
+       	) {
+       		if (targetProductName.toUpperCase().contains("POSTGRES")) {
+        		targetColumnType = "BYTEA";
+    		}
+       		else if (targetProductName.toUpperCase().contains("MICROSOFT")) {
+        		targetColumnType = "VARBINARY";
+        		targetColumnLength = -1;
+    		}
+       		else {
+        		targetColumnType = "BLOB";
+    		}
+       	}
+   		// Double types
        	else if (sourceColumnType.contains("DOUBLE")) {
    			if (targetProductName.toUpperCase().contains("ORACLE")) {
    				targetColumnType = "BINARY_DOUBLE";
@@ -323,9 +477,11 @@ public class TypeConversionBean {
    	       		targetColumnType = "DOUBLE";
    			}
        	}
+   		// Numeric types
        	else if (
        			sourceColumnType.contains("NUMBER") ||
        			sourceColumnType.contains("NUMERIC") ||
+       			sourceColumnType.contains("SERIAL") ||
        			sourceColumnType.contains("DEC") ||
        			sourceColumnType.contains("BIN") ||
        			sourceColumnType.contains("INT") ||
@@ -346,6 +502,9 @@ public class TypeConversionBean {
 	           			targetColumnScale = sourceColumnScale;
 	       			}
        			}
+       			else if (targetProductName.toUpperCase().contains("MYSQL") && sourceColumnPrecision > 30) {
+       				targetColumnType = "FLOAT";
+   				}
        			else if (targetProductName.toUpperCase().contains("DB2") && sourceColumnPrecision > 31) {
        				targetColumnType = "DECFLOAT";
    				}
@@ -365,6 +524,12 @@ public class TypeConversionBean {
 	           			targetColumnScale = sourceColumnScale;
 	       			}
    				}
+       			else if (
+       				targetProductName.toUpperCase().contains("POSTGRES") &&
+       				sourceColumnType.contains("SERIAL")
+       			) {
+       				targetColumnType = "SERIAL";
+   				}
        			else {
        				targetColumnType = "NUMERIC";
            			targetColumnPrecision = sourceColumnPrecision;
@@ -372,8 +537,13 @@ public class TypeConversionBean {
        			}
        		}    		
        	}
+   		// Money type
        	else if (sourceColumnType.contains("MONEY")) {
-       		if (targetProductName.toUpperCase().contains("MICROSOFT")) {
+       		if (
+       			targetProductName.toUpperCase().contains("MICROSOFT") ||
+       			targetProductName.toUpperCase().contains("POSTGRES") ||
+       			targetProductName.toUpperCase().contains("INFORMIX")
+       		) {
        			targetColumnType = "MONEY";
        		}
        		else {
@@ -387,67 +557,41 @@ public class TypeConversionBean {
        			targetColumnScale = 5;
        		}    		
        	}
-       	else if (
-       			sourceColumnType.contains("BIT")
-       	) {
-       		if (targetProductName.toUpperCase().contains("POSTGRES")) {
-   				targetColumnType = "BOOLEAN";           				
+   		// Bit type
+       	else if (sourceColumnType.contains("BIT")) {
+       		if (
+       			targetProductName.toUpperCase().contains("MYSQL") ||
+       			targetProductName.toUpperCase().contains("POSTGRES")
+       		) {
+   				targetColumnType = "BIT";
+   				targetColumnLength = sourceColumnLength;
        		}
        		else if (targetProductName.toUpperCase().contains("ORACLE")) {
-       				targetColumnType = "NUMBER";           				
+       			targetColumnType = "NUMBER";           				
        		}
        		else {
        			targetColumnType = "NUMERIC";
        		}	
        	}
-       	else if (
-       				sourceColumnType.contains("CLOB") ||
-       				sourceColumnType.contains("TEXT")
-       		) {
-       		if (targetProductName.toUpperCase().contains("MYSQL")) {
-        		targetColumnType = "LONGTEXT";
-           		targetColumnLength = 0;
-    		}
-       		else if (targetProductName.toUpperCase().contains("POSTGRES")) {
-        		targetColumnType = "TEXT";
-           		targetColumnLength = 0;
-    		}
-       		else if (targetProductName.toUpperCase().contains("MICROSOFT")) {
-       			targetColumnType = "VARCHAR";
-       			targetColumnLength = -1;
-    		}
-       		else if (targetProductName.toUpperCase().contains("ORACLE") || targetProductName.toUpperCase().contains("DB2")) {
-        		targetColumnType = "CLOB";
-           		targetColumnLength = 0;
-    		}
-       	}
-       	else if (
-   				sourceColumnType.contains("XML")
-       		) {
-       		if (targetProductName.toUpperCase().contains("MYSQL")) {
-        		targetColumnType = "LONGTEXT";
-    		}
-       		else if (targetProductName.toUpperCase().contains("POSTGRES")) {
-        		targetColumnType = "TEXT";
-    		}
-       		else if (targetProductName.toUpperCase().contains("ORACLE")) {
-        		targetColumnType = "XMLTYPE";
-    		}
-       		else {
-        		targetColumnType = "XML";
-    		}
-       	}
-       	else if (sourceColumnType.contains("BLOB")) {
-       		if (targetProductName.toUpperCase().contains("POSTGRES")) {
-        		targetColumnType = "BYTEA";
-    		}
-       		else if (targetProductName.toUpperCase().contains("MICROSOFT")) {
-        		targetColumnType = "VARBINARY";
-        		targetColumnLength = -1;
-    		}
-       		else {
-        		targetColumnType = "BLOB";
-    		}
+   		// Boolean type
+       	else if (sourceColumnType.contains("BOOL")) {
+   			if (targetProductName.toUpperCase().contains("ORACLE")) {
+   				targetColumnType = "NUMBER";
+   	   			targetColumnPrecision = sourceColumnPrecision;
+   	   			targetColumnScale = sourceColumnScale;
+   			}
+   			else if (
+   				targetProductName.toUpperCase().contains("DB2") ||
+   				targetProductName.toUpperCase().contains("HDB") ||
+   				targetProductName.toUpperCase().contains("MICROSOFT")
+   	   	   	) {
+   	   			targetColumnType = "NUMERIC";
+   	   	   		targetColumnPrecision = sourceColumnPrecision;
+   	   	   		targetColumnScale = sourceColumnScale;
+   	   		}
+   			else {
+   				targetColumnType = "BOOLEAN";
+   			}
        	}
        	else {
        		targetColumnType = sourceColumnType;
@@ -468,5 +612,6 @@ public class TypeConversionBean {
     			targetColumnDefinition += "(" + targetColumnLength + ")";
     		}
     	}
+    	targetColumnDefinition += " " + targetColumnTypeAttribute;
     }
 }

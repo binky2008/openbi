@@ -39,7 +39,7 @@ public class MainTestTableCopyFromOracle {
 		arguments[11] = "campaigns";
 	}
 
-	@Test
+	/*@Test
 	public void testOracleToMySQL() {
 		
 		initArguments();
@@ -153,5 +153,5 @@ public class MainTestTableCopyFromOracle {
 		catch (Exception e) {
 			fail("Exception: \n" + e);
 		}
-	}
+	}*/
 }

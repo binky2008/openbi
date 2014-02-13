@@ -38,7 +38,7 @@ public class MainTestSchemaCopyFromOracle {
 		arguments[11] = "sugarcrm";
 	}
 
-	@Test
+	/*@Test
 	public void testOracleToMySQL() {
 		
 		initArguments();
@@ -146,5 +146,5 @@ public class MainTestSchemaCopyFromOracle {
 		catch (Exception e) {
 			fail("Exception: \n" + e.getMessage() + "\n" + e.getStackTrace());
 		}
-	}
+	}*/
 }

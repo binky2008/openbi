@@ -7,6 +7,8 @@ CREATE ROLE sugarcrm LOGIN PASSWORD 'sugarcrm' VALID UNTIL 'infinity';
 
 CREATE SCHEMA sugarcrm AUTHORIZATION sugarcrm;
 
+commit;
+
 
 -- User DWHSTAGE
 DROP SCHEMA IF EXISTS dwhstage;

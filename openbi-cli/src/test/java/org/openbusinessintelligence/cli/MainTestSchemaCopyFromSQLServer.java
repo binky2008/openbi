@@ -38,7 +38,7 @@ public class MainTestSchemaCopyFromSQLServer {
 		arguments[11] = "Sales";
 	}
 
-	@Test
+	/*@Test
 	public void testSQLServerToMySQL() {
 		
 		initArguments();
@@ -146,5 +146,5 @@ public class MainTestSchemaCopyFromSQLServer {
 		catch (Exception e) {
 			fail("Exception: \n" + e.getMessage() + "\n" + e.getStackTrace());
 		}
-	}
+	}*/
 }

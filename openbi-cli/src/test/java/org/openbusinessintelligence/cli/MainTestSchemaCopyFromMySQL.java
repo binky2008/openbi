@@ -6,7 +6,7 @@ import org.junit.Test;
 
 public class MainTestSchemaCopyFromMySQL {
 	
-	private String[] arguments = new String[14];
+	private String[] arguments = new String[18];
 	
 	public void initArguments() {
 		
@@ -14,21 +14,24 @@ public class MainTestSchemaCopyFromMySQL {
 		arguments[0] = "-function";
 		arguments[1] = "tablecopy";
 		// Mandatory arguments
-		arguments[2] = "-srcdbconnpropertyfile";
-		arguments[4] = "-sourceschema";
-		arguments[6] = "-trgdbconnpropertyfile";
-		arguments[8] = "-targetschema";
+		arguments[2]  = "-srcdbconnpropertyfile";
+		arguments[4]  = "-srcdbconnkeywordfile";
+		arguments[6]  = "-sourceschema";
+		arguments[8]  = "-trgdbconnpropertyfile";
+		arguments[10] = "-trgdbconnkeywordfile";
+		arguments[12] = "-targetschema";
 		//
-		arguments[10] = "-trgcreate";
-		arguments[11] = "true";
-		arguments[12] = "-dropifexists";
-		arguments[13] = "true";
+		arguments[14] = "-trgcreate";
+		arguments[15] = "true";
+		arguments[16] = "-dropifexists";
+		arguments[17] = "true";
 	}
 	
 	public void initSourceMySQL() {
 		// Source properties
 		arguments[3] = "mysql_localhost_sugarcrm";
-		arguments[5] = "sugarcrm";
+		arguments[5] = "";
+		arguments[7] = "sugarcrm";
 	}
 
 	@Test
@@ -37,8 +40,9 @@ public class MainTestSchemaCopyFromMySQL {
 		initArguments();
 		initSourceMySQL();
 		//
-		arguments[7] = "mysql_localhost_dwhstage";
-		arguments[9] = "dwhstage";
+		arguments[9]  = "mysql_localhost_dwhstage";
+		arguments[11] = "";
+		arguments[13] = "dwhstage";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -48,14 +52,15 @@ public class MainTestSchemaCopyFromMySQL {
 		}
 	}
 
-	/*@Test
+	@Test
 	public void testMySQLtoPostgreSQL() {
 		
 		initArguments();
 		initSourceMySQL();
 		//
-		arguments[7] = "postgresql_localhost_postgres_dwhstage";
-		arguments[9] = "dwhstage";
+		arguments[9] = "postgresql_localhost_postgres_sugarcrm";
+		arguments[11] = "";
+		arguments[13] = "sugarcrm";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -71,8 +76,9 @@ public class MainTestSchemaCopyFromMySQL {
 		initArguments();
 		initSourceMySQL();
 		//
-		arguments[7] = "oracle_localhost_dwhstage";
-		arguments[9] = "dwhstage";
+		arguments[9] = "oracle_localhost_sugarcrm";
+		arguments[11] = "";
+		arguments[13] = "sugarcrm";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -88,8 +94,27 @@ public class MainTestSchemaCopyFromMySQL {
 		initArguments();
 		initSourceMySQL();
 		//
-		arguments[7] = "db2_localhost_dwhstage";
-		arguments[9] = "dwhstage";
+		arguments[9] = "db2_localhost_sample_sugarcrm";
+		arguments[11] = "";
+		arguments[13] = "sugarcrm";
+		// Perform test
+		try {
+			Main.main(arguments);
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e.getMessage() + "\n" + e.getStackTrace());
+		}
+	}
+
+	@Test
+	public void testMySQLtoInformix() {
+		
+		initArguments();
+		initSourceMySQL();
+		//
+		arguments[9]  = "informix_localhost_sugarcrm";
+		arguments[11] = "";
+		arguments[13] = "sugarcrm";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -105,8 +130,9 @@ public class MainTestSchemaCopyFromMySQL {
 		initArguments();
 		initSourceMySQL();
 		//
-		arguments[7] = "sqlserver_localhost_dwh";
-		arguments[9] = "stage";
+		arguments[9] = "sqlserver_localhost_sugarcrm";
+		arguments[11] = "";
+		arguments[13] = "dbo";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -114,5 +140,23 @@ public class MainTestSchemaCopyFromMySQL {
 		catch (Exception e) {
 			fail("Exception: \n" + e.getMessage() + "\n" + e.getStackTrace());
 		}
-	}*/
+	}
+
+	@Test
+	public void testMySQLtoHANA() {
+		
+		initArguments();
+		initSourceMySQL();
+		//
+		arguments[9] = "hana_msas120i_01_sugarcrm";
+		arguments[11] = "HDBKeywords";
+		arguments[13] = "sugarcrm";
+		// Perform test
+		try {
+			Main.main(arguments);
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e.getMessage() + "\n" + e.getStackTrace());
+		}
+	}
 }

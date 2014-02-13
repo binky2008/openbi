@@ -38,7 +38,7 @@ public class MainTestSchemaCopyFromDB2 {
 		arguments[11] = "sugarcrm";
 	}
 
-	@Test
+	/*@Test
 	public void testDB2ToMySQL() {
 		
 		initArguments();
@@ -146,5 +146,5 @@ public class MainTestSchemaCopyFromDB2 {
 		catch (Exception e) {
 			fail("Exception: \n" + e.getMessage() + "\n" + e.getStackTrace());
 		}
-	}
+	}*/
 }

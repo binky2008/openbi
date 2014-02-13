@@ -41,7 +41,7 @@ public class MainTestTableCopyFromDB2 {
 		arguments[13] = "campaigns";
 	}
 
-	@Test
+	/*@Test
 	public void testDB2ToMySQL() {
 		
 		initArguments();
@@ -155,5 +155,5 @@ public class MainTestTableCopyFromDB2 {
 		catch (Exception e) {
 			fail("Exception: \n" + e);
 		}
-	}
+	}*/
 }

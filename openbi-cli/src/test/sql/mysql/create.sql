@@ -10,6 +10,18 @@ create database sugarcrm;
 grant all privileges on sugarcrm.* to sugarcrm;
 
 
+-- Magento
+drop user magento;
+
+create user magento identified by 'magento';
+
+drop database if exists magento;
+
+create database magento;
+
+grant all privileges on magento.* to magento;
+
+
 -- DWHSTAGE
 drop user dwhstage;
 
