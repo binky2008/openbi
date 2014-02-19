@@ -35,7 +35,7 @@ public class MainTestSchemaCopyFromPostgreSQL {
 		arguments[7] = "sugarcrm";
 	}
 
-	@Test
+	/*@Test
 	public void testPostgreSQLtoMySQL() {
 		
 		initArguments();
@@ -151,6 +151,24 @@ public class MainTestSchemaCopyFromPostgreSQL {
 		//
 		arguments[9] = "hana_msas120i_01_sugarcrm";
 		arguments[11] = "HDBKeywords";
+		arguments[13] = "sugarcrm";
+		// Perform test
+		try {
+			Main.main(arguments);
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e.getMessage() + "\n" + e.getStackTrace());
+		}
+	}*/
+
+	@Test
+	public void testPostgreSQLtoTeradata() {
+		
+		initArguments();
+		initSourcePostgreSQL();
+		//
+		arguments[9] = "teradata_localhost_sugarcrm";
+		arguments[11] = "";
 		arguments[13] = "sugarcrm";
 		// Perform test
 		try {

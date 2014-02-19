@@ -210,6 +210,7 @@ public class DataDictionaryBean {
 
         logger.info("got column properties");
 
+        // Get information about primary keys
         try {
             String schema = null;
             if (sourceTable.split("\\.").length==2) {
@@ -217,7 +218,6 @@ public class DataDictionaryBean {
                 logger.info("Schema: " + schema);
             }
 
-            // Get information about primary keys
             logger.info("get primary key information...");
             logger.debug("Table: " + sourceTable.split("\\.")[sourceTable.split("\\.").length-1]);
 

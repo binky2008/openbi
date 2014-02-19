@@ -1,0 +1,11 @@
+DROP USER test;
+
+CREATE USER test FROM DBC AS 
+	PASSWORD  =  test,
+	PERMANENT = 10485760;
+	
+DROP USER sugarcrm;
+
+CREATE USER sugarcrm FROM DBC AS 
+	PASSWORD  =  sugarcrm,
+	PERMANENT = 209715200;

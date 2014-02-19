@@ -6,53 +6,46 @@ import org.junit.Test;
 
 public class MainTestTableCopyFromOracle {
 	
-	private String[] arguments = new String[28];
+	private String[] arguments = new String[20];
 	
 	public void initArguments() {
 		
 		// Function to test
-		arguments[0] = "-function";
-		arguments[1] = "tablecopy";
+		arguments[0]  = "-function";
+		arguments[1]  = "tablecopy";
 		// Mandatory arguments
-		arguments[2] = "-srcdbdriverclass";
-		arguments[4] = "-srcdbconnectionurl";
-		arguments[6] = "-srcdbusername";
-		arguments[8] = "-srcdbpassword";
-		arguments[10] = "-sourcetable";
-		arguments[12] = "-trgdbdriverclass";
-		arguments[14] = "-trgdbconnectionurl";
-		arguments[16] = "-trgdbusername";
-		arguments[18] = "-trgdbpassword";
-		arguments[20] = "-targetschema";
-		arguments[22] = "-targettable";
-		arguments[24] = "-trgcreate";
-		arguments[26] = "-dropifexists";
+		arguments[2]  = "-srcdbconnpropertyfile";
+		arguments[4]  = "-srcdbconnkeywordfile";
+		arguments[6]  = "-sourcetable";
+		arguments[8]  = "-trgdbconnpropertyfile";
+		arguments[10] = "-trgdbconnkeywordfile";
+		arguments[12] = "-targetschema";
+		arguments[14] = "-targettable";
+		
+		arguments[16] = "-trgcreate";
+		arguments[17] = "true";
+		arguments[18] = "-dropifexists";
+		arguments[19] = "true";
 		
 	}
 	
 	public void initSourceOracle() {
 		// Source properties
-		arguments[3] = "oracle.jdbc.OracleDriver";
-		arguments[5] = "jdbc:oracle:thin:@//localhost:1521/dwhdev";
-		arguments[7] = "sugarcrm";
-		arguments[9] = "sugarcrm";
-		arguments[11] = "campaigns";
+		arguments[3] = "oracle_localhost_test";
+		arguments[5] = "";
+		arguments[7] = "tab_test";
 	}
 
-	/*@Test
+	@Test
 	public void testOracleToMySQL() {
 		
 		initArguments();
 		initSourceOracle();
 		//
-		arguments[13] = "com.mysql.jdbc.Driver";
-		arguments[15] = "jdbc:mysql://localhost:3306/dwhstage?transformedBitIsBoolean=false&tinyInt1isBit=false";
-		arguments[17] = "dwhstage";
-		arguments[19] = "dwhstage";
-		arguments[21] = "dwhstage";
-		arguments[23] = "stg_campaigns";
-		arguments[25] = "true";
-		arguments[27] = "true";
+		arguments[9] = "mysql_localhost_test";
+		arguments[11] = "";
+		arguments[13] = "test";
+		arguments[15] = "stg_ora_tab_test";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -69,14 +62,10 @@ public class MainTestTableCopyFromOracle {
 		initArguments();
 		initSourceOracle();
 		//
-		arguments[13] = "org.postgresql.Driver";
-		arguments[15] = "jdbc:postgresql://localhost:5432/postgres";
-		arguments[17] = "dwhload";
-		arguments[19] = "dwhload";
-		arguments[21] = "dwhstage";
-		arguments[23] = "stg_campaigns";
-		arguments[25] = "true";
-		arguments[27] = "true";
+		arguments[9]  = "postgresql_localhost_postgres_test";
+		arguments[11] = "";
+		arguments[13] = "test";
+		arguments[15] = "stg_ora_tab_test";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -92,14 +81,10 @@ public class MainTestTableCopyFromOracle {
 		initArguments();
 		initSourceOracle();
 		//
-		arguments[13] = "oracle.jdbc.OracleDriver";
-		arguments[15] = "jdbc:oracle:thin:@//localhost:1521/dwhdev";
-		arguments[17] = "dwhstage";
-		arguments[19] = "dwhstage";
-		arguments[21] = "dwhstage";
-		arguments[23] = "stg_campaigns";
-		arguments[25] = "true";
-		arguments[27] = "true";
+		arguments[9] = "oracle_localhost_test";
+		arguments[11] = "";
+		arguments[13] = "test";
+		arguments[15] = "stg_ora_tab_test";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -115,14 +100,29 @@ public class MainTestTableCopyFromOracle {
 		initArguments();
 		initSourceOracle();
 		//
-		arguments[13] = "com.ibm.db2.jcc.DB2Driver";
-		arguments[15] = "jdbc:db2://localhost:50000/SAMPLE";
-		arguments[17] = "db2user";
-		arguments[19] = "db2user";
-		arguments[21] = "dwhstage";
-		arguments[23] = "stg_campaigns";
-		arguments[25] = "true";
-		arguments[27] = "true";
+		arguments[9]  = "db2_localhost_sample_test";
+		arguments[11] = "";
+		arguments[13] = "test";
+		arguments[15] = "stg_ora_tab_test";
+		// Perform test
+		try {
+			Main.main(arguments);
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
+
+	@Test
+	public void testMySQLtoInformix() {
+		
+		initArguments();
+		initSourceOracle();
+		//
+		arguments[9]  = "informix_localhost_test";
+		arguments[11] = "";
+		arguments[13] = "test";
+		arguments[15] = "stg_ora_tab_test";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -138,14 +138,10 @@ public class MainTestTableCopyFromOracle {
 		initArguments();
 		initSourceOracle();
 		//
-		arguments[13] = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
-		arguments[15] = "jdbc:sqlserver://localhost:1433;instance=MSSQLSERVER;database=dwhstage";
-		arguments[17] = "dwhload";
-		arguments[19] = "dwhload";
-		arguments[21] = "dbo";
-		arguments[23] = "stg_campaigns";
-		arguments[25] = "true";
-		arguments[27] = "true";
+		arguments[9]  = "sqlserver_localhost_test";
+		arguments[11] = "";
+		arguments[13] = "dbo";
+		arguments[15] = "stg_ora_tab_test";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -153,5 +149,43 @@ public class MainTestTableCopyFromOracle {
 		catch (Exception e) {
 			fail("Exception: \n" + e);
 		}
-	}*/
+	}
+
+	@Test
+	public void testMySQLtoHANA() {
+		
+		initArguments();
+		initSourceOracle();
+		//
+		arguments[9] = "hana_msas120i_01_dwh_stage";
+		arguments[11] = "HDBKeywords";
+		arguments[13] = "dwh_stage";
+		arguments[15] = "stg_ora_tab_test";
+		// Perform test
+		try {
+			Main.main(arguments);
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
+	
+	@Test
+	public void testMySQLtoTeradata() {
+		
+		initArguments();
+		initSourceOracle();
+		//
+		arguments[9] = "teradata_localhost_test";
+		arguments[11] = "TDBKeywords";
+		arguments[13] = "test";
+		arguments[15] = "stg_mys_tab_test";
+		// Perform test
+		try {
+			Main.main(arguments);
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
 }

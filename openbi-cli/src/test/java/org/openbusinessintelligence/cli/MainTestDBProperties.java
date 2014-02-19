@@ -25,7 +25,7 @@ public class MainTestDBProperties {
 		
 		initArguments();
 		//
-		arguments[3] = "mysql_localhost_sugarcrm";
+		arguments[3] = "mysql_localhost_test";
 		arguments[5] = "";
 		// Perform test
 		try {
@@ -41,7 +41,7 @@ public class MainTestDBProperties {
 		
 		initArguments();
 		//
-		arguments[3] = "postgresql_localhost_postgres_sugarcrm";
+		arguments[3] = "postgresql_localhost_postgres_test";
 		arguments[5] = "";
 		// Perform test
 		try {
@@ -73,7 +73,7 @@ public class MainTestDBProperties {
 		
 		initArguments();
 		//
-		arguments[3] = "db2_localhost_sample_sugarcrm";
+		arguments[3] = "db2_localhost_sample_test";
 		arguments[5] = "";
 		// Perform test
 		try {
@@ -89,7 +89,7 @@ public class MainTestDBProperties {
 		
 		initArguments();
 		//
-		arguments[3] = "oracle_localhost_sugarcrm";
+		arguments[3] = "oracle_localhost_test";
 		arguments[5] = "";
 		// Perform test
 		try {
@@ -105,7 +105,7 @@ public class MainTestDBProperties {
 		
 		initArguments();
 		//
-		arguments[3] = "informix_localhost_sugarcrm";
+		arguments[3] = "informix_localhost_test";
 		arguments[5] = "";
 		// Perform test
 		try {
@@ -121,8 +121,56 @@ public class MainTestDBProperties {
 		
 		initArguments();
 		//
-		arguments[3] = "hana_msas120i_01_sugarcrm";
+		arguments[3] = "hana_msas120i_01_dwh_stage";
 		arguments[5] = "HDBKeywords";
+		// Perform test
+		try {
+			Main.main(arguments);
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
+
+	@Test
+	public void testSybase() {
+		
+		initArguments();
+		//
+		arguments[3] = "sybase_localhost_demo";
+		arguments[5] = "";
+		// Perform test
+		try {
+			Main.main(arguments);
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
+
+	@Test
+	public void testTeradata() {
+		
+		initArguments();
+		//
+		arguments[3] = "teradata_localhost_test";
+		arguments[5] = "";
+		// Perform test
+		try {
+			Main.main(arguments);
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
+
+	@Test
+	public void testFirebird() {
+		
+		initArguments();
+		//
+		arguments[3] = "firebird_localhost_test";
+		arguments[5] = "";
 		// Perform test
 		try {
 			Main.main(arguments);

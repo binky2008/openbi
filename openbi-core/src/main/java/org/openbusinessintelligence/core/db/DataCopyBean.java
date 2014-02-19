@@ -43,8 +43,6 @@ public class DataCopyBean {
     private int commitFrequency;
 
     // Declarations of internally used variables
-    private Properties sourceProperties = null;
-    private Properties targetProperties = null;
     private String[] commonColumns = null;
     private ResultSet sourceRS = null;
     private PreparedStatement sourceStmt= null;
@@ -270,13 +268,18 @@ public class DataCopyBean {
         logger.info("Preserve target data = " + preserveDataOption);
         if (!preserveDataOption) {
             logger.info("Truncate table");
-            String truncateText;
-            truncateText = "TRUNCATE TABLE " + targetSchema + "." + targetTable;
-           	if (targetCon.getDatabaseProductName().toUpperCase().contains("DB2")) {
-           		targetCon.closeConnection();
-           		targetCon.openConnection();
-           		truncateText += " IMMEDIATE";
-           	}
+            String truncateText = "";
+            if (targetCon.getDatabaseProductName().toUpperCase().contains("TERADATA")) {
+            	truncateText = "DELETE " + targetSchema + "." + targetTable + " ALL";
+            }
+            else {
+	            truncateText = "TRUNCATE TABLE " + targetSchema + "." + targetTable;
+	           	if (targetCon.getDatabaseProductName().toUpperCase().contains("DB2")) {
+	           		targetCon.closeConnection();
+	           		targetCon.openConnection();
+	           		truncateText += " IMMEDIATE";
+	           	}
+            }
             logger.debug(truncateText);
            	targetStmt = targetCon.getConnection().prepareStatement(truncateText);
             targetStmt.executeUpdate();
@@ -345,10 +348,15 @@ public class DataCopyBean {
 	    		for (int i = 0; i < commonColumns.length; i++) {
 	    			position++;
 	    			try {
-	    				targetStmt.setObject(position, sourceRS.getObject(commonColumns[i]));
+		    			targetStmt.setObject(position, sourceRS.getObject(commonColumns[i]));
 	    			}
 	    			catch (Exception e){
-	    				targetStmt.setObject(position, null);
+	              		if (targetCon.getDatabaseProductName().toUpperCase().contains("TERADATA")) {
+	              			targetStmt.setNull(position, Types.NULL);
+		              	}
+		              	else {
+		              		targetStmt.setObject(position, null);
+		              	}
 	    			}
 	    		}
 	    		

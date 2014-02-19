@@ -24,6 +24,7 @@ CREATE TABLE tab_test (
 ,	col_timestamp	timestamp
 ,	col_timestamptz	timestamptz
 		
+,	col_interval	interval
 		
 ,	col_char	char (548)
 ,	col_varchar	varchar (12589)

@@ -88,6 +88,7 @@ public class TableCreateBean {
         		logger.debug("Table exists");
     		}
     	}
+    	tables.close();
         logger.info("Drop table if it exists: " + String.valueOf(dropIfExists));
         logger.info("Table exists:            " + String.valueOf(tableExistsFlag));
     	

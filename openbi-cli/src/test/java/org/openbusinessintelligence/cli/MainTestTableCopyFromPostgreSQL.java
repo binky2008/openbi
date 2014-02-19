@@ -169,4 +169,23 @@ public class MainTestTableCopyFromPostgreSQL {
 			fail("Exception: \n" + e);
 		}
 	}
+
+	@Test
+	public void testPostgreSQLtoTeradata() {
+		
+		initArguments();
+		initSourcePostgreSQL();
+		//
+		arguments[9] = "teradata_localhost_test";
+		arguments[11] = "TDBKeywords";
+		arguments[13] = "test";
+		arguments[15] = "stg_psg_tab_test";
+		// Perform test
+		try {
+			Main.main(arguments);
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
 }
