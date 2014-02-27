@@ -1,8 +1,12 @@
 package org.openbusinessintelligence.core.db;
 
+import org.slf4j.LoggerFactory;
+
 public class TypeConversionBean {
 
-    private String sourceProductName;
+	static final org.slf4j.Logger logger = LoggerFactory.getLogger(TypeConversionBean.class);
+
+	private String sourceProductName;
     private String sourceColumnType;
     private String sourceColumnTypeAttribute;
     private int sourceColumnLength;
@@ -43,16 +47,16 @@ public class TypeConversionBean {
     	return sourceColumnDefinition;
     }
     public String getTargetColumnType() {
-    	return sourceColumnType;
+    	return targetColumnType;
     }
     public int getTargetColumnLength() {
-    	return sourceColumnLength;
+    	return targetColumnLength;
     }
     public int getTargetColumnPrecision() {
-    	return sourceColumnPrecision;
+    	return targetColumnPrecision;
     }
     public int getTargetColumnScale() {
-    	return sourceColumnScale;
+    	return targetColumnScale;
     }
     public String getTargetColumnDefinition() {
     	return targetColumnDefinition;
@@ -60,11 +64,12 @@ public class TypeConversionBean {
     
     // Conversion method
     public void convert() {
-    	
+
     	sourceColumnTypeAttribute = "";
     	targetColumnTypeAttribute = "";
+    	sourceColumnDefinition = sourceColumnType;
     	
-    	// Search for type attribute(s)
+    	// Search for type attribute(s)    	
     	if (sourceColumnType.split(" ").length > 1) {
     		sourceColumnTypeAttribute = sourceColumnType.split(" ",2)[1];
     		sourceColumnType = sourceColumnType.split(" ",2)[0];
@@ -91,7 +96,10 @@ public class TypeConversionBean {
        		targetColumnType = sourceColumnType;
        		targetColumnTypeAttribute = sourceColumnTypeAttribute;
        		
-       		if (targetProductName.toUpperCase().contains("MYSQL") && sourceColumnType.contains("CHAR")) {
+       		if (
+       			targetProductName.toUpperCase().contains("MYSQL") &&
+       			sourceColumnType.contains("CHAR")
+       		) {
                 if (sourceColumnLength > 255) {
                     targetColumnType = "LONGTEXT";
         			targetColumnLength = 0;
@@ -101,6 +109,14 @@ public class TypeConversionBean {
                 }
        		}
        		else if (
+               	targetProductName.toUpperCase().contains("DB2") && (
+               		sourceColumnType.contains("INTEGER") ||
+               		sourceColumnType.contains("REAL")
+           		)
+           	) {
+           		targetColumnLength = 0;
+            }
+       		else if (
        			sourceColumnType.contains("BOOL") ||
            		sourceColumnType.contains("TINY") ||
            		sourceColumnType.contains("SMALL") ||
@@ -108,6 +124,7 @@ public class TypeConversionBean {
            		sourceColumnType.contains("BIG") ||
            		sourceColumnType.contains("LONG") ||
            		sourceColumnType.contains("SERIAL") ||
+           		sourceColumnType.contains("REAL") ||
            		sourceColumnType.contains("FLOAT") ||
            		sourceColumnType.contains("DOUBLE") ||
            		sourceColumnType.contains("UNSIGNED") ||
@@ -146,7 +163,17 @@ public class TypeConversionBean {
     	   		sourceColumnType.contains("SDO_GEOMETRY") ||
     	   		sourceColumnType.contains("SDO_RASTER") ||
            		sourceColumnType.contains("BFILE") ||
-           		sourceColumnType.contains("ROWID")
+           		sourceColumnType.contains("ROWID") ||
+           		// SQL Server specific types
+               	sourceColumnType.contains("IMAGE") ||
+               	sourceColumnType.contains("GEOGRAPHY") ||
+               	sourceColumnType.contains("GEOMETRY") ||
+               	sourceColumnType.contains("HIERARCHYID") ||
+               	sourceColumnType.contains("UNIQUEIDENTIFIER") ||
+           		// Informix specific types
+               	sourceColumnType.contains("BYTE") ||
+               	sourceColumnType.contains("BINARY18") ||
+               	sourceColumnType.contains("BINARYVAR")
            	) {
        			// For TINY*, SMALL*, BIG* and DATE/TIME no length, precision and scale needed
        			if (targetProductName.toUpperCase().contains("ORACLE"))
@@ -155,16 +182,39 @@ public class TypeConversionBean {
        				}
        				if (sourceColumnType.contains("INTERVALYM")) {
        					targetColumnType = "INTERVAL YEAR TO MONTH";
-       				}
+       			}
        		}
        		else if (
+                sourceColumnType.contains("BIT") ||
+                sourceColumnType.contains("INT")
+            ) {
+            	if (
+            		targetProductName.toUpperCase().contains("MICROSOFT") ||
+            		targetProductName.toUpperCase().contains("INFORMIX")
+            	) {
+                    targetColumnLength = 0;
+                }
+                else {
+                    targetColumnLength = sourceColumnLength;
+                }
+           	}
+       		else if (
        			sourceColumnType.contains("CHAR") ||
-               	sourceColumnType.contains("BIT") ||
-               	sourceColumnType.contains("INT") ||
                	sourceColumnType.contains("BINAR")
             ) {
-               	targetColumnLength = sourceColumnLength;
+                if (
+                    targetProductName.toUpperCase().contains("MICROSOFT") &&
+                    sourceColumnLength > 8000
+                ) {
+                    targetColumnLength = -1;
+                }
+                else {
+                   	targetColumnLength = sourceColumnLength;
+                }
        		}
+       		else if (sourceColumnType.contains("GRAPHIC")) {
+       			targetColumnLength = sourceColumnLength;
+           	}
        		else if (
        			targetProductName.toUpperCase().contains("ORACLE") &&
        			sourceColumnType.contains("NUMBER") &&
@@ -176,6 +226,9 @@ public class TypeConversionBean {
            		targetColumnLength = sourceColumnLength;
 	   			targetColumnPrecision = sourceColumnPrecision;
 	   			targetColumnScale = sourceColumnScale;
+	   			if (targetColumnScale > targetColumnPrecision) {
+	   				targetColumnScale = 0;
+	   			}
        		}
    		}
    		// Oracle special types
@@ -238,6 +291,37 @@ public class TypeConversionBean {
         		targetColumnType = "TEXT";
         	}
         }
+   		// SQL Server special types
+        else if (
+        	sourceProductName.toUpperCase().contains("MICROSOFT") &&
+	   		sourceColumnType.contains("TIMESTAMP")
+   		) {
+       		if (targetProductName.toUpperCase().contains("POSTGRES")) {
+        		targetColumnType = "BYTEA";
+    		}
+       		else if (targetProductName.toUpperCase().contains("INFORMIX")) {
+        		targetColumnType = "BYTE";
+    		}
+       		else if (targetProductName.toUpperCase().contains("MICROSOFT")) {
+        		targetColumnType = "VARBINARY";
+        		targetColumnLength = -1;
+    		}
+       		else {
+        		targetColumnType = "BLOB";
+    		}
+        }
+        else if (
+	   		sourceColumnType.contains("HIERARCHYID") ||
+	   		sourceColumnType.contains("UNIQUEIDENTIFIER")
+   		) {
+        	if (targetProductName.toUpperCase().contains("ORACLE")) {
+        		targetColumnType = "VARCHAR2";
+        	}
+        	else {
+        		targetColumnType = "VARCHAR";
+        	}
+			targetColumnLength = 255;
+        }
         // NCHAR and NVARCHAR types
    		else if (sourceColumnType.contains("NCHAR") && sourceColumnLength == 1) {
             targetColumnType = "NCHAR";
@@ -251,7 +335,7 @@ public class TypeConversionBean {
             (sourceColumnType.contains("UNIQUE"))
         ) {
             if (targetProductName.toUpperCase().contains("ORACLE")) {
-                if (sourceColumnLength > 4000) {
+                if (sourceColumnLength > 2000) {
                     targetColumnType = "CLOB";
         			targetColumnLength = 0;
                 }
@@ -303,7 +387,7 @@ public class TypeConversionBean {
             else if (targetProductName.toUpperCase().contains("INFORMIX")) {
                 if ((sourceColumnLength > 255) && (sourceColumnLength <= 32739)) {
                     targetColumnType = "LVARCHAR";
-        			targetColumnLength = 0;
+        			targetColumnLength = sourceColumnLength;
                 }
                 else if (sourceColumnLength > 32739) {
                 	targetColumnType = "TEXT";
@@ -326,7 +410,10 @@ public class TypeConversionBean {
             }
             else {
                 targetColumnType = "NVARCHAR";
-                if (targetProductName.toUpperCase().contains("MICROSOFT") && (sourceColumnLength > 8000)) {
+                if (
+                	targetProductName.toUpperCase().contains("MICROSOFT") &&
+                	sourceColumnLength > 4000
+                ) {
                     targetColumnLength = -1;
                 }
                 else {
@@ -341,7 +428,10 @@ public class TypeConversionBean {
        		targetColumnType = "CHAR (1)";
 			targetColumnLength = 0;
        	}
-    	else if (sourceColumnType.contains("CHAR") && sourceColumnLength > 1) {
+    	else if (
+    		(sourceColumnType.contains("CHAR") && sourceColumnLength > 1) ||
+    		sourceColumnType.contains("GRAPHIC")
+    	) {
     		if (targetProductName.toUpperCase().contains("ORACLE")) {
         		if (sourceColumnLength > 4000) {
         			targetColumnType = "CLOB";
@@ -418,7 +508,10 @@ public class TypeConversionBean {
             }
         	else {
     			targetColumnType = "VARCHAR";
-    			if (targetProductName.toUpperCase().contains("MICROSOFT") && (sourceColumnLength > 8000)) {
+    			if (
+    				targetProductName.toUpperCase().contains("MICROSOFT") &&
+    				sourceColumnLength > 4000
+    			) {
     				targetColumnLength = -1;
     			}
     			else {
@@ -487,12 +580,19 @@ public class TypeConversionBean {
    		// BLOB types
        	else if (
        		sourceColumnType.contains("BLOB") ||
-       		sourceColumnType.contains("BYTEA") ||
+       		sourceColumnType.contains("BYTE") ||
        		sourceColumnType.contains("BFILE") ||
-       		sourceColumnType.contains("LONG")
+       		sourceColumnType.contains("LONG") ||
+       		sourceColumnType.contains("IMAGE") ||
+       		sourceColumnType.contains("BINARY") ||
+       		sourceColumnType.contains("GEOGRAPHY") ||
+       		sourceColumnType.contains("GEOMETRY")
        	) {
        		if (targetProductName.toUpperCase().contains("POSTGRES")) {
         		targetColumnType = "BYTEA";
+    		}
+       		else if (targetProductName.toUpperCase().contains("INFORMIX")) {
+        		targetColumnType = "BYTE";
     		}
        		else if (targetProductName.toUpperCase().contains("MICROSOFT")) {
         		targetColumnType = "VARBINARY";
@@ -545,7 +645,8 @@ public class TypeConversionBean {
        		}
        	}
    		// Double types
-       	else if (sourceColumnType.contains("DOUBLE")) {
+       	else if (sourceColumnType.contains("DOUBLE") ||
+       			sourceColumnType.contains("REAL")) {
    			if (targetProductName.toUpperCase().contains("ORACLE")) {
    				targetColumnType = "BINARY_DOUBLE";
    			}
@@ -569,7 +670,7 @@ public class TypeConversionBean {
        			sourceColumnType.contains("NUMERIC") ||
        			sourceColumnType.contains("SERIAL") ||
        			sourceColumnType.contains("DEC") ||
-       			sourceColumnType.contains("BIN") ||
+       			//sourceColumnType.contains("BIN") ||
        			sourceColumnType.contains("INT") ||
        			sourceColumnType.contains("FLO") ||
        			sourceColumnType.contains("IDENT")
@@ -656,10 +757,12 @@ public class TypeConversionBean {
    				targetColumnLength = sourceColumnLength;
        		}
        		else if (targetProductName.toUpperCase().contains("ORACLE")) {
-       			targetColumnType = "NUMBER";           				
+       			targetColumnType = "NUMBER";
+   				targetColumnLength = sourceColumnLength;
        		}
        		else {
        			targetColumnType = "NUMERIC";
+   				targetColumnLength = sourceColumnLength;
        		}	
        	}
    		// Boolean type
@@ -689,6 +792,7 @@ public class TypeConversionBean {
    			targetColumnPrecision = sourceColumnPrecision;
    			targetColumnScale = sourceColumnScale;
        	}
+   		
     	// Column definition
     	targetColumnDefinition = targetColumnType;
     	if (targetColumnPrecision > 0) {

@@ -29,18 +29,18 @@ public class MainTestSchemaCopyFromMySQL {
 	
 	public void initSourceMySQL() {
 		// Source properties
-		arguments[3] = "mysql_localhost_sugarcrm";
+		arguments[3] = "localhost_mysql_sugarcrm";
 		arguments[5] = "";
 		arguments[7] = "sugarcrm";
 	}
 
-	/*@Test
+	@Test
 	public void testMySQLtoMySQL() {
 		
 		initArguments();
 		initSourceMySQL();
 		//
-		arguments[9]  = "mysql_localhost_dwhstage";
+		arguments[9]  = "localhost_mysql_dwhstage";
 		arguments[11] = "";
 		arguments[13] = "dwhstage";
 		// Perform test
@@ -58,7 +58,7 @@ public class MainTestSchemaCopyFromMySQL {
 		initArguments();
 		initSourceMySQL();
 		//
-		arguments[9] = "postgresql_localhost_postgres_sugarcrm";
+		arguments[9] = "localhost_postgresql_postgres_sugarcrm";
 		arguments[11] = "";
 		arguments[13] = "sugarcrm";
 		// Perform test
@@ -76,7 +76,7 @@ public class MainTestSchemaCopyFromMySQL {
 		initArguments();
 		initSourceMySQL();
 		//
-		arguments[9] = "oracle_localhost_sugarcrm";
+		arguments[9] = "localhost_oracle_sugarcrm";
 		arguments[11] = "";
 		arguments[13] = "sugarcrm";
 		// Perform test
@@ -94,7 +94,7 @@ public class MainTestSchemaCopyFromMySQL {
 		initArguments();
 		initSourceMySQL();
 		//
-		arguments[9] = "db2_localhost_sample_sugarcrm";
+		arguments[9] = "localhost_db2_sample_sugarcrm";
 		arguments[11] = "";
 		arguments[13] = "sugarcrm";
 		// Perform test
@@ -112,7 +112,7 @@ public class MainTestSchemaCopyFromMySQL {
 		initArguments();
 		initSourceMySQL();
 		//
-		arguments[9]  = "informix_localhost_sugarcrm";
+		arguments[9]  = "localhost_informix_sugarcrm";
 		arguments[11] = "";
 		arguments[13] = "sugarcrm";
 		// Perform test
@@ -130,7 +130,7 @@ public class MainTestSchemaCopyFromMySQL {
 		initArguments();
 		initSourceMySQL();
 		//
-		arguments[9] = "sqlserver_localhost_sugarcrm";
+		arguments[9] = "localhost_sqlserver_sugarcrm";
 		arguments[11] = "";
 		arguments[13] = "dbo";
 		// Perform test
@@ -148,7 +148,7 @@ public class MainTestSchemaCopyFromMySQL {
 		initArguments();
 		initSourceMySQL();
 		//
-		arguments[9] = "hana_msas120i_01_sugarcrm";
+		arguments[9] = "msas120i_hana_01_sugarcrm";
 		arguments[11] = "HDBKeywords";
 		arguments[13] = "sugarcrm";
 		// Perform test
@@ -158,7 +158,7 @@ public class MainTestSchemaCopyFromMySQL {
 		catch (Exception e) {
 			fail("Exception: \n" + e.getMessage() + "\n" + e.getStackTrace());
 		}
-	}*/
+	}
 
 	@Test
 	public void testMySQLtoTeradata() {
@@ -166,7 +166,7 @@ public class MainTestSchemaCopyFromMySQL {
 		initArguments();
 		initSourceMySQL();
 		//
-		arguments[9] = "teradata_localhost_sugarcrm";
+		arguments[9] = "localhost_teradata_sugarcrm";
 		arguments[11] = "TDBKeywords";
 		arguments[13] = "sugarcrm";
 		// Perform test

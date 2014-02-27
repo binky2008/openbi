@@ -31,7 +31,7 @@ public class MainTestTableCopyFromPostgreSQL {
 	
 	public void initSourcePostgreSQL() {
 		// Source properties
-		arguments[3] = "postgresql_localhost_postgres_test";
+		arguments[3] = "localhost_postgresql_postgres_test";
 		arguments[5] = "";
 		arguments[7] = "tab_test";
 	}
@@ -42,7 +42,7 @@ public class MainTestTableCopyFromPostgreSQL {
 		initArguments();
 		initSourcePostgreSQL();
 		//
-		arguments[9] = "mysql_localhost_test";
+		arguments[9] = "localhost_mysql_test";
 		arguments[11] = "";
 		arguments[13] = "test";
 		arguments[15] = "stg_psg_tab_test";
@@ -62,7 +62,7 @@ public class MainTestTableCopyFromPostgreSQL {
 		initArguments();
 		initSourcePostgreSQL();
 		//
-		arguments[9]  = "postgresql_localhost_postgres_test";
+		arguments[9]  = "localhost_postgresql_postgres_test";
 		arguments[11] = "";
 		arguments[13] = "test";
 		arguments[15] = "stg_psg_tab_test";
@@ -81,7 +81,7 @@ public class MainTestTableCopyFromPostgreSQL {
 		initArguments();
 		initSourcePostgreSQL();
 		//
-		arguments[9]  = "oracle_localhost_test";
+		arguments[9]  = "localhost_oracle_test";
 		arguments[11] = "";
 		arguments[13] = "test";
 		arguments[15] = "stg_psg_tab_test";
@@ -100,7 +100,7 @@ public class MainTestTableCopyFromPostgreSQL {
 		initArguments();
 		initSourcePostgreSQL();
 		//
-		arguments[9]  = "db2_localhost_sample_test";
+		arguments[9]  = "localhost_db2_sample_test";
 		arguments[11] = "";
 		arguments[13] = "test";
 		arguments[15] = "stg_psg_tab_test";
@@ -119,7 +119,7 @@ public class MainTestTableCopyFromPostgreSQL {
 		initArguments();
 		initSourcePostgreSQL();
 		//
-		arguments[9]  = "informix_localhost_test";
+		arguments[9]  = "localhost_informix_test";
 		arguments[11] = "";
 		arguments[13] = "test";
 		arguments[15] = "stg_psg_tab_test";
@@ -138,7 +138,7 @@ public class MainTestTableCopyFromPostgreSQL {
 		initArguments();
 		initSourcePostgreSQL();
 		//
-		arguments[9]  = "sqlserver_localhost_test";
+		arguments[9]  = "localhost_sqlserver_test";
 		arguments[11] = "";
 		arguments[13] = "dbo";
 		arguments[15] = "stg_psg_tab_test";
@@ -157,7 +157,7 @@ public class MainTestTableCopyFromPostgreSQL {
 		initArguments();
 		initSourcePostgreSQL();
 		//
-		arguments[9] = "hana_msas120i_01_dwh_stage";
+		arguments[9] = "msas120i_hana_01_dwh_stage";
 		arguments[11] = "";
 		arguments[13] = "dwh_stage";
 		arguments[15] = "stg_psg_tab_test";
@@ -176,7 +176,7 @@ public class MainTestTableCopyFromPostgreSQL {
 		initArguments();
 		initSourcePostgreSQL();
 		//
-		arguments[9] = "teradata_localhost_test";
+		arguments[9] = "localhost_teradata_test";
 		arguments[11] = "TDBKeywords";
 		arguments[13] = "test";
 		arguments[15] = "stg_psg_tab_test";

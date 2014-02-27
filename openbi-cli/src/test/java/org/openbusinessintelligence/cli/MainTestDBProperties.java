@@ -25,7 +25,7 @@ public class MainTestDBProperties {
 		
 		initArguments();
 		//
-		arguments[3] = "mysql_localhost_test";
+		arguments[3] = "localhost_mysql_test";
 		arguments[5] = "";
 		// Perform test
 		try {
@@ -41,7 +41,7 @@ public class MainTestDBProperties {
 		
 		initArguments();
 		//
-		arguments[3] = "postgresql_localhost_postgres_test";
+		arguments[3] = "localhost_postgresql_postgres_test";
 		arguments[5] = "";
 		// Perform test
 		try {
@@ -57,7 +57,7 @@ public class MainTestDBProperties {
 		
 		initArguments();
 		//
-		arguments[3] = "sqlserver_localhost_test";
+		arguments[3] = "localhost_sqlserver_test";
 		arguments[5] = "";
 		// Perform test
 		try {
@@ -73,7 +73,7 @@ public class MainTestDBProperties {
 		
 		initArguments();
 		//
-		arguments[3] = "db2_localhost_sample_test";
+		arguments[3] = "localhost_db2_sample_test";
 		arguments[5] = "";
 		// Perform test
 		try {
@@ -85,11 +85,28 @@ public class MainTestDBProperties {
 	}
 
 	@Test
+	public void testDerby() {
+		
+		initArguments();
+		//
+		arguments[3] = "localhost_derby_sample";
+		arguments[5] = "";
+		// Perform test
+		try {
+			Main.main(arguments);
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
+
+
+	@Test
 	public void testOracle() {
 		
 		initArguments();
 		//
-		arguments[3] = "oracle_localhost_test";
+		arguments[3] = "localhost_oracle_test";
 		arguments[5] = "";
 		// Perform test
 		try {
@@ -105,7 +122,7 @@ public class MainTestDBProperties {
 		
 		initArguments();
 		//
-		arguments[3] = "informix_localhost_test";
+		arguments[3] = "localhost_informix_test";
 		arguments[5] = "";
 		// Perform test
 		try {
@@ -121,7 +138,7 @@ public class MainTestDBProperties {
 		
 		initArguments();
 		//
-		arguments[3] = "hana_msas120i_01_dwh_stage";
+		arguments[3] = "msas120i_hana_01_dwh_stage";
 		arguments[5] = "HDBKeywords";
 		// Perform test
 		try {
@@ -137,7 +154,7 @@ public class MainTestDBProperties {
 		
 		initArguments();
 		//
-		arguments[3] = "sybase_localhost_demo";
+		arguments[3] = "localhost_sybase_demo";
 		arguments[5] = "";
 		// Perform test
 		try {
@@ -153,7 +170,7 @@ public class MainTestDBProperties {
 		
 		initArguments();
 		//
-		arguments[3] = "teradata_localhost_test";
+		arguments[3] = "localhost_teradata_test";
 		arguments[5] = "";
 		// Perform test
 		try {
@@ -169,7 +186,7 @@ public class MainTestDBProperties {
 		
 		initArguments();
 		//
-		arguments[3] = "firebird_localhost_test";
+		arguments[3] = "localhost_firebird_test";
 		arguments[5] = "";
 		// Perform test
 		try {

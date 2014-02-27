@@ -1,2 +1,2 @@
 
-include "openbi-core", "openbi-etl", "openbi-cli", "openbi-repo"
+include "openbi-core", "openbi-etl", "openbi-cli", "openbi-repo", "openbi-db"

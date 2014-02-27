@@ -6,55 +6,46 @@ import org.junit.Test;
 
 public class MainTestTableCopyFromDB2 {
 	
-	private String[] arguments = new String[30];
+	private String[] arguments = new String[20];
 	
 	public void initArguments() {
 		
 		// Function to test
-		arguments[0] = "-function";
-		arguments[1] = "tablecopy";
+		arguments[0]  = "-function";
+		arguments[1]  = "tablecopy";
 		// Mandatory arguments
-		arguments[2] = "-srcdbdriverclass";
-		arguments[4] = "-srcdbconnectionurl";
-		arguments[6] = "-srcdbusername";
-		arguments[8] = "-srcdbpassword";
-		arguments[10] = "-sourceschema";
-		arguments[12] = "-sourcetable";
-		arguments[14] = "-trgdbdriverclass";
-		arguments[16] = "-trgdbconnectionurl";
-		arguments[18] = "-trgdbusername";
-		arguments[20] = "-trgdbpassword";
-		arguments[22] = "-targetschema";
-		arguments[24] = "-targettable";
-		arguments[26] = "-trgcreate";
-		arguments[28] = "-dropifexists";
+		arguments[2]  = "-srcdbconnpropertyfile";
+		arguments[4]  = "-srcdbconnkeywordfile";
+		arguments[6]  = "-sourcetable";
+		arguments[8]  = "-trgdbconnpropertyfile";
+		arguments[10] = "-trgdbconnkeywordfile";
+		arguments[12] = "-targetschema";
+		arguments[14] = "-targettable";
+		
+		arguments[16] = "-trgcreate";
+		arguments[17] = "true";
+		arguments[18] = "-dropifexists";
+		arguments[19] = "true";
 		
 	}
 	
 	public void initSourceDB2() {
 		// Source properties
-		arguments[3] = "com.ibm.db2.jcc.DB2Driver";
-		arguments[5] = "jdbc:db2://localhost:50000/SAMPLE";
-		arguments[7] = "db2user";
-		arguments[9] = "db2user";
-		arguments[11] = "sugarcrm";
-		arguments[13] = "campaigns";
+		arguments[3] = "localhost_db2_sample_test";
+		arguments[5] = "";
+		arguments[7] = "test.tab_test";
 	}
 
-	/*@Test
+	@Test
 	public void testDB2ToMySQL() {
 		
 		initArguments();
 		initSourceDB2();
 		//
-		arguments[15] = "com.mysql.jdbc.Driver";
-		arguments[17] = "jdbc:mysql://localhost:3306/dwhstage?transformedBitIsBoolean=false&tinyInt1isBit=false";
-		arguments[19] = "dwhstage";
-		arguments[21] = "dwhstage";
-		arguments[23] = "dwhstage";
-		arguments[25] = "stg_campaigns";
-		arguments[27] = "true";
-		arguments[29] = "true";
+		arguments[9] = "localhost_mysql_dwhstage";
+		arguments[11] = "";
+		arguments[13] = "dwhstage";
+		arguments[15] = "stg_db2_tab_test";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -64,21 +55,16 @@ public class MainTestTableCopyFromDB2 {
 		}
 	}
 
-
 	@Test
 	public void testDB2ToPostgreSQL() {
 		
 		initArguments();
 		initSourceDB2();
 		//
-		arguments[15] = "org.postgresql.Driver";
-		arguments[17] = "jdbc:postgresql://localhost:5432/postgres";
-		arguments[19] = "dwhload";
-		arguments[21] = "dwhload";
-		arguments[23] = "dwhstage";
-		arguments[25] = "stg_campaigns";
-		arguments[27] = "true";
-		arguments[29] = "true";
+		arguments[9]  = "localhost_postgresql_postgres_test";
+		arguments[11] = "";
+		arguments[13] = "test";
+		arguments[15] = "stg_db2_tab_test";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -94,14 +80,10 @@ public class MainTestTableCopyFromDB2 {
 		initArguments();
 		initSourceDB2();
 		//
-		arguments[15] = "oracle.jdbc.OracleDriver";
-		arguments[17] = "jdbc:oracle:thin:@//localhost:1521/dwhdev";
-		arguments[19] = "dwhstage";
-		arguments[21] = "dwhstage";
-		arguments[23] = "dwhstage";
-		arguments[25] = "stg_campaigns";
-		arguments[27] = "true";
-		arguments[29] = "true";
+		arguments[9] = "localhost_oracle_test";
+		arguments[11] = "";
+		arguments[13] = "test";
+		arguments[15] = "stg_db2_tab_test";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -117,14 +99,29 @@ public class MainTestTableCopyFromDB2 {
 		initArguments();
 		initSourceDB2();
 		//
-		arguments[15] = "com.ibm.db2.jcc.DB2Driver";
-		arguments[17] = "jdbc:db2://localhost:50000/SAMPLE";
-		arguments[19] = "db2user";
-		arguments[21] = "db2user";
-		arguments[23] = "dwhstage";
-		arguments[25] = "stg_campaigns";
-		arguments[27] = "true";
-		arguments[29] = "true";
+		arguments[9]  = "localhost_db2_sample_test";
+		arguments[11] = "";
+		arguments[13] = "test";
+		arguments[15] = "stg_db2_tab_test";
+		// Perform test
+		try {
+			Main.main(arguments);
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
+
+	@Test
+	public void testDB2toInformix() {
+		
+		initArguments();
+		initSourceDB2();
+		//
+		arguments[9]  = "localhost_informix_test";
+		arguments[11] = "";
+		arguments[13] = "test";
+		arguments[15] = "stg_db2_tab_test";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -140,14 +137,10 @@ public class MainTestTableCopyFromDB2 {
 		initArguments();
 		initSourceDB2();
 		//
-		arguments[15] = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
-		arguments[17] = "jdbc:sqlserver://localhost:1433;instance=MSSQLSERVER;database=dwhstage";
-		arguments[19] = "dwhload";
-		arguments[21] = "dwhload";
-		arguments[23] = "dbo";
-		arguments[25] = "stg_campaigns";
-		arguments[27] = "true";
-		arguments[29] = "true";
+		arguments[9]  = "localhost_sqlserver_test";
+		arguments[11] = "";
+		arguments[13] = "dbo";
+		arguments[15] = "stg_db2_tab_test";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -155,5 +148,44 @@ public class MainTestTableCopyFromDB2 {
 		catch (Exception e) {
 			fail("Exception: \n" + e);
 		}
-	}*/
+	}
+	
+	
+	@Test
+	public void testDB2toHANA() {
+		
+		initArguments();
+		initSourceDB2();
+		//
+		arguments[9] = "msas120i_hana_01_dwh_stage";
+		arguments[11] = "HDBKeywords";
+		arguments[13] = "dwh_stage";
+		arguments[15] = "stg_db2_tab_test";
+		// Perform test
+		try {
+			Main.main(arguments);
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
+	
+	@Test
+	public void testDB2toTeradata() {
+		
+		initArguments();
+		initSourceDB2();
+		//
+		arguments[9] = "localhost_teradata_test";
+		arguments[11] = "TDBKeywords";
+		arguments[13] = "test";
+		arguments[15] = "stg_db2_tab_test";
+		// Perform test
+		try {
+			Main.main(arguments);
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
 }

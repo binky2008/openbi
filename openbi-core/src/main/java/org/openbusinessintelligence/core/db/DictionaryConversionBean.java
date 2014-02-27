@@ -1,7 +1,9 @@
 package org.openbusinessintelligence.core.db;
 
 import java.sql.*;
+
 import javax.xml.parsers.*;
+
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.*;
 
@@ -9,9 +11,9 @@ import org.w3c.dom.*;
  * Class for replication of database tables between databases
  * @author Nicola Marangoni
  */
-public class DataDictionaryBean {
+public class DictionaryConversionBean {
 
-	static final org.slf4j.Logger logger = LoggerFactory.getLogger(DataDictionaryBean.class);
+	static final org.slf4j.Logger logger = LoggerFactory.getLogger(DictionaryConversionBean.class);
 
     // Declarations of bean properties
 	// Source properties
@@ -30,6 +32,11 @@ public class DataDictionaryBean {
     private String[] targetDefaultValues = null;
 
     // Declarations of internally used variables
+    private int columnCount = 0;
+    private int[] columnPkPositions = null;
+    private String[] targetColumnInPk = null;
+    private String[] targetColumnNonInPk = null;
+    //
     private String[] sourceColumnNames = null;
     private String[] sourceColumnType = null;
     private int[] sourceColumnLength = null;
@@ -44,12 +51,8 @@ public class DataDictionaryBean {
     private int[] targetColumnScale = null;
     private String[] targetColumnDefinition = null;
     
-    private int[] columnPkPositions = null;
-    private String[] targetColumnInPk = null;
-    private String[] targetColumnNonInPk = null;
-    
     // Constructor
-    public DataDictionaryBean() {
+    public DictionaryConversionBean() {
         super();
     }
 
@@ -113,10 +116,22 @@ public class DataDictionaryBean {
     // Execution methods
     public void retrieveColumns() throws Exception {
     	
-    	logger.debug("Getting columns for source...");
+    	TableDictionaryBean sourceDictionary = new TableDictionaryBean();
+    	sourceDictionary.setSourceConnection(sourceCon);
+    	sourceDictionary.setSourceTable(sourceTable);
+    	sourceDictionary.setSourceQuery(sourceQuery);
+    	//
+    	sourceDictionary.retrieveColumns();
+    	//
+    	columnCount = sourceDictionary.getColumnCount();
+    	sourceColumnNames = sourceDictionary.getColumnNames();
+        sourceColumnType = sourceDictionary.getColumnTypes();
+        sourceColumnLength = sourceDictionary.getColumnLength();
+        sourceColumnPrecision = sourceDictionary.getColumnPrecision();
+        sourceColumnScale = sourceDictionary.getColumnScale();
+    	
+    	/*logger.debug("Getting columns for source...");
 
-    	String sourceProductName;
-    	String targetProductName;
     	String sourcePrefix = "";
     	if (!(sourceCon.getSchemaName() == null || sourceCon.getSchemaName().equals(""))) {
     		sourcePrefix = sourceCon.getSchemaName() + ".";
@@ -135,8 +150,6 @@ public class DataDictionaryBean {
        	logger.info("SQL: " + sqlText + ": getting columns...");
         
        	//openSourceConnection();
-       	sourceProductName = sourceCon.getDatabaseProductName();
-        targetProductName = targetCon.getDatabaseProductName();
         PreparedStatement columnStmt = sourceCon.getConnection().prepareStatement(sqlText);
         ResultSet rs = columnStmt.executeQuery();
         ResultSetMetaData rsmd = rs.getMetaData();
@@ -146,26 +159,34 @@ public class DataDictionaryBean {
         sourceColumnLength = new int[rsmd.getColumnCount()];
         sourceColumnPrecision = new int[rsmd.getColumnCount()];
         sourceColumnScale = new int[rsmd.getColumnCount()];
-        sourceColumnDefinition = new String[rsmd.getColumnCount()];
+        sourceColumnDefinition = new String[rsmd.getColumnCount()];*/
         //
-        targetColumnNames = new String[rsmd.getColumnCount()];
-        targetColumnType = new String[rsmd.getColumnCount()];
-        targetColumnLength = new int[rsmd.getColumnCount()];
-        targetColumnPrecision = new int[rsmd.getColumnCount()];
-        targetColumnScale = new int[rsmd.getColumnCount()];
-        targetColumnDefinition = new String[rsmd.getColumnCount()];
-        columnPkPositions = new int[rsmd.getColumnCount()];
+    	String sourceProductName;
+    	String targetProductName;
+       	sourceProductName = sourceCon.getDatabaseProductName();
+        targetProductName = targetCon.getDatabaseProductName();
         
         logger.info("Source RDBMS product: " + sourceProductName);
         logger.info("Target RDBMS product: " + targetProductName);
         
+        sourceColumnDefinition = new String[columnCount];
+        
+        targetColumnNames = new String[columnCount];
+        targetColumnType = new String[columnCount];
+        targetColumnLength = new int[columnCount];
+        targetColumnPrecision = new int[columnCount];
+        targetColumnScale = new int[columnCount];
+        targetColumnDefinition = new String[columnCount];
+        columnPkPositions = new int[columnCount];
+        
         TypeConversionBean typeConverter = new TypeConversionBean();
         
-       	for (int i = 1; i <= rsmd.getColumnCount(); i++) {
-        	sourceColumnNames[i - 1] = rsmd.getColumnName(i).toUpperCase();
+       	for (int i = 1; i <= columnCount; i++) {
+        	//sourceColumnNames[i - 1] = rsmd.getColumnName(i).toUpperCase();
         	targetColumnNames[i - 1] = sourceColumnNames[i - 1];
             targetColumnNames[i - 1] = targetCon.getColumnIdentifier(targetColumnNames[i - 1]);
             
+            logger.info("get mapped column...");
         	if (sourceMapColumns != null) {
 	        	for (int mc = 0; mc < sourceMapColumns.length; mc++) {
 	        		if (sourceMapColumns[mc].equalsIgnoreCase(sourceColumnNames[i - 1])) {
@@ -174,14 +195,15 @@ public class DataDictionaryBean {
 	        		}
 	        	}
         	}
+            logger.info("got mapped column");
 
         	//*******************************
         	// set source column properties
-        	sourceColumnType[i - 1] = rsmd.getColumnTypeName(i).toUpperCase();
+        	/*sourceColumnType[i - 1] = rsmd.getColumnTypeName(i).toUpperCase();
         	sourceColumnLength[i - 1] = rsmd.getColumnDisplaySize(i);
         	sourceColumnPrecision[i - 1] = rsmd.getPrecision(i);
         	sourceColumnScale[i - 1] = rsmd.getScale(i);
-        	sourceColumnDefinition[i - 1] = sourceColumnType[i - 1];
+        	sourceColumnDefinition[i - 1] = sourceColumnType[i - 1];*/
         	
         	//******************************
         	// Use type converter
@@ -191,10 +213,12 @@ public class DataDictionaryBean {
         	typeConverter.setSourceColumnLength(sourceColumnLength[i - 1]);
         	typeConverter.setSourceColumnPrecision(sourceColumnPrecision[i - 1]);
         	typeConverter.setSourceColumnScale(sourceColumnScale[i - 1]);
-        	
-        	typeConverter.convert();
 
-        	sourceColumnDefinition[i - 1] = typeConverter.getSourceColumnDefinition();
+            logger.debug("convert datatype...");
+        	typeConverter.convert();
+            logger.debug("datatype converted");
+            
+            sourceColumnDefinition[i - 1] = typeConverter.getSourceColumnDefinition();
         	
         	targetColumnType[i - 1] = typeConverter.getTargetColumnType();
         	targetColumnLength[i - 1] = typeConverter.getTargetColumnLength();
@@ -202,16 +226,14 @@ public class DataDictionaryBean {
         	targetColumnScale[i - 1] = typeConverter.getTargetColumnScale();
         	targetColumnDefinition[i - 1] = typeConverter.getTargetColumnDefinition();
         	
-        	logger.debug("Target column " + (i) + "  Name: " + sourceColumnNames[i - 1] + " Type: " + targetColumnType[i - 1] + "  Length: " + targetColumnLength[i - 1] + " Precision: " + targetColumnPrecision[i - 1] + " Scale: " +targetColumnScale[i - 1]);       	
-           	logger.debug("Target column " + (i) + "  Name: " + sourceColumnNames[i - 1] + "  Definition: " + targetColumnDefinition[i - 1]);
+        	logger.debug("Target column " + (i) + "  Name: " + targetColumnNames[i - 1] + " Type: " + targetColumnType[i - 1] + "  Length: " + targetColumnLength[i - 1] + " Precision: " + targetColumnPrecision[i - 1] + " Scale: " +targetColumnScale[i - 1]);       	
+           	logger.debug("Target column " + (i) + "  Name: " + targetColumnNames[i - 1] + "  Definition: " + targetColumnDefinition[i - 1]);
        	}
-        rs.close();
-        columnStmt.close();
-
-        logger.info("got column properties");
+        /*rs.close();
+        columnStmt.close();*/
 
         // Get information about primary keys
-        try {
+        /*try {
             String schema = null;
             if (sourceTable.split("\\.").length==2) {
                 schema = sourceTable.split("\\.")[0];
@@ -261,7 +283,7 @@ public class DataDictionaryBean {
             throw e;
         }
 
-        logger.info("got primary key information");
+        logger.info("got primary key information");*/
     }
     
     public void retrieveMappingDefinition() throws Exception {

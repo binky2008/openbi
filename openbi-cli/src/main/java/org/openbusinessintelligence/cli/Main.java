@@ -260,7 +260,7 @@ public class Main {
 						// Open target connection
 			    		targetConnectionBean.openConnection();
 						// Get source dictionary
-			    		org.openbusinessintelligence.core.db.DataDictionaryBean dictionaryBean = new org.openbusinessintelligence.core.db.DataDictionaryBean();
+			    		org.openbusinessintelligence.core.db.DictionaryConversionBean dictionaryBean = new org.openbusinessintelligence.core.db.DictionaryConversionBean();
 			    		org.openbusinessintelligence.core.db.TableCreateBean tableCreate = new org.openbusinessintelligence.core.db.TableCreateBean();
 			    		dictionaryBean.setSourceConnection(sourceConnectionBean);
 		    			for (int i = 0; i < sourceTableList.length; i++ ) {

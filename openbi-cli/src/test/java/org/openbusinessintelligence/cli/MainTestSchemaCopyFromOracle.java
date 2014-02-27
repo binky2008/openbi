@@ -6,7 +6,7 @@ import org.junit.Test;
 
 public class MainTestSchemaCopyFromOracle {
 	
-	private String[] arguments = new String[26];
+	private String[] arguments = new String[18];
 	
 	public void initArguments() {
 		
@@ -14,43 +14,36 @@ public class MainTestSchemaCopyFromOracle {
 		arguments[0] = "-function";
 		arguments[1] = "tablecopy";
 		// Mandatory arguments
-		arguments[2] = "-srcdbdriverclass";
-		arguments[4] = "-srcdbconnectionurl";
-		arguments[6] = "-srcdbusername";
-		arguments[8] = "-srcdbpassword";
-		arguments[10] = "-sourceschema";
-		arguments[12] = "-trgdbdriverclass";
-		arguments[14] = "-trgdbconnectionurl";
-		arguments[16] = "-trgdbusername";
-		arguments[18] = "-trgdbpassword";
-		arguments[20] = "-targetschema";
-		arguments[22] = "-trgcreate";
-		arguments[24] = "-dropifexists";
+		arguments[2]  = "-srcdbconnpropertyfile";
+		arguments[4]  = "-srcdbconnkeywordfile";
+		arguments[6]  = "-sourceschema";
+		arguments[8]  = "-trgdbconnpropertyfile";
+		arguments[10] = "-trgdbconnkeywordfile";
+		arguments[12] = "-targetschema";
+		//
+		arguments[14] = "-trgcreate";
+		arguments[15] = "true";
+		arguments[16] = "-dropifexists";
+		arguments[17] = "true";
 		
 	}
 	
 	public void initSourceOracle() {
 		// Source properties
-		arguments[3] = "oracle.jdbc.OracleDriver";
-		arguments[5] = "jdbc:oracle:thin:@//localhost:1521/dwhdev";
+		arguments[3] = "localhost_oracle_sugarcrm";
+		arguments[5] = "";
 		arguments[7] = "sugarcrm";
-		arguments[9] = "sugarcrm";
-		arguments[11] = "sugarcrm";
 	}
 
-	/*@Test
+	@Test
 	public void testOracleToMySQL() {
 		
 		initArguments();
 		initSourceOracle();
 		//
-		arguments[13] = "com.mysql.jdbc.Driver";
-		arguments[15] = "jdbc:mysql://localhost:3306/sugarcrm_copy?transformedBitIsBoolean=false&tinyInt1isBit=false";
-		arguments[17] = "sugarcrm";
-		arguments[19] = "sugarcrm";
-		arguments[21] = "sugarcrm_copy";
-		arguments[23] = "true";
-		arguments[25] = "true";
+		arguments[9]  = "localhost_mysql_dwhstage";
+		arguments[11] = "";
+		arguments[13] = "dwhstage";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -66,13 +59,9 @@ public class MainTestSchemaCopyFromOracle {
 		initArguments();
 		initSourceOracle();
 		//
-		arguments[13] = "org.postgresql.Driver";
-		arguments[15] = "jdbc:postgresql://localhost:5432/postgres";
-		arguments[17] = "dwhload";
-		arguments[19] = "dwhload";
-		arguments[21] = "sugarcrm";
-		arguments[23] = "true";
-		arguments[25] = "true";
+		arguments[9] = "localhost_postgresql_postgres_sugarcrm";
+		arguments[11] = "";
+		arguments[13] = "sugarcrm";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -88,13 +77,9 @@ public class MainTestSchemaCopyFromOracle {
 		initArguments();
 		initSourceOracle();
 		//
-		arguments[13] = "oracle.jdbc.OracleDriver";
-		arguments[15] = "jdbc:oracle:thin:@//localhost:1521/dwhdev";
-		arguments[17] = "sugarcrm_copy";
-		arguments[19] = "sugarcrm_copy";
-		arguments[21] = "sugarcrm_copy";
-		arguments[23] = "true";
-		arguments[25] = "true";
+		arguments[9] = "localhost_oracle_dwhstage";
+		arguments[11] = "";
+		arguments[13] = "dwhstage";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -110,13 +95,27 @@ public class MainTestSchemaCopyFromOracle {
 		initArguments();
 		initSourceOracle();
 		//
-		arguments[13] = "com.ibm.db2.jcc.DB2Driver";
-		arguments[15] = "jdbc:db2://localhost:50000/SAMPLE";
-		arguments[17] = "db2user";
-		arguments[19] = "db2user";
-		arguments[21] = "sugarcrm";
-		arguments[23] = "true";
-		arguments[25] = "true";
+		arguments[9] = "localhost_db2_sample_sugarcrm";
+		arguments[11] = "";
+		arguments[13] = "sugarcrm";
+		// Perform test
+		try {
+			Main.main(arguments);
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e.getMessage() + "\n" + e.getStackTrace());
+		}
+	}
+
+	@Test
+	public void testOracleToInformix() {
+		
+		initArguments();
+		initSourceOracle();
+		//
+		arguments[9]  = "localhost_informix_sugarcrm";
+		arguments[11] = "";
+		arguments[13] = "sugarcrm";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -132,13 +131,9 @@ public class MainTestSchemaCopyFromOracle {
 		initArguments();
 		initSourceOracle();
 		//
-		arguments[13] = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
-		arguments[15] = "jdbc:sqlserver://nikobook:1433;instance=SQLEXPRESS;database=dwhstage";
-		arguments[17] = "dwhload";
-		arguments[19] = "dwhload";
-		arguments[21] = "sugarcrm";
-		arguments[23] = "true";
-		arguments[25] = "true";
+		arguments[9] = "localhost_sqlserver_sugarcrm";
+		arguments[11] = "";
+		arguments[13] = "dbo";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -146,5 +141,41 @@ public class MainTestSchemaCopyFromOracle {
 		catch (Exception e) {
 			fail("Exception: \n" + e.getMessage() + "\n" + e.getStackTrace());
 		}
-	}*/
+	}
+
+	@Test
+	public void testOracleToHANA() {
+		
+		initArguments();
+		initSourceOracle();
+		//
+		arguments[9] = "msas120i_hana_01_sugarcrm";
+		arguments[11] = "HDBKeywords";
+		arguments[13] = "sugarcrm";
+		// Perform test
+		try {
+			Main.main(arguments);
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e.getMessage() + "\n" + e.getStackTrace());
+		}
+	}
+
+	@Test
+	public void testOracletoTeradata() {
+		
+		initArguments();
+		initSourceOracle();
+		//
+		arguments[9] = "localhost_teradata_sugarcrm";
+		arguments[11] = "TDBKeywords";
+		arguments[13] = "sugarcrm";
+		// Perform test
+		try {
+			Main.main(arguments);
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e.getMessage() + "\n" + e.getStackTrace());
+		}
+	}
 }

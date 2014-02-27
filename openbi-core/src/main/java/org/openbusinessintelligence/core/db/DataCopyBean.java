@@ -25,12 +25,16 @@ public class DataCopyBean {
     private String sourceTable = "";
     private String sourceQuery = "";
     private String[] queryParameters = null;
+    private String[] sourceColumnNames = null;
+    private String[] sourceColumnType = null;
 
     // Target properties
     private ConnectionBean targetCon = null;
     private String targetSchema = "";
     private String targetTable = "";
     private boolean preserveDataOption = false;
+    private String[] targetColumnNames = null;
+    private String[] targetColumnType = null;
     
     // Mapping properties
     private String mappingDefFile = "";
@@ -274,7 +278,9 @@ public class DataCopyBean {
             }
             else {
 	            truncateText = "TRUNCATE TABLE " + targetSchema + "." + targetTable;
-	           	if (targetCon.getDatabaseProductName().toUpperCase().contains("DB2")) {
+	           	if (
+	           		targetCon.getDatabaseProductName().toUpperCase().contains("DB2")
+	           	) {
 	           		targetCon.closeConnection();
 	           		targetCon.openConnection();
 	           		truncateText += " IMMEDIATE";
