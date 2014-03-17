@@ -1,7 +1,7 @@
 SET serveroutput ON;
 
 BEGIN
-   utl_ddl.prc_create_entity
+   ddl.prc_create_entity
          ('mes_query'
         , 'mes_query_code VARCHAR2(100) NOT NULL,
 		       mes_query_name VARCHAR2(1000),

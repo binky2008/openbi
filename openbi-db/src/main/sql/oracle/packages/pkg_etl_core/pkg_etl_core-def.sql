@@ -138,7 +138,7 @@ END pkg_etl_core;
 SHOW errors
 
 /*BEGIN
-   pkg_utl_ddl.prc_create_synonym ('pkg_etl_core'
+   ddl.prc_create_synonym ('pkg_etl_core'
                                  , 'pkg_etl_core'
                                  , TRUE
                                   );

@@ -1,7 +1,7 @@
 SET serveroutput ON;
 
 BEGIN
-   utl_ddl.prc_create_entity
+   ddl.prc_create_entity
          ('mes_threshold'
         , 'mes_keyfigure_id NUMBER,
            mes_threshold_type CHAR(1) DEFAULT ''A'' CHECK (mes_threshold_type IN (''A'',''I'')),

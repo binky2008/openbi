@@ -58,7 +58,7 @@ $HeadURL: $';
 GRANT SELECT ON qc_rpt_status_today_v TO PUBLIC;
 
 BEGIN
-   pkg_utl_ddl.prc_create_synonym ('qc_rpt_status_today_v'
+   ddl.prc_create_synonym ('qc_rpt_status_today_v'
                                  , 'qc_rpt_status_today_v'
                                  , TRUE
                                   );

@@ -1,7 +1,7 @@
 SET serveroutput ON;
 
 BEGIN
-   utl_ddl.prc_create_entity
+   ddl.prc_create_entity
          ('mes_keyfigure'
         , 'mes_query_id NUMBER,
            mes_keyfigure_code VARCHAR2(100) NOT NULL,

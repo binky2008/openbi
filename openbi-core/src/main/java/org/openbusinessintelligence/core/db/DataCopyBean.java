@@ -47,18 +47,24 @@ public class DataCopyBean {
     private int commitFrequency;
 
     // Declarations of internally used variables
-    private String[] commonColumns = null;
+	TableDictionaryBean sourceDictionaryBean;
+	TableDictionaryBean targetDictionaryBean;
+    private String[] commonColumnNames = null;
+    private String[] commonColumnTypes = null;
     private ResultSet sourceRS = null;
     private PreparedStatement sourceStmt= null;
     
     // Constructor
     public DataCopyBean() {
         super();
+        sourceDictionaryBean = new TableDictionaryBean();
+        targetDictionaryBean = new TableDictionaryBean();
     }
 
     // Set source properties methods
     public void setSourceConnection(ConnectionBean property) {
     	sourceCon = property;
+    	sourceDictionaryBean.setSourceConnection(sourceCon);
     }
 
     public void setSourceTable(String ta) {
@@ -76,6 +82,7 @@ public class DataCopyBean {
     // Set target properties methods
     public void setTargetConnection(ConnectionBean property) {
     	targetCon = property;
+		targetDictionaryBean.setSourceConnection(targetCon);
     }
     
     public void setTargetSchema(String property) {
@@ -117,27 +124,6 @@ public class DataCopyBean {
     }
     
     // Execution methods
-    // Get columns for a given connection and a given SQL text
-    private String[] retrieveColumns(Connection con, String sqlText) throws Exception {
-
-    	String[] columns = null;
-       	
-       	logger.info("SQL: " + sqlText + ": getting columns...");
-        
-        PreparedStatement columnStmt = con.prepareStatement(sqlText);
-        ResultSet rs = columnStmt.executeQuery();
-        ResultSetMetaData rsmd = rs.getMetaData();
-        columns = new String[rsmd.getColumnCount()];
-        for (int i = 1; i <= rsmd.getColumnCount(); i++) {
-        	columns[i - 1] = rsmd.getColumnName(i);
-           	logger.info("Found column: " + columns[i - 1]);
-        }
-        logger.info("SQL: " + sqlText + ": got columns");
-    	rs.close();
-    	columnStmt.close();
-    	return columns;
-    }
-
     // Get list of common source/target columns
     public void retrieveColumnList() throws Exception {
     	logger.info("########################################");
@@ -157,22 +143,35 @@ public class DataCopyBean {
        		sql = sourceQuery;
        	}
        	
-    	String[] sourceColumns = retrieveColumns(sourceCon.getConnection(),sql);
+       	// Get source column dictionary
+       	sourceDictionaryBean.setSourceQuery(sql);
+       	sourceDictionaryBean.retrieveColumns();
+       	sourceColumnNames = sourceDictionaryBean.getColumnNames();
+       	sourceColumnType = sourceDictionaryBean.getColumnTypes();       	
 
     	sql = "SELECT * FROM " + targetSchema + "." + targetTable;
-    	String[] targetColumns = retrieveColumns(targetCon.getConnection(),sql);
 
-    	List<String> list = new ArrayList<String>();
-        for (int s = 0; s < sourceColumns.length; s++) {
-            for (int t = 0; t < targetColumns.length; t++) {
-            	if (sourceColumns[s].equalsIgnoreCase(targetColumns[t])) {
-            		list.add(sourceColumns[s]);
+       	// Get target column dictionary
+       	targetDictionaryBean.setSourceQuery(sql);
+       	targetDictionaryBean.retrieveColumns();
+       	targetColumnNames = targetDictionaryBean.getColumnNames();
+       	targetColumnType = targetDictionaryBean.getColumnTypes();
+    	
+    	List<String> listName = new ArrayList<String>();
+    	List<String> listType = new ArrayList<String>();
+        for (int s = 0; s < sourceColumnNames.length; s++) {
+            for (int t = 0; t < targetColumnNames.length; t++) {
+            	if (sourceColumnNames[s].equalsIgnoreCase(targetColumnNames[t])) {
+            		listName.add(targetColumnNames[t]);
+            		listType.add(targetColumnType[t]);
             	}
             }
         }
         
-        commonColumns = new String[list.size()];
-        list.toArray(commonColumns);
+        commonColumnNames = new String[listName.size()];
+        commonColumnTypes = new String[listType.size()];
+        listName.toArray(commonColumnNames);
+        listType.toArray(commonColumnTypes);
         
         logger.info("COLUMN LIST RETRIEVED");
         logger.info("########################################");
@@ -235,11 +234,11 @@ public class DataCopyBean {
     	
 	    	queryText = "SELECT ";
 	
-	    	for (int i = 0; i < commonColumns.length; i++) {
+	    	for (int i = 0; i < commonColumnNames.length; i++) {
 	    		if (i > 0) {
 	    			queryText += ",";
 	    		}
-	    		queryText += sourceCon.getColumnIdentifier(commonColumns[i]);
+	    		queryText += sourceCon.getColumnIdentifier(commonColumnNames[i]);
 	    	}
 	    	if (sourceMapColumns!=null) {
 	    		for (int i = 0; i < sourceMapColumns.length; i++) {
@@ -278,9 +277,7 @@ public class DataCopyBean {
             }
             else {
 	            truncateText = "TRUNCATE TABLE " + targetSchema + "." + targetTable;
-	           	if (
-	           		targetCon.getDatabaseProductName().toUpperCase().contains("DB2")
-	           	) {
+	           	if (targetCon.getDatabaseProductName().toUpperCase().contains("DB2")) {
 	           		targetCon.closeConnection();
 	           		targetCon.openConnection();
 	           		truncateText += " IMMEDIATE";
@@ -295,11 +292,11 @@ public class DataCopyBean {
         }
         
         String insertText = "INSERT /*+APPEND*/ INTO " + targetSchema + "." + targetTable + " (";
-        for (int i = 0; i < commonColumns.length; i++) {
+        for (int i = 0; i < commonColumnNames.length; i++) {
         	if (i > 0) {
         		insertText += ",";
         	}
-        	insertText += targetCon.getColumnIdentifier(commonColumns[i]);
+        	insertText += targetCon.getColumnIdentifier(commonColumnNames[i]);
         }
         
         if (targetMapColumns!=null) {
@@ -316,7 +313,7 @@ public class DataCopyBean {
         
 	    insertText += ") VALUES (";
 	    
-	    for (int i = 0; i < commonColumns.length; i++) {
+	    for (int i = 0; i < commonColumnNames.length; i++) {
 	    	if (i > 0) {
 	    		insertText = insertText + ",";
 	    	}
@@ -345,16 +342,23 @@ public class DataCopyBean {
 	    logger.info("Commit every " + commitFrequency + " rows");
     	targetStmt = targetCon.getConnection().prepareStatement(insertText);
     	targetStmt.setFetchSize(commitFrequency);
-	    
     	//List<Object> bufferLine = null;
 	    while (sourceRS.next()) {
 	    	try {
 	    		int position = 0;
 	    		
-	    		for (int i = 0; i < commonColumns.length; i++) {
+	    		for (int i = 0; i < commonColumnNames.length; i++) {
 	    			position++;
 	    			try {
-		    			targetStmt.setObject(position, sourceRS.getObject(commonColumns[i]));
+	    				if (
+	    					commonColumnTypes[i].equalsIgnoreCase("CLOB") &&
+	    					targetCon.getDatabaseProductName().toUpperCase().contains("TERADATA")
+	    				) {
+			    			targetStmt.setClob(position, sourceRS.getClob(commonColumnNames[i]));
+	    				}
+	    				else {
+			    			targetStmt.setObject(position, sourceRS.getObject(commonColumnNames[i]));
+			    		}
 	    			}
 	    			catch (Exception e){
 	              		if (targetCon.getDatabaseProductName().toUpperCase().contains("TERADATA")) {
@@ -394,12 +398,12 @@ public class DataCopyBean {
 	        }
 	        catch(Exception e) {
 	        	logger.error("Unexpected exception, list of column values:");
-	        	for (int i = 0; i < commonColumns.length; i++) {
+	        	for (int i = 0; i < commonColumnNames.length; i++) {
 	        		try {
-	        			logger.error("########################################\n" + commonColumns[i] + " ==> " + sourceRS.getObject(commonColumns[i]).toString());
+	        			logger.error("########################################\n" + commonColumnNames[i] + " ==> " + sourceRS.getObject(commonColumnNames[i]).toString());
 				    }
 	        		catch(NullPointerException npe) {
-	        			logger.error("########################################\n" + commonColumns[i]);
+	        			logger.error("########################################\n" + commonColumnNames[i]);
 			        }
 	            }
 	            logger.error(e.getMessage());

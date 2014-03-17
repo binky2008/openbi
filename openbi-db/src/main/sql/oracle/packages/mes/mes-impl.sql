@@ -53,7 +53,7 @@ AS
          AND t.qc_threshold_from <= SYSDATE
          AND SYSDATE < t.qc_threshold_to;
 
-      pkg_utl_log.LOG ('Key figure ' || p_vc_keyfigure_code || ' type ' || l_vc_threshold_type || ' threshold = ' || l_n_threshold_min || ' - ' || l_n_threshold_max, 'VERIFYING');
+      log.LOG ('Key figure ' || p_vc_keyfigure_code || ' type ' || l_vc_threshold_type || ' threshold = ' || l_n_threshold_min || ' - ' || l_n_threshold_max, 'VERIFYING');
 
       IF l_vc_threshold_type = 'A'
       THEN
@@ -62,9 +62,9 @@ AS
             AND p_n_exec_value NOT BETWEEN l_n_threshold_min AND l_n_threshold_max
          THEN
             l_b_success    := FALSE;
-            pkg_utl_log.LOG ('Result ' || p_n_exec_value || ' not ok', 'RESULT NOT OK');
+            log.LOG ('Result ' || p_n_exec_value || ' not ok', 'RESULT NOT OK');
          ELSE
-            pkg_utl_log.LOG ('Result ' || p_n_exec_value || ' ok', 'RESULT OK');
+            log.LOG ('Result ' || p_n_exec_value || ' ok', 'RESULT OK');
          END IF;
       ELSIF l_vc_threshold_type = 'I'
       THEN
@@ -84,7 +84,7 @@ AS
                      WHERE qc_keyfigure_id = l_n_keyfigure_id)
              WHERE qc_exec_id = qc_exec_last;
 
-            pkg_utl_log.LOG ('Previous result = ' || l_n_result_previous, 'VERIFYING INCREMENT');
+            log.LOG ('Previous result = ' || l_n_result_previous, 'VERIFYING INCREMENT');
 
             IF l_n_result_previous > 0
             THEN
@@ -95,15 +95,15 @@ AS
                   AND l_n_increment NOT BETWEEN l_n_threshold_min AND l_n_threshold_max
                THEN
                   l_b_success    := FALSE;
-                  pkg_utl_log.LOG ('Increment ' || l_n_increment || ' not ok', 'RESULT NOT OK');
+                  log.LOG ('Increment ' || l_n_increment || ' not ok', 'RESULT NOT OK');
                ELSE
-                  pkg_utl_log.LOG ('Increment ' || l_n_increment || ' ok', 'RESULT OK');
+                  log.LOG ('Increment ' || l_n_increment || ' ok', 'RESULT OK');
                END IF;
             ELSE
-               pkg_utl_log.LOG ('Previous result = ' || l_n_result_previous, 'RESULT OK');
+               log.LOG ('Previous result = ' || l_n_result_previous, 'RESULT OK');
             END IF;
          ELSE
-            pkg_utl_log.LOG ('Key figure ' || p_vc_keyfigure_code || ' type ' || l_vc_threshold_type || ' - no previous results available', 'RESULT OK');
+            log.LOG ('Key figure ' || p_vc_keyfigure_code || ' type ' || l_vc_threshold_type || ' - no previous results available', 'RESULT OK');
          END IF;
       END IF;
 
@@ -117,7 +117,7 @@ AS
    IS
       l_vc_prc_name   pkg_utl_type.vc_obj_plsql := 'PRC_CASE_TAXONOMY_INS';
    BEGIN
-      pkg_utl_log.LOG ('Inserting in qc_case_taxonomy_t', l_vc_prc_name);
+      log.LOG ('Inserting in qc_case_taxonomy_t', l_vc_prc_name);
       MERGE INTO qc_case_taxonomy_t trg
          USING (SELECT qc_case_id
                      , sys_taxonomy_id
@@ -130,7 +130,7 @@ AS
          WHEN NOT MATCHED THEN
             INSERT (trg.qc_case_id, trg.sys_taxonomy_id)
             VALUES (src.qc_case_id, src.sys_taxonomy_id);
-      pkg_utl_log.LOG (SQL%ROWCOUNT || ' rows merged', l_vc_prc_name);
+      log.LOG (SQL%ROWCOUNT || ' rows merged', l_vc_prc_name);
       COMMIT;
    END prc_case_taxonomy_ins;
 
@@ -141,7 +141,7 @@ AS
    IS
       l_vc_prc_name   pkg_utl_type.vc_obj_plsql := 'PRC_CASE_TAXONOMY_DEL';
    BEGIN
-      pkg_utl_log.LOG ('Deleting in qc_case_taxonomy_t', l_vc_prc_name);
+      log.LOG ('Deleting in qc_case_taxonomy_t', l_vc_prc_name);
 
       DELETE      qc_case_taxonomy_t
             WHERE qc_case_id = (SELECT qc_case_id
@@ -151,7 +151,7 @@ AS
                                        FROM sys_taxonomy_t
                                       WHERE sys_taxonomy_code = p_vc_taxonomy_code);
 
-      pkg_utl_log.LOG (SQL%ROWCOUNT || ' rows deleted', l_vc_prc_name);
+      log.LOG (SQL%ROWCOUNT || ' rows deleted', l_vc_prc_name);
       COMMIT;
    END prc_case_taxonomy_del;
 
@@ -165,7 +165,7 @@ AS
    IS
       l_vc_prc_name   pkg_utl_type.vc_obj_plsql := 'PRC_CASE_INS';
    BEGIN
-      pkg_utl_log.LOG ('Inserting in qc_case_t', l_vc_prc_name);
+      log.LOG ('Inserting in qc_case_t', l_vc_prc_name);
       MERGE INTO qc_case_t trg
          USING (SELECT p_vc_case_code AS case_code
                      , p_vc_case_name AS case_name
@@ -185,7 +185,7 @@ AS
          WHEN NOT MATCHED THEN
             INSERT (trg.qc_case_code, trg.qc_case_name, trg.sys_layer_id, trg.sys_entity_id, trg.sys_environment_id)
             VALUES (src.case_code, src.case_name, src.layer_id, src.entity_id, src.environment_id);
-      pkg_utl_log.LOG (SQL%ROWCOUNT || ' rows merged', l_vc_prc_name);
+      log.LOG (SQL%ROWCOUNT || ' rows merged', l_vc_prc_name);
       COMMIT;
    END prc_case_ins;
 
@@ -237,7 +237,7 @@ AS
       DELETE      qc_case_t
             WHERE qc_case_id = l_n_case_id;
 
-      pkg_utl_log.LOG (SQL%ROWCOUNT || ' rows deleted', l_vc_prc_name);
+      log.LOG (SQL%ROWCOUNT || ' rows deleted', l_vc_prc_name);
       COMMIT;
    END prc_case_del;
 
@@ -267,7 +267,7 @@ AS
          WHEN NOT MATCHED THEN
             INSERT (trg.qc_case_id, trg.qc_step_order, trg.qc_step_code, trg.qc_step_name, trg.qc_step_sql)
             VALUES (src.qc_case_id, src.step_order, src.step_code, src.step_name, src.step_sql);
-      pkg_utl_log.LOG (SQL%ROWCOUNT || ' rows merged', l_vc_prc_name);
+      log.LOG (SQL%ROWCOUNT || ' rows merged', l_vc_prc_name);
       COMMIT;
    END prc_step_ins;
 
@@ -317,7 +317,7 @@ AS
       DELETE      qc_step_t
             WHERE qc_step_id = l_n_step_id;
 
-      pkg_utl_log.LOG (SQL%ROWCOUNT || ' rows deleted', l_vc_prc_name);
+      log.LOG (SQL%ROWCOUNT || ' rows deleted', l_vc_prc_name);
       COMMIT;
    END prc_step_del;
 
@@ -347,7 +347,7 @@ AS
          WHEN NOT MATCHED THEN
             INSERT (trg.qc_step_id, trg.qc_keyfigure_code, trg.qc_keyfigure_name)
             VALUES (src.qc_step_id, src.keyfigure_code, src.keyfigure_name);
-      pkg_utl_log.LOG (SQL%ROWCOUNT || ' rows merged', l_vc_prc_name);
+      log.LOG (SQL%ROWCOUNT || ' rows merged', l_vc_prc_name);
       COMMIT;
    END prc_keyfigure_ins;
 
@@ -390,17 +390,17 @@ AS
       DELETE      qc_exec_t
             WHERE qc_keyfigure_id = l_n_keyfigure_id;
 
-      pkg_utl_log.LOG (SQL%ROWCOUNT || ' rows deleted', l_vc_prc_name);
+      log.LOG (SQL%ROWCOUNT || ' rows deleted', l_vc_prc_name);
 
       DELETE      qc_threshold_t
             WHERE qc_keyfigure_id = l_n_keyfigure_id;
 
-      pkg_utl_log.LOG (SQL%ROWCOUNT || ' rows deleted', l_vc_prc_name);
+      log.LOG (SQL%ROWCOUNT || ' rows deleted', l_vc_prc_name);
 
       DELETE      qc_keyfigure_t
             WHERE qc_keyfigure_id = l_n_keyfigure_id;
 
-      pkg_utl_log.LOG (SQL%ROWCOUNT || ' rows deleted', l_vc_prc_name);
+      log.LOG (SQL%ROWCOUNT || ' rows deleted', l_vc_prc_name);
       COMMIT;
    END prc_keyfigure_del;
 
@@ -444,7 +444,7 @@ AS
                  AND qc_threshold_from > l_d_threshold_from
                  AND qc_threshold_to < l_d_threshold_to;
 
-         pkg_utl_log.LOG (SQL%ROWCOUNT || ' rows deleted', l_vc_prc_name);
+         log.LOG (SQL%ROWCOUNT || ' rows deleted', l_vc_prc_name);
 
          -- If new slice inside existing then split
          INSERT INTO qc_threshold_t
@@ -466,7 +466,7 @@ AS
                AND qc_threshold_from < l_d_threshold_from
                AND qc_threshold_to > l_d_threshold_to;
 
-         pkg_utl_log.LOG (SQL%ROWCOUNT || ' rows inserted', l_vc_prc_name);
+         log.LOG (SQL%ROWCOUNT || ' rows inserted', l_vc_prc_name);
 
          -- Update existing time slice where upper bound > new lower bound
          UPDATE qc_threshold_t
@@ -475,7 +475,7 @@ AS
             AND qc_threshold_from < l_d_threshold_from
             AND qc_threshold_to > l_d_threshold_from;
 
-         pkg_utl_log.LOG (SQL%ROWCOUNT || ' rows updated', l_vc_prc_name);
+         log.LOG (SQL%ROWCOUNT || ' rows updated', l_vc_prc_name);
 
          -- Update existing time slice where lower bound < new upper bound
          UPDATE qc_threshold_t
@@ -484,7 +484,7 @@ AS
             AND qc_threshold_to > l_d_threshold_to
             AND qc_threshold_from < l_d_threshold_to;
 
-         pkg_utl_log.LOG (SQL%ROWCOUNT || ' rows updated', l_vc_prc_name);
+         log.LOG (SQL%ROWCOUNT || ' rows updated', l_vc_prc_name);
 
          -- Update time slice with same boundary
          UPDATE    qc_threshold_t
@@ -497,7 +497,7 @@ AS
          RETURNING qc_threshold_id
               INTO l_n_threshold_id;
 
-         pkg_utl_log.LOG (SQL%ROWCOUNT || ' rows updated', l_vc_prc_name);
+         log.LOG (SQL%ROWCOUNT || ' rows updated', l_vc_prc_name);
 
          IF l_n_threshold_id IS NULL
          THEN
@@ -517,7 +517,7 @@ AS
                        , l_d_threshold_to
                         );
 
-            pkg_utl_log.LOG (SQL%ROWCOUNT || ' rows inserted', l_vc_prc_name);
+            log.LOG (SQL%ROWCOUNT || ' rows inserted', l_vc_prc_name);
          END IF;
 
          COMMIT;
@@ -551,7 +551,7 @@ AS
             AND s.qc_step_code = p_vc_step_code
             AND k.qc_keyfigure_code = p_vc_keyfigure_code;
 
-      pkg_utl_log.LOG (SQL%ROWCOUNT || ' rows inserted', l_vc_prc_name);
+      log.LOG (SQL%ROWCOUNT || ' rows inserted', l_vc_prc_name);
       COMMIT;
    END prc_exec_ins;
 
@@ -576,7 +576,7 @@ AS
       l_b_success         BOOLEAN                   := TRUE;
    BEGIN
       l_vc_job_name    := 'QC_' || p_vc_case_code;
-      pkg_utl_log.set_workflow_name ('QC_EXEC');
+      log.set_workflow_name ('QC_EXEC');
       l_n_result       := pkg_utl_job.initialize (l_vc_job_name
                                                 , 'QC'
                                                 , l_n_gui
@@ -588,9 +588,9 @@ AS
                                                  , 0
                                                  , 'BEGIN'
                                                   );
-      pkg_utl_log.set_console_logging (FALSE);
-      pkg_utl_log.LOG ('Execute case ' || p_vc_case_code || ', steps ' || p_vc_step_code, 'CASE START');
-      pkg_utl_log.LOG ('Results will be stored as ' || p_vc_storage_type, 'STORAGE ' || p_vc_storage_type);
+      log.set_console_logging (FALSE);
+      log.LOG ('Execute case ' || p_vc_case_code || ', steps ' || p_vc_step_code, 'CASE START');
+      log.LOG ('Results will be stored as ' || p_vc_storage_type, 'STORAGE ' || p_vc_storage_type);
 
       FOR r_step IN (SELECT   d.qc_case_code
                             , s.qc_step_id
@@ -607,7 +607,7 @@ AS
                             , s.qc_step_order
                             , s.qc_step_code)
       LOOP
-         pkg_utl_log.LOG ('Step ' || r_step.qc_step_code, 'STEP START');
+         log.LOG ('Step ' || r_step.qc_step_code, 'STEP START');
 
          BEGIN
             IF    p_vc_storage_type = 'VALUE'
@@ -616,7 +616,7 @@ AS
                EXECUTE IMMEDIATE r_step.qc_step_sql
                BULK COLLECT INTO l_keyfigure;
 
-               pkg_utl_log.LOG ('Step ' || r_step.qc_step_code || ': SQL executed ', 'SQL EXECUTED');
+               log.LOG ('Step ' || r_step.qc_step_code || ': SQL executed ', 'SQL EXECUTED');
 
                IF l_keyfigure.FIRST IS NOT NULL
                THEN
@@ -643,10 +643,10 @@ AS
                                         , l_keyfigure (i).resultvalue
                                         , NULL
                                          );
-                     pkg_utl_log.LOG ('Key figure ' || l_keyfigure (i).keyfigure || ' = ' || l_keyfigure (i).resultvalue || ' , result stored', 'KEY FIGURE STORED');
+                     log.LOG ('Key figure ' || l_keyfigure (i).keyfigure || ' = ' || l_keyfigure (i).resultvalue || ' , result stored', 'KEY FIGURE STORED');
                   END LOOP;
                ELSE
-                  pkg_utl_log.LOG ('Step ' || r_step.qc_step_code || ': no rows returned ', 'NO RESULTS');
+                  log.LOG ('Step ' || r_step.qc_step_code || ': no rows returned ', 'NO RESULTS');
                END IF;
             ELSIF p_vc_storage_type = 'REPORT'
             THEN
@@ -666,7 +666,7 @@ AS
 
                EXECUTE IMMEDIATE l_vc_stmt;
 
-               pkg_utl_log.LOG ('Step ' || r_step.qc_step_code || ': Table created ', 'SQL EXECUTED');
+               log.LOG ('Step ' || r_step.qc_step_code || ': Table created ', 'SQL EXECUTED');
                l_vc_report        := pkg_utl_doc.fct_get_table_dataset (SYS_CONTEXT ('USERENV', 'SESSION_USER'), l_vc_step_table);
                pkg_qc.prc_keyfigure_ins (r_step.qc_case_code
                                        , r_step.qc_step_code
@@ -679,22 +679,22 @@ AS
                                   , NULL
                                   , l_vc_report
                                    );
-               pkg_utl_log.LOG ('Report stored', 'REPORT STORED');
+               log.LOG ('Report stored', 'REPORT STORED');
             END IF;
          EXCEPTION
             WHEN OTHERS
             THEN
-               pkg_utl_log.LOG ('Step ' || r_step.qc_step_code || ': ' || SQLERRM
+               log.LOG ('Step ' || r_step.qc_step_code || ': ' || SQLERRM
                               , 'ERROR'
-                              , pkg_utl_log.gc_error
+                              , log.gc_error
                               , SQLCODE
                                );
          END;
 
-         pkg_utl_log.LOG ('Step ' || r_step.qc_step_code, 'STEP FINISH');
+         log.LOG ('Step ' || r_step.qc_step_code, 'STEP FINISH');
       END LOOP;
 
-      pkg_utl_log.LOG ('Execute case ' || p_vc_case_code || ', steps ' || p_vc_step_code || ' : success ' || CASE
+      log.LOG ('Execute case ' || p_vc_case_code || ', steps ' || p_vc_step_code || ' : success ' || CASE
                           WHEN l_b_success
                              THEN 'TRUE'
                           ELSE 'FALSE'
@@ -718,9 +718,9 @@ AS
    EXCEPTION
       WHEN OTHERS
       THEN
-         pkg_utl_log.LOG ('Step ' || p_vc_case_code || ', steps ' || p_vc_step_code || ' : failed'
+         log.LOG ('Step ' || p_vc_case_code || ', steps ' || p_vc_step_code || ' : failed'
                         , 'CASE ERROR'
-                        , pkg_utl_log.gc_error
+                        , log.gc_error
                         , SQLCODE
                          );
          l_n_result    := pkg_utl_job.set_error_status (l_vc_job_name
@@ -739,7 +739,7 @@ AS
    IS
       l_vc_prc_name   pkg_utl_type.vc_obj_plsql := 'PRC_EXEC_TAXONOMY';
    BEGIN
-      pkg_utl_log.LOG ('Executing all cases belonging to taxonomy ' || p_vc_taxonomy_code || ' and its children', l_vc_prc_name);
+      log.LOG ('Executing all cases belonging to taxonomy ' || p_vc_taxonomy_code || ' and its children', l_vc_prc_name);
 
       FOR r_tax IN (SELECT     sys_taxonomy_id
                              , sys_taxonomy_name
@@ -748,7 +748,7 @@ AS
                     START WITH sys_taxonomy_code = p_vc_taxonomy_code
                     CONNECT BY PRIOR sys_taxonomy_id = sys_taxonomy_parent_id)
       LOOP
-         pkg_utl_log.LOG ('Executing all cases belonging to taxonomy ' || r_tax.sys_taxonomy_path, l_vc_prc_name);
+         log.LOG ('Executing all cases belonging to taxonomy ' || r_tax.sys_taxonomy_path, l_vc_prc_name);
 
          FOR r_case IN (SELECT c.qc_case_code
                           FROM qc_case_taxonomy_t t
@@ -763,10 +763,10 @@ AS
                      );
          END LOOP;
 
-         pkg_utl_log.LOG ('All cases belonging to taxonomy ' || r_tax.sys_taxonomy_path || ' have been executed', l_vc_prc_name);
+         log.LOG ('All cases belonging to taxonomy ' || r_tax.sys_taxonomy_path || ' have been executed', l_vc_prc_name);
       END LOOP;
 
-      pkg_utl_log.LOG ('All cases belonging to taxonomy ' || p_vc_taxonomy_code || ' and its children have been executed', l_vc_prc_name);
+      log.LOG ('All cases belonging to taxonomy ' || p_vc_taxonomy_code || ' and its children have been executed', l_vc_prc_name);
    END;
 /**
  * Package initialization

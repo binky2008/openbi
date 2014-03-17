@@ -1,4 +1,4 @@
-CREATE OR REPLACE PACKAGE BODY txn_taxonomy
+CREATE OR REPLACE PACKAGE BODY txn
 AS
    /**
     * $Author: nmarangoni $
@@ -143,7 +143,7 @@ AS
    IS
       l_vc_prc_name   aux_type.vc_obj_plsql := 'PRC_USER_TAXONOMY_INS';
    BEGIN
-      aux_log.LOG ('Inserting in sys_user_taxonomy_t', l_vc_prc_name);
+      log.LOG ('Inserting in sys_user_taxonomy_t', l_vc_prc_name);
       merge into txn_user_t trg
          USING (SELECT aux_user_id
                      , txn_taxonomy_id
@@ -156,7 +156,7 @@ AS
          WHEN NOT MATCHED THEN
             insert (trg.aux_user_id, trg.txn_taxonomy_id)
             VALUES (src.aux_user_id, src.txn_taxonomy_id);
-      aux_log.LOG (SQL%ROWCOUNT || ' rows merged', l_vc_prc_name);
+      log.LOG (SQL%ROWCOUNT || ' rows merged', l_vc_prc_name);
       COMMIT;
    END prc_user_taxonomy_ins;
 
@@ -167,7 +167,7 @@ AS
    IS
       l_vc_prc_name   aux_type.vc_obj_plsql := 'PRC_USER_TAXONOMY_DEL';
    BEGIN
-      aux_log.LOG ('Deleting in sys_user_taxonomy_t', l_vc_prc_name);
+      log.LOG ('Deleting in sys_user_taxonomy_t', l_vc_prc_name);
 
       delete      txn_user_t
             WHERE aux_user_id = (SELECT aux_user_id
@@ -177,7 +177,7 @@ AS
                                        FROM txn_taxonomy_t
                                       WHERE txn_taxonomy_code = p_vc_taxonomy_code);
 
-      aux_log.LOG (SQL%ROWCOUNT || ' rows deleted', l_vc_prc_name);
+      log.LOG (SQL%ROWCOUNT || ' rows deleted', l_vc_prc_name);
       COMMIT;
    END prc_user_taxonomy_del;
 /**
@@ -186,7 +186,7 @@ AS
 BEGIN
    c_body_version    := '$Id: pkg_sys-impl.sql 2482 2012-03-20 08:36:48Z nmarangoni $';
    c_body_url        := '$HeadURL: svn://qwd4067/svn_repository_bic/edwh/dwso/edwh_adm/packages/pkg_sys/pkg_sys-impl.sql $';
-END txn_taxonomy;
+END txn;
 /
 
 show errors;

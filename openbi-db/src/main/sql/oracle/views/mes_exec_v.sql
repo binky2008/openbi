@@ -30,7 +30,7 @@ $HeadURL: $';
 GRANT SELECT ON mes_exec_v TO PUBLIC;
 
 BEGIN
-   utl_ddl.prc_create_synonym ('mes_exec_v'
+   ddl.prc_create_synonym ('mes_exec_v'
                                  , 'mes_exec_v'
                                  , TRUE
                                   );

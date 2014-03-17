@@ -138,7 +138,7 @@ END pkg_etl_framework;
 SHOW errors
 
 BEGIN
-   pkg_utl_ddl.prc_create_synonym ('pkg_etl_framework'
+   ddl.prc_create_synonym ('pkg_etl_framework'
                                  , 'pkg_etl_framework'
                                  , TRUE
                                   );

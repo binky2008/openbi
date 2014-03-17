@@ -142,27 +142,32 @@ public class TableDictionaryBean {
 
         // Get information about primary keys
         try {
-            String schema = null;
-            if (sourceTable.split("\\.").length==2) {
-                schema = sourceTable.split("\\.")[0];
-                logger.info("Schema: " + schema);
-            }
+        	int pkLength = 0;
+            if (
+            	!(sourceTable.equalsIgnoreCase("")) &&
+            	!(sourceTable == null)
+            ) {
+                String schema = null;
+                if (sourceTable.split("\\.").length==2) {
+                    schema = sourceTable.split("\\.")[0];
+                    logger.info("Schema: " + schema);
+                }
 
-            logger.info("get primary key information...");
-            logger.debug("Table: " + sourceTable.split("\\.")[sourceTable.split("\\.").length-1]);
+                logger.info("get primary key information...");
+                logger.debug("Table: " + sourceTable.split("\\.")[sourceTable.split("\\.").length-1]);
 
-            ResultSet rspk = sourceCon.getConnection().getMetaData().getPrimaryKeys(schema, schema, sourceTable.split("\\.")[sourceTable.split("\\.").length-1]);
-            int pkLength = 0;
-            while (rspk.next()) {
-                logger.info("PRIMARY KEY Position: " + rspk.getObject("KEY_SEQ") + " Column: " + rspk.getObject("COLUMN_NAME"));
-                for (int i = 0; i < columnNames.length; i++) {
-                    if (columnNames[i].equalsIgnoreCase(rspk.getString("COLUMN_NAME"))) {
-                        columnPkPositions[i] = rspk.getInt("KEY_SEQ");
-                        pkLength++;
+                ResultSet rspk = sourceCon.getConnection().getMetaData().getPrimaryKeys(schema, schema, sourceTable.split("\\.")[sourceTable.split("\\.").length-1]);
+                while (rspk.next()) {
+                    logger.info("PRIMARY KEY Position: " + rspk.getObject("KEY_SEQ") + " Column: " + rspk.getObject("COLUMN_NAME"));
+                    for (int i = 0; i < columnNames.length; i++) {
+                        if (columnNames[i].equalsIgnoreCase(rspk.getString("COLUMN_NAME"))) {
+                            columnPkPositions[i] = rspk.getInt("KEY_SEQ");
+                            pkLength++;
+                        }
                     }
                 }
+                rspk.close();
             }
-            rspk.close();
 
             if (pkLength>0) {
                 columnInPk = new String[pkLength];

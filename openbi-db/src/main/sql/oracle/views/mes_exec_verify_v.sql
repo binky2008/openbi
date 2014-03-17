@@ -31,7 +31,7 @@ $HeadURL: $';
 GRANT SELECT ON mes_exec_verify_v TO PUBLIC;
 
 begin
-   utl_ddl.prc_create_synonym ('mes_exec_verify_v'
+   ddl.prc_create_synonym ('mes_exec_verify_v'
                                  , 'mes_exec_verify_v'
                                  , TRUE
                                   );

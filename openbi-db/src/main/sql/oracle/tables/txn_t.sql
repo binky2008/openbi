@@ -1,15 +1,15 @@
 SET serveroutput ON;
 
 BEGIN
-   aux_ddl.prc_create_entity ('txn'
-                                         , 'txn_parent_id NUMBER,
-										    txn_order NUMBER,
-                                            txn_code VARCHAR2 (100),
-                                            txn_name VARCHAR2 (4000)'
-                                         , 'DROP'
-                                         , TRUE
-                                         , TRUE
-                                          );
+   ddl.prc_create_entity ('txn'
+                         , 'txn_parent_id NUMBER,
+							txn_order NUMBER,
+                            txn_code VARCHAR2 (100),
+                            txn_name VARCHAR2 (4000)'
+                         , 'DROP'
+                         , TRUE
+                         , TRUE
+                         );
 END;
 /
 

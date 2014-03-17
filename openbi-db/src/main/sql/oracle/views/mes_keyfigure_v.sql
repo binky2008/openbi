@@ -19,7 +19,7 @@ $HeadURL: $';
 GRANT SELECT ON mes_keyfigure_v TO PUBLIC;
 
 BEGIN
-   utl_ddl.prc_create_synonym ('mes_keyfigure_v'
+   ddl.prc_create_synonym ('mes_keyfigure_v'
                              , 'mes_keyfigure_v'
                              , TRUE
                               );

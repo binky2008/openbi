@@ -8,6 +8,8 @@ import org.slf4j.*;
 import org.w3c.dom.*;
 import org.apache.commons.cli.*;
 
+import org.openbusinessintelligence.core.data.*;
+import org.openbusinessintelligence.core.db.*;
 import org.openbusinessintelligence.core.file.*;
 import org.openbusinessintelligence.core.xml.*;
 
@@ -68,6 +70,9 @@ public class Main {
 						getOption("toadprojectfileslocation")
 				);
 	    	}
+	    	/*
+    		* Generate a Wrapper Script
+    		*/
 	    	if (function.equalsIgnoreCase("wrapperscript")) {
 	    		// Generate a Wrapper Script
 				org.openbusinessintelligence.core.script.WrapperScriptCreator wrapperScriptCreator = new org.openbusinessintelligence.core.script.WrapperScriptCreator();
@@ -77,6 +82,9 @@ public class Main {
 						getOption("defaultsubfolders")
 				);
 	    	}
+	    	/*
+    		* Generate deployment file
+    		*/
 	    	if (function.equalsIgnoreCase("dwsodeploy")) {
 	    		// Generate deployment file
 				org.openbusinessintelligence.core.script.InstallScriptCreator dwsoInstallScriptCreator = new org.openbusinessintelligence.core.script.InstallScriptCreator();
@@ -87,8 +95,10 @@ public class Main {
 						getOption("dwsoinstallfile")
 				);
 	    	}
+	    	/*
+    		* Send an email
+    		*/
 	    	if (function.equalsIgnoreCase("mail")) {
-	    		// Send an email
 	    		org.openbusinessintelligence.core.mail.MailBean mailSender = new org.openbusinessintelligence.core.mail.MailBean();
 	    		String mailContent = null;
 	    		if (cmd.hasOption("mailcontentsource")) {
@@ -159,8 +169,10 @@ public class Main {
 	    		mailSender.setMailContent(mailContent);
 	    		mailSender.sendMail();
 	    	}
+	    	/*
+    		* Execute a store procedure
+    		*/
 	    	if (function.equalsIgnoreCase("executeprocedure")) {
-	    		// Execute a store procedure
 				org.openbusinessintelligence.core.db.ProcedureBean procedure = new org.openbusinessintelligence.core.db.ProcedureBean();
 				
 				procedure.setPropertyFile(getOption("dbconnpropertyfile"));
@@ -180,9 +192,12 @@ public class Main {
 				    throw e;
 				}
 	    	}
+	    	/*
+    		* Get database properties
+    		*/
 	    	if (function.equalsIgnoreCase("dbproperties")) {
 				logger.info("Get database properties");
-	    		// Get database properties
+				
 	    		org.openbusinessintelligence.core.db.ConnectionBean connectionBean = new org.openbusinessintelligence.core.db.ConnectionBean();
 	    		connectionBean.setPropertyFile(getOption("dbconnpropertyfile"));
 	    		connectionBean.setKeyWordFile(getOption("dbconnkeywordfile"));
@@ -202,6 +217,9 @@ public class Main {
 				connectionBean.closeConnection();
 				logger.info("Properties retrieved");
 	    	}
+	    	/*
+    		* Copy a table between 2 databases
+    		*/
 	    	if (function.equalsIgnoreCase("tablecopy")) {
 				logger.info("Copy an entire schema, a single table or the result of a query from a database to another");
 				
@@ -255,29 +273,32 @@ public class Main {
 	    		}
 	    		
 				try {
+		    		String[] columnNames;
+		    		String[] columnDefs;
+					
 					if (Boolean.parseBoolean(getOption("trgcreate"))) {
 						logger.info("Create tables if they don't exist");
 						// Open target connection
 			    		targetConnectionBean.openConnection();
 						// Get source dictionary
-			    		org.openbusinessintelligence.core.db.DictionaryConversionBean dictionaryBean = new org.openbusinessintelligence.core.db.DictionaryConversionBean();
+			    		org.openbusinessintelligence.core.db.DictionaryConversionBean dictionaryConversionBean = new org.openbusinessintelligence.core.db.DictionaryConversionBean();
 			    		org.openbusinessintelligence.core.db.TableCreateBean tableCreate = new org.openbusinessintelligence.core.db.TableCreateBean();
-			    		dictionaryBean.setSourceConnection(sourceConnectionBean);
+			    		dictionaryConversionBean.setSourceConnection(sourceConnectionBean);
 		    			for (int i = 0; i < sourceTableList.length; i++ ) {
 							logger.info("Creating table: " + sourceTableList[i]);
-				    		dictionaryBean.setSourceTable(sourceTableList[i]);
-				    		dictionaryBean.setSourceQuery(sourceQuery);
+							dictionaryConversionBean.setSourceTable(sourceTableList[i]);
+				    		dictionaryConversionBean.setSourceQuery(sourceQuery);
 				    		//
-				    		dictionaryBean.setTargetConnection(targetConnectionBean);
+				    		dictionaryConversionBean.setTargetConnection(targetConnectionBean);
 				    		//
-				    		dictionaryBean.retrieveColumns();
-				    		String[] columns = dictionaryBean.getTargetColumnNames();
-				    		String[] columnDefs = dictionaryBean.getTargetColumnDefinition();
+				    		dictionaryConversionBean.retrieveColumns();
+				    		columnNames = dictionaryConversionBean.getTargetColumnNames();
+				    		columnDefs = dictionaryConversionBean.getTargetColumnDefinition();
 				    		// Create a table basing on the result
 				    		tableCreate.setTargetConnection(targetConnectionBean);
 				    		tableCreate.setTargetSchema(targetSchema);
 				    		tableCreate.setTargetTable(targetTableList[i]);
-				    		tableCreate.setTargetColumns(columns);
+				    		tableCreate.setTargetColumns(columnNames);
 				    		tableCreate.setTargetColumnDefinitions(columnDefs);
 				    		tableCreate.setDropIfExistsOption(Boolean.parseBoolean(getOption("dropifexists")));
 				    		tableCreate.createTable();
@@ -287,7 +308,7 @@ public class Main {
 					// Open target connection
 		    		targetConnectionBean.openConnection();
 	    			for (int i = 0; i < targetTableList.length; i++ ) {
-			    		// Copy the content of a source sql query into a target rdbms table
+	    				// Copy the content of a source sql query into a target rdbms table
 						logger.info("Feeding table: " + sourceTableList[i]);
 						org.openbusinessintelligence.core.db.DataCopyBean dataCopy = new org.openbusinessintelligence.core.db.DataCopyBean();
 						dataCopy.setSourceConnection(sourceConnectionBean);
@@ -335,6 +356,78 @@ public class Main {
 				    throw e;
 				}
 	    	}
+	    	/*
+    		* Generate random data
+    		*/
+	    	if (function.equalsIgnoreCase("generaterandomdata")) {
+				logger.info("Generate random data in database tables");
+   		
+	    		org.openbusinessintelligence.core.db.ConnectionBean targetConnectionBean = new org.openbusinessintelligence.core.db.ConnectionBean();
+	    		targetConnectionBean.setPropertyFile(getOption("trgdbconnpropertyfile"));
+	    		targetConnectionBean.setKeyWordFile(getOption("trgdbconnkeywordfile"));
+	    		targetConnectionBean.setDatabaseDriver(getOption("trgdbdriverclass"));
+	    		targetConnectionBean.setConnectionURL(getOption("trgdbconnectionurl"));
+	    		targetConnectionBean.setUserName(getOption("trgdbusername"));
+	    		targetConnectionBean.setPassWord(getOption("trgdbpassword"));
+	    		
+				logger.info("Connection prepared");
+				
+	    		String targetSchema = getOption("targetschema");
+	    		logger.info("Target schema: " + targetSchema);
+	    		String targetTable = getOption("targettable");
+	    		logger.info("Target table: " + targetTable);
+	    		String[] targetTableList = null;
+
+	    		targetConnectionBean.setSchemaName(targetSchema);
+	    		if ((targetSchema != null) &&
+	    			(targetTable == null || targetSchema.equals(""))
+	    		) {
+					logger.info("Fill all tables of a schema");
+					targetTableList = targetConnectionBean.getTableList();
+	    		}
+	    		else {
+					logger.info("Fill a single table");
+					targetTableList = new String[1];
+					targetTableList[0] = targetTable;
+	    		}
+	    		
+				try {
+		    		
+					// Open target connection
+		    		targetConnectionBean.openConnection();
+	    			for (int i = 0; i < targetTableList.length; i++ ) {
+	    				// Copy the content of a source sql query into a target rdbms table
+						logger.info("Feeding table: " + targetTableList[i]);
+						org.openbusinessintelligence.core.data.RandomDataGeneratorBean generator = new org.openbusinessintelligence.core.data.RandomDataGeneratorBean();
+						
+						generator.setConnection(targetConnectionBean);
+						generator.setTargetSchema(targetSchema);
+						generator.setTargetTable(targetTableList[i]);
+						generator.setPreserveDataOption(Boolean.parseBoolean(getOption("trgpreservedata")));
+						
+						if (getOption("commitfrequency") != null) {
+							generator.setCommitFrequency(Integer.parseInt(getOption("commitfrequency")));
+						}
+						generator.generateData();
+	    			}
+	    			// Close target connection
+					targetConnectionBean.closeConnection();
+				}
+				catch (Exception e) {
+					logger.error("UNEXPECTED EXCEPTION");
+					logger.error(e.getMessage());
+					try {
+						targetConnectionBean.closeConnection();
+					}
+					finally {
+						
+					}
+				    throw e;
+				}
+	    	}
+	    	/*
+    		* Import a series of csv files
+    		*/
 	    	if (function.equalsIgnoreCase("importcsvseries")) {
 	    	
 	    		String sourceZipFile = getOption("sourcezipfile");
@@ -383,6 +476,9 @@ public class Main {
 					}
 	        	}
 	    	}
+	    	/*
+    		* Merge similar files
+    		*/
 	    	if (function.equalsIgnoreCase("mergefiles")) {
 				org.openbusinessintelligence.core.file.FileMergeBean fileMerge = new org.openbusinessintelligence.core.file.FileMergeBean();
 				fileMerge.setInputZipFile(getOption("sourcezipfile"));

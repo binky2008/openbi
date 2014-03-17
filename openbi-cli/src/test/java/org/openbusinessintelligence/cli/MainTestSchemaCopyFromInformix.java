@@ -35,7 +35,7 @@ public class MainTestSchemaCopyFromInformix {
 		arguments[7] = "sugarcrm";
 	}
 
-	/*@Test
+	@Test
 	public void testInformixToMySQL() {
 		
 		initArguments();
@@ -159,7 +159,7 @@ public class MainTestSchemaCopyFromInformix {
 		catch (Exception e) {
 			fail("Exception: \n" + e.getMessage() + "\n" + e.getStackTrace());
 		}
-	}*/
+	}
 
 	@Test
 	public void testInformixToTeradata() {

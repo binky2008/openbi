@@ -46,7 +46,7 @@ $HeadURL: $';
 GRANT SELECT ON qc_meta_v TO PUBLIC;
 
 BEGIN
-   pkg_utl_ddl.prc_create_synonym ('qc_meta_v'
+   ddl.prc_create_synonym ('qc_meta_v'
                                  , 'qc_meta_v'
                                  , TRUE
                                   );

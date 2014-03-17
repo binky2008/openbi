@@ -1,4 +1,4 @@
-CREATE OR REPLACE PACKAGE mes_main AUTHID CURRENT_USER
+CREATE OR REPLACE PACKAGE mes AUTHID CURRENT_USER
 AS
    /**
     * $Author: nmarangoni $
@@ -107,7 +107,7 @@ AS
     , p_b_exception_if_fails   IN   BOOLEAN DEFAULT FALSE
     , p_vc_storage_type        IN   VARCHAR2 DEFAULT 'VALUE'
    );
-END mes_main;
+END mes;
 /
 
 SHOW errors

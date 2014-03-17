@@ -1,4 +1,4 @@
-CREATE OR REPLACE PACKAGE aux_doc_template AUTHID CURRENT_USER
+CREATE OR REPLACE PACKAGE doc_template AUTHID CURRENT_USER
 AS
    /**
     * Package containing general purpose functions and procedures
@@ -33,7 +33,7 @@ AS
    /**
     * Javascript for dynamic effects
     */
-   c_js_default                aux_type.vc_max_plsql
+   c_js_default                type.vc_max_plsql
       :=    '<script type="text/javascript">
 function changeRowDisplay(nodeIdPath) {
 
@@ -66,7 +66,7 @@ function changeRowDisplay(nodeIdPath) {
    /**
     * CSS
     */
-   c_css_default               aux_type.vc_max_plsql
+   c_css_default               type.vc_max_plsql
       := '<style>
 body {
   background-color: rgb(239, 239, 239);
@@ -159,7 +159,7 @@ a.control {
    /**
     * HTML Table stylesheet
     */
-   c_xsl_html_table_default    aux_type.vc_max_plsql
+   c_xsl_html_table_default    type.vc_max_plsql
       := '<?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:data="http://java.sun.com/xml/ns/jdbc">
 <xsl:param name="sort_column" />
@@ -204,7 +204,7 @@ a.control {
    /**
     * Excel Table stylesheet
     */
-   c_xsl_excel_table_default   aux_type.vc_max_plsql
+   c_xsl_excel_table_default   type.vc_max_plsql
       := '<xsl:stylesheet version="1.0"
 	xmlns="urn:schemas-microsoft-com:office:spreadsheet"
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
@@ -248,13 +248,13 @@ a.control {
 	</Worksheet>
 </xsl:template>
 </xsl:stylesheet>';
-END aux_doc_template;
+END doc_template;
 /
 
 SHOW ERRORS
 
 BEGIN
-   aux_ddl.prc_create_synonym ('aux_doc_template', 'aux_doc_template', TRUE);
+   ddl.prc_create_synonym ('aux_doc_template', 'aux_doc_template', TRUE);
 END;
 /
 

@@ -1,9 +1,9 @@
 SET serveroutput ON;
 
 BEGIN
-   aux_ddl.prc_create_entity ('txn_user'
+   ddl.prc_create_entity ('txn_user'
                             , 'user_id NUMBER NOT NULL,
-                               txn_taxonomy_id NUMBER NOT NULL'
+                               txn_id NUMBER NOT NULL'
                             , 'DROP'
                             , TRUE
                             , TRUE
@@ -11,7 +11,7 @@ BEGIN
 END;
 /
 
-ALTER TABLE txn_user_t ADD (CONSTRAINT txn_user_uk UNIQUE (user_id,txn_taxonomy_id));
+ALTER TABLE txn_user_t ADD (CONSTRAINT txn_user_uk UNIQUE (user_id,txn_id));
 
 COMMENT ON TABLE txn_user_t IS
    '$Author: nmarangoni $

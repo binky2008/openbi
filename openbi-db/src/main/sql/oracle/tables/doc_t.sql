@@ -1,7 +1,7 @@
 SET serveroutput ON;
 
 begin
-   aux_ddl.prc_create_entity
+   ddl.prc_create_entity
             ('doc'
            , 'doc_type VARCHAR2 (100),
               doc_code VARCHAR2 (100),

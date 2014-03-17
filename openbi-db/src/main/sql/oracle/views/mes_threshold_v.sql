@@ -29,7 +29,7 @@ $HeadURL: $';
 GRANT SELECT ON mes_threshold_v TO PUBLIC;
 
 BEGIN
-   utl_ddl.prc_create_synonym ('mes_threshold_v'
+   ddl.prc_create_synonym ('mes_threshold_v'
                                  , 'mes_threshold_v'
                                  , TRUE
                                   );

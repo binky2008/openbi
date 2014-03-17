@@ -1,4 +1,4 @@
-CREATE OR REPLACE PACKAGE txn_taxonomy AUTHID CURRENT_USER
+CREATE OR REPLACE PACKAGE txn AUTHID CURRENT_USER
 AS
    /**
     * $Author: nmarangoni $
@@ -68,7 +68,7 @@ AS
       p_vc_user_code       IN   VARCHAR2
     , p_vc_taxonomy_code   IN   VARCHAR2
    );
-END txn_taxonomy;
+END txn;
 /
 
 SHOW errors

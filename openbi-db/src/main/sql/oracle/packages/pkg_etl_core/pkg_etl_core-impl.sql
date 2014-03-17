@@ -91,8 +91,8 @@ AS
       l_max_valid_from   DATE;
       l_sql              CLOB   := c_sql_get_max_exec_id;
    BEGIN
-      pkg_utl_ddl.prc_set_tech_column (l_sql);
-      pkg_utl_ddl.prc_set_text_param (l_sql
+      ddl.prc_set_tech_column (l_sql);
+      ddl.prc_set_text_param (l_sql
                                     , 'tableName'
                                     , p_table_name
                                      );
@@ -107,8 +107,8 @@ AS
                    INTO l_max_di_gui
                       , p_max_valid_from;
 
-      pkg_utl_log.LOG ('max(di_gui)     in table ' || c_core_user || '.' || p_table_name || ' is : ' || l_max_di_gui);
-      pkg_utl_log.LOG ('max(valid_from) in table ' || c_core_user || '.' || p_table_name || ' is : ' || TO_CHAR (p_max_valid_from, 'DD.MM.YYYY'));
+      log.LOG ('max(di_gui)     in table ' || c_core_user || '.' || p_table_name || ' is : ' || l_max_di_gui);
+      log.LOG ('max(valid_from) in table ' || c_core_user || '.' || p_table_name || ' is : ' || TO_CHAR (p_max_valid_from, 'DD.MM.YYYY'));
       RETURN l_max_di_gui;
    END get_max_di_gui;
 
@@ -679,15 +679,15 @@ select --+ ordered use_hash (src tgt) full(src) parallel(src 3)
    )
    IS
    BEGIN
-      pkg_utl_log.LOG ('---------------------------------------------');
+      log.LOG ('---------------------------------------------');
 
       FOR i IN 1 .. p_column_tab.COUNT
       LOOP
-         pkg_utl_log.LOG (i || ': ' || p_column_tab (i).column_name);
+         log.LOG (i || ': ' || p_column_tab (i).column_name);
       END LOOP;
 
-      pkg_utl_log.LOG ('---------------------------------------------');
-      pkg_utl_log.LOG (p_column_tab.COUNT || ' records in Column List.');
+      log.LOG ('---------------------------------------------');
+      log.LOG (p_column_tab.COUNT || ' records in Column List.');
    END print_column_list;
 
    PROCEDURE gen_sql_insert_master (
@@ -1322,16 +1322,16 @@ select --+ ordered parallel (src 3) parallel (tgt 3)
       l_tgt_nk_column_list           := UPPER (p_tgt_nk_column_list);
       l_max_di_gui_hist              := 0;
       l_max_valid_from_hist          := TO_DATE ('11.11.1111', 'DD.MM.YYYY');
-      pkg_utl_log.set_di_gui ((p_di_gui));
-      pkg_utl_log.set_job_name (p_job_name);
-      pkg_utl_log.LOG ('Fill Master Table ' || l_tgt_table_name || ' (from ' || l_src_table_name || ')', 'START');
+      log.set_di_gui ((p_di_gui));
+      log.set_job_name (p_job_name);
+      log.LOG ('Fill Master Table ' || l_tgt_table_name || ' (from ' || l_src_table_name || ')', 'START');
 
       -- Check Parameter p_di_gui
       IF NVL (p_di_gui, 0) <= 0
       THEN
-         pkg_utl_log.set_console_logging (TRUE);
+         log.set_console_logging (TRUE);
          p_log_message    := 'Parameter DI_GUI is invalid (p_di_gui=' || p_di_gui || ')';
-         pkg_utl_log.LOG (p_log_message, 'ERROR');
+         log.LOG (p_log_message, 'ERROR');
          RETURN g_ret_nok;
       END IF;
 
@@ -1341,9 +1341,9 @@ select --+ ordered parallel (src 3) parallel (tgt 3)
          OR (    p_tgt_nk_column_list IS NULL
              AND p_src_nk_column_list IS NOT NULL)
       THEN
-         pkg_utl_log.set_console_logging (TRUE);
+         log.set_console_logging (TRUE);
          p_log_message    := 'One NK-Parameter is NULL (should be both either "null" or "not null"';
-         pkg_utl_log.LOG (p_log_message, 'ERROR');
+         log.LOG (p_log_message, 'ERROR');
          RETURN g_ret_nok;
       END IF;
 
@@ -1353,34 +1353,34 @@ select --+ ordered parallel (src 3) parallel (tgt 3)
 
       IF NOT l_cls_table_exists
       THEN
-         pkg_utl_log.set_console_logging (TRUE);
+         log.set_console_logging (TRUE);
          p_log_message    := 'CLS Table ' || l_src_table_name || ' does not extist.';
-         pkg_utl_log.LOG (p_log_message, 'ERROR');
+         log.LOG (p_log_message, 'ERROR');
          RETURN g_ret_nok;
       END IF;
 
       IF NOT l_master_table_exists
       THEN
-         pkg_utl_log.set_console_logging (TRUE);
+         log.set_console_logging (TRUE);
          p_log_message    := 'Master Table ' || l_tgt_table_name || ' does not extist.';
-         pkg_utl_log.LOG (p_log_message, 'ERROR');
+         log.LOG (p_log_message, 'ERROR');
          RETURN g_ret_nok;
       END IF;
 
       -- SOURCE (CLS Detail Table)
       -- fill list with NK source columns
       l_src_nk_column_tab            := init_nk_column_tab (l_tgt_table_name, l_src_nk_column_list);
---    pkg_utl_log.LOG ('Printing SRC NK Column List:' );
+--    log.LOG ('Printing SRC NK Column List:' );
 --    print_column_list(l_src_nk_column_tab);
 
       -- fill list with NK target columns
       l_tgt_nk_column_tab            := init_nk_column_tab (l_tgt_table_name, l_tgt_nk_column_list);
---    pkg_utl_log.LOG ('Printing TGT NK Column List:' );
+--    log.LOG ('Printing TGT NK Column List:' );
 --    print_column_list(l_tgt_nk_column_tab);
 
       -- fill list with dummy target columns (no PK and no NK columns)
       l_tgt_dummy_column_tab         := get_tgt_dummy_column_tab (l_tgt_table_name);
---    pkg_utl_log.LOG ('Printing TGT Dummy Column List:' );
+--    log.LOG ('Printing TGT Dummy Column List:' );
 --    print_column_list(l_tgt_dummy_column_tab);
 
       -- validate  NK Columns: (number of parameters must match, data type must match, name mut be '%_NK')
@@ -1393,10 +1393,10 @@ select --+ ordered parallel (src 3) parallel (tgt 3)
 
       IF NOT l_nk_columns_ok
       THEN
-         pkg_utl_log.set_console_logging (TRUE);
-         pkg_utl_log.LOG (p_log_message, 'ERROR');
+         log.set_console_logging (TRUE);
+         log.LOG (p_log_message, 'ERROR');
          p_log_message    := p_log_message || CHR (10) || 'Problems with Natural Key Columns detected.';
-         pkg_utl_log.LOG ('Problems with Natural Key Columns detected.', 'ERROR');
+         log.LOG ('Problems with Natural Key Columns detected.', 'ERROR');
          RETURN g_ret_nok;
       END IF;
 
@@ -1408,23 +1408,23 @@ select --+ ordered parallel (src 3) parallel (tgt 3)
 
       IF NOT l_master_propagation_needed
       THEN
-         pkg_utl_log.set_console_logging (TRUE);
+         log.set_console_logging (TRUE);
          p_log_message    := 'NO NK propagation into Table ' || l_tgt_table_name || ' (from ' || l_src_table_name || ') needed.';
-         pkg_utl_log.LOG (p_log_message, 'END');
+         log.LOG (p_log_message, 'END');
          RETURN g_ret_ok;
       END IF;
 
       BEGIN
          EXECUTE IMMEDIATE 'LOCK TABLE ' || c_core_user || '.' || l_tgt_table_name || ' IN EXCLUSIVE MODE NOWAIT';
 
-         pkg_utl_log.LOG ('Locked Table ' || c_core_user || '.' || l_tgt_table_name, 'LOCK TABLE');
+         log.LOG ('Locked Table ' || c_core_user || '.' || l_tgt_table_name, 'LOCK TABLE');
       EXCEPTION
          -- object statistics are locked
          WHEN e_lock_detected
          THEN
-            pkg_utl_log.set_console_logging (TRUE);
+            log.set_console_logging (TRUE);
             p_log_message    := 'Could not lock Table ' || l_tgt_table_name;
-            pkg_utl_log.LOG (p_log_message, 'LOCK TABLE');
+            log.LOG (p_log_message, 'LOCK TABLE');
             RETURN g_ret_no_table_lock;
          WHEN OTHERS
          THEN
@@ -1436,7 +1436,7 @@ select --+ ordered parallel (src 3) parallel (tgt 3)
          l_max_di_gui_hist    := get_max_di_gui (l_tgt_table_name || '_H', l_max_valid_from_hist);
          -- fill list with hist columns (no PK and no technichal columns)
          l_hist_column_tab    := get_hist_column_tab (l_tgt_table_name || '_H');
---      pkg_utl_log.LOG ('Printing HIST Column List:' );
+--      log.LOG ('Printing HIST Column List:' );
 --      print_column_list(l_hist_column_tab);
       END IF;
 
@@ -1464,13 +1464,13 @@ select --+ ordered parallel (src 3) parallel (tgt 3)
 
       IF p_do_not_execute = 'Y'
       THEN
-         pkg_utl_log.LOG (l_sql);
-         pkg_utl_log.LOG (l_sql_h);
+         log.LOG (l_sql);
+         log.LOG (l_sql_h);
          p_log_message    := 'Genrated SQL Statement  for Master Table (do_not_execute = Y):';
          p_log_message    := p_log_message || l_sql;
       ELSE
          DBMS_APPLICATION_INFO.set_action ('Inserting into Table' || c_core_user || '.' || l_tgt_table_name);
-         pkg_utl_log.LOG ('Inserting into Master Table ' || c_core_user || '.' || l_tgt_table_name);
+         log.LOG ('Inserting into Master Table ' || c_core_user || '.' || l_tgt_table_name);
          COMMIT;
 
          EXECUTE IMMEDIATE l_sql;
@@ -1480,7 +1480,7 @@ select --+ ordered parallel (src 3) parallel (tgt 3)
          IF l_history_table_exists
          THEN
             DBMS_APPLICATION_INFO.set_action ('Inserting into Table' || c_core_user || '.' || l_tgt_table_name || '_H');
-            pkg_utl_log.LOG ('Inserting into Master History Table ' || c_core_user || '.' || l_tgt_table_name || '_H');
+            log.LOG ('Inserting into Master History Table ' || c_core_user || '.' || l_tgt_table_name || '_H');
             COMMIT;
 
             EXECUTE IMMEDIATE l_sql_h;
@@ -1514,20 +1514,20 @@ select --+ ordered parallel (src 3) parallel (tgt 3)
                              );
          END IF;
 
-         pkg_utl_log.LOG (p_log_message);
+         log.LOG (p_log_message);
       END IF;
 
-      pkg_utl_log.LOG ('Fill Master Table ' || l_tgt_table_name || ' (from ' || l_src_table_name || ')', 'END');
+      log.LOG ('Fill Master Table ' || l_tgt_table_name || ' (from ' || l_src_table_name || ')', 'END');
       RETURN g_ret_ok;
    EXCEPTION
       WHEN OTHERS
       THEN
-         pkg_utl_log.set_console_logging (TRUE);
-         pkg_utl_log.LOG (SQLERRM
-                        , pkg_utl_log.gc_fatal
+         log.set_console_logging (TRUE);
+         log.LOG (SQLERRM
+                        , log.gc_fatal
                         , SQLCODE
                          );
-         pkg_utl_log.LOG ('Fill Master Table ' || l_tgt_table_name || ' (from ' || l_src_table_name || ')', 'ERROR');
+         log.LOG ('Fill Master Table ' || l_tgt_table_name || ' (from ' || l_src_table_name || ')', 'ERROR');
          ROLLBACK;
          RAISE;
    END fill_master_tab_multi_nk;
@@ -1564,12 +1564,12 @@ select --+ ordered parallel (src 3) parallel (tgt 3)
    EXCEPTION
       WHEN OTHERS
       THEN
-         pkg_utl_log.set_console_logging (TRUE);
-         pkg_utl_log.LOG (SQLERRM
-                        , pkg_utl_log.gc_fatal
+         log.set_console_logging (TRUE);
+         log.LOG (SQLERRM
+                        , log.gc_fatal
                         , SQLCODE
                          );
-         pkg_utl_log.LOG ('Fill Master Table ' || p_tgt_table_name || ' (from ' || p_src_table_name || ')', 'ERROR');
+         log.LOG ('Fill Master Table ' || p_tgt_table_name || ' (from ' || p_src_table_name || ')', 'ERROR');
          ROLLBACK;
          RAISE;
    END fill_master_tab;
@@ -1617,9 +1617,9 @@ select --+ ordered parallel (src 3) parallel (tgt 3)
 
       EXECUTE IMMEDIATE 'ALTER SESSION ENABLE PARALLEL DML';
 
-      pkg_utl_log.set_di_gui ((p_di_gui));
-      pkg_utl_log.set_job_name (p_job_name);
-      pkg_utl_log.LOG ('Fill History Table ' || p_hist_table_name, 'START');
+      log.set_di_gui ((p_di_gui));
+      log.set_job_name (p_job_name);
+      log.LOG ('Fill History Table ' || p_hist_table_name, 'START');
       l_inserted_rows              := 0;
       l_updated_rows               := 0;
       l_inserted_rows_versioned    := 0;
@@ -1628,9 +1628,9 @@ select --+ ordered parallel (src 3) parallel (tgt 3)
 
       IF l_cutoff_day > SYSDATE
       THEN
-         pkg_utl_log.set_console_logging (TRUE);
+         log.set_console_logging (TRUE);
          p_log_message    := 'Parameter CUTOFF_DAY is in the future (p_cutoff_day=' || l_cutoff_day || ')';
-         pkg_utl_log.LOG (p_log_message, 'ERROR');
+         log.LOG (p_log_message, 'ERROR');
          RETURN g_ret_nok;
       END IF;
 
@@ -1645,39 +1645,39 @@ select --+ ordered parallel (src 3) parallel (tgt 3)
 
       IF NVL (p_di_gui, 0) <= 0
       THEN
-         pkg_utl_log.set_console_logging (TRUE);
+         log.set_console_logging (TRUE);
          p_log_message    := 'Parameter DI_GUI is invalid (p_di_gui=' || p_di_gui || ')';
-         pkg_utl_log.LOG (p_log_message, 'ERROR');
+         log.LOG (p_log_message, 'ERROR');
          RETURN g_ret_nok;
       END IF;
 
       IF NOT l_hist_table_exists
       THEN
-         pkg_utl_log.set_console_logging (TRUE);
+         log.set_console_logging (TRUE);
          p_log_message    := 'History Table ' || l_hist_table_name || ' does not extist.';
-         pkg_utl_log.LOG (p_log_message, 'ERROR');
+         log.LOG (p_log_message, 'ERROR');
          RETURN g_ret_nok;
       END IF;
 
       IF NOT l_o_table_exists
       THEN
-         pkg_utl_log.set_console_logging (TRUE);
+         log.set_console_logging (TRUE);
          p_log_message    := 'Table ' || l_o_table_name || ' does not extist.';
-         pkg_utl_log.LOG (p_log_message, 'ERROR');
+         log.LOG (p_log_message, 'ERROR');
          RETURN g_ret_nok;
       END IF;
 
       BEGIN
          EXECUTE IMMEDIATE 'LOCK TABLE ' || c_core_user || '.' || l_o_table_name || ' IN EXCLUSIVE MODE NOWAIT';
 
-         pkg_utl_log.LOG ('Locked Table ' || c_core_user || '.' || l_o_table_name, 'LOCK TABLE');
+         log.LOG ('Locked Table ' || c_core_user || '.' || l_o_table_name, 'LOCK TABLE');
       EXCEPTION
          -- object statistics are locked
          WHEN e_lock_detected
          THEN
-            pkg_utl_log.set_console_logging (TRUE);
+            log.set_console_logging (TRUE);
             p_log_message    := 'Could not lock Table ' || l_o_table_name;
-            pkg_utl_log.LOG (p_log_message, 'LOCK TABLE');
+            log.LOG (p_log_message, 'LOCK TABLE');
             RETURN g_ret_no_table_lock;
          WHEN OTHERS
          THEN
@@ -1689,14 +1689,14 @@ select --+ ordered parallel (src 3) parallel (tgt 3)
 
       IF l_max_valid_from_hist > l_cutoff_day
       THEN
-         pkg_utl_log.set_console_logging (TRUE);
+         log.set_console_logging (TRUE);
          p_log_message    := 'Parameter CUTOFF_DAY is too old (p_cutoff_day=' || TO_CHAR (p_cutoff_day, 'DD.MM.YYYY') || ')' || CHR (10);
          p_log_message    := p_log_message || 'max(valid_from) in table ' || c_core_user || '.' || l_hist_table_name || ' is : ' || TO_CHAR (l_max_valid_from_hist, 'DD.MM.YYYY');
-         pkg_utl_log.LOG (p_log_message, 'ERROR');
+         log.LOG (p_log_message, 'ERROR');
          RETURN g_ret_nok;
       END IF;
 
-      pkg_utl_log.LOG ('CUTOFF_DAY is : ' || TO_CHAR (l_cutoff_day, 'DD.MM.YYYY'));
+      log.LOG ('CUTOFF_DAY is : ' || TO_CHAR (l_cutoff_day, 'DD.MM.YYYY'));
       -- fill list with hist columns (no PK and no technichal columns)
       l_hist_column_tab            := get_hist_column_tab (l_hist_table_name);
       --  generate SQL Statement for inserting time intervals
@@ -1748,36 +1748,36 @@ select --+ ordered parallel (src 3) parallel (tgt 3)
 
       IF p_do_not_execute = 'Y'
       THEN
-         pkg_utl_log.LOG (l_sql_upd);
-         pkg_utl_log.LOG (l_sql_upd_versioned);
-         pkg_utl_log.LOG (l_sql_ins_versioned);
-         pkg_utl_log.LOG (l_sql_ins);
+         log.LOG (l_sql_upd);
+         log.LOG (l_sql_upd_versioned);
+         log.LOG (l_sql_ins_versioned);
+         log.LOG (l_sql_ins);
          p_log_message    := 'Genrated SQL Statement for History Table (do_not_execute = Y):';
          p_log_message    := p_log_message || l_sql_ins_versioned;
       ELSE
          IF l_hist_column_tab.COUNT > 1
          THEN
             DBMS_APPLICATION_INFO.set_action ('Start non versioned update in Table' || l_hist_table_name);
-            pkg_utl_log.LOG ('Start non versioned update in Table ' || l_hist_table_name);
+            log.LOG ('Start non versioned update in Table ' || l_hist_table_name);
 
             EXECUTE IMMEDIATE l_sql_upd;
 
             l_updated_rows               := SQL%ROWCOUNT;
-            pkg_utl_log.LOG ('Updated (unversioned) ' || l_updated_rows || ' rows in Table ' || l_hist_table_name);
+            log.LOG ('Updated (unversioned) ' || l_updated_rows || ' rows in Table ' || l_hist_table_name);
             DBMS_APPLICATION_INFO.set_action ('Start versioned update in Table' || l_hist_table_name);
-            pkg_utl_log.LOG ('Start versioned update in Table ' || l_hist_table_name);
+            log.LOG ('Start versioned update in Table ' || l_hist_table_name);
 
             EXECUTE IMMEDIATE l_sql_upd_versioned;
 
             l_updated_rows_versioned     := SQL%ROWCOUNT;
-            pkg_utl_log.LOG ('Updated (versioned) ' || l_updated_rows_versioned || ' rows in Table ' || l_hist_table_name);
+            log.LOG ('Updated (versioned) ' || l_updated_rows_versioned || ' rows in Table ' || l_hist_table_name);
             DBMS_APPLICATION_INFO.set_action ('Start versioned insert into Table' || l_hist_table_name);
-            pkg_utl_log.LOG ('Start versioned insert into  Table ' || l_hist_table_name);
+            log.LOG ('Start versioned insert into  Table ' || l_hist_table_name);
 
             EXECUTE IMMEDIATE l_sql_ins_versioned;
 
             l_inserted_rows_versioned    := SQL%ROWCOUNT;
-            pkg_utl_log.LOG ('Inserted (versioned) ' || l_inserted_rows_versioned || ' rows in Table ' || l_hist_table_name);
+            log.LOG ('Inserted (versioned) ' || l_inserted_rows_versioned || ' rows in Table ' || l_hist_table_name);
             p_log_message                := 'CUTOFF_DAY is : ' || TO_CHAR (l_cutoff_day, 'DD.MM.YYYY') || CHR (10);
             p_log_message                := p_log_message || 'Updated  (unversioned) rows in   History Table ' || l_hist_table_name || ' : ' || l_updated_rows || CHR (10);
             p_log_message                :=
@@ -1786,12 +1786,12 @@ select --+ ordered parallel (src 3) parallel (tgt 3)
          END IF;
 
          DBMS_APPLICATION_INFO.set_action ('Start insert into Table' || l_hist_table_name);
-         pkg_utl_log.LOG ('Start insert into Table ' || l_hist_table_name);
+         log.LOG ('Start insert into Table ' || l_hist_table_name);
 
          EXECUTE IMMEDIATE l_sql_ins;
 
          l_inserted_rows    := SQL%ROWCOUNT;
-         pkg_utl_log.LOG ('Inserted ' || l_inserted_rows || ' rows into Table ' || l_hist_table_name);
+         log.LOG ('Inserted ' || l_inserted_rows || ' rows into Table ' || l_hist_table_name);
          p_log_message      := p_log_message || 'Inserted (unversioned) rows into History Table ' || l_hist_table_name || ' : ' || l_inserted_rows;
          COMMIT;
          write_statistics (l_hist_table_name
@@ -1803,18 +1803,18 @@ select --+ ordered parallel (src 3) parallel (tgt 3)
                          , 0
                          , 0
                           );
-         pkg_utl_log.LOG (p_log_message);
+         log.LOG (p_log_message);
       END IF;
 
-      pkg_utl_log.LOG ('Fill History Table ' || l_hist_table_name, 'END');
+      log.LOG ('Fill History Table ' || l_hist_table_name, 'END');
       RETURN g_ret_ok;
    EXCEPTION
       WHEN OTHERS
       THEN
-         pkg_utl_log.set_console_logging (TRUE);
-         pkg_utl_log.LOG ('Fill History Table ' || l_hist_table_name, 'ERROR');
-         pkg_utl_log.LOG (SQLERRM
-                        , pkg_utl_log.gc_fatal
+         log.set_console_logging (TRUE);
+         log.LOG ('Fill History Table ' || l_hist_table_name, 'ERROR');
+         log.LOG (SQLERRM
+                        , log.gc_fatal
                         , SQLCODE
                          );
          RAISE;
@@ -1956,9 +1956,9 @@ select --+ ordered parallel (src 3) parallel (tgt 3)
       DBMS_APPLICATION_INFO.set_module (c_package_name, c_proc_name);
       DBMS_APPLICATION_INFO.set_client_info (p_job_name || ': ' || c_proc_name);
       DBMS_APPLICATION_INFO.set_action ('started');
-      pkg_utl_log.set_di_gui ((p_di_gui));
-      pkg_utl_log.set_job_name (p_job_name);
-      pkg_utl_log.LOG ('Fill R Table ' || l_table_name_r || ' (from ' || l_table_name_src || ' last imported_di_gui ' || TO_CHAR (l_last_di_gui_src_imported) || ')', '0-START');
+      log.set_di_gui ((p_di_gui));
+      log.set_job_name (p_job_name);
+      log.LOG ('Fill R Table ' || l_table_name_r || ' (from ' || l_table_name_src || ' last imported_di_gui ' || TO_CHAR (l_last_di_gui_src_imported) || ')', '0-START');
 -- 1: the new or changed Rows will be Inserted/Updated in the B Table
 --    Propagation Subscriber ID/NK
       l_sql                         :=
@@ -2055,10 +2055,10 @@ WHEN NOT MATCHED THEN
 
       IF p_do_not_execute = 'Y'
       THEN
-         pkg_utl_log.LOG ('(do_not_execute = Y): ' || l_sql, '1-SQL');
+         log.LOG ('(do_not_execute = Y): ' || l_sql, '1-SQL');
       ELSE
          DBMS_APPLICATION_INFO.set_action ('Step1: Insert B Table ' || l_table_name_b);
-         pkg_utl_log.LOG ('Step1: Insert B Table ' || l_table_name_b, '1-SQL');
+         log.LOG ('Step1: Insert B Table ' || l_table_name_b, '1-SQL');
 
          EXECUTE IMMEDIATE l_sql;
 
@@ -2131,10 +2131,10 @@ AND TGT.'
 
       IF p_do_not_execute = 'Y'
       THEN
-         pkg_utl_log.LOG ('(do_not_execute = Y): ' || l_sql, '2-SQL');
+         log.LOG ('(do_not_execute = Y): ' || l_sql, '2-SQL');
       ELSE
          DBMS_APPLICATION_INFO.set_action ('Step2: Insert R Table ' || l_table_name_r);
-         pkg_utl_log.LOG ('Step2: Insert R Table ' || l_table_name_r, '2-SQL');
+         log.LOG ('Step2: Insert R Table ' || l_table_name_r, '2-SQL');
 
          EXECUTE IMMEDIATE l_sql;
 
@@ -2157,10 +2157,10 @@ AND TGT.'
 
       IF p_do_not_execute = 'Y'
       THEN
-         pkg_utl_log.LOG ('(do_not_execute = Y): ' || l_sql, '3-SQL');
+         log.LOG ('(do_not_execute = Y): ' || l_sql, '3-SQL');
       ELSE
          DBMS_APPLICATION_INFO.set_action (l_sql);
-         pkg_utl_log.LOG (l_sql, '3-SQL');
+         log.LOG (l_sql, '3-SQL');
 
          EXECUTE IMMEDIATE l_sql;
       END IF;
@@ -2225,10 +2225,10 @@ AND ORIG.VALID_FROM IS NULL';
 
       IF p_do_not_execute = 'Y'
       THEN
-         pkg_utl_log.LOG ('(do_not_execute = Y): ' || l_sql, '4-SQL');
+         log.LOG ('(do_not_execute = Y): ' || l_sql, '4-SQL');
       ELSE
          DBMS_APPLICATION_INFO.set_action ('Step4: identify Periods to be delete: Table' || l_table_name_cls);
-         pkg_utl_log.LOG ('Step4: identify Periods to be delete: Table' || l_table_name_cls, '4-SQL');
+         log.LOG ('Step4: identify Periods to be delete: Table' || l_table_name_cls, '4-SQL');
 
          EXECUTE IMMEDIATE l_sql;
 
@@ -2380,10 +2380,10 @@ WHERE
 
       IF p_do_not_execute = 'Y'
       THEN
-         pkg_utl_log.LOG ('(do_not_execute = Y): ' || l_sql, '5-SQL');
+         log.LOG ('(do_not_execute = Y): ' || l_sql, '5-SQL');
       ELSE
          DBMS_APPLICATION_INFO.set_action ('Step5: Identify all changes between Target and Source :' || l_table_name_cls);
-         pkg_utl_log.LOG ('Step5: Identify all changes between Target and Source :' || l_table_name_cls, '5-SQL');
+         log.LOG ('Step5: Identify all changes between Target and Source :' || l_table_name_cls, '5-SQL');
 
          EXECUTE IMMEDIATE l_sql;
 
@@ -2450,10 +2450,10 @@ WHEN matched THEN
 
       IF p_do_not_execute = 'Y'
       THEN
-         pkg_utl_log.LOG ('(do_not_execute = Y): ' || l_sql, '6-SQL');
+         log.LOG ('(do_not_execute = Y): ' || l_sql, '6-SQL');
       ELSE
          DBMS_APPLICATION_INFO.set_action ('Step6: Update R Table ' || l_table_name_r);
-         pkg_utl_log.LOG ('Step6: Update R Table ' || l_table_name_r, '6-SQL');
+         log.LOG ('Step6: Update R Table ' || l_table_name_r, '6-SQL');
 
          EXECUTE IMMEDIATE l_sql;
 
@@ -2503,10 +2503,10 @@ WHERE TECH_OPERATION = ''I''';
 
       IF p_do_not_execute = 'Y'
       THEN
-         pkg_utl_log.LOG ('(do_not_execute = Y): ' || l_sql, '7-SQL');
+         log.LOG ('(do_not_execute = Y): ' || l_sql, '7-SQL');
       ELSE
          DBMS_APPLICATION_INFO.set_action ('Step7: Insert R Table ' || l_table_name_r);
-         pkg_utl_log.LOG ('Step7: Insert R Table ' || l_table_name_r, '7-SQL');
+         log.LOG ('Step7: Insert R Table ' || l_table_name_r, '7-SQL');
 
          EXECUTE IMMEDIATE l_sql;
 
@@ -2610,10 +2610,10 @@ AND r.'
 
       IF p_do_not_execute = 'Y'
       THEN
-         pkg_utl_log.LOG ('(do_not_execute = Y): ' || l_sql, '8-SQL');
+         log.LOG ('(do_not_execute = Y): ' || l_sql, '8-SQL');
       ELSE
          DBMS_APPLICATION_INFO.set_action ('Step8: Insert R Table ' || l_table_name_r);
-         pkg_utl_log.LOG ('Step8: Insert R Table ' || l_table_name_r, '8-SQL');
+         log.LOG ('Step8: Insert R Table ' || l_table_name_r, '8-SQL');
 
          EXECUTE IMMEDIATE l_sql;
 
@@ -2633,15 +2633,15 @@ AND r.'
       END IF;
 
 -- 9: Job End
-      pkg_utl_log.LOG (p_log_message || ' last_gui_imported: ' || TO_CHAR (l_max_di_gui_src), '9-END');
+      log.LOG (p_log_message || ' last_gui_imported: ' || TO_CHAR (l_max_di_gui_src), '9-END');
       RETURN g_ret_ok;
    EXCEPTION
       WHEN OTHERS
       THEN
-         pkg_utl_log.set_console_logging (TRUE);
-         pkg_utl_log.LOG ('Fill R Table ' || l_table_name_r, 'ERROR');
-         pkg_utl_log.LOG (SQLERRM
-                        , pkg_utl_log.gc_fatal
+         log.set_console_logging (TRUE);
+         log.LOG ('Fill R Table ' || l_table_name_r, 'ERROR');
+         log.LOG (SQLERRM
+                        , log.gc_fatal
                         , SQLCODE
                          );
          ROLLBACK;
@@ -2663,14 +2663,14 @@ BEGIN
 
    IF c_devel_mode
    THEN
-      pkg_utl_log.set_console_logging (FALSE);
-      pkg_utl_log.set_table_logging (TRUE);
-      pkg_utl_log.set_log_level (pkg_utl_log.gc_all);
-      pkg_utl_log.LOG ('Initialized in development mode.');
+      log.set_console_logging (FALSE);
+      log.set_table_logging (TRUE);
+      log.set_log_level (log.gc_all);
+      log.LOG ('Initialized in development mode.');
    ELSE
-      pkg_utl_log.set_console_logging (FALSE);
-      pkg_utl_log.set_table_logging (TRUE);
-      pkg_utl_log.LOG ('Initialized in production mode.');
+      log.set_console_logging (FALSE);
+      log.set_table_logging (TRUE);
+      log.LOG ('Initialized in production mode.');
    END IF;
 END pkg_etl_core;
 /
@@ -2678,7 +2678,7 @@ END pkg_etl_core;
 SHOW errors
 
 BEGIN
-   pkg_utl_ddl.prc_create_synonym ('pkg_etl_framework'
+   ddl.prc_create_synonym ('pkg_etl_framework'
                                  , 'pkg_etl_framework'
                                  , TRUE
                                   );

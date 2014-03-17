@@ -1,4 +1,4 @@
-CREATE OR REPLACE PACKAGE aux_param AUTHID CURRENT_USER AS
+CREATE OR REPLACE PACKAGE param AUTHID CURRENT_USER AS
   /**
   * $Author: nmarangoni $
   * $Date: $
@@ -6,29 +6,6 @@ CREATE OR REPLACE PACKAGE aux_param AUTHID CURRENT_USER AS
   * $Id: $
   * $HeadURL: $
   */
-  /**
-  * Package spec version string.
-  */
-  c_spec_version CONSTANT VARCHAR2(1024) := '$Id: $';
-  /**
-  * Package spec repository URL.
-  */
-  c_spec_url CONSTANT VARCHAR2(1024) := '$HeadURL: $';
-  /**
-  * Package body version string.
-  */
-  c_body_version VARCHAR2(1024);
-  /**
-  * Package body repository URL.
-  */
-  c_body_url VARCHAR2(1024);
-  /**
-  * Instance names
-  */
-  /*c_vc_db_name_dev          VARCHAR2 (1024) := 'EDWH_DEV';
-  c_vc_db_name_tst          VARCHAR2 (1024) := 'EDWH_TST';
-  c_vc_db_name_int          VARCHAR2 (1024) := 'EDWH_INT';
-  c_vc_db_name_prd          VARCHAR2 (1024) := 'EDWH_PRD';*/
   --
   gc_log_off   CONSTANT NUMBER := 0;
   gc_log_fatal CONSTANT NUMBER := 1;
@@ -56,5 +33,5 @@ CREATE OR REPLACE PACKAGE aux_param AUTHID CURRENT_USER AS
                                                   ,'OS_USER');
   g_vc_terminal       VARCHAR2(100) := sys_context('USERENV'
                                                   ,'TERMINAL');
-END aux_param;
+END param;
 /
