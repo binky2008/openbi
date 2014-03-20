@@ -5,7 +5,7 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses({MainTestDBProperties.class, MainTestTableCopyFromMySQL.class})
+@SuiteClasses({MainTestDBProperties.class, MainTestCopyTableFromMySQL.class})
 
 public class AllTests {
 

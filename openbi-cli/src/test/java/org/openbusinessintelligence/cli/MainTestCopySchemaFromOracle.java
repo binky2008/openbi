@@ -4,7 +4,7 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-public class MainTestSchemaCopyFromDB2 {
+public class MainTestCopySchemaFromOracle {
 	
 	private String[] arguments = new String[18];
 	
@@ -28,18 +28,18 @@ public class MainTestSchemaCopyFromDB2 {
 		
 	}
 	
-	public void initSourceDB2() {
+	public void initSourceOracle() {
 		// Source properties
-		arguments[3] = "localhost_db2_sample_sugarcrm";
+		arguments[3] = "localhost_oracle_sugarcrm";
 		arguments[5] = "";
 		arguments[7] = "sugarcrm";
 	}
 
 	@Test
-	public void testDB2ToMySQL() {
+	public void testOracleToMySQL() {
 		
 		initArguments();
-		initSourceDB2();
+		initSourceOracle();
 		//
 		arguments[9]  = "localhost_mysql_dwhstage";
 		arguments[11] = "";
@@ -54,10 +54,10 @@ public class MainTestSchemaCopyFromDB2 {
 	}
 
 	@Test
-	public void testDB2ToPostgreSQL() {
+	public void testOracleToPostgreSQL() {
 		
 		initArguments();
-		initSourceDB2();
+		initSourceOracle();
 		//
 		arguments[9] = "localhost_postgresql_postgres_sugarcrm";
 		arguments[11] = "";
@@ -72,30 +72,12 @@ public class MainTestSchemaCopyFromDB2 {
 	}
 
 	@Test
-	public void testDB2ToOracle() {
+	public void testOracleToOracle() {
 		
 		initArguments();
-		initSourceDB2();
+		initSourceOracle();
 		//
-		arguments[9] = "localhost_oracle_sugarcrm";
-		arguments[11] = "";
-		arguments[13] = "sugarcrm";
-		// Perform test
-		try {
-			Main.main(arguments);
-		}
-		catch (Exception e) {
-			fail("Exception: \n" + e.getMessage() + "\n" + e.getStackTrace());
-		}
-	}
-
-	@Test
-	public void testDB2ToDB2() {
-		
-		initArguments();
-		initSourceDB2();
-		//
-		arguments[9] = "localhost_db2_sample_dwhstage";
+		arguments[9] = "localhost_oracle_dwhstage";
 		arguments[11] = "";
 		arguments[13] = "dwhstage";
 		// Perform test
@@ -108,10 +90,28 @@ public class MainTestSchemaCopyFromDB2 {
 	}
 
 	@Test
-	public void testDB2ToInformix() {
+	public void testOracleToDB2() {
 		
 		initArguments();
-		initSourceDB2();
+		initSourceOracle();
+		//
+		arguments[9] = "localhost_db2_sample_sugarcrm";
+		arguments[11] = "";
+		arguments[13] = "sugarcrm";
+		// Perform test
+		try {
+			Main.main(arguments);
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e.getMessage() + "\n" + e.getStackTrace());
+		}
+	}
+
+	@Test
+	public void testOracleToInformix() {
+		
+		initArguments();
+		initSourceOracle();
 		//
 		arguments[9]  = "localhost_informix_sugarcrm";
 		arguments[11] = "";
@@ -126,10 +126,10 @@ public class MainTestSchemaCopyFromDB2 {
 	}
 
 	@Test
-	public void testDB2ToSQLServer() {
+	public void testOracleToSQLServer() {
 		
 		initArguments();
-		initSourceDB2();
+		initSourceOracle();
 		//
 		arguments[9] = "localhost_sqlserver_sugarcrm";
 		arguments[11] = "";
@@ -144,10 +144,10 @@ public class MainTestSchemaCopyFromDB2 {
 	}
 
 	@Test
-	public void testDB2ToHANA() {
+	public void testOracleToHANA() {
 		
 		initArguments();
-		initSourceDB2();
+		initSourceOracle();
 		//
 		arguments[9] = "msas120i_hana_01_sugarcrm";
 		arguments[11] = "HDBKeywords";
@@ -162,10 +162,10 @@ public class MainTestSchemaCopyFromDB2 {
 	}
 
 	@Test
-	public void testDB2ToTeradata() {
+	public void testOracletoTeradata() {
 		
 		initArguments();
-		initSourceDB2();
+		initSourceOracle();
 		//
 		arguments[9] = "localhost_teradata_sugarcrm";
 		arguments[11] = "TDBKeywords";

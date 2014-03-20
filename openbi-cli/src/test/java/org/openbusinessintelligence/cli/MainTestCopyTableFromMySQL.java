@@ -4,38 +4,48 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-public class MainTestGenerateDataMySQL {
+public class MainTestCopyTableFromMySQL {
 	
-	private String[] arguments = new String[12];
+	private String[] arguments = new String[20];
 	
 	public void initArguments() {
 		
 		// Function to test
 		arguments[0]  = "-function";
-		arguments[1]  = "generaterandomdata";
+		arguments[1]  = "tablecopy";
 		// Mandatory arguments
-		arguments[2]  = "-trgdbconnpropertyfile";
-		arguments[4] = "-trgdbconnkeywordfile";
-		arguments[6] = "-targetschema";
-		arguments[8] = "-targettable";
-		//
-		arguments[10] = "-rowcount";
+		arguments[2]  = "-srcdbconnpropertyfile";
+		arguments[4]  = "-srcdbconnkeywordfile";
+		arguments[6]  = "-sourcetable";
+		arguments[8]  = "-trgdbconnpropertyfile";
+		arguments[10] = "-trgdbconnkeywordfile";
+		arguments[12] = "-targetschema";
+		arguments[14] = "-targettable";
+		
+		arguments[16] = "-trgcreate";
+		arguments[17] = "true";
+		arguments[18] = "-dropifexists";
+		arguments[19] = "true";
+		
 	}
 	
 	public void initSourceMySQL() {
-		// Target properties
+		// Source properties
 		arguments[3] = "localhost_mysql_test";
 		arguments[5] = "";
-		arguments[7] = "test";
-		arguments[9] = "tab_test";
-		arguments[11] = "1000";
+		arguments[7] = "tab_test";
 	}
 
 	@Test
-	public void testMySQL() {
+	public void testMySQLtoMySQL() {
 		
 		initArguments();
 		initSourceMySQL();
+		//
+		arguments[9] = "localhost_mysql_dwhstage";
+		arguments[11] = "";
+		arguments[13] = "dwhstage";
+		arguments[15] = "stg_mys_tab_test";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -45,7 +55,8 @@ public class MainTestGenerateDataMySQL {
 		}
 	}
 
-	/*@Test
+
+	@Test
 	public void testMySQLtoPostgreSQL() {
 		
 		initArguments();
@@ -176,5 +187,5 @@ public class MainTestGenerateDataMySQL {
 		catch (Exception e) {
 			fail("Exception: \n" + e);
 		}
-	}*/
+	}
 }

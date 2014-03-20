@@ -48,7 +48,7 @@ public class BodiWorkFlowBean {
     	steps = document.createElement("DISteps");
     	workFlow.appendChild(steps);
     	// add stat init script
-    	script = document.createElement("DIScript");
+    	/*script = document.createElement("DIScript");
     	steps.appendChild(script);
     	functioncallstep = document.createElement("DIFunctionCallStep");
     	script.appendChild(functioncallstep);
@@ -60,14 +60,14 @@ public class BodiWorkFlowBean {
     	tryStep = document.createElement("DITryStep");
     	steps.appendChild(tryStep);
     	steps = document.createElement("DISteps");
-    	tryStep.appendChild(steps);
+    	tryStep.appendChild(steps);*/
     	// add data flow
     	callStep = document.createElement("DICallStep");
     	callStep.setAttribute("calledObjectType", "Dataflow");
     	callStep.setAttribute("name", dataFlowName);
     	steps.appendChild(callStep);
     	// add stat final script
-    	script = document.createElement("DIScript");
+    	/*script = document.createElement("DIScript");
     	steps.appendChild(script);
     	functioncallstep = document.createElement("DIFunctionCallStep");
     	script.appendChild(functioncallstep);
@@ -89,7 +89,7 @@ public class BodiWorkFlowBean {
     	expression = document.createElement("DIExpression");
     	expression.setAttribute("isString", "true");
     	expression.setAttribute("expr", "FC_STAGE_STAT_ERROR()");
-    	functioncallstep.appendChild(expression);
+    	functioncallstep.appendChild(expression);*/
 		
     	return workFlow;
     }

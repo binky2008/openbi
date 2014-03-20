@@ -4,7 +4,7 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-public class MainTestSchemaCopyFromInformix {
+public class MainTestCopySchemaFromInformix {
 	
 	private String[] arguments = new String[18];
 	

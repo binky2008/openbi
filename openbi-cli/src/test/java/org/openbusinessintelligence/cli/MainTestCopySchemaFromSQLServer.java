@@ -4,7 +4,7 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-public class MainTestSchemaCopyFromPostgreSQL {
+public class MainTestCopySchemaFromSQLServer {
 	
 	private String[] arguments = new String[18];
 	
@@ -28,18 +28,18 @@ public class MainTestSchemaCopyFromPostgreSQL {
 		
 	}
 	
-	public void initSourcePostgreSQL() {
+	public void initSourceSQLServer() {
 		// Source properties
-		arguments[3] = "localhost_postgresql_postgres_sugarcrm";
+		arguments[3] = "localhost_sqlserver_sugarcrm";
 		arguments[5] = "";
 		arguments[7] = "sugarcrm";
 	}
-	
+
 	@Test
-	public void testPostgreSQLtoMySQL() {
+	public void testSQLServerToMySQL() {
 		
 		initArguments();
-		initSourcePostgreSQL();
+		initSourceSQLServer();
 		//
 		arguments[9]  = "localhost_mysql_dwhstage";
 		arguments[11] = "";
@@ -54,14 +54,14 @@ public class MainTestSchemaCopyFromPostgreSQL {
 	}
 
 	@Test
-	public void testPostgreSQLtoPostgreSQL() {
+	public void testSQLServerToPostgreSQL() {
 		
 		initArguments();
-		initSourcePostgreSQL();
+		initSourceSQLServer();
 		//
-		arguments[9]  = "localhost_postgresql_postgres_dwhstage";
+		arguments[9]  = "localhost_postgresql_postgres_sugarcrm";
 		arguments[11] = "";
-		arguments[13] = "dwhstage";
+		arguments[13] = "sugarcrm";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -72,10 +72,10 @@ public class MainTestSchemaCopyFromPostgreSQL {
 	}
 
 	@Test
-	public void testPostgreSQLtoOracle() {
+	public void testSQLServerToOracle() {
 		
 		initArguments();
-		initSourcePostgreSQL();
+		initSourceSQLServer();
 		//
 		arguments[9]  = "localhost_oracle_sugarcrm";
 		arguments[11] = "";
@@ -90,10 +90,10 @@ public class MainTestSchemaCopyFromPostgreSQL {
 	}
 
 	@Test
-	public void testPostgreSQLtoDB2() {
+	public void testSQLServerToDB2() {
 		
 		initArguments();
-		initSourcePostgreSQL();
+		initSourceSQLServer();
 		//
 		arguments[9]  = "localhost_db2_sample_sugarcrm";
 		arguments[11] = "";
@@ -108,10 +108,10 @@ public class MainTestSchemaCopyFromPostgreSQL {
 	}
 
 	@Test
-	public void testPostgreSQLtoInformix() {
+	public void testSQLServertoInformix() {
 		
 		initArguments();
-		initSourcePostgreSQL();
+		initSourceSQLServer();
 		//
 		arguments[9]  = "localhost_informix_sugarcrm";
 		arguments[11] = "";
@@ -126,10 +126,10 @@ public class MainTestSchemaCopyFromPostgreSQL {
 	}
 
 	@Test
-	public void testPostgreSQLtoSQLServer() {
+	public void testSQLServertoSQLServer() {
 		
 		initArguments();
-		initSourcePostgreSQL();
+		initSourceSQLServer();
 		//
 		arguments[9] = "localhost_sqlserver_sugarcrm";
 		arguments[11] = "";
@@ -144,10 +144,10 @@ public class MainTestSchemaCopyFromPostgreSQL {
 	}
 
 	@Test
-	public void testPostgreSQLtoHANA() {
+	public void testSQLServertoHANA() {
 		
 		initArguments();
-		initSourcePostgreSQL();
+		initSourceSQLServer();
 		//
 		arguments[9] = "msas120i_hana_01_sugarcrm";
 		arguments[11] = "HDBKeywords";
@@ -162,10 +162,10 @@ public class MainTestSchemaCopyFromPostgreSQL {
 	}
 
 	@Test
-	public void testPostgreSQLtoTeradata() {
+	public void testSQLServertoTeradata() {
 		
 		initArguments();
-		initSourcePostgreSQL();
+		initSourceSQLServer();
 		//
 		arguments[9] = "localhost_teradata_sugarcrm";
 		arguments[11] = "TDBKeywords";

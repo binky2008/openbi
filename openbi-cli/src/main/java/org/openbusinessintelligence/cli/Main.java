@@ -2,16 +2,22 @@ package org.openbusinessintelligence.cli;
 
 import java.io.*;
 import java.util.*;
+
 import javax.xml.parsers.*;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.slf4j.*;
 import org.w3c.dom.*;
 import org.apache.commons.cli.*;
-
 import org.openbusinessintelligence.core.data.*;
 import org.openbusinessintelligence.core.db.*;
 import org.openbusinessintelligence.core.file.*;
 import org.openbusinessintelligence.core.xml.*;
+import org.openbusinessintelligence.etl.sapds.*;
 
 public class Main {
 	
@@ -218,7 +224,7 @@ public class Main {
 				logger.info("Properties retrieved");
 	    	}
 	    	/*
-    		* Copy a table between 2 databases
+    		* Copy tables between 2 databases
     		*/
 	    	if (function.equalsIgnoreCase("tablecopy")) {
 				logger.info("Copy an entire schema, a single table or the result of a query from a database to another");
@@ -494,6 +500,188 @@ public class Main {
 				catch (Exception e) {
 					logger.error("UNEXPECTED EXCEPTION");
 					logger.error(e.getMessage());
+				    throw e;
+				}
+	    	}
+	    	/*
+    		* Create XML definitions for common ETL software
+    		*/
+	    	if (function.equalsIgnoreCase("createetlxml")) {
+
+				logger.info("Create ETL XML");
+
+				String bodiAbapDataFlowPrefix = getOption("bodiabapdataflowprefix");
+	    		String bodiDataFlowPrefix = getOption("bodidataflowprefix");
+	    		String bodiWorkFlowPrefix = getOption("bodiworkflowprefix");
+	    		String bodiJobPrefix = getOption("bodijobprefix");
+	    		boolean isAbap = false;
+	    		/*if (getOption("bodijobisabap").equalsIgnoreCase("Y")) {
+	    			isAbap = true;
+	    		}*/
+	    		String bodiSourceDataStore = getOption("bodisourcedatastore");
+	    		String bodiTargetDataStore = getOption("boditargetdatastore");
+	    		String bodiExportFile = getOption("bodiexportfile");
+	    		
+				logger.info("Copy an entire schema, a single table or the result of a query from a database to another");
+				
+	    		org.openbusinessintelligence.core.db.ConnectionBean sourceConnectionBean = new org.openbusinessintelligence.core.db.ConnectionBean();
+	    		sourceConnectionBean.setPropertyFile(getOption("srcdbconnpropertyfile"));
+	    		sourceConnectionBean.setKeyWordFile(getOption("srcdbconnkeywordfile"));
+	    		sourceConnectionBean.setDatabaseDriver(getOption("srcdbdriverclass"));
+	    		sourceConnectionBean.setConnectionURL(getOption("srcdbconnectionurl"));
+	    		sourceConnectionBean.setUserName(getOption("srcdbusername"));
+	    		sourceConnectionBean.setPassWord(getOption("srcdbpassword"));
+	    		sourceConnectionBean.openConnection();
+	    		
+				logger.info("Source connection prepared");
+				
+	    		String sourceSchema = getOption("sourceschema");
+	    		logger.info("Source schema: " + sourceSchema);
+	    		String sourceTable = getOption("sourcetable");
+	    		logger.info("Source table: " + sourceTable);
+	    		String sourceQuery = getOption("sourcequery");
+	    		logger.info("Source query: " + sourceQuery);
+	    		String targetSchema = getOption("targetschema");
+	    		logger.info("Target schema: " + targetSchema);
+	    		String targetTable = getOption("targettable");
+	    		logger.info("Target table: " + targetTable);
+
+	    		String[] sourceTableList = null;
+	    		String[] targetTableList = null;
+
+				sourceConnectionBean.setSchemaName(sourceSchema);
+	    		if ((sourceSchema != null) &&
+	    			(sourceTable == null || sourceSchema.equals("")) &&
+	    			(sourceQuery == null || sourceSchema.equals(""))
+	    		) {
+					logger.info("Copy all objects of a schema");
+					sourceTableList = sourceConnectionBean.getTableList();
+					targetTableList = sourceTableList;
+	    		}
+	    		else {
+					logger.info("Copy a single table or the result of a query");
+					sourceTableList = new String[1];
+					targetTableList = new String[1];
+					sourceTableList[0] = sourceTable;
+					targetTableList[0] = targetTable;
+	    		}
+
+	    		// Create xml document objects
+	    		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+	    		DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+	    		Document document = documentBuilder.newDocument();
+	    		Element export = document.createElement("DataIntegratorExport");
+	    		
+				try {
+		    		/*String[] columnNames;
+		    		String[] columnDefs;*/
+					logger.info("Found " + sourceTableList.length + " tables");
+		    	
+	    			for (int i = 0; i < sourceTableList.length; i++ ) {
+	    				
+	    				logger.debug("Table " + sourceTableList[i]);
+	    				
+	    				TableDictionaryBean sourceDictionary = new TableDictionaryBean();
+	    		    	sourceDictionary.setSourceConnection(sourceConnectionBean);
+	    		    	sourceDictionary.setSourceTable(sourceTableList[i]);
+	    		    	sourceDictionary.setSourceQuery(sourceQuery);
+	    		    	sourceDictionary.retrieveColumns();
+	    		    	/*columnNames = sourceDictionary.getColumnNames();
+	    		    	columnDefs = sourceDictionary.getColumnDefinition();*/
+	    		    	
+	    				if (isAbap) {
+	    					// Generate and append abap dataflow
+	    					BodiAbapDataFlowBean abapDataFlow = new BodiAbapDataFlowBean();
+	    					abapDataFlow.setSourceDataStore(bodiSourceDataStore);
+	    					abapDataFlow.setDataFlowName(bodiAbapDataFlowPrefix + "_" + sourceTableList[i]);
+	    					abapDataFlow.setSourceTableName(sourceTableList[i]);
+	    					export.appendChild(abapDataFlow.getElement(document));
+	    					// Generate and append dataflow
+	    					BodiDataFlowForAbapBean dataFlow = new BodiDataFlowForAbapBean();
+	    					dataFlow.setAbapDataFlowName(bodiAbapDataFlowPrefix + "_" + targetTableList[i]);
+	    					dataFlow.setTargetDataStore(bodiTargetDataStore);
+	    					dataFlow.setTargetOwnerName(targetSchema);
+	    					dataFlow.setTargetTableName(targetTableList[i]);
+	    					dataFlow.setDataFlowName(bodiDataFlowPrefix + "_" + targetTableList[i]);
+	    					export.appendChild(dataFlow.getElement(document));
+	    				}
+	    				else {
+	    					// Generate and append source table
+	    					/*BodiTableBean bodiSourceTable = new BodiTableBean();
+	    					bodiSourceTable.setDataStore(bodiSourceDataStore);
+	    					bodiSourceTable.setOwnerName(sourceSchema);
+	    					bodiSourceTable.setTableName(sourceTable);
+	    					bodiSourceTable.setColumns(columnNames);
+	    					bodiSourceTable.setDataTypes(columnDefs);
+	    					bodiSourceTable.setDefaultColumns(new String[0]);
+	    					bodiSourceTable.setDefaultTypes(new String[0]);
+	    					export.appendChild(bodiSourceTable.getElement(document));*/
+	    				
+	    					// Generate and append target table
+	    					/*BodiTableBean bodiTargetTable = new BodiTableBean();
+	    					bodiTargetTable.setDataStore(bodiTargetDataStore);
+	    					bodiTargetTable.setOwnerName(targetSchema);
+	    					bodiTargetTable.setTableName(targetTable);
+	    					bodiTargetTable.setColumns(columnNames);
+	    					bodiTargetTable.setDataTypes(columnDefs);*/
+	    					/*bodiTargetTable.setDefaultColumns(defaultColumns);
+	    					bodiTargetTable.setDefaultTypes(defaultColTypes);*/
+	    					//export.appendChild(bodiTargetTable.getElement(document));
+	    					
+	    					// Generate and append dataflow
+	    					BodiDataFlowBean dataFlow = new BodiDataFlowBean();
+	    					dataFlow.setSourceDataStore(bodiSourceDataStore);
+	    					dataFlow.setTargetDataStore(bodiTargetDataStore);
+	    					dataFlow.setTargetOwnerName(targetSchema);
+	    					dataFlow.setTargetTableName(targetTableList[i]);
+	    					//
+	    					/*dataFlow.setSourceColumns(srcColumns);
+	    					dataFlow.setTargetColumns(trgColumns);
+	    					dataFlow.setDataTypes(trgTypes);
+	    					//
+	    					dataFlow.setDefaultColumns(defaultColumns);
+	    					dataFlow.setDefaultValues(defaultValues);
+	    					dataFlow.setDefaultTypes(defaultColTypes);*/
+	    					//
+	    					dataFlow.setDataFlowName(bodiDataFlowPrefix + "_" + targetTableList[i]);
+	    					dataFlow.setSourceOwnerName(sourceSchema);
+	    					dataFlow.setSourceTableName(sourceTableList[i]);
+	    					export.appendChild(dataFlow.getElement(document));
+	    					//exportParam.appendChild(targetTable.getElement(document));
+	    					
+	    				}
+	    				// Generate and append workflow
+	    				BodiWorkFlowBean workFlow = new BodiWorkFlowBean();
+	    				workFlow.setDataFlowName(bodiDataFlowPrefix + "_" + targetTableList[i]);
+	    				workFlow.setWorkFlowName(bodiWorkFlowPrefix + "_" + targetTableList[i]);
+	    				export.appendChild(workFlow.getElement(document));
+	    				// Generate and append job
+	    				BodiJobBean job = new BodiJobBean();
+	    				job.setWorkFlowName(bodiWorkFlowPrefix + "_" + targetTableList[i]);
+	    				job.setJobName(bodiJobPrefix + "_" + targetTableList[i]);
+	    				job.setStageSourceCode(sourceSchema);
+	    				job.setStageObjectName(sourceTableList[i]);
+	    				export.appendChild(job.getElement(document));
+	    			}
+	    			// Close source connection
+					sourceConnectionBean.closeConnection();
+					// write the content into file
+					TransformerFactory transformerFactory = TransformerFactory.newInstance();
+					Transformer transformer = transformerFactory.newTransformer();
+					transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+					transformer.transform(new DOMSource(export), new StreamResult(new File(bodiExportFile)));
+
+				}
+				catch (Exception e) {
+					e.printStackTrace();
+					logger.error("UNEXPECTED EXCEPTION");
+					logger.error(e.getMessage());
+					try {
+						sourceConnectionBean.closeConnection();
+					}
+					finally {
+						
+					}
 				    throw e;
 				}
 	    	}

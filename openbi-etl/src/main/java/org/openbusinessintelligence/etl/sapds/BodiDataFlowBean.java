@@ -186,15 +186,16 @@ public class BodiDataFlowBean {
         databaseTableTarget.setAttribute("tableName", targetTableName);
     	transforms.appendChild(databaseTableTarget);
     	targetInputView = document.createElement("DIInputView");
-    	targetInputView.setAttribute("name", "Query");
+    	targetInputView.setAttribute("name", sourceTableName);
     	databaseTableTarget.appendChild(targetInputView);
-    	// target attributes
+    	// target attributes    	
     	attributes = document.createElement("DIAttributes");
     	databaseTableTarget.appendChild(attributes);
-        /*attribute = document.createElement("DIAttribute");
+        attribute = document.createElement("DIAttribute");
         attribute.setAttribute("name","loader_template_table");
         attribute.setAttribute("value","yes");
-        attributes.appendChild(attribute);*/
+        attributes.appendChild(attribute);
+    	// Set as template table
         // enable loader configurations
         attribute = document.createElement("DIAttribute");
         attribute.setAttribute("name","ldr_configuration_enabled");
@@ -216,7 +217,7 @@ public class BodiDataFlowBean {
         ldrConfiguration.appendChild(element);
     	
     	// query schema
-	   	query = document.createElement("DIQuery");
+	   	/*query = document.createElement("DIQuery");
 	    transforms.appendChild(query);
 	    schema = document.createElement("DISchema");
 	    schema.setAttribute("name", "Query");
@@ -260,7 +261,7 @@ public class BodiDataFlowBean {
 	       	expression.setAttribute("expr", sourceColumns[i]);
 	       	expression.setAttribute("isString", "true");
 	       	projection.appendChild(expression);
-	    }
+	    }*/
     	
     	return dataFlow;
     }

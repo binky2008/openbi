@@ -4,7 +4,7 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-public class MainTestSchemaCopyFromOracle {
+public class MainTestCopySchemaFromMySQL {
 	
 	private String[] arguments = new String[18];
 	
@@ -25,21 +25,20 @@ public class MainTestSchemaCopyFromOracle {
 		arguments[15] = "true";
 		arguments[16] = "-dropifexists";
 		arguments[17] = "true";
-		
 	}
 	
-	public void initSourceOracle() {
+	public void initSourceMySQL() {
 		// Source properties
-		arguments[3] = "localhost_oracle_sugarcrm";
+		arguments[3] = "localhost_mysql_sugarcrm";
 		arguments[5] = "";
 		arguments[7] = "sugarcrm";
 	}
 
 	@Test
-	public void testOracleToMySQL() {
+	public void testMySQLtoMySQL() {
 		
 		initArguments();
-		initSourceOracle();
+		initSourceMySQL();
 		//
 		arguments[9]  = "localhost_mysql_dwhstage";
 		arguments[11] = "";
@@ -54,10 +53,10 @@ public class MainTestSchemaCopyFromOracle {
 	}
 
 	@Test
-	public void testOracleToPostgreSQL() {
+	public void testMySQLtoPostgreSQL() {
 		
 		initArguments();
-		initSourceOracle();
+		initSourceMySQL();
 		//
 		arguments[9] = "localhost_postgresql_postgres_sugarcrm";
 		arguments[11] = "";
@@ -72,14 +71,14 @@ public class MainTestSchemaCopyFromOracle {
 	}
 
 	@Test
-	public void testOracleToOracle() {
+	public void testMySQLtoOracle() {
 		
 		initArguments();
-		initSourceOracle();
+		initSourceMySQL();
 		//
-		arguments[9] = "localhost_oracle_dwhstage";
+		arguments[9] = "localhost_oracle_sugarcrm";
 		arguments[11] = "";
-		arguments[13] = "dwhstage";
+		arguments[13] = "sugarcrm";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -90,10 +89,10 @@ public class MainTestSchemaCopyFromOracle {
 	}
 
 	@Test
-	public void testOracleToDB2() {
+	public void testMySQLtoDB2() {
 		
 		initArguments();
-		initSourceOracle();
+		initSourceMySQL();
 		//
 		arguments[9] = "localhost_db2_sample_sugarcrm";
 		arguments[11] = "";
@@ -108,10 +107,10 @@ public class MainTestSchemaCopyFromOracle {
 	}
 
 	@Test
-	public void testOracleToInformix() {
+	public void testMySQLtoInformix() {
 		
 		initArguments();
-		initSourceOracle();
+		initSourceMySQL();
 		//
 		arguments[9]  = "localhost_informix_sugarcrm";
 		arguments[11] = "";
@@ -126,10 +125,10 @@ public class MainTestSchemaCopyFromOracle {
 	}
 
 	@Test
-	public void testOracleToSQLServer() {
+	public void testMySQLtoSQLServer() {
 		
 		initArguments();
-		initSourceOracle();
+		initSourceMySQL();
 		//
 		arguments[9] = "localhost_sqlserver_sugarcrm";
 		arguments[11] = "";
@@ -144,10 +143,10 @@ public class MainTestSchemaCopyFromOracle {
 	}
 
 	@Test
-	public void testOracleToHANA() {
+	public void testMySQLtoHANA() {
 		
 		initArguments();
-		initSourceOracle();
+		initSourceMySQL();
 		//
 		arguments[9] = "msas120i_hana_01_sugarcrm";
 		arguments[11] = "HDBKeywords";
@@ -162,10 +161,10 @@ public class MainTestSchemaCopyFromOracle {
 	}
 
 	@Test
-	public void testOracletoTeradata() {
+	public void testMySQLtoTeradata() {
 		
 		initArguments();
-		initSourceOracle();
+		initSourceMySQL();
 		//
 		arguments[9] = "localhost_teradata_sugarcrm";
 		arguments[11] = "TDBKeywords";

@@ -429,4 +429,51 @@
 		<description>Target LDAP Folder</description>
 		<argName>target ldap folder</argName>
 	</option>
+	
+	<!-- ETL generation Option -->
+	<option>
+		<name>bodiabapdataflowprefix</name>
+		<description>Dataflow prefix</description>
+		<argName>bodi dataflow prefix</argName>
+	</option>
+	<option>
+		<name>bodidataflowprefix</name>
+		<description>Dataflow prefix</description>
+		<argName>bodi dataflow prefix</argName>
+	</option>
+	<option>
+		<name>bodiworkflowprefix</name>
+		<description>Workflow prefix</description>
+		<argName>bodi workflow prefix</argName>
+	</option>
+	<option>
+		<name>bodijobprefix</name>
+		<description>Job prefix</description>
+		<argName>bodi job prefix</argName>
+	</option>
+	<option>
+		<name>bodijobisabap</name>
+		<description>The job use ABAP (y/n)</description>
+		<argName>bodi job use ABAP (y/n)</argName>
+	</option>
+	<option>
+		<name>bodijobisparameterized</name>
+		<description>The job is parameterized (y/n)</description>
+		<argName>bodi job is parameterized (y/n)</argName>
+	</option>
+	<option>
+		<name>bodiexportfile</name>
+		<description>Export file</description>
+		<argName>bodi export file</argName>
+	</option>
+	<option>
+		<name>bodisourcedatastore</name>
+		<description>Source DataStore</description>
+		<argName>bodi source datastore</argName>
+	</option>
+	<option>
+		<name>boditargetdatastore</name>
+		<description>Target DataStore</description>
+		<argName>bodi target datastore</argName>
+	</option>
 </cmdOptions>

@@ -4,38 +4,48 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-public class MainTestGenerateDataMySQL {
+public class MainTestCopyTableFromDB2 {
 	
-	private String[] arguments = new String[12];
+	private String[] arguments = new String[20];
 	
 	public void initArguments() {
 		
 		// Function to test
 		arguments[0]  = "-function";
-		arguments[1]  = "generaterandomdata";
+		arguments[1]  = "tablecopy";
 		// Mandatory arguments
-		arguments[2]  = "-trgdbconnpropertyfile";
-		arguments[4] = "-trgdbconnkeywordfile";
-		arguments[6] = "-targetschema";
-		arguments[8] = "-targettable";
-		//
-		arguments[10] = "-rowcount";
+		arguments[2]  = "-srcdbconnpropertyfile";
+		arguments[4]  = "-srcdbconnkeywordfile";
+		arguments[6]  = "-sourcetable";
+		arguments[8]  = "-trgdbconnpropertyfile";
+		arguments[10] = "-trgdbconnkeywordfile";
+		arguments[12] = "-targetschema";
+		arguments[14] = "-targettable";
+		
+		arguments[16] = "-trgcreate";
+		arguments[17] = "true";
+		arguments[18] = "-dropifexists";
+		arguments[19] = "true";
+		
 	}
 	
-	public void initSourceMySQL() {
-		// Target properties
-		arguments[3] = "localhost_mysql_test";
+	public void initSourceDB2() {
+		// Source properties
+		arguments[3] = "localhost_db2_sample_test";
 		arguments[5] = "";
-		arguments[7] = "test";
-		arguments[9] = "tab_test";
-		arguments[11] = "1000";
+		arguments[7] = "test.tab_test";
 	}
 
 	@Test
-	public void testMySQL() {
+	public void testDB2ToMySQL() {
 		
 		initArguments();
-		initSourceMySQL();
+		initSourceDB2();
+		//
+		arguments[9] = "localhost_mysql_dwhstage";
+		arguments[11] = "";
+		arguments[13] = "dwhstage";
+		arguments[15] = "stg_db2_tab_test";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -45,16 +55,16 @@ public class MainTestGenerateDataMySQL {
 		}
 	}
 
-	/*@Test
-	public void testMySQLtoPostgreSQL() {
+	@Test
+	public void testDB2ToPostgreSQL() {
 		
 		initArguments();
-		initSourceMySQL();
+		initSourceDB2();
 		//
 		arguments[9]  = "localhost_postgresql_postgres_test";
 		arguments[11] = "";
 		arguments[13] = "test";
-		arguments[15] = "stg_mys_tab_test";
+		arguments[15] = "stg_db2_tab_test";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -65,15 +75,15 @@ public class MainTestGenerateDataMySQL {
 	}
 
 	@Test
-	public void testMySQLtoOracle() {
+	public void testDB2ToOracle() {
 		
 		initArguments();
-		initSourceMySQL();
+		initSourceDB2();
 		//
 		arguments[9] = "localhost_oracle_test";
 		arguments[11] = "";
 		arguments[13] = "test";
-		arguments[15] = "stg_mys_tab_test";
+		arguments[15] = "stg_db2_tab_test";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -84,15 +94,15 @@ public class MainTestGenerateDataMySQL {
 	}
 
 	@Test
-	public void testMySQLtoDB2() {
+	public void testDB2ToDB2() {
 		
 		initArguments();
-		initSourceMySQL();
+		initSourceDB2();
 		//
 		arguments[9]  = "localhost_db2_sample_test";
 		arguments[11] = "";
 		arguments[13] = "test";
-		arguments[15] = "stg_mys_tab_test";
+		arguments[15] = "stg_db2_tab_test";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -103,15 +113,15 @@ public class MainTestGenerateDataMySQL {
 	}
 
 	@Test
-	public void testMySQLtoInformix() {
+	public void testDB2toInformix() {
 		
 		initArguments();
-		initSourceMySQL();
+		initSourceDB2();
 		//
 		arguments[9]  = "localhost_informix_test";
 		arguments[11] = "";
 		arguments[13] = "test";
-		arguments[15] = "stg_mys_tab_test";
+		arguments[15] = "stg_db2_tab_test";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -122,15 +132,15 @@ public class MainTestGenerateDataMySQL {
 	}
 
 	@Test
-	public void testMySQLtoSQLServer() {
+	public void testDB2ToSQLServer() {
 		
 		initArguments();
-		initSourceMySQL();
+		initSourceDB2();
 		//
 		arguments[9]  = "localhost_sqlserver_test";
 		arguments[11] = "";
 		arguments[13] = "dbo";
-		arguments[15] = "stg_mys_tab_test";
+		arguments[15] = "stg_db2_tab_test";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -139,17 +149,18 @@ public class MainTestGenerateDataMySQL {
 			fail("Exception: \n" + e);
 		}
 	}
-
+	
+	
 	@Test
-	public void testMySQLtoHANA() {
+	public void testDB2toHANA() {
 		
 		initArguments();
-		initSourceMySQL();
+		initSourceDB2();
 		//
 		arguments[9] = "msas120i_hana_01_dwh_stage";
 		arguments[11] = "HDBKeywords";
 		arguments[13] = "dwh_stage";
-		arguments[15] = "stg_mys_tab_test";
+		arguments[15] = "stg_db2_tab_test";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -158,17 +169,17 @@ public class MainTestGenerateDataMySQL {
 			fail("Exception: \n" + e);
 		}
 	}
-
+	
 	@Test
-	public void testMySQLtoTeradata() {
+	public void testDB2toTeradata() {
 		
 		initArguments();
-		initSourceMySQL();
+		initSourceDB2();
 		//
 		arguments[9] = "localhost_teradata_test";
 		arguments[11] = "TDBKeywords";
 		arguments[13] = "test";
-		arguments[15] = "stg_mys_tab_test";
+		arguments[15] = "stg_db2_tab_test";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -176,5 +187,5 @@ public class MainTestGenerateDataMySQL {
 		catch (Exception e) {
 			fail("Exception: \n" + e);
 		}
-	}*/
+	}
 }

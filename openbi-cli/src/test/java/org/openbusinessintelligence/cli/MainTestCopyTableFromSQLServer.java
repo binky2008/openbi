@@ -4,7 +4,7 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-public class MainTestTableCopyFromPostgreSQL {
+public class MainTestCopyTableFromSQLServer {
 	
 	private String[] arguments = new String[20];
 	
@@ -29,23 +29,23 @@ public class MainTestTableCopyFromPostgreSQL {
 		
 	}
 	
-	public void initSourcePostgreSQL() {
+	public void initSourceSQLServer() {
 		// Source properties
-		arguments[3] = "localhost_postgresql_postgres_test";
+		arguments[3] = "localhost_sqlserver_test";
 		arguments[5] = "";
 		arguments[7] = "tab_test";
 	}
 
 	@Test
-	public void testPostgreSQLToMySQL() {
+	public void testSQLServerToMySQL() {
 		
 		initArguments();
-		initSourcePostgreSQL();
+		initSourceSQLServer();
 		//
 		arguments[9] = "localhost_mysql_test";
 		arguments[11] = "";
 		arguments[13] = "test";
-		arguments[15] = "stg_psg_tab_test";
+		arguments[15] = "stg_mss_tab_test";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -55,17 +55,16 @@ public class MainTestTableCopyFromPostgreSQL {
 		}
 	}
 
-
 	@Test
-	public void testPostgreSQLToPostgreSQL() {
+	public void testSQLServerToPostgreSQL() {
 		
 		initArguments();
-		initSourcePostgreSQL();
+		initSourceSQLServer();
 		//
 		arguments[9]  = "localhost_postgresql_postgres_test";
 		arguments[11] = "";
 		arguments[13] = "test";
-		arguments[15] = "stg_psg_tab_test";
+		arguments[15] = "stg_mss_tab_test";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -76,15 +75,15 @@ public class MainTestTableCopyFromPostgreSQL {
 	}
 
 	@Test
-	public void testPostgreSQLToOracle() {
+	public void testSQLServerToOracle() {
 		
 		initArguments();
-		initSourcePostgreSQL();
+		initSourceSQLServer();
 		//
 		arguments[9]  = "localhost_oracle_test";
 		arguments[11] = "";
 		arguments[13] = "test";
-		arguments[15] = "stg_psg_tab_test";
+		arguments[15] = "stg_mss_tab_test";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -95,15 +94,15 @@ public class MainTestTableCopyFromPostgreSQL {
 	}
 
 	@Test
-	public void testPostgreSQLToDB2() {
+	public void testSQLServerToDB2() {
 		
 		initArguments();
-		initSourcePostgreSQL();
+		initSourceSQLServer();
 		//
 		arguments[9]  = "localhost_db2_sample_test";
 		arguments[11] = "";
 		arguments[13] = "test";
-		arguments[15] = "stg_psg_tab_test";
+		arguments[15] = "stg_mss_tab_test";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -114,15 +113,15 @@ public class MainTestTableCopyFromPostgreSQL {
 	}
 
 	@Test
-	public void testPostgreSQLToInformix() {
+	public void testSQLServerToInformix() {
 		
 		initArguments();
-		initSourcePostgreSQL();
+		initSourceSQLServer();
 		//
 		arguments[9]  = "localhost_informix_test";
 		arguments[11] = "";
 		arguments[13] = "test";
-		arguments[15] = "stg_psg_tab_test";
+		arguments[15] = "stg_mss_tab_test";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -133,15 +132,15 @@ public class MainTestTableCopyFromPostgreSQL {
 	}
 
 	@Test
-	public void testPostgreSQLToSQLServer() {
+	public void testSQLServerToSQLServer() {
 		
 		initArguments();
-		initSourcePostgreSQL();
+		initSourceSQLServer();
 		//
 		arguments[9]  = "localhost_sqlserver_test";
 		arguments[11] = "";
 		arguments[13] = "dbo";
-		arguments[15] = "stg_psg_tab_test";
+		arguments[15] = "stg_mss_tab_test";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -152,15 +151,15 @@ public class MainTestTableCopyFromPostgreSQL {
 	}
 
 	@Test
-	public void testPostgreSQLtoHANA() {
+	public void testSQLServertoHANA() {
 		
 		initArguments();
-		initSourcePostgreSQL();
+		initSourceSQLServer();
 		//
 		arguments[9] = "msas120i_hana_01_dwh_stage";
 		arguments[11] = "";
 		arguments[13] = "dwh_stage";
-		arguments[15] = "stg_psg_tab_test";
+		arguments[15] = "stg_mss_tab_test";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -171,15 +170,15 @@ public class MainTestTableCopyFromPostgreSQL {
 	}
 
 	@Test
-	public void testPostgreSQLtoTeradata() {
+	public void testSQLServertoTeradata() {
 		
 		initArguments();
-		initSourcePostgreSQL();
+		initSourceSQLServer();
 		//
 		arguments[9] = "localhost_teradata_test";
 		arguments[11] = "TDBKeywords";
 		arguments[13] = "test";
-		arguments[15] = "stg_psg_tab_test";
+		arguments[15] = "stg_mss_tab_test";
 		// Perform test
 		try {
 			Main.main(arguments);

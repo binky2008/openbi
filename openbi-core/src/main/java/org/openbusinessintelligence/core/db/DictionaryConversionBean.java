@@ -129,38 +129,7 @@ public class DictionaryConversionBean {
         sourceColumnLength = sourceDictionary.getColumnLength();
         sourceColumnPrecision = sourceDictionary.getColumnPrecision();
         sourceColumnScale = sourceDictionary.getColumnScale();
-    	
-    	/*logger.debug("Getting columns for source...");
-
-    	String sourcePrefix = "";
-    	if (!(sourceCon.getSchemaName() == null || sourceCon.getSchemaName().equals(""))) {
-    		sourcePrefix = sourceCon.getSchemaName() + ".";
-    		logger.debug("Prefix for source table: " + sourcePrefix);
-    	}
-    	
-    	String sqlText;
-       	if (sourceQuery == null || sourceQuery.equals("")) {
-       		sqlText = "SELECT * FROM " + sourcePrefix + sourceTable;
-       		logger.debug(sqlText);
-       	}
-       	else {
-       		sqlText = sourceQuery;
-       	}
-    	
-       	logger.info("SQL: " + sqlText + ": getting columns...");
         
-       	//openSourceConnection();
-        PreparedStatement columnStmt = sourceCon.getConnection().prepareStatement(sqlText);
-        ResultSet rs = columnStmt.executeQuery();
-        ResultSetMetaData rsmd = rs.getMetaData();
-
-        sourceColumnNames = new String[rsmd.getColumnCount()];
-        sourceColumnType = new String[rsmd.getColumnCount()];
-        sourceColumnLength = new int[rsmd.getColumnCount()];
-        sourceColumnPrecision = new int[rsmd.getColumnCount()];
-        sourceColumnScale = new int[rsmd.getColumnCount()];
-        sourceColumnDefinition = new String[rsmd.getColumnCount()];*/
-        //
     	String sourceProductName;
     	String targetProductName;
        	sourceProductName = sourceCon.getDatabaseProductName();
@@ -196,14 +165,6 @@ public class DictionaryConversionBean {
 	        	}
         	}
             logger.info("got mapped column");
-
-        	//*******************************
-        	// set source column properties
-        	/*sourceColumnType[i - 1] = rsmd.getColumnTypeName(i).toUpperCase();
-        	sourceColumnLength[i - 1] = rsmd.getColumnDisplaySize(i);
-        	sourceColumnPrecision[i - 1] = rsmd.getPrecision(i);
-        	sourceColumnScale[i - 1] = rsmd.getScale(i);
-        	sourceColumnDefinition[i - 1] = sourceColumnType[i - 1];*/
         	
         	//******************************
         	// Use type converter
@@ -229,61 +190,6 @@ public class DictionaryConversionBean {
         	logger.debug("Target column " + (i) + "  Name: " + targetColumnNames[i - 1] + " Type: " + targetColumnType[i - 1] + "  Length: " + targetColumnLength[i - 1] + " Precision: " + targetColumnPrecision[i - 1] + " Scale: " +targetColumnScale[i - 1]);       	
            	logger.debug("Target column " + (i) + "  Name: " + targetColumnNames[i - 1] + "  Definition: " + targetColumnDefinition[i - 1]);
        	}
-        /*rs.close();
-        columnStmt.close();*/
-
-        // Get information about primary keys
-        /*try {
-            String schema = null;
-            if (sourceTable.split("\\.").length==2) {
-                schema = sourceTable.split("\\.")[0];
-                logger.info("Schema: " + schema);
-            }
-
-            logger.info("get primary key information...");
-            logger.debug("Table: " + sourceTable.split("\\.")[sourceTable.split("\\.").length-1]);
-
-            ResultSet rspk = sourceCon.getConnection().getMetaData().getPrimaryKeys(schema, schema, sourceTable.split("\\.")[sourceTable.split("\\.").length-1]);
-            int pkLength = 0;
-            while (rspk.next()) {
-                logger.info("PRIMARY KEY Position: " + rspk.getObject("KEY_SEQ") + " Column: " + rspk.getObject("COLUMN_NAME"));
-                for (int i = 0; i < sourceColumnNames.length; i++) {
-                    if (sourceColumnNames[i].equalsIgnoreCase(rspk.getString("COLUMN_NAME"))) {
-                        columnPkPositions[i] = rspk.getInt("KEY_SEQ");
-                        pkLength++;
-                    }
-                }
-            }
-            rspk.close();
-            logger.info("got primary key information...");
-
-            if (pkLength>0) {
-                targetColumnInPk = new String[pkLength];
-                targetColumnNonInPk = new String[targetColumnNames.length - pkLength];
-                int iPk = 0;
-                int nPk = 0;
-                for (int i = 0; i < targetColumnNames.length; i++) {
-                    if (columnPkPositions[i]>=1) {
-                        targetColumnInPk[iPk] = targetColumnNames[i];
-                        iPk++;
-                    }
-                    else {
-                    	targetColumnNonInPk[nPk] = targetColumnNames[i];
-                        nPk++;
-                    }
-                }
-            }
-            else {
-                targetColumnNonInPk = targetColumnNames;
-            }
-
-        }
-        catch (Exception e) {
-            logger.error(e.toString());
-            throw e;
-        }
-
-        logger.info("got primary key information");*/
     }
     
     public void retrieveMappingDefinition() throws Exception {

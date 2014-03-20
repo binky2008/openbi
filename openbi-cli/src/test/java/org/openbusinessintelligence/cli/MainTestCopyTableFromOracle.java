@@ -4,7 +4,7 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-public class MainTestTableCopyFromInformix {
+public class MainTestCopyTableFromOracle {
 	
 	private String[] arguments = new String[20];
 	
@@ -29,23 +29,23 @@ public class MainTestTableCopyFromInformix {
 		
 	}
 	
-	public void initSourceInformix() {
+	public void initSourceOracle() {
 		// Source properties
-		arguments[3] = "localhost_informix_test";
+		arguments[3] = "localhost_oracle_test";
 		arguments[5] = "";
-		arguments[7] = "test.tab_test";
+		arguments[7] = "tab_test";
 	}
 
 	@Test
-	public void testInformixToMySQL() {
+	public void testOracleToMySQL() {
 		
 		initArguments();
-		initSourceInformix();
+		initSourceOracle();
 		//
-		arguments[9] = "localhost_mysql_dwhstage";
+		arguments[9] = "localhost_mysql_test";
 		arguments[11] = "";
-		arguments[13] = "dwhstage";
-		arguments[15] = "stg_ifx_tab_test";
+		arguments[13] = "test";
+		arguments[15] = "stg_ora_tab_test";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -55,16 +55,17 @@ public class MainTestTableCopyFromInformix {
 		}
 	}
 
+
 	@Test
-	public void testInformixToPostgreSQL() {
+	public void testOracleToPostgreSQL() {
 		
 		initArguments();
-		initSourceInformix();
+		initSourceOracle();
 		//
 		arguments[9]  = "localhost_postgresql_postgres_test";
 		arguments[11] = "";
 		arguments[13] = "test";
-		arguments[15] = "stg_ifx_tab_test";
+		arguments[15] = "stg_ora_tab_test";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -75,15 +76,15 @@ public class MainTestTableCopyFromInformix {
 	}
 
 	@Test
-	public void testInformixToOracle() {
+	public void testOracleToOracle() {
 		
 		initArguments();
-		initSourceInformix();
+		initSourceOracle();
 		//
 		arguments[9] = "localhost_oracle_test";
 		arguments[11] = "";
 		arguments[13] = "test";
-		arguments[15] = "stg_ifx_tab_test";
+		arguments[15] = "stg_ora_tab_test";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -94,15 +95,15 @@ public class MainTestTableCopyFromInformix {
 	}
 
 	@Test
-	public void testInformixToDB2() {
+	public void testOracleToDB2() {
 		
 		initArguments();
-		initSourceInformix();
+		initSourceOracle();
 		//
 		arguments[9]  = "localhost_db2_sample_test";
 		arguments[11] = "";
 		arguments[13] = "test";
-		arguments[15] = "stg_ifx_tab_test";
+		arguments[15] = "stg_ora_tab_test";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -113,15 +114,15 @@ public class MainTestTableCopyFromInformix {
 	}
 
 	@Test
-	public void testInformixToInformix() {
+	public void testMySQLtoInformix() {
 		
 		initArguments();
-		initSourceInformix();
+		initSourceOracle();
 		//
 		arguments[9]  = "localhost_informix_test";
 		arguments[11] = "";
 		arguments[13] = "test";
-		arguments[15] = "stg_ifx_tab_test";
+		arguments[15] = "stg_ora_tab_test";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -132,15 +133,15 @@ public class MainTestTableCopyFromInformix {
 	}
 
 	@Test
-	public void testInformixToSQLServer() {
+	public void testOracleToSQLServer() {
 		
 		initArguments();
-		initSourceInformix();
+		initSourceOracle();
 		//
 		arguments[9]  = "localhost_sqlserver_test";
 		arguments[11] = "";
 		arguments[13] = "dbo";
-		arguments[15] = "stg_ifx_tab_test";
+		arguments[15] = "stg_ora_tab_test";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -149,18 +150,17 @@ public class MainTestTableCopyFromInformix {
 			fail("Exception: \n" + e);
 		}
 	}
-	
-	
+
 	@Test
-	public void testInformixToHANA() {
+	public void testMySQLtoHANA() {
 		
 		initArguments();
-		initSourceInformix();
+		initSourceOracle();
 		//
 		arguments[9] = "msas120i_hana_01_dwh_stage";
 		arguments[11] = "HDBKeywords";
 		arguments[13] = "dwh_stage";
-		arguments[15] = "stg_ifx_tab_test";
+		arguments[15] = "stg_ora_tab_test";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -171,15 +171,15 @@ public class MainTestTableCopyFromInformix {
 	}
 	
 	@Test
-	public void testInformixToTeradata() {
+	public void testMySQLtoTeradata() {
 		
 		initArguments();
-		initSourceInformix();
+		initSourceOracle();
 		//
 		arguments[9] = "localhost_teradata_test";
 		arguments[11] = "TDBKeywords";
 		arguments[13] = "test";
-		arguments[15] = "stg_ifx_tab_test";
+		arguments[15] = "stg_ora_tab_test";
 		// Perform test
 		try {
 			Main.main(arguments);

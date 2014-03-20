@@ -28,6 +28,7 @@ public class TableDictionaryBean {
     private int[] columnLength = null;
     private int[] columnPrecision = null;
     private int[] columnScale = null;
+    private String[] columnDefinition = null;
     
     // Constructor
     public TableDictionaryBean() {
@@ -81,6 +82,10 @@ public class TableDictionaryBean {
     	return columnScale;
     }
     
+    public String[] getColumnDefinition() {
+    	return columnDefinition;
+    }
+    
     public int[] getColumnPkPositions() {
     	return columnPkPositions;
     }
@@ -120,9 +125,11 @@ public class TableDictionaryBean {
         columnLength = new int[columnCount];
         columnPrecision = new int[columnCount];
         columnScale = new int[columnCount];
+        columnDefinition = new String[columnCount];
         //
         columnPkPositions = new int[columnCount];
-                
+        
+        String columnTypeAttribute = "";
        	for (int i = 1; i <= columnCount; i++) {
         	columnNames[i - 1] = rsmd.getColumnName(i).toUpperCase();
 
@@ -133,7 +140,28 @@ public class TableDictionaryBean {
         	columnPrecision[i - 1] = rsmd.getPrecision(i);
         	columnScale[i - 1] = rsmd.getScale(i);
         	
-        	logger.debug("Column " + (i) + "  Name: " + columnNames[i - 1] + " Type: " + columnType[i - 1] + "  Length: " + columnLength[i - 1] + " Precision: " + columnPrecision[i - 1] + " Scale: " +columnScale[i - 1]);       	
+        	logger.debug("Column " + (i) + "  Name: " + columnNames[i - 1] + " Type: " + columnType[i - 1] + "  Length: " + columnLength[i - 1] + " Precision: " + columnPrecision[i - 1] + " Scale: " +columnScale[i - 1]);
+        	
+
+
+        	columnTypeAttribute = "";
+        	columnDefinition[i - 1] = columnType[i - 1];
+        	
+        	// Search for type attribute(s)    	
+        	if (columnType[i - 1].split(" ").length > 1) {
+        		columnTypeAttribute = columnType[i - 1].split(" ",2)[1];
+        		columnType[i - 1] = columnType[i - 1].split(" ",2)[0];
+        	}
+        	
+        	// Source definition
+        	if (columnPrecision[i - 1] > 0) {
+        		columnDefinition[i - 1] += "(" + columnPrecision[i - 1] + "," + columnScale[i - 1] + ")";
+        	}
+        	else if (columnLength[i - 1] > 0) {
+        		columnDefinition[i - 1] += "(" + columnLength[i - 1] + ")";
+        	}
+        	columnDefinition[i - 1] += " " + columnTypeAttribute;
+        	
        	}
         rs.close();
         columnStmt.close();
