@@ -23,8 +23,11 @@
 @views\mes_exec_verify_v.sql;
 
 -- Packages
-/*@packages\mes\mes-def.sql;
-@packages\mes\mes-impl.sql;*/
+@packages\doc_template\doc_template-def.sql;
+@packages\doc\doc-def.sql;
+@packages\doc\doc-impl.sql;
+@packages\mes\mes-def.sql;
+@packages\mes\mes-impl.sql;
 
 -- Grants
 --@grants\enable.sql;

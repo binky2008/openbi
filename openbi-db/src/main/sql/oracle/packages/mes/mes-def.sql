@@ -25,60 +25,41 @@ AS
     */
    c_body_url                VARCHAR2 (1024);
 
-   PROCEDURE prc_case_taxonomy_ins (
-      p_vc_case_code       IN   VARCHAR2
+   PROCEDURE prc_mes_txn_ins (
+      p_vc_query_code       IN   VARCHAR2
     , p_vc_taxonomy_code   IN   VARCHAR2
    );
 
-   PROCEDURE prc_case_taxonomy_del (
-      p_vc_case_code       IN   VARCHAR2
+   PROCEDURE prc_mes_txn_del (
+      p_vc_query_code       IN   VARCHAR2
     , p_vc_taxonomy_code   IN   VARCHAR2
    );
 
-   PROCEDURE prc_case_ins (
-      p_vc_case_code          IN   VARCHAR2
-    , p_vc_case_name          IN   VARCHAR2
-    , p_vc_layer_code         IN   VARCHAR2 DEFAULT 'GLOBAL'
-    , p_vc_entity_code        IN   VARCHAR2 DEFAULT 'GLOBAL'
-    , p_vc_environment_code   IN   VARCHAR2 DEFAULT 'GLOBAL'
+   PROCEDURE prc_query_ins (
+      p_vc_query_code   IN   VARCHAR2
+    , p_vc_query_name   IN   VARCHAR2
+    , p_vc_query_sql    IN   CLOB
    );
 
-   PROCEDURE prc_case_del (
-      p_vc_case_code   IN   VARCHAR2
-    , p_b_cascade      IN   BOOLEAN DEFAULT FALSE
-   );
-
-   PROCEDURE prc_step_ins (
-      p_vc_case_code   IN   VARCHAR2
-    , p_n_step_order   IN   NUMBER
-    , p_vc_step_code   IN   VARCHAR2
-    , p_vc_step_name   IN   VARCHAR2
-    , p_vc_step_sql    IN   CLOB
-   );
-
-   PROCEDURE prc_step_del (
-      p_vc_case_code   IN   VARCHAR2
-    , p_vc_step_code   IN   VARCHAR2
+   PROCEDURE prc_query_del (
+      p_vc_query_code   IN   VARCHAR2
     , p_b_cascade      IN   BOOLEAN DEFAULT FALSE
    );
 
    PROCEDURE prc_keyfigure_ins (
-      p_vc_case_code        IN   VARCHAR2
-    , p_vc_step_code        IN   VARCHAR2
+      p_vc_query_code        IN   VARCHAR2
     , p_vc_keyfigure_code   IN   VARCHAR2
     , p_vc_keyfigure_name   IN   VARCHAR2
    );
 
    PROCEDURE prc_keyfigure_del (
-      p_vc_case_code        IN   VARCHAR2
-    , p_vc_step_code        IN   VARCHAR2
+      p_vc_query_code        IN   VARCHAR2
     , p_vc_keyfigure_code   IN   VARCHAR2
     , p_b_cascade           IN   BOOLEAN DEFAULT FALSE
    );
 
    PROCEDURE prc_threshold_ins (
-      p_vc_case_code        IN   VARCHAR2
-    , p_vc_step_code        IN   VARCHAR2
+      p_vc_query_code        IN   VARCHAR2
     , p_vc_keyfigure_code   IN   VARCHAR2
     , p_vc_threshold_type   IN   VARCHAR2
     , p_n_threshold_min     IN   NUMBER
@@ -88,16 +69,14 @@ AS
    );
 
    PROCEDURE prc_exec_ins (
-      p_vc_case_code        IN   VARCHAR2
-    , p_vc_step_code        IN   VARCHAR2
+      p_vc_query_code        IN   VARCHAR2
     , p_vc_keyfigure_code   IN   VARCHAR2
     , p_n_result_value      IN   NUMBER
     , p_vc_result_report    IN   CLOB
    );
 
    PROCEDURE prc_exec (
-      p_vc_case_code           IN   VARCHAR2 DEFAULT 'ALL'
-    , p_vc_step_code           IN   VARCHAR2 DEFAULT 'ALL'
+      p_vc_query_code           IN   VARCHAR2 DEFAULT 'ALL'
     , p_b_exception_if_fails   IN   BOOLEAN DEFAULT FALSE
     , p_vc_storage_type        IN   VARCHAR2 DEFAULT 'VALUE'
    );

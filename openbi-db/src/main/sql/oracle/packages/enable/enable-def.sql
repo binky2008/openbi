@@ -1,4 +1,4 @@
-CREATE OR REPLACE PACKAGE enable
+CREATE OR REPLACE PACKAGE enable authid current_user
 AS
    /**
     * $Author: nmarangoni $

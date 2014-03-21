@@ -29,10 +29,10 @@ AS
    BEGIN
    
       --trc.set_console_logging (FALSE);
-      trc.LOG ('Set object names', 'Start');
+       trc.log_info ('Set object names', 'Start');
       stg_meta.prc_set_object_properties;
-      trc.LOG ('Set object names', 'Finish');
-      trc.LOG ('Build objects', 'Start');
+       trc.log_info ('Set object names', 'Finish');
+       trc.log_info ('Build objects', 'Start');
 
       -- Select all objects
       FOR r_obj IN (SELECT   s.stg_source_id
@@ -98,7 +98,7 @@ AS
                          AND p_vc_object_name IN (o.stg_object_name, 'ALL')
                     ORDER BY stg_object_id)
       LOOP
-         trc.LOG ('Object ' || r_obj.stg_object_name, 'Start');
+          trc.log_info ('Object ' || r_obj.stg_object_name, 'Start');
          -- Reset list strings
          l_vc_stage_db_list                             := '';
          l_vc_stage_owner_list                          := '';
@@ -230,7 +230,7 @@ AS
 
          stg_ddl.prc_create_diff_table (TRUE, p_b_raise_flag);
          stg_ddl.prc_create_package_main (FALSE, TRUE);
-         trc.LOG ('Object ' || r_obj.stg_object_name, 'Finish');
+          trc.log_info ('Object ' || r_obj.stg_object_name, 'Finish');
       END LOOP;
 
    END prc_build_all;
@@ -256,10 +256,10 @@ AS
       l_n_result              NUMBER;
    BEGIN
       --trc.set_console_logging (FALSE);
-      trc.LOG ('Set object names', 'Start');
+       trc.log_info ('Set object names', 'Start');
       stg_meta.prc_set_object_properties;
-      trc.LOG ('Set object names', 'Finish');
-      trc.LOG ('Build objects', 'Start');
+       trc.log_info ('Set object names', 'Finish');
+       trc.log_info ('Build objects', 'Start');
 
       -- Select all objects
       FOR r_obj IN (SELECT   s.stg_source_id
@@ -309,7 +309,7 @@ AS
                          AND p_vc_object_name IN (o.stg_object_name, 'ALL')
                     ORDER BY stg_object_id)
       LOOP
-         trc.LOG ('Object ' || r_obj.stg_object_name, 'Start');
+          trc.log_info ('Object ' || r_obj.stg_object_name, 'Start');
          -- Reset list strings
          l_vc_stage_db_list                             := '';
          l_vc_stage_owner_list                          := '';
@@ -432,7 +432,7 @@ AS
 
          stg_ddl.prc_create_diff_table (TRUE, p_b_raise_flag);
          stg_ddl.prc_create_package_main (TRUE, TRUE);
-         trc.LOG ('Object ' || r_obj.stg_object_name, 'Finish');
+          trc.log_info ('Object ' || r_obj.stg_object_name, 'Finish');
       END LOOP;
 
    END prc_build_tc_only;
@@ -452,10 +452,10 @@ AS
       l_n_result             NUMBER;
    BEGIN
       --trc.set_console_logging (FALSE);
-      trc.LOG ('Set object names', 'Start');
+       trc.log_info ('Set object names', 'Start');
       stg_meta.prc_set_object_properties;
-      trc.LOG ('Set object names', 'Finish');
-      trc.LOG ('Build objects', 'Start');
+       trc.log_info ('Set object names', 'Finish');
+       trc.log_info ('Build objects', 'Start');
 
       -- Select all objects
       FOR r_obj IN (SELECT   s.stg_source_id
@@ -488,7 +488,7 @@ AS
                          AND p_vc_object_name IN (o.stg_object_name, 'ALL')
                     ORDER BY stg_object_id)
       LOOP
-         trc.LOG ('Object ' || r_obj.stg_object_name, 'Start');
+          trc.log_info ('Object ' || r_obj.stg_object_name, 'Start');
          -- Reset list strings
          l_vc_stage_db_list                             := '';
          l_vc_distr_code_list                           := '';
@@ -586,7 +586,7 @@ AS
             stg_ddl.prc_create_stage2_synonym (TRUE);
          END IF;*/
 
-         trc.LOG ('Object ' || r_obj.stg_object_name, 'Finish');
+          trc.log_info ('Object ' || r_obj.stg_object_name, 'Finish');
       END LOOP;
 
    END;

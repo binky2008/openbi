@@ -1,4 +1,4 @@
-CREATE OR REPLACE PACKAGE aux_doc AUTHID CURRENT_USER AS
+CREATE OR REPLACE PACKAGE doc AUTHID CURRENT_USER AS
   /**
    * Package containing general purpose functions and procedures
    *
@@ -77,7 +77,7 @@ CREATE OR REPLACE PACKAGE aux_doc AUTHID CURRENT_USER AS
   *
   * p_vc_content       Content to be transformed
   */
-  FUNCTION fct_get_data(p_l_content aux_type.l_line_array) RETURN CLOB;
+  FUNCTION fct_get_data(p_l_content type.l_line_array) RETURN CLOB;
 
   /**
   * Generate complete dataset
@@ -134,5 +134,5 @@ CREATE OR REPLACE PACKAGE aux_doc AUTHID CURRENT_USER AS
                              ,p_vc_doc_content IN CLOB
                              ,p_vc_doc_url     IN VARCHAR2 DEFAULT NULL
                              ,p_vc_doc_desc    IN VARCHAR2 DEFAULT NULL);
-END aux_doc;
+END doc;
 /

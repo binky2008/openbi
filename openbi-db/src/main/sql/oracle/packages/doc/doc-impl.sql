@@ -1,8 +1,8 @@
-CREATE OR REPLACE PACKAGE BODY aux_doc IS
+CREATE OR REPLACE PACKAGE BODY doc IS
   PROCEDURE prc_set_text_param(p_vc_code_string IN OUT CLOB
-                              ,p_vc_param_name  IN aux_type.vc_obj_plsql
+                              ,p_vc_param_name  IN type.vc_obj_plsql
                               ,p_vc_param_value IN CLOB) IS
-    l_vc_prc_name      aux_type.vc_obj_plsql := 'PRC_SET_CODE_PARAM';
+    l_vc_prc_name      type.vc_obj_plsql := 'PRC_SET_CODE_PARAM';
     l_vc_buffer_in     CLOB;
     l_vc_buffer_out    CLOB;
     l_vc_token         CLOB;
@@ -43,9 +43,9 @@ CREATE OR REPLACE PACKAGE BODY aux_doc IS
   FUNCTION fct_get_stylesheet(p_vc_stylesheet_type VARCHAR2) RETURN CLOB IS
   BEGIN
     IF p_vc_stylesheet_type = 'HTML' THEN
-      RETURN aux_doc_template.c_xsl_html_table_default;
+      RETURN doc_template.c_xsl_html_table_default;
     ELSIF p_vc_stylesheet_type = 'HTML' THEN
-      RETURN aux_doc_template.c_xsl_excel_table_default;
+      RETURN doc_template.c_xsl_excel_table_default;
     ELSE
       RETURN NULL;
     END IF;
@@ -79,7 +79,7 @@ CREATE OR REPLACE PACKAGE BODY aux_doc IS
     RETURN '<data>' || p_vc_content || '</data>';
   END fct_get_data;
 
-  FUNCTION fct_get_data(p_l_content aux_type.l_line_array) RETURN CLOB IS
+  FUNCTION fct_get_data(p_l_content type.l_line_array) RETURN CLOB IS
     l_vc_content CLOB;
   BEGIN
     IF p_l_content.first IS NOT NULL THEN
@@ -117,18 +117,18 @@ CREATE OR REPLACE PACKAGE BODY aux_doc IS
   BEGIN
     CASE p_vc_type
       WHEN 'html' THEN
-        l_clob_document := aux_doc_template.c_html_template_content;
+        l_clob_document := doc_template.c_html_template_content;
         prc_set_text_param(l_clob_document
                           ,'htmlScript'
-                          ,aux_doc_template.c_js_default);
+                          ,doc_template.c_js_default);
         prc_set_text_param(l_clob_document
                           ,'htmlStyle'
-                          ,aux_doc_template.c_css_default);
+                          ,doc_template.c_css_default);
         prc_set_text_param(l_clob_document
                           ,'htmlContent'
                           ,p_vc_content);
       WHEN 'ms-excel' THEN
-        l_clob_document := aux_doc_template.c_excel_template_content;
+        l_clob_document := doc_template.c_excel_template_content;
         prc_set_text_param(l_clob_document
                           ,'workbookContent'
                           ,p_vc_content);
@@ -144,7 +144,7 @@ CREATE OR REPLACE PACKAGE BODY aux_doc IS
                                 ,p_vc_order_clause IN VARCHAR2 DEFAULT NULL)
     RETURN CLOB IS
     l_l_columns      dbms_sql.varchar2s;
-    l_l_records      aux_type.l_line_array;
+    l_l_records      type.l_line_array;
     l_vc_column_list VARCHAR2(32000);
     l_vc_sql         VARCHAR2(32000);
     l_xml_meta       CLOB;
@@ -160,9 +160,9 @@ CREATE OR REPLACE PACKAGE BODY aux_doc IS
          AND table_name = upper(p_vc_table_name)
        ORDER BY column_id;
     
-      l_vc_column_list := aux_type.fct_list_to_string(l_l_columns);
+      l_vc_column_list := type.fct_list_to_string(l_l_columns);
     ELSE
-      l_l_columns := aux_type.fct_string_to_list(p_vc_column_list
+      l_l_columns := type.fct_string_to_list(p_vc_column_list
                                                 ,',');
     
       FOR i IN l_l_columns.first .. l_l_columns.last LOOP
@@ -176,29 +176,29 @@ CREATE OR REPLACE PACKAGE BODY aux_doc IS
     l_vc_column_list := NULL;
   
     IF p_vc_column_list IS NULL THEN
-      SELECT '|| aux_doc.fct_get_data_cell ("' || column_name || '")' BULK COLLECT
+      SELECT '|| doc.fct_get_data_cell ("' || column_name || '")' BULK COLLECT
         INTO l_l_columns
         FROM all_tab_columns
        WHERE owner = upper(p_vc_table_owner)
          AND table_name = upper(p_vc_table_name)
        ORDER BY column_id;
     
-      l_vc_column_list := ltrim(aux_type.fct_list_to_string(l_l_columns)
+      l_vc_column_list := ltrim(type.fct_list_to_string(l_l_columns)
                                ,' ||');
     ELSE
-      l_l_columns := aux_type.fct_string_to_list(p_vc_column_list
+      l_l_columns := type.fct_string_to_list(p_vc_column_list
                                                 ,',');
     
       FOR i IN l_l_columns.first .. l_l_columns.last LOOP
         l_vc_column_list := l_vc_column_list || CASE
                               WHEN i > 1 THEN
                                ' || '
-                            END || 'aux_doc.fct_get_data_cell (' ||
+                            END || 'doc.fct_get_data_cell (' ||
                             l_l_columns(i) || ')';
       END LOOP;
     END IF;
   
-    l_vc_sql := 'SELECT aux_doc.fct_get_data_record (' || l_vc_column_list ||
+    l_vc_sql := 'SELECT doc.fct_get_data_record (' || l_vc_column_list ||
                 ') FROM ' || p_vc_table_name || CASE
                   WHEN p_vc_where_clause IS NULL THEN
                    NULL
@@ -225,11 +225,11 @@ CREATE OR REPLACE PACKAGE BODY aux_doc IS
                              ,p_vc_doc_url     IN VARCHAR2 DEFAULT NULL
                              ,p_vc_doc_desc    IN VARCHAR2 DEFAULT NULL) IS
   BEGIN
-    DELETE aux_doc_t
+    DELETE doc_t
      WHERE doc_code = p_vc_doc_code
        AND doc_type = p_vc_doc_type;
   
-    INSERT INTO aux_doc_t
+    INSERT INTO doc_t
       (doc_code
       ,doc_type
       ,doc_content
@@ -250,5 +250,5 @@ CREATE OR REPLACE PACKAGE BODY aux_doc IS
 BEGIN
   c_body_version := '$Id: $';
   c_body_url     := '$HeadURL: $';
-END aux_doc;
+END doc;
 /

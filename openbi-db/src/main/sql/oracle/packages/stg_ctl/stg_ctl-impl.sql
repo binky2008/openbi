@@ -78,7 +78,7 @@ AS
       l_n_di_gui    NUMBER;
       l_n_step_no   NUMBER;
    BEGIN
-      trc.LOG ('Enqueue all objects', 'Enqueue Begin');
+       trc.log_info ('Enqueue all objects', 'Enqueue Begin');
 
       DELETE      stg_queue_object_t
             WHERE stg_queue_id IN (SELECT stg_queue_id
@@ -109,7 +109,7 @@ AS
             AND p_vc_object_name IN (o.stg_object_name, 'ALL');
 
       COMMIT;
-      trc.LOG ('Enqueue all objects', 'Enqueue End');
+       trc.log_info ('Enqueue all objects', 'Enqueue End');
    END prc_enqueue_object;
 
    PROCEDURE prc_enqueue_source (
@@ -170,7 +170,7 @@ AS
       l_vc_package          type.vc_obj_plsql;
       l_vc_std_load_modus   type.vc_obj_plsql;
    BEGIN
-      trc.LOG ('Queue ' || p_n_queue_id || ': Step Begin', 'Stream ' || p_n_queue_id || ': Step Begin');
+       trc.log_info ('Queue ' || p_n_queue_id || ': Step Begin', 'Stream ' || p_n_queue_id || ': Step Begin');
 
       EXECUTE IMMEDIATE 'LOCK TABLE stg_queue_object_t IN EXCLUSIVE MODE WAIT 10';
 
@@ -189,7 +189,7 @@ AS
 
       IF l_n_object_id IS NULL
       THEN
-         trc.LOG ('Queue ' || p_n_queue_id || ': No steps available in queue', 'Queue ' || p_n_queue_id || ': Nothing to do');
+          trc.log_info ('Queue ' || p_n_queue_id || ': No steps available in queue', 'Queue ' || p_n_queue_id || ': Nothing to do');
       ELSE
          SELECT s.stg_owner
               , o.stg_object_name
@@ -204,18 +204,18 @@ AS
           WHERE s.stg_source_id = o.stg_source_id
             AND o.stg_object_id = l_n_object_id;
 
-         trc.LOG ('Execute procedure ', 'Stream ' || p_n_queue_id || ': ');
+          trc.log_info ('Execute procedure ', 'Stream ' || p_n_queue_id || ': ');
          l_vc_prc_name    := l_vc_package || CASE
                                 WHEN l_vc_std_load_modus = 'D'
                                    THEN '.prc_load_delta'
                                 ELSE '.prc_load'
                              END;
-         trc.LOG ('o=' || l_n_object_id || ' prc=' || l_vc_prc_name, 'Queue ' || p_n_queue_id);
+          trc.log_info ('o=' || l_n_object_id || ' prc=' || l_vc_prc_name, 'Queue ' || p_n_queue_id);
 
          BEGIN
             EXECUTE IMMEDIATE 'BEGIN ' || l_vc_prc_name || '; END;';
 
-            trc.LOG ('Queue ' || p_n_queue_id || ': Step executed', 'Queue ' || p_n_queue_id || ': Step executed');
+             trc.log_info ('Queue ' || p_n_queue_id || ': Step executed', 'Queue ' || p_n_queue_id || ': Step executed');
 
             UPDATE stg_queue_object_t
                SET etl_step_status = 2
@@ -224,7 +224,7 @@ AS
          EXCEPTION
             WHEN OTHERS
             THEN
-               trc.LOG ('Queue ' || p_n_queue_id || ': Error', 'Queue ' || p_n_queue_id || ': Error');
+                trc.log_info ('Queue ' || p_n_queue_id || ': Error', 'Queue ' || p_n_queue_id || ': Error');
 
                UPDATE stg_queue_object_t
                   SET etl_step_status = 3
@@ -233,7 +233,7 @@ AS
          END;
 
          COMMIT;
-         trc.LOG ('Queue ' || p_n_queue_id || ': End', 'Queue ' || p_n_queue_id || ': End');
+          trc.log_info ('Queue ' || p_n_queue_id || ': End', 'Queue ' || p_n_queue_id || ': End');
       END IF;
    END prc_execute_step;
 
@@ -255,21 +255,21 @@ AS
 
       IF l_n_queue_id IS NOT NULL
       THEN
-         trc.LOG ('Execute single steps', 'Queue Begin');
+          trc.log_info ('Execute single steps', 'Queue Begin');
 
          WHILE fct_queue_finished (l_n_queue_id) = FALSE
          LOOP
             IF fct_step_available (l_n_queue_id) = TRUE
             THEN
-               trc.LOG ('Execute next available step', 'Step Begin');
+                trc.log_info ('Execute next available step', 'Step Begin');
                prc_execute_step (l_n_queue_id);
-               trc.LOG ('Step executed', 'Step End');
+                trc.log_info ('Step executed', 'Step End');
             END IF;
          END LOOP;
 
-         trc.LOG ('No more steps to execute', 'Stream End');
+          trc.log_info ('No more steps to execute', 'Stream End');
       ELSE
-         trc.LOG ('Queue ' || p_vc_queue_code || ' doesn''t exist', 'Queue End');
+          trc.log_info ('Queue ' || p_vc_queue_code || ' doesn''t exist', 'Queue End');
       END IF;
    END prc_execute_queue;
 
@@ -317,7 +317,7 @@ AS
       l_n_result    NUMBER;
       l_n_part_id   NUMBER;
    BEGIN
-      trc.LOG ('Start'
+       trc.log_info ('Start'
                      , p_vc_workflow_name
                      , NULL
                      , NULL
@@ -363,7 +363,7 @@ AS
                                      , 1
                                      , 0
                                       );
-      trc.LOG ('Finish'
+       trc.log_info ('Finish'
                      , p_vc_workflow_name
                      , NULL
                      , NULL
@@ -385,11 +385,8 @@ AS
                                      , 0
                                      , 1
                                       );
-      trc.LOG ('Error'
+       trc.log_error ('Error'
                      , p_vc_workflow_name
-                     , 2
-                     , NULL
-                     , NULL
                       );
    END prc_bodi_stg1_job_error;
 /**

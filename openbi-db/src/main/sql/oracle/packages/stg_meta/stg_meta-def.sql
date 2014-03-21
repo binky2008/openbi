@@ -1,4 +1,4 @@
-CREATE OR REPLACE PACKAGE stg_meta AUTHID CURRENT_USER
+CREATE OR REPLACE PACKAGE stg_meta authid current_user
 AS
    /**
     * $Author: nmarangoni $

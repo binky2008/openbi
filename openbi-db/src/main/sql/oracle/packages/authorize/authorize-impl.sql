@@ -1,4 +1,4 @@
-CREATE OR REPLACE PACKAGE BODY enable
+CREATE OR REPLACE PACKAGE BODY authorize
 AS
    /**
    * $Author: nmarangoni $
@@ -9,18 +9,28 @@ AS
    */
    TYPE t_statement IS TABLE OF VARCHAR2 (1000);
 
-   l_synonym_utl      t_statement
-      := t_statement ('param'
-                    , 'type'
-                    , 'dict'
-                    , 'ddl'
+   l_grant_utl      t_statement
+      := t_statement ('GRANT EXECUTE ON param TO '
+                    , 'GRANT EXECUTE ON type TO '
+                    , 'GRANT EXECUTE ON dict TO '
+                    , 'GRANT EXECUTE ON ddl TO '
+                     );
+   l_revoke_utl     t_statement
+      := t_statement ('REVOKE EXECUTE ON param FROM '
+                    , 'REVOKE EXECUTE ON type FROM '
+                    , 'REVOKE EXECUTE ON dict FROM '
+                    , 'REVOKE EXECUTE ON ddl FROM '
                      );
 
-   l_synonym_trc      t_statement
-      := t_statement ('trc_t'
-                    , 'trc'
+   l_grant_trc      t_statement
+      := t_statement ('GRANT INSERT,UPDATE ON trc_t TO '
+                    , 'GRANT EXECUTE ON trc TO '
                      );
-   l_synonym_mes       t_statement
+   l_revoke_trc     t_statement
+      := t_statement ('REVOKE INSERT,UPDATE ON trc_t FROM '
+                    , 'REVOKE EXECUTE ON trc FROM '
+                     );
+   l_grant_mes       t_statement
       := t_statement ('GRANT INSERT,UPDATE,DELETE ON user_t TO '
                     , 'GRANT INSERT,UPDATE,DELETE ON txn_t TO '
                     , 'GRANT INSERT,UPDATE,DELETE ON txn_user_t TO '
@@ -31,7 +41,18 @@ AS
                     , 'GRANT INSERT,DELETE ON mes_exec_t TO '
                     , 'GRANT EXECUTE ON mes TO '
                      );
-   l_synonym_stg    t_statement
+   l_revoke_mes      t_statement
+      := t_statement ('REVOKE INSERT,UPDATE,DELETE ON user_t FROM '
+                    , 'REVOKE INSERT,UPDATE,DELETE ON txn_t FROM '
+                    , 'REVOKE INSERT,UPDATE,DELETE ON txn_user_t FROM '
+                    , 'REVOKE INSERT,UPDATE,DELETE ON mes_txn_t FROM '
+                    , 'REVOKE INSERT,UPDATE,DELETE ON mes_query_t FROM '
+                    , 'REVOKE INSERT,UPDATE,DELETE ON mes_keyfigure_t FROM '
+                    , 'REVOKE INSERT,UPDATE,DELETE ON mes_threshold_t FROM '
+                    , 'REVOKE INSERT,DELETE ON mes_exec_t FROM '
+                    , 'REVOKE EXECUTE ON mes FROM '
+                     );
+   l_grant_stg    t_statement
       := t_statement ('GRANT INSERT,UPDATE,DELETE ON stg_stat_type_t TO '
                     , 'GRANT INSERT,UPDATE,DELETE ON stg_stat_t TO '
                     , 'GRANT INSERT,UPDATE,DELETE ON stg_size_t TO '
@@ -51,8 +72,30 @@ AS
                     , 'GRANT EXECUTE ON stg_build TO '
                     , 'GRANT EXECUTE ON stg_ctl TO '
                      );
- 
-   PROCEDURE prc_enable_utl (
+   l_revoke_stg   t_statement
+      := t_statement ('REVOKE INSERT,UPDATE,DELETE ON stg_stat_type_t FROM '
+                    , 'REVOKE INSERT,UPDATE,DELETE ON stg_stat_t FROM '
+                    , 'REVOKE INSERT,UPDATE,DELETE ON stg_size_t FROM '
+                    , 'REVOKE INSERT,UPDATE,DELETE ON stg_ddl_t FROM '
+                    , 'REVOKE INSERT,UPDATE,DELETE ON stg_column_tmp FROM '
+                    , 'REVOKE INSERT,UPDATE,DELETE ON stg_source_t FROM '
+                    , 'REVOKE INSERT,UPDATE,DELETE ON stg_source_db_t FROM '
+                    , 'REVOKE INSERT,UPDATE,DELETE ON stg_object_t FROM '
+                    , 'REVOKE INSERT,UPDATE,DELETE ON stg_column_t FROM '
+                    , 'REVOKE INSERT,UPDATE,DELETE ON stg_column_check_t FROM '
+                    , 'REVOKE INSERT,UPDATE,DELETE ON stg_queue_t FROM '
+                    , 'REVOKE INSERT,UPDATE,DELETE ON stg_queue_object_t FROM '
+                    , 'REVOKE EXECUTE ON stg_param FROM '
+                    , 'REVOKE EXECUTE ON stg_stat FROM '
+                    , 'REVOKE EXECUTE ON stg_meta FROM '
+                    , 'REVOKE EXECUTE ON stg_ddl FROM '
+                    , 'REVOKE EXECUTE ON stg_build FROM '
+                    , 'REVOKE EXECUTE ON stg_ctl FROM '
+                     );
+   l_grant_core     t_statement := t_statement ('GRANT EXECUTE ON pkg_etl_framework TO ', 'GRANT EXECUTE ON pkg_lkp_d_day TO ');
+   l_revoke_core    t_statement := t_statement ('REVOKE EXECUTE ON pkg_etl_framework FROM ', 'REVOKE EXECUTE ON pkg_lkp_d_day FROM ');
+
+   PROCEDURE prc_grant_utl (
       p_vc_schema   VARCHAR2
    )
    IS
@@ -61,9 +104,9 @@ AS
       LOOP
          EXECUTE IMMEDIATE l_grant_utl (i) || p_vc_schema;
       END LOOP;
-   END prc_enable_utl;
+   END prc_grant_utl;
 
-   PROCEDURE prc_enable_trc (
+   PROCEDURE prc_grant_trc (
       p_vc_schema   VARCHAR2
    )
    IS
@@ -72,9 +115,9 @@ AS
       LOOP
          EXECUTE IMMEDIATE l_grant_trc (i) || p_vc_schema;
       END LOOP;
-   END prc_enable_trc;
+   END prc_grant_trc;
 
-   PROCEDURE prc_disable_trc (
+   PROCEDURE prc_revoke_trc (
       p_vc_schema   VARCHAR2
    )
    IS
@@ -83,9 +126,9 @@ AS
       LOOP
          EXECUTE IMMEDIATE l_revoke_trc (i) || p_vc_schema;
       END LOOP;
-   END prc_disable_trc;
+   END prc_revoke_trc;
 
-   PROCEDURE prc_disable_utl (
+   PROCEDURE prc_revoke_utl (
       p_vc_schema   VARCHAR2
    )
    IS
@@ -94,9 +137,9 @@ AS
       LOOP
          EXECUTE IMMEDIATE l_revoke_utl (i) || p_vc_schema;
       END LOOP;
-   END prc_disable_utl;
+   END prc_revoke_utl;
 
-   PROCEDURE prc_enable_mes (
+   PROCEDURE prc_grant_mes (
       p_vc_schema   VARCHAR2
    )
    IS
@@ -105,9 +148,9 @@ AS
       LOOP
          EXECUTE IMMEDIATE l_grant_mes (i) || p_vc_schema;
       END LOOP;
-   END prc_enable_mes;
+   END prc_grant_mes;
 
-   PROCEDURE prc_disable_mes (
+   PROCEDURE prc_revoke_mes (
       p_vc_schema   VARCHAR2
    )
    IS
@@ -116,9 +159,9 @@ AS
       LOOP
          EXECUTE IMMEDIATE l_revoke_mes (i) || p_vc_schema;
       END LOOP;
-   END prc_disable_mes;
+   END prc_revoke_mes;
 
-   PROCEDURE prc_enable_stg (
+   PROCEDURE prc_grant_stg (
       p_vc_schema   VARCHAR2
    )
    IS
@@ -127,9 +170,9 @@ AS
       LOOP
          EXECUTE IMMEDIATE l_grant_stg (i) || p_vc_schema;
       END LOOP;
-   END prc_enable_stg;
+   END prc_grant_stg;
 
-   PROCEDURE prc_disable_stg (
+   PROCEDURE prc_revoke_stg (
       p_vc_schema   VARCHAR2
    )
    IS
@@ -138,14 +181,14 @@ AS
       LOOP
          EXECUTE IMMEDIATE l_revoke_stg (i) || p_vc_schema;
       END LOOP;
-   END prc_disable_stg;
+   END prc_revoke_stg;
 /**
  * Package initialization
  */
 BEGIN
    c_body_version    := '$Id: pkg_enable-impl.sql 2788 2012-05-15 09:00:31Z nmarangoni $';
    c_body_url        := '$HeadURL: svn://qwd4067/svn_repository_bic/edwh/dwso/edwh_adm/packages/pkg_enable/pkg_enable-impl.sql $';
-END enable;
+END authorize;
 /
 
 SHOW errors

@@ -117,7 +117,7 @@ AS
    -- Code body for the wrapper procedure
    c_sql_stg_wrapper            CLOB
       := '
-      trc.LOG (''Start extracting from #tableName#'', ''Staging Begin'');
+       trc.log_info (''Start extracting from #tableName#'', ''Staging Begin'');
 
 		#prcStage1#
 
@@ -127,40 +127,40 @@ AS
 
 		prc_trunc_diff;
 
-      trc.LOG (''Stage completed for #tableName#'', ''Staging End'');';
+       trc.log_info (''Stage completed for #tableName#'', ''Staging End'');';
    -- Check token of the init procedure
    c_sql_stg2_empty             CLOB
       := '
-		trc.LOG (''Check table #tableName# '',''CHECK'');
+		 trc.log_info (''Check table #tableName# '',''CHECK'');
         SELECT COUNT (*)
           INTO l_n_result
           FROM #tableName#
          WHERE rownum = 1;
          
         IF l_n_result = 0 THEN
-            trc.LOG (''Table #tableName# is empty'',''CHECK'');
+             trc.log_info (''Table #tableName# is empty'',''CHECK'');
         ELSE
-            trc.LOG (''Table #tableName# is not empty'',''CHECK'');
+             trc.log_info (''Table #tableName# is not empty'',''CHECK'');
             raise_application_error (-20000, ''Cannot init load non-empty table'');        
         END IF;';
    -- Truncate token of the staging 1 procedure
    c_sql_pkg_table_trunc            CLOB                      := 'EXECUTE IMMEDIATE ''TRUNCATE TABLE #tableName# DROP STORAGE'';
-		trc.LOG (''Table #tableName# truncated'',''TRUNCATE'');';
+		 trc.log_info (''Table #tableName# truncated'',''TRUNCATE'');';
    -- Truncate token of the staging 1 procedure
    c_sql_pkg_part_trunc             CLOB
                                        := 'EXECUTE IMMEDIATE ''ALTER TABLE #tableName# TRUNCATE #tablePartition#'';
-		trc.LOG (''Table #tableName# #tablePartition# truncated'',''TRUNCATE'');';
+		 trc.log_info (''Table #tableName# #tablePartition# truncated'',''TRUNCATE'');';
    -- Insert token of the staging 1 procedure
    c_sql_stg1_body_incr         CLOB
       := '
    
-        trc.LOG (''#tableName# #distrCode# : get last #incrementColumn#'', ''INCR BOUND'');
+         trc.log_info (''#tableName# #distrCode# : get last #incrementColumn#'', ''INCR BOUND'');
    
         SELECT MAX(#incrementColumn#)
           INTO l_t_increment_bound
           FROM #tableNameStage2# #tablePartition#;
           
-        trc.LOG (''#tableName# #distrCode# : last #incrementColumn# = '' || l_t_increment_bound, ''INCR BOUND'');
+         trc.log_info (''#tableName# #distrCode# : last #incrementColumn# = '' || l_t_increment_bound, ''INCR BOUND'');
         
         ';
    -- Insert token of the staging 1 procedure
@@ -181,7 +181,7 @@ AS
 
       COMMIT;
 
-      trc.LOG (''#tableName# #distrCode# : '' || l_n_result || '' rows inserted'', ''INSERT END'');
+       trc.log_info (''#tableName# #distrCode# : '' || l_n_result || '' rows inserted'', ''INSERT END'');
 		';
    -- Insert-deduplicate token of the staging 1 procedure
    c_sql_stg1_body_dedupl       CLOB
@@ -214,7 +214,7 @@ AS
 
       COMMIT;
 
-      trc.LOG (''#tableName# #distrCode# : '' || l_n_result || '' rows inserted'', ''INSERT END'');
+       trc.log_info (''#tableName# #distrCode# : '' || l_n_result || '' rows inserted'', ''INSERT END'');
 		';
    -- Statistics token of the staging 1 procedure
    c_sql_stg1_body_stats_stg1   CLOB
@@ -227,7 +227,7 @@ AS
 
 		stg_stat.prc_stat_end(l_n_stat_id, 0);
 
-		trc.LOG (''#tableName# : Statistics gathered'', ''STAT END'');
+		 trc.log_info (''#tableName# : Statistics gathered'', ''STAT END'');
 		';
    -- Statistics token of the staging 1 procedure
    c_sql_stg1_body_stats_dupl   CLOB
@@ -236,7 +236,7 @@ AS
 		DBMS_STATS.GATHER_TABLE_STATS (''#stgOwner#'', ''#tableName#'', NULL, 1);
 		stg_stat.prc_size_store(''#sourceCode#'', ''#sourceTable#'', ''#tableName#'');
 
-		trc.LOG (''#tableName# : Statistics gathered'', ''STAT END'');
+		 trc.log_info (''#tableName# : Statistics gathered'', ''STAT END'');
 		';
    -- Check token of the staging 2 procedure
    c_sql_stg2_check             CLOB
@@ -245,29 +245,29 @@ AS
 			NULL, ''#stgOwner#'', ''#tableNameStage1#'', ''#stgOwner#'', ''#tableNameStage2#''
 		);
 		IF l_b_ok THEN
-			trc.LOG (''#tableNameStage1# and #tableNameStage2# have the same NK'', ''CHECK NK'');
+			 trc.log_info (''#tableNameStage1# and #tableNameStage2# have the same NK'', ''CHECK NK'');
 		ELSE
-			trc.LOG (''#tableNameStage1# and #tableNameStage2# have not the same NK'', ''CHECK NK'', param.gc_log_warn);		
+			 trc.log_info (''#tableNameStage1# and #tableNameStage2# have not the same NK'', ''CHECK NK'', param.gc_log_warn);		
 		END IF;
         
         SELECT COUNT(*) INTO l_n_result FROM #tableNameStage1#;
         
         IF l_n_result = 0 THEN
-            trc.LOG (''Table #tableNameStage1# is empty'',''CHECK'', param.gc_log_error);
+             trc.log_info (''Table #tableNameStage1# is empty'',''CHECK'', param.gc_log_error);
             raise_application_error (-20000, ''Stage1 table is empty.'');        
         END IF;
         
         EXECUTE IMMEDIATE ''ALTER SESSION ENABLE PARALLEL DML'';
 		
 		-- Truncate Diff table
-		trc.LOG (''Truncate #tableNameDiff#'', ''DIFF TRUNCATE'');		
+		 trc.log_info (''Truncate #tableNameDiff#'', ''DIFF TRUNCATE'');		
 		EXECUTE IMMEDIATE ''TRUNCATE TABLE #tableNameDiff# DROP STORAGE'';
-		trc.LOG (''#tableNameDiff# truncated'', ''DIFF TRUNCATE'');
+		 trc.log_info (''#tableNameDiff# truncated'', ''DIFF TRUNCATE'');
 		';
    -- Diff token of the staging 2 procedure - nk present
    c_sql_stg2_body_diff_nk      CLOB
       := '
-		trc.LOG (''Insert into #tableNameDiff#'', ''DIFF BEGIN'');
+		 trc.log_info (''Insert into #tableNameDiff#'', ''DIFF BEGIN'');
 
 		l_n_stat_id := stg_stat.prc_stat_begin(''#sourceCode#'', ''#objectName#'', 2, #partition#, ''FDI'');
 		
@@ -313,18 +313,18 @@ AS
 
 		stg_stat.prc_stat_end(l_n_stat_id, l_n_result);
 		
-      trc.LOG (''#tableNameDiff# : '' || l_n_result || '' rows inserted'', ''DIFF INSERTED'');
+       trc.log_info (''#tableNameDiff# : '' || l_n_result || '' rows inserted'', ''DIFF INSERTED'');
 		
 		DBMS_STATS.UNLOCK_TABLE_STATS (''#stgOwner#'', ''#tableNameDiff#'') ;
 		DBMS_STATS.GATHER_TABLE_STATS (''#stgOwner#'', ''#tableNameDiff#'', NULL, 1);
 		stg_stat.prc_size_store(''#sourceCode#'', ''#sourceTable#'', ''#tableNameDiff#'');
 		
-      trc.LOG (''#tableNameDiff# analyzed'', ''DIFF ANALYZED'');
+       trc.log_info (''#tableNameDiff# analyzed'', ''DIFF ANALYZED'');
 ';
    -- Diff token of the staging 2 procedure - nk non-present
    c_sql_stg2_body_diff_nonk    CLOB
       := '
-		trc.LOG (''Insert into #tableNameDiff#'', ''DIFF BEGIN'');
+		 trc.log_info (''Insert into #tableNameDiff#'', ''DIFF BEGIN'');
 
 		l_n_stat_id := stg_stat.prc_stat_begin(''#sourceCode#'', ''#objectName#'', 2, #partition#, ''FDI'');
 		
@@ -387,13 +387,13 @@ AS
 
 		stg_stat.prc_stat_end(l_n_stat_id, l_n_result);
 		
-      trc.LOG (''#tableNameDiff# : '' || l_n_result || '' rows inserted'', ''DIFF INSERTED'');
+       trc.log_info (''#tableNameDiff# : '' || l_n_result || '' rows inserted'', ''DIFF INSERTED'');
 		
 		DBMS_STATS.UNLOCK_TABLE_STATS (''#stgOwner#'', ''#tableNameDiff#'') ;
 		DBMS_STATS.GATHER_TABLE_STATS (''#stgOwner#'', ''#tableNameDiff#'', NULL, 1);
 		stg_stat.prc_size_store(''#sourceCode#'', ''#sourceTable#'', ''#tableNameDiff#'');
 		
-      trc.LOG (''#tableNameDiff# analyzed'', ''DIFF ANALYZED'');
+       trc.log_info (''#tableNameDiff# analyzed'', ''DIFF ANALYZED'');
 ';
    -- Merge token of the staging 2 procedure - 1 single statement
    c_sql_stg2_body_stg2_1dml    CLOB
@@ -402,7 +402,7 @@ AS
 		
 		-- Update Stage2 table
 		
-		trc.LOG (''Update #tableNameStage2#'', ''DIFF UPDATE'');
+		 trc.log_info (''Update #tableNameStage2#'', ''DIFF UPDATE'');
 		l_n_stat_id := stg_stat.prc_stat_begin(''#sourceCode#'', ''#objectName#'', 2, #partition#, ''FUP'');
 
       MERGE /*+APPEND*/
@@ -436,7 +436,7 @@ AS
 
 	  COMMIT;
 
-      trc.LOG (''#tableNameStage2# : '' || l_n_result || '' rows inserted'', ''DIFF END'');';
+       trc.log_info (''#tableNameStage2# : '' || l_n_result || '' rows inserted'', ''DIFF END'');';
    -- Merge token of the staging 2 procedure - 2 separate statement
    c_sql_stg2_body_stg2_2dml    CLOB
       := '
@@ -444,7 +444,7 @@ AS
 		
 		-- Update Stage2 table
 		
-		trc.LOG (''Update #tableNameStage2#'', ''DIFF UPDATE'');
+		 trc.log_info (''Update #tableNameStage2#'', ''DIFF UPDATE'');
 		l_n_stat_id := stg_stat.prc_stat_begin(''#sourceCode#'', ''#objectName#'', 2, #partition#, ''FUP'');
 
       MERGE /*+APPEND*/
@@ -468,11 +468,11 @@ AS
 
       COMMIT;
 		
-      trc.LOG (''#tableNameStage2# : '' || l_n_result || '' rows updated'', ''DIFF UPDATED'');
+       trc.log_info (''#tableNameStage2# : '' || l_n_result || '' rows updated'', ''DIFF UPDATED'');
 		
 		-- Insert into Stage2 table
 		
-      trc.LOG (''#tableNameStage2# : Insert'', l_vc_prc_name);
+       trc.log_info (''#tableNameStage2# : Insert'', l_vc_prc_name);
 
 	  l_n_stat_id := stg_stat.prc_stat_begin(''#sourceCode#'', ''#objectName#'', 2, #partition#, ''FIN'');
 
@@ -492,7 +492,7 @@ AS
 
 	  COMMIT;
 
-      trc.LOG (''#tableNameStage2# : '' || l_n_result || '' rows inserted'', ''DIFF END'');';
+       trc.log_info (''#tableNameStage2# : '' || l_n_result || '' rows inserted'', ''DIFF END'');';
    c_sql_stg2_body_stats        CLOB
       := '
         l_n_stat_id := stg_stat.prc_stat_begin(''#sourceCode#'', ''#objectName#'', 2, NULL, ''ANL'');
@@ -503,7 +503,7 @@ AS
 
 		stg_stat.prc_stat_end(l_n_stat_id, 0);
 
-		trc.LOG (''#tableNameStage2# : Statistics gathered'', ''STAT END'');
+		 trc.log_info (''#tableNameStage2# : Statistics gathered'', ''STAT END'');
 		';
    -- Buffers
    l_sql_pkg_head_buffer            CLOB;
@@ -881,7 +881,7 @@ AS
       l_sql_create         CLOB;
       l_sql_list_col_utl   VARCHAR2 (32000);
    BEGIN
-      trc.LOG (l_vc_message, 'Stage 1 Table: Begin');
+       trc.log_info (l_vc_message, 'Stage 1 Table: Begin');
       l_sql_list_col_utl    := CASE
                                  WHEN g_l_distr_code.COUNT > 1
                                     THEN '#columnSourceDistribution# VARCHAR(12),'
@@ -938,34 +938,33 @@ AS
                     );
 
       BEGIN
-         trc.LOG (l_vc_message, 'Creating table...');
+          trc.log_info (l_vc_message, 'Creating table...');
          ddl.prc_create_object ('TABLE'
                                       , g_vc_table_name_stage1
                                       , l_sql_create
                                       , p_b_drop_flag
                                       , TRUE
                                        );
-         trc.LOG (l_vc_message, 'Table created');
+          trc.log_info (l_vc_message, 'Table created');
       EXCEPTION
          WHEN OTHERS
          THEN
-            trc.LOG (SQLERRM
-                           , 'Stage 1 Table: Warning'
-                           , param.gc_log_warn
+             trc.log_error ('Stage 1 Table: Warning'
+                           , SQLERRM
                             );
             RAISE;
       END;
 
       BEGIN
-         trc.LOG (l_vc_message, 'Setting compression option...');
+          trc.log_info (l_vc_message, 'Setting compression option...');
 
          EXECUTE IMMEDIATE 'ALTER TABLE ' || g_vc_table_name_stage1 || ' COMPRESS FOR QUERY LOW';
 
-         trc.LOG (l_vc_message, 'Compression option set');
+          trc.log_info (l_vc_message, 'Compression option set');
       EXCEPTION
          WHEN OTHERS
          THEN
-            trc.LOG (SQLERRM, 'FOR QUERY LOW option not available');
+             trc.log_info (SQLERRM, 'FOR QUERY LOW option not available');
       END;
 
       -- Build constraint statement
@@ -999,18 +998,18 @@ AS
                     );
 
       BEGIN
-         trc.LOG (l_vc_message, 'Creating NK...');
+          trc.log_info (l_vc_message, 'Creating NK...');
          ddl.prc_create_object ('CONSTRAINT'
                                       , g_vc_nk_name_stage1
                                       , l_sql_create
                                       , p_b_drop_flag
                                       , TRUE
                                        );
-         trc.LOG (l_vc_message, 'NK created');
+          trc.log_info (l_vc_message, 'NK created');
       EXCEPTION
          WHEN OTHERS
          THEN
-            trc.LOG (SQLERRM
+             trc.log_info (SQLERRM
                            , 'NK not created'
                            , param.gc_log_warn
                             );
@@ -1018,15 +1017,15 @@ AS
       END;*/
       IF g_n_parallel_degree > 1
       THEN
-         trc.LOG (l_vc_message, 'Setting parallel option...');
+          trc.log_info (l_vc_message, 'Setting parallel option...');
 
          EXECUTE IMMEDIATE 'ALTER TABLE ' || g_vc_table_name_stage1 || ' PARALLEL ' || g_n_parallel_degree;
 
-         trc.LOG (l_vc_message, 'Parallel option set...');
+          trc.log_info (l_vc_message, 'Parallel option set...');
       END IF;
 
       -- Comments from source system
-      trc.LOG (l_vc_message, 'Setting comments...');
+       trc.log_info (l_vc_message, 'Setting comments...');
 
       EXECUTE IMMEDIATE 'COMMENT ON TABLE ' || g_vc_table_name_stage1 || ' IS ''' || g_vc_table_comment || '''';
 
@@ -1040,12 +1039,12 @@ AS
          EXECUTE IMMEDIATE 'COMMENT ON COLUMN ' || g_vc_table_name_stage1 || '.' || r_comm.stg_column_name || ' IS ''' || r_comm.stg_column_comment || '''';
       END LOOP;
 
-      trc.LOG (l_vc_message, 'Comments set...');
-      trc.LOG (l_vc_message, 'Stage 1 Table: End');
+       trc.log_info (l_vc_message, 'Comments set...');
+       trc.log_info (l_vc_message, 'Stage 1 Table: End');
    EXCEPTION
       WHEN OTHERS
       THEN
-         trc.LOG (SQLERRM, 'Stage 1 Table: Error');
+          trc.log_info (SQLERRM, 'Stage 1 Table: Error');
 
          IF p_b_raise_flag
          THEN
@@ -1062,7 +1061,7 @@ AS
       l_sql_create         CLOB;
       l_sql_list_col_utl   VARCHAR2 (32000);
    BEGIN
-      trc.LOG (l_vc_message, 'Duplicates Table: Begin');
+       trc.log_info (l_vc_message, 'Duplicates Table: Begin');
       l_sql_list_col_utl    := CASE
                                  WHEN g_l_distr_code.COUNT > 1
                                     THEN '#columnSourceDistribution# VARCHAR(12),'
@@ -1128,9 +1127,9 @@ AS
       EXCEPTION
          WHEN OTHERS
          THEN
-            trc.LOG (SQLERRM
-                           , 'Duplicates Table: Warning'
-                           , param.gc_log_warn
+             trc.log_error (
+                            'Duplicates Table: Warning'
+                           , SQLERRM
                             );
             RAISE;
       END;
@@ -1141,11 +1140,11 @@ AS
          ddl.prc_execute (l_sql_create);
       END IF;
 
-      trc.LOG (l_vc_message, 'Duplicates Table: End');
+       trc.log_info (l_vc_message, 'Duplicates Table: End');
    EXCEPTION
       WHEN OTHERS
       THEN
-         trc.LOG (SQLERRM, 'Duplicates Table: Error');
+          trc.log_info (SQLERRM, 'Duplicates Table: Error');
 
          IF p_b_raise_flag
          THEN
@@ -1163,7 +1162,7 @@ AS
       l_sql_subpart_template   VARCHAR2 (32000);
       l_sql_list_col_utl       VARCHAR2 (32000);
    BEGIN
-      trc.LOG (l_vc_message, 'Difference table: Begin');
+       trc.log_info (l_vc_message, 'Difference table: Begin');
       l_sql_list_col_utl    :=
             '#columnExecIdIns# NUMBER(38,0), 
 			 #columnExecIdUpd# NUMBER(38,0), 
@@ -1217,9 +1216,9 @@ AS
       EXCEPTION
          WHEN OTHERS
          THEN
-            trc.LOG (SQLERRM
-                           , 'Difference Table: Warning'
-                           , param.gc_log_warn
+             trc.log_error (
+                            'Difference Table: Warning'
+                           , SQLERRM
                             );
             RAISE;
       END;
@@ -1260,9 +1259,9 @@ AS
       EXCEPTION
          WHEN OTHERS
          THEN
-            trc.LOG (SQLERRM
-                           , 'Difference table: Warning'
-                           , param.gc_log_warn
+             trc.log_error (
+                            'Difference table: Warning'
+                           , SQLERRM
                             );
             RAISE;
       END;
@@ -1273,11 +1272,11 @@ AS
          ddl.prc_execute (l_sql_create);
       END IF;
 
-      trc.LOG (l_vc_message, 'Difference table: End');
+       trc.log_info (l_vc_message, 'Difference table: End');
    EXCEPTION
       WHEN OTHERS
       THEN
-         trc.LOG (SQLERRM, 'Difference table: Error');
+          trc.log_info (SQLERRM, 'Difference table: Error');
 
          IF p_b_raise_flag
          THEN
@@ -1296,7 +1295,7 @@ AS
       l_l_utl_columns      DBMS_SQL.varchar2s;
       l_sql_utl_columns    type.vc_max_plsql := c_sql_utl_columns;
    BEGIN
-      trc.LOG (l_vc_message, 'Diff Table: Begin');
+       trc.log_info (l_vc_message, 'Diff Table: Begin');
       prc_set_tech_columns (l_sql_utl_columns);
       -- Set anonymizad column lists
       l_vc_def_anonymized    := '';
@@ -1358,17 +1357,17 @@ AS
       EXCEPTION
          WHEN OTHERS
          THEN
-            trc.LOG (SQLERRM
-                           , 'Stage 2 Table Create: Warning'
-                           , param.gc_log_warn
+             trc.log_error (
+                          'Stage 2 Table Create: Warning'
+                           , SQLERRM
                             );
 
             IF l_vc_def_anonymized IS NOT NULL
             THEN
                BEGIN
-                  trc.LOG ('Add new anonymized columns'
+                   trc.log_info ('Add new anonymized columns'
                                  , 'Stage 2 Table Add Anonymized'
-                                 , param.gc_log_info
+                               
                                   );
 
                   -- Try to add newly anonymized columns
@@ -1376,9 +1375,9 @@ AS
                EXCEPTION
                   WHEN OTHERS
                   THEN
-                     trc.LOG (SQLERRM
+                      trc.log_warn (SQLERRM
                                     , 'Stage 2 Table Add Anonymized: Warning'
-                                    , param.gc_log_warn
+                                  
                                      );
 
                      IF p_b_raise_flag
@@ -1391,9 +1390,9 @@ AS
             IF l_vc_ini_anonymized IS NOT NULL
             THEN
                BEGIN
-                  trc.LOG ('Fill new anonymized columns'
+                   trc.log_info ('Fill new anonymized columns'
                                  , 'Stage 2 Table Upd Anonymized'
-                                 , param.gc_log_info
+                                
                                   );
 
                   -- Try to fill newly added anonymized columns
@@ -1403,9 +1402,9 @@ AS
                EXCEPTION
                   WHEN OTHERS
                   THEN
-                     trc.LOG (SQLERRM
+                      trc.log_warn (SQLERRM
                                     , 'Stage 2 Table Upd Anonymized: Warning'
-                                    , param.gc_log_warn
+                                
                                      );
 
                      IF p_b_raise_flag
@@ -1435,7 +1434,7 @@ AS
          EXCEPTION
             WHEN OTHERS
             THEN
-               trc.LOG (SQLERRM, 'Stage 2 Table: FLASHBACK');
+                trc.log_info (SQLERRM, 'Stage 2 Table: FLASHBACK');
          END;
       END IF;
 
@@ -1444,7 +1443,7 @@ AS
       EXCEPTION
          WHEN OTHERS
          THEN
-            trc.LOG (SQLERRM || ' - FOR QUERY LOW option not available', 'Stage 2 Table: COMPRESS');
+             trc.log_info (SQLERRM || ' - FOR QUERY LOW option not available', 'Stage 2 Table: COMPRESS');
       END;
 
       -- Generate NK ddl
@@ -1494,9 +1493,9 @@ AS
       EXCEPTION
          WHEN OTHERS
          THEN
-            trc.LOG (SQLERRM
+             trc.log_warn (SQLERRM
                            , 'Stage 2 Natural Key: Warning'
-                           , param.gc_log_warn
+                       
                             );
 
             IF p_b_raise_flag
@@ -1541,9 +1540,9 @@ AS
          EXCEPTION
             WHEN OTHERS
             THEN
-               trc.LOG (SQLERRM
+                trc.log_warn (SQLERRM
                               , 'Stage 2 Natural Key: Warning'
-                              , param.gc_log_warn
+                             
                                );
 
                IF p_b_raise_flag
@@ -1555,11 +1554,11 @@ AS
 
       EXECUTE IMMEDIATE 'GRANT SELECT ON ' || g_vc_table_name_stage2 || ' TO ' || stg_param.c_vc_list_grantee;
 
-      trc.LOG (l_vc_message, 'Stage 2 Table: End');
+       trc.log_info (l_vc_message, 'Stage 2 Table: End');
    EXCEPTION
       WHEN OTHERS
       THEN
-         trc.LOG (SQLERRM, 'Stage 2 Table: Error');
+          trc.log_info (SQLERRM, 'Stage 2 Table: Error');
 
          IF p_b_raise_flag
          THEN
@@ -1574,7 +1573,7 @@ AS
       l_vc_message   VARCHAR2 (32000)          := 'View stage 2 ' || g_vc_view_name_stage2;
       l_sql_create   type.vc_max_plsql;
    BEGIN
-      trc.LOG (l_vc_message, 'Stage 2 View: Begin');
+       trc.log_info (l_vc_message, 'Stage 2 View: Begin');
       l_vc_viw_anonymized    := '';
       -- ANONYMIZATION prc_set_anonymized_viewcols;
       --
@@ -1588,11 +1587,11 @@ AS
 
       EXECUTE IMMEDIATE 'GRANT SELECT ON ' || g_vc_view_name_stage2 || ' TO ' || stg_param.c_vc_list_grantee;
 
-      trc.LOG (l_vc_message, 'Stage 2 View: End');
+       trc.log_info (l_vc_message, 'Stage 2 View: End');
    EXCEPTION
       WHEN OTHERS
       THEN
-         trc.LOG (SQLERRM, 'Stage 2 View: Error');
+          trc.log_info (SQLERRM, 'Stage 2 View: Error');
 
          IF p_b_raise_flag
          THEN
@@ -1609,7 +1608,7 @@ AS
       l_vc_message   VARCHAR2 (32000)          := 'Synonym stage 2 ' || g_vc_view_name_stage2;
       l_sql_create   type.vc_max_plsql;
    BEGIN
-      trc.LOG (l_vc_message, 'Stage 2 Synonym: Begin');
+       trc.log_info (l_vc_message, 'Stage 2 Synonym: Begin');
       l_vc_viw_anonymized    := '';
       -- ANONYMIZATION prc_set_anonymized_viewcols;
       --
@@ -1623,11 +1622,11 @@ AS
 
       EXECUTE IMMEDIATE 'GRANT SELECT ON ' || g_vc_view_name_stage2 || ' TO ' || stg_param.c_vc_list_grantee;
 
-      trc.LOG (l_vc_message, 'Stage 2 Synonym: End');
+       trc.log_info (l_vc_message, 'Stage 2 Synonym: End');
    EXCEPTION
       WHEN OTHERS
       THEN
-         trc.LOG (SQLERRM, 'Stage 2 Synonym: Error');
+          trc.log_info (SQLERRM, 'Stage 2 Synonym: Error');
 
          IF p_b_raise_flag
          THEN
@@ -1644,7 +1643,7 @@ AS
       l_vc_message   VARCHAR2 (32000)          := 'View stage 2 ' || g_vc_view_name_stage2;
       l_sql_create   type.vc_max_plsql;
    BEGIN
-      trc.LOG (l_vc_message, 'Stage 2 View: Begin');
+       trc.log_info (l_vc_message, 'Stage 2 View: Begin');
       l_vc_viw_anonymized    := '';
       -- ANONYMIZATION prc_set_anonymized_viewcols;
       --
@@ -1671,11 +1670,11 @@ AS
 
       EXECUTE IMMEDIATE 'GRANT SELECT ON ' || g_vc_view_name_history || ' TO ' || stg_param.c_vc_list_grantee;
 
-      trc.LOG (l_vc_message, 'Stage 2 View: End');
+       trc.log_info (l_vc_message, 'Stage 2 View: End');
    EXCEPTION
       WHEN OTHERS
       THEN
-         trc.LOG (SQLERRM, 'Stage 2 View: Error');
+          trc.log_info (SQLERRM, 'Stage 2 View: Error');
 
          IF p_b_raise_flag
          THEN
@@ -1694,7 +1693,7 @@ AS
       l_sql_prc_token    CLOB;
       l_sql_prc_buffer   CLOB;
    BEGIN
-      trc.LOG (l_vc_message, 'Begin');
+       trc.log_info (l_vc_message, 'Begin');
       --
       -- HEAD
       --
@@ -1760,7 +1759,7 @@ AS
                                     , 'prc_trunc_stage1'
                                      );
       l_sql_pkg_body_buffer    := l_sql_pkg_body_buffer || CHR (10) || l_sql_prc;
-      trc.LOG (l_vc_message, 'End');
+       trc.log_info (l_vc_message, 'End');
    END prc_create_prc_trunc_stg1;
 
    PROCEDURE prc_create_prc_trunc_diff (
@@ -1772,7 +1771,7 @@ AS
       l_sql_prc_token    CLOB;
       l_sql_prc_buffer   CLOB;
    BEGIN
-      trc.LOG (l_vc_message, 'Begin');
+       trc.log_info (l_vc_message, 'Begin');
       --
       -- HEAD
       --
@@ -1825,7 +1824,7 @@ AS
                                     , 'prc_trunc_diff'
                                      );
       l_sql_pkg_body_buffer    := l_sql_pkg_body_buffer || CHR (10) || l_sql_prc;
-      trc.LOG (l_vc_message, 'End');
+       trc.log_info (l_vc_message, 'End');
    END prc_create_prc_trunc_diff;
 
    PROCEDURE prc_create_prc_init (
@@ -1843,7 +1842,7 @@ AS
       l_vc_col_anonymized      := '';
       l_vc_fct_anonymized      := '';
       -- ANONYMIZATION prc_set_anonymized_columns;
-      trc.LOG (l_vc_message, 'Begin');
+       trc.log_info (l_vc_message, 'Begin');
       prc_set_tech_columns (l_sql_utl_columns);
       -- Get lists of columns
       l_vc_col_all             :=
@@ -2106,7 +2105,7 @@ AS
                                     , 'prc_load_init'
                                      );
       l_sql_pkg_body_buffer    := l_sql_pkg_body_buffer || CHR (10) || l_sql_prc;
-      trc.LOG (l_vc_message, 'End');
+       trc.log_info (l_vc_message, 'End');
    END prc_create_prc_init;
 
    PROCEDURE prc_create_prc_stage1 (
@@ -2118,7 +2117,7 @@ AS
       l_sql_prc_token    CLOB;
       l_sql_prc_buffer   CLOB;
    BEGIN
-      trc.LOG (l_vc_message, 'Begin');
+       trc.log_info (l_vc_message, 'Begin');
       --
       -- HEAD
       --
@@ -2351,7 +2350,7 @@ AS
                                     , 'prc_load_stage1'
                                      );
       l_sql_pkg_body_buffer    := l_sql_pkg_body_buffer || CHR (10) || l_sql_prc;
-      trc.LOG (l_vc_message, 'End');
+       trc.log_info (l_vc_message, 'End');
    END prc_create_prc_stage1;
 
    PROCEDURE prc_create_prc_stage1_p (
@@ -2367,7 +2366,7 @@ AS
       l_n_increment_bound   NUMBER;
       l_d_increment_bound   DATE;
    BEGIN
-      trc.LOG (l_vc_message, 'Begin');
+       trc.log_info (l_vc_message, 'Begin');
 
       --
       -- HEAD
@@ -2640,7 +2639,7 @@ AS
          l_sql_pkg_body_buffer    := l_sql_pkg_body_buffer || CHR (10) || l_sql_prc;
       END LOOP;
 
-      trc.LOG (l_vc_message, 'End');
+       trc.log_info (l_vc_message, 'End');
    END prc_create_prc_stage1_p;
 
    PROCEDURE prc_create_prc_stage2 (
@@ -2660,7 +2659,7 @@ AS
       l_vc_clause_update     type.vc_max_plsql;
       l_vc_col_nvl2          type.vc_max_plsql;
    BEGIN
-      trc.LOG (l_vc_message, 'Begin');
+       trc.log_info (l_vc_message, 'Begin');
       -- Set anonymizad column lists
       l_vc_set_anonymized      := '';
       l_vc_col_anonymized      := '';
@@ -2714,11 +2713,11 @@ AS
          OR (    g_vc_col_pk IS NULL
              AND l_vc_col_pk_2 IS NULL)
       THEN
-         trc.LOG ('Source ' || g_vc_source_code || ', Object ' || g_vc_table_name_source || ' : Stage 1 and stage 2 have the same Natural Keys', 'CHECK PK');
+          trc.log_info ('Source ' || g_vc_source_code || ', Object ' || g_vc_table_name_source || ' : Stage 1 and stage 2 have the same Natural Keys', 'CHECK PK');
       ELSE
-         trc.LOG ('Source ' || g_vc_source_code || ', Object ' || g_vc_table_name_source || ' : Stage 1 and stage 2 have different Natural Keys'
+          trc.log_info ('Source ' || g_vc_source_code || ', Object ' || g_vc_table_name_source || ' : Stage 1 and stage 2 have different Natural Keys'
                         , 'CHECK NK'
-                        , param.gc_log_warn
+                     
                          );
       END IF;
 
@@ -3042,7 +3041,7 @@ AS
                                     , 'prc_load_stage2_delta'
                                      );
       l_sql_pkg_body_buffer    := l_sql_pkg_body_buffer || CHR (10) || l_sql_prc;
-      trc.LOG (l_vc_message, 'End');
+       trc.log_info (l_vc_message, 'End');
    END prc_create_prc_stage2;
 
    PROCEDURE prc_create_prc_diff_to_stg2 (
@@ -3061,7 +3060,7 @@ AS
       l_vc_ins_col_source    type.vc_max_plsql;
       l_vc_ins_col_target    type.vc_max_plsql;
    BEGIN
-      trc.LOG (l_vc_message, 'Begin');
+       trc.log_info (l_vc_message, 'Begin');
       -- Set anonymizad column lists
       l_vc_set_anonymized      := '';
       l_vc_col_anonymized      := '';
@@ -3310,7 +3309,7 @@ AS
                                     , 'prc_load_diff_to_stg2'
                                      );
       l_sql_pkg_body_buffer    := l_sql_pkg_body_buffer || CHR (10) || l_sql_prc;
-      trc.LOG (l_vc_message, 'End');
+       trc.log_info (l_vc_message, 'End');
    END prc_create_prc_diff_to_stg2;
 
    PROCEDURE prc_create_prc_wrapper (
@@ -3323,7 +3322,7 @@ AS
       l_sql_prc_token    CLOB;
       l_sql_prc_buffer   CLOB;
    BEGIN
-      trc.LOG (l_vc_message, 'Begin');
+       trc.log_info (l_vc_message, 'Begin');
       --
       -- HEAD for FULL load
       --
@@ -3464,7 +3463,7 @@ AS
                                     , 'prc_load_delta'
                                      );
       l_sql_pkg_body_buffer    := l_sql_pkg_body_buffer || CHR (10) || l_sql_prc;
-      trc.LOG (l_vc_message, 'End');
+       trc.log_info (l_vc_message, 'End');
    END prc_create_prc_wrapper;
 
    PROCEDURE prc_compile_package_main (
@@ -3475,7 +3474,7 @@ AS
       l_sql_create   CLOB;
    BEGIN
       -- Package head
-      trc.LOG (l_vc_message, 'Package head: Begin');
+       trc.log_info (l_vc_message, 'Package head: Begin');
       l_sql_create    := ddl.c_template_pkg_head;
       ddl.prc_set_text_param (l_sql_create
                                     , 'pkgName'
@@ -3501,9 +3500,9 @@ AS
                                    , FALSE
                                    , p_b_raise_flag
                                     );
-      trc.LOG (l_vc_message, 'Package head: End');
+       trc.log_info (l_vc_message, 'Package head: End');
       -- Package body
-      trc.LOG (l_vc_message, 'Package body: Begin');
+       trc.log_info (l_vc_message, 'Package body: Begin');
       l_sql_create    := ddl.c_template_pkg_body;
       ddl.prc_set_text_param (l_sql_create
                                     , 'varList'
@@ -3529,7 +3528,7 @@ AS
                                    , FALSE
                                    , p_b_raise_flag
                                     );
-      trc.LOG (l_vc_message, 'Package body: End');
+       trc.log_info (l_vc_message, 'Package body: End');
    END prc_compile_package_main;
 
    PROCEDURE prc_create_package_main (
@@ -3540,7 +3539,7 @@ AS
       l_vc_message   VARCHAR2 (32000) := 'Package create ' || g_vc_package_main;
       l_sql_create   CLOB;
    BEGIN
-      trc.LOG (l_vc_message, 'Begin');
+       trc.log_info (l_vc_message, 'Begin');
       l_sql_pkg_head_buffer    := '';
       l_sql_pkg_body_buffer    := '';
       -- Get backward compatibility properties for target objects
@@ -3607,7 +3606,7 @@ AS
       --
       -- Compile package
       prc_compile_package_main (p_b_raise_flag);
-      trc.LOG (l_vc_message, 'End');
+       trc.log_info (l_vc_message, 'End');
    END prc_create_package_main;
 /**
  * Package initialization

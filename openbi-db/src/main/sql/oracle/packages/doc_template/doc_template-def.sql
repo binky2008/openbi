@@ -252,10 +252,3 @@ END doc_template;
 /
 
 SHOW ERRORS
-
-BEGIN
-   ddl.prc_create_synonym ('aux_doc_template', 'aux_doc_template', TRUE);
-END;
-/
-
-SHOW ERRORS

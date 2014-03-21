@@ -1,4 +1,4 @@
-CREATE OR REPLACE PACKAGE BODY mes_main
+CREATE OR REPLACE PACKAGE BODY mes
 AS
    /**
     * $Author: nmarangoni $
@@ -15,14 +15,13 @@ AS
    TYPE t_keyvalue IS TABLE OF r_keyvalue;
 
    FUNCTION fct_exec_verify (
-      p_vc_case_code        IN   VARCHAR2
-    , p_vc_step_code        IN   VARCHAR2
+      p_vc_query_code        IN   VARCHAR2
     , p_vc_keyfigure_code   IN   VARCHAR2
     , p_n_exec_value        IN   NUMBER
    )
       RETURN BOOLEAN
    IS
-      l_vc_prc_name         pkg_utl_type.vc_obj_plsql := 'FCT_EXEC_VERIFY';
+      l_vc_prc_name         type.vc_obj_plsql := 'FCT_EXEC_VERIFY';
       l_n_keyfigure_id      NUMBER;
       l_vc_threshold_type   CHAR (1);
       l_n_threshold_min     NUMBER;
@@ -32,28 +31,25 @@ AS
       l_n_cnt               NUMBER                    := 0;
       l_b_success           BOOLEAN                   := TRUE;
    BEGIN
-      SELECT MIN (k.qc_keyfigure_id)
-           , MIN (t.qc_threshold_type)
-           , MIN (t.qc_threshold_min)
-           , MAX (t.qc_threshold_max)
+      SELECT MIN (k.mes_keyfigure_id)
+           , MIN (t.mes_threshold_type)
+           , MIN (t.mes_threshold_min)
+           , MAX (t.mes_threshold_max)
         INTO l_n_keyfigure_id
            , l_vc_threshold_type
            , l_n_threshold_min
            , l_n_threshold_max
-        FROM qc_case_t d
-           , qc_step_t s
-           , qc_keyfigure_t k
-           , qc_threshold_t t
-       WHERE d.qc_case_id = s.qc_case_id
-         AND s.qc_step_id = k.qc_step_id
-         AND t.qc_keyfigure_id = k.qc_keyfigure_id
-         AND d.qc_case_code = p_vc_case_code
-         AND s.qc_step_code = p_vc_step_code
-         AND k.qc_keyfigure_code = p_vc_keyfigure_code
-         AND t.qc_threshold_from <= SYSDATE
-         AND SYSDATE < t.qc_threshold_to;
+        FROM mes_query_t s
+           , mes_keyfigure_t k
+           , mes_threshold_t t
+       WHERE s.mes_query_id = k.mes_query_id
+         AND t.mes_keyfigure_id = k.mes_keyfigure_id
+         AND s.mes_query_code = p_vc_query_code
+         AND k.mes_keyfigure_code = p_vc_keyfigure_code
+         AND t.mes_threshold_from <= SYSDATE
+         AND SYSDATE < t.mes_threshold_to;
 
-      log.LOG ('Key figure ' || p_vc_keyfigure_code || ' type ' || l_vc_threshold_type || ' threshold = ' || l_n_threshold_min || ' - ' || l_n_threshold_max, 'VERIFYING');
+       trc.log_info_SUB_INFO ('Key figure ' || p_vc_keyfigure_code || ' type ' || l_vc_threshold_type || ' threshold = ' || l_n_threshold_min || ' - ' || l_n_threshold_max, 'VERIFYING');
 
       IF l_vc_threshold_type = 'A'
       THEN
@@ -62,29 +58,29 @@ AS
             AND p_n_exec_value NOT BETWEEN l_n_threshold_min AND l_n_threshold_max
          THEN
             l_b_success    := FALSE;
-            log.LOG ('Result ' || p_n_exec_value || ' not ok', 'RESULT NOT OK');
+             trc.log_info_SUB_INFO ('Result ' || p_n_exec_value || ' not ok', 'RESULT NOT OK');
          ELSE
-            log.LOG ('Result ' || p_n_exec_value || ' ok', 'RESULT OK');
+             trc.log_info_SUB_INFO ('Result ' || p_n_exec_value || ' ok', 'RESULT OK');
          END IF;
       ELSIF l_vc_threshold_type = 'I'
       THEN
          SELECT COUNT (*)
            INTO l_n_cnt
-           FROM qc_exec_t
-          WHERE qc_keyfigure_id = l_n_keyfigure_id;
+           FROM mes_exec_t
+          WHERE mes_keyfigure_id = l_n_keyfigure_id;
 
          IF l_n_cnt > 0
          THEN
-            SELECT MAX (NVL (qc_exec_result_value, 0))
+            SELECT MAX (NVL (mes_exec_result_value, 0))
               INTO l_n_result_previous
-              FROM (SELECT qc_exec_id
-                         , qc_exec_result_value
-                         , MAX (qc_exec_id) OVER (PARTITION BY qc_keyfigure_id) AS qc_exec_last
-                      FROM qc_exec_t
-                     WHERE qc_keyfigure_id = l_n_keyfigure_id)
-             WHERE qc_exec_id = qc_exec_last;
+              FROM (SELECT mes_exec_id
+                         , mes_exec_result_value
+                         , MAX (mes_exec_id) OVER (PARTITION BY mes_keyfigure_id) AS mes_exec_last
+                      FROM mes_exec_t
+                     WHERE mes_keyfigure_id = l_n_keyfigure_id)
+             WHERE mes_exec_id = mes_exec_last;
 
-            log.LOG ('Previous result = ' || l_n_result_previous, 'VERIFYING INCREMENT');
+             trc.log_info_SUB_INFO ('Previous result = ' || l_n_result_previous, 'VERIFYING INCREMENT');
 
             IF l_n_result_previous > 0
             THEN
@@ -95,291 +91,186 @@ AS
                   AND l_n_increment NOT BETWEEN l_n_threshold_min AND l_n_threshold_max
                THEN
                   l_b_success    := FALSE;
-                  log.LOG ('Increment ' || l_n_increment || ' not ok', 'RESULT NOT OK');
+                   trc.log_info_SUB_INFO ('Increment ' || l_n_increment || ' not ok', 'RESULT NOT OK');
                ELSE
-                  log.LOG ('Increment ' || l_n_increment || ' ok', 'RESULT OK');
+                   trc.log_info_SUB_INFO ('Increment ' || l_n_increment || ' ok', 'RESULT OK');
                END IF;
             ELSE
-               log.LOG ('Previous result = ' || l_n_result_previous, 'RESULT OK');
+                trc.log_info_SUB_INFO ('Previous result = ' || l_n_result_previous, 'RESULT OK');
             END IF;
          ELSE
-            log.LOG ('Key figure ' || p_vc_keyfigure_code || ' type ' || l_vc_threshold_type || ' - no previous results available', 'RESULT OK');
+             trc.log_info_SUB_INFO ('Key figure ' || p_vc_keyfigure_code || ' type ' || l_vc_threshold_type || ' - no previous results available', 'RESULT OK');
          END IF;
       END IF;
 
       RETURN l_b_success;
    END fct_exec_verify;
 
-   PROCEDURE prc_case_taxonomy_ins (
-      p_vc_case_code       IN   VARCHAR2
+   PROCEDURE prc_mes_txn_ins (
+      p_vc_query_code       IN   VARCHAR2
     , p_vc_taxonomy_code   IN   VARCHAR2
    )
    IS
-      l_vc_prc_name   pkg_utl_type.vc_obj_plsql := 'PRC_CASE_TAXONOMY_INS';
+      l_vc_prc_name   type.vc_obj_plsql := 'PRC_MES_TAXONOMY_INS';
    BEGIN
-      log.LOG ('Inserting in qc_case_taxonomy_t', l_vc_prc_name);
-      MERGE INTO qc_case_taxonomy_t trg
-         USING (SELECT qc_case_id
-                     , sys_taxonomy_id
-                  FROM qc_case_t c
-                     , sys_taxonomy_t t
-                 WHERE c.qc_case_code = p_vc_case_code
-                   AND t.sys_taxonomy_code = p_vc_taxonomy_code) src
-         ON (    trg.qc_case_id = src.qc_case_id
-             AND trg.sys_taxonomy_id = src.sys_taxonomy_id)
+       trc.log_info_SUB_INFO (l_vc_prc_name,'Inserting in mes_case_taxonomy_t');
+      MERGE INTO mes_txn_t trg
+         USING (SELECT mes_query_id
+                     , txn_id
+                  FROM mes_query_t c
+                     , txn_t t
+                 WHERE c.mes_query_code = p_vc_query_code
+                   AND t.txn_code = p_vc_taxonomy_code) src
+         ON (    trg.mes_query_id = src.mes_query_id
+             AND trg.txn_id = src.txn_id)
          WHEN NOT MATCHED THEN
-            INSERT (trg.qc_case_id, trg.sys_taxonomy_id)
-            VALUES (src.qc_case_id, src.sys_taxonomy_id);
-      log.LOG (SQL%ROWCOUNT || ' rows merged', l_vc_prc_name);
+            INSERT (trg.mes_query_id, trg.txn_id)
+            VALUES (src.mes_query_id, src.txn_id);
+       trc.log_info_SUB_INFO (l_vc_prc_name, SQL%ROWCOUNT || ' rows merged');
       COMMIT;
-   END prc_case_taxonomy_ins;
+   END prc_mes_txn_ins;
 
-   PROCEDURE prc_case_taxonomy_del (
-      p_vc_case_code       IN   VARCHAR2
+   PROCEDURE prc_mes_txn_del (
+      p_vc_query_code       IN   VARCHAR2
     , p_vc_taxonomy_code   IN   VARCHAR2
    )
    IS
-      l_vc_prc_name   pkg_utl_type.vc_obj_plsql := 'PRC_CASE_TAXONOMY_DEL';
+      l_vc_prc_name   type.vc_obj_plsql := 'PRC_CASE_TAXONOMY_DEL';
    BEGIN
-      log.LOG ('Deleting in qc_case_taxonomy_t', l_vc_prc_name);
+       trc.log_info_SUB_INFO ('Deleting in mes_case_taxonomy_t', l_vc_prc_name);
 
-      DELETE      qc_case_taxonomy_t
-            WHERE qc_case_id = (SELECT qc_case_id
-                                  FROM qc_case_t
-                                 WHERE qc_case_code = p_vc_case_code)
-              AND sys_taxonomy_id = (SELECT sys_taxonomy_id
-                                       FROM sys_taxonomy_t
-                                      WHERE sys_taxonomy_code = p_vc_taxonomy_code);
+      DELETE      mes_txn_t
+            WHERE mes_query_id = (SELECT mes_query_id
+                                  FROM mes_query_t
+                                 WHERE mes_query_code = p_vc_query_code)
+              AND txn_id = (SELECT txn_id
+                                       FROM txn_t
+                                      WHERE txn_code = p_vc_taxonomy_code);
 
-      log.LOG (SQL%ROWCOUNT || ' rows deleted', l_vc_prc_name);
+       trc.log_info_SUB_INFO (l_vc_prc_name, SQL%ROWCOUNT || ' rows deleted');
       COMMIT;
-   END prc_case_taxonomy_del;
+   END prc_mes_txn_del;
 
-   PROCEDURE prc_case_ins (
-      p_vc_case_code          IN   VARCHAR2
-    , p_vc_case_name          IN   VARCHAR2
-    , p_vc_layer_code         IN   VARCHAR2 DEFAULT 'GLOBAL'
-    , p_vc_entity_code        IN   VARCHAR2 DEFAULT 'GLOBAL'
-    , p_vc_environment_code   IN   VARCHAR2 DEFAULT 'GLOBAL'
+   PROCEDURE prc_query_ins (
+      p_vc_query_code   IN   VARCHAR2
+    , p_vc_query_name   IN   VARCHAR2
+    , p_vc_query_sql    IN   CLOB
    )
    IS
-      l_vc_prc_name   pkg_utl_type.vc_obj_plsql := 'PRC_CASE_INS';
+      l_vc_prc_name   type.vc_obj_plsql := 'PRC_query_INS';
    BEGIN
-      log.LOG ('Inserting in qc_case_t', l_vc_prc_name);
-      MERGE INTO qc_case_t trg
-         USING (SELECT p_vc_case_code AS case_code
-                     , p_vc_case_name AS case_name
-                     , l.sys_layer_id AS layer_id
-                     , e.sys_entity_id AS entity_id
-                     , n.sys_environment_id AS environment_id
-                  FROM sys_layer_t l
-                     , sys_entity_t e
-                     , sys_environment_t n
-                 WHERE l.sys_layer_code(+) = p_vc_layer_code
-                   AND e.sys_entity_code(+) = p_vc_entity_code
-                   AND n.sys_environment_code(+) = p_vc_environment_code) src
-         ON (trg.qc_case_code = src.case_code)
+      MERGE INTO mes_query_t trg
+         USING (SELECT p_vc_query_code AS query_code
+                     , p_vc_query_name AS query_name
+                     , p_vc_query_sql AS query_sql
+                  FROM dual) src
+         ON (   trg.mes_query_code = src.query_code)
          WHEN MATCHED THEN
             UPDATE
-               SET trg.qc_case_name = src.case_name, trg.sys_layer_id = src.layer_id, trg.sys_entity_id = src.entity_id, trg.sys_environment_id = src.environment_id
+               SET trg.mes_query_name = NVL (src.query_name, trg.mes_query_name), trg.mes_query_sql = NVL (src.query_sql, trg.mes_query_sql)
          WHEN NOT MATCHED THEN
-            INSERT (trg.qc_case_code, trg.qc_case_name, trg.sys_layer_id, trg.sys_entity_id, trg.sys_environment_id)
-            VALUES (src.case_code, src.case_name, src.layer_id, src.entity_id, src.environment_id);
-      log.LOG (SQL%ROWCOUNT || ' rows merged', l_vc_prc_name);
+            INSERT (trg.mes_query_code, trg.mes_query_name, trg.mes_query_sql)
+            VALUES (src.query_code, src.query_name, src.query_sql);
+       trc.log_info_SUB_INFO (SQL%ROWCOUNT || ' rows merged', l_vc_prc_name);
       COMMIT;
-   END prc_case_ins;
+   END prc_query_ins;
 
-   PROCEDURE prc_case_del (
-      p_vc_case_code   IN   VARCHAR2
+   PROCEDURE prc_query_del (
+      p_vc_query_code   IN   VARCHAR2
     , p_b_cascade      IN   BOOLEAN DEFAULT FALSE
    )
    IS
-      l_vc_prc_name   pkg_utl_type.vc_obj_plsql := 'PRC_CASE_DEL';
-      l_n_case_id     NUMBER;
+      l_vc_prc_name   type.vc_obj_plsql := 'PRC_query_DEL';
+      l_n_query_id     NUMBER;
       l_n_cnt         NUMBER;
    BEGIN
-      -- Get the step id
-      SELECT qc_case_id
-        INTO l_n_case_id
-        FROM qc_case_t c
-       WHERE qc_case_code = p_vc_case_code;
+      -- Get the query id
+      SELECT mes_query_id
+        INTO l_n_query_id
+        FROM mes_query_t
+       WHERE mes_query_code = p_vc_query_code;
 
       IF NOT p_b_cascade
       THEN
          SELECT COUNT (*)
            INTO l_n_cnt
-           FROM qc_step_t
-          WHERE qc_case_id = l_n_case_id;
+           FROM mes_keyfigure_t
+          WHERE mes_query_id = l_n_query_id;
 
          IF l_n_cnt > 0
          THEN
-            raise_application_error (-20001, 'Cannot delete case with steps');
+            raise_application_error (-20001, 'Cannot delete query with key figures');
          END IF;
       END IF;
 
-      -- Delete case-taxonomy assignments
-      DELETE      qc_case_taxonomy_t
-            WHERE qc_case_id = (SELECT qc_case_id
-                                  FROM qc_case_t
-                                 WHERE qc_case_code = p_vc_case_code);
-
-      -- Delete children steps
-      FOR r_step IN (SELECT qc_step_code
-                       FROM qc_step_t
-                      WHERE qc_case_id = l_n_case_id)
+      FOR r_key IN (SELECT mes_keyfigure_code
+                      FROM mes_keyfigure_t
+                     WHERE mes_query_id = l_n_query_id)
       LOOP
-         prc_step_del (p_vc_case_code
-                     , r_step.qc_step_code
-                     , p_b_cascade
-                      );
-      END LOOP;
-
-      DELETE      qc_case_t
-            WHERE qc_case_id = l_n_case_id;
-
-      log.LOG (SQL%ROWCOUNT || ' rows deleted', l_vc_prc_name);
-      COMMIT;
-   END prc_case_del;
-
-   PROCEDURE prc_step_ins (
-      p_vc_case_code   IN   VARCHAR2
-    , p_n_step_order   IN   NUMBER
-    , p_vc_step_code   IN   VARCHAR2
-    , p_vc_step_name   IN   VARCHAR2
-    , p_vc_step_sql    IN   CLOB
-   )
-   IS
-      l_vc_prc_name   pkg_utl_type.vc_obj_plsql := 'PRC_STEP_INS';
-   BEGIN
-      MERGE INTO qc_step_t trg
-         USING (SELECT qc_case_id
-                     , p_n_step_order AS step_order
-                     , p_vc_step_code AS step_code
-                     , p_vc_step_name AS step_name
-                     , p_vc_step_sql AS step_sql
-                  FROM qc_case_t
-                 WHERE qc_case_code = p_vc_case_code) src
-         ON (    trg.qc_case_id = src.qc_case_id
-             AND trg.qc_step_code = src.step_code)
-         WHEN MATCHED THEN
-            UPDATE
-               SET trg.qc_step_order = NVL (src.step_order, trg.qc_step_order), trg.qc_step_name = NVL (src.step_name, trg.qc_step_name), trg.qc_step_sql = NVL (src.step_sql, trg.qc_step_sql)
-         WHEN NOT MATCHED THEN
-            INSERT (trg.qc_case_id, trg.qc_step_order, trg.qc_step_code, trg.qc_step_name, trg.qc_step_sql)
-            VALUES (src.qc_case_id, src.step_order, src.step_code, src.step_name, src.step_sql);
-      log.LOG (SQL%ROWCOUNT || ' rows merged', l_vc_prc_name);
-      COMMIT;
-   END prc_step_ins;
-
-   PROCEDURE prc_step_del (
-      p_vc_case_code   IN   VARCHAR2
-    , p_vc_step_code   IN   VARCHAR2
-    , p_b_cascade      IN   BOOLEAN DEFAULT FALSE
-   )
-   IS
-      l_vc_prc_name   pkg_utl_type.vc_obj_plsql := 'PRC_STEP_DEL';
-      l_n_step_id     NUMBER;
-      l_n_cnt         NUMBER;
-   BEGIN
-      -- Get the step id
-      SELECT s.qc_step_id
-        INTO l_n_step_id
-        FROM qc_case_t c
-           , qc_step_t s
-       WHERE s.qc_case_id = c.qc_case_id
-         AND c.qc_case_code = p_vc_case_code
-         AND s.qc_step_code = p_vc_step_code;
-
-      IF NOT p_b_cascade
-      THEN
-         SELECT COUNT (*)
-           INTO l_n_cnt
-           FROM qc_keyfigure_t
-          WHERE qc_step_id = l_n_step_id;
-
-         IF l_n_cnt > 0
-         THEN
-            raise_application_error (-20001, 'Cannot delete step with key figures');
-         END IF;
-      END IF;
-
-      FOR r_key IN (SELECT qc_keyfigure_code
-                      FROM qc_keyfigure_t
-                     WHERE qc_step_id = l_n_step_id)
-      LOOP
-         prc_keyfigure_del (p_vc_case_code
-                          , p_vc_step_code
-                          , r_key.qc_keyfigure_code
+         prc_keyfigure_del (p_vc_query_code
+                          , r_key.mes_keyfigure_code
                           , p_b_cascade
                            );
       END LOOP;
 
-      DELETE      qc_step_t
-            WHERE qc_step_id = l_n_step_id;
+      DELETE      mes_query_t
+            WHERE mes_query_id = l_n_query_id;
 
-      log.LOG (SQL%ROWCOUNT || ' rows deleted', l_vc_prc_name);
+       trc.log_info_SUB_INFO (SQL%ROWCOUNT || ' rows deleted', l_vc_prc_name);
       COMMIT;
-   END prc_step_del;
+   END prc_query_del;
 
    PROCEDURE prc_keyfigure_ins (
-      p_vc_case_code        IN   VARCHAR2
-    , p_vc_step_code        IN   VARCHAR2
+      p_vc_query_code        IN   VARCHAR2
     , p_vc_keyfigure_code   IN   VARCHAR2
     , p_vc_keyfigure_name   IN   VARCHAR2
    )
    IS
-      l_vc_prc_name   pkg_utl_type.vc_obj_plsql := 'PRC_KEYFIGURE_INS';
+      l_vc_prc_name   type.vc_obj_plsql := 'PRC_KEYFIGURE_INS';
    BEGIN
-      MERGE INTO qc_keyfigure_t trg
-         USING (SELECT s.qc_step_id
+      MERGE INTO mes_keyfigure_t trg
+         USING (SELECT s.mes_query_id
                      , p_vc_keyfigure_code AS keyfigure_code
                      , p_vc_keyfigure_name AS keyfigure_name
-                  FROM qc_case_t d
-                     , qc_step_t s
-                 WHERE s.qc_case_id = d.qc_case_id
-                   AND d.qc_case_code = p_vc_case_code
-                   AND s.qc_step_code = p_vc_step_code) src
-         ON (    trg.qc_step_id = src.qc_step_id
-             AND trg.qc_keyfigure_code = src.keyfigure_code)
+                  FROM mes_query_t s
+                 WHERE s.mes_query_code = p_vc_query_code) src
+         ON (    trg.mes_query_id = src.mes_query_id
+             AND trg.mes_keyfigure_code = src.keyfigure_code)
          WHEN MATCHED THEN
             UPDATE
-               SET trg.qc_keyfigure_name = NVL (src.keyfigure_name, trg.qc_keyfigure_name)
+               SET trg.mes_keyfigure_name = NVL (src.keyfigure_name, trg.mes_keyfigure_name)
          WHEN NOT MATCHED THEN
-            INSERT (trg.qc_step_id, trg.qc_keyfigure_code, trg.qc_keyfigure_name)
-            VALUES (src.qc_step_id, src.keyfigure_code, src.keyfigure_name);
-      log.LOG (SQL%ROWCOUNT || ' rows merged', l_vc_prc_name);
+            INSERT (trg.mes_query_id, trg.mes_keyfigure_code, trg.mes_keyfigure_name)
+            VALUES (src.mes_query_id, src.keyfigure_code, src.keyfigure_name);
+       trc.log_info_SUB_INFO (SQL%ROWCOUNT || ' rows merged', l_vc_prc_name);
       COMMIT;
    END prc_keyfigure_ins;
 
    PROCEDURE prc_keyfigure_del (
-      p_vc_case_code        IN   VARCHAR2
-    , p_vc_step_code        IN   VARCHAR2
+      p_vc_query_code        IN   VARCHAR2
     , p_vc_keyfigure_code   IN   VARCHAR2
     , p_b_cascade           IN   BOOLEAN DEFAULT FALSE
    )
    IS
-      l_vc_prc_name      pkg_utl_type.vc_obj_plsql := 'PRC_KEYFIGURE_DEL';
+      l_vc_prc_name      type.vc_obj_plsql := 'PRC_KEYFIGURE_DEL';
       l_n_keyfigure_id   NUMBER;
       l_n_cnt            NUMBER;
    BEGIN
       -- Get the key figure id
-      SELECT k.qc_keyfigure_id
+      SELECT k.mes_keyfigure_id
         INTO l_n_keyfigure_id
-        FROM qc_case_t c
-           , qc_step_t s
-           , qc_keyfigure_t k
-       WHERE s.qc_case_id = c.qc_case_id
-         AND s.qc_step_id = k.qc_step_id
-         AND c.qc_case_code = p_vc_case_code
-         AND s.qc_step_code = p_vc_step_code
-         AND k.qc_keyfigure_code = p_vc_keyfigure_code;
+        FROM mes_query_t s
+           , mes_keyfigure_t k
+       WHERE s.mes_query_id = k.mes_query_id
+         AND s.mes_query_code = p_vc_query_code
+         AND k.mes_keyfigure_code = p_vc_keyfigure_code;
 
       IF NOT p_b_cascade
       THEN
          SELECT COUNT (*)
            INTO l_n_cnt
-           FROM qc_exec_t
-          WHERE qc_keyfigure_id = l_n_keyfigure_id;
+           FROM mes_exec_t
+          WHERE mes_keyfigure_id = l_n_keyfigure_id;
 
          IF l_n_cnt > 0
          THEN
@@ -387,26 +278,25 @@ AS
          END IF;
       END IF;
 
-      DELETE      qc_exec_t
-            WHERE qc_keyfigure_id = l_n_keyfigure_id;
+      DELETE      mes_exec_t
+            WHERE mes_keyfigure_id = l_n_keyfigure_id;
 
-      log.LOG (SQL%ROWCOUNT || ' rows deleted', l_vc_prc_name);
+       trc.log_info_SUB_INFO (SQL%ROWCOUNT || ' rows deleted', l_vc_prc_name);
 
-      DELETE      qc_threshold_t
-            WHERE qc_keyfigure_id = l_n_keyfigure_id;
+      DELETE      mes_threshold_t
+            WHERE mes_keyfigure_id = l_n_keyfigure_id;
 
-      log.LOG (SQL%ROWCOUNT || ' rows deleted', l_vc_prc_name);
+       trc.log_info_SUB_INFO (SQL%ROWCOUNT || ' rows deleted', l_vc_prc_name);
 
-      DELETE      qc_keyfigure_t
-            WHERE qc_keyfigure_id = l_n_keyfigure_id;
+      DELETE      mes_keyfigure_t
+            WHERE mes_keyfigure_id = l_n_keyfigure_id;
 
-      log.LOG (SQL%ROWCOUNT || ' rows deleted', l_vc_prc_name);
+       trc.log_info_SUB_INFO (SQL%ROWCOUNT || ' rows deleted', l_vc_prc_name);
       COMMIT;
    END prc_keyfigure_del;
 
    PROCEDURE prc_threshold_ins (
-      p_vc_case_code        IN   VARCHAR2
-    , p_vc_step_code        IN   VARCHAR2
+      p_vc_query_code        IN   VARCHAR2
     , p_vc_keyfigure_code   IN   VARCHAR2
     , p_vc_threshold_type   IN   VARCHAR2
     , p_n_threshold_min     IN   NUMBER
@@ -415,7 +305,7 @@ AS
     , p_d_threshold_to      IN   DATE DEFAULT TO_DATE ('09099999', 'ddmmyyyy')
    )
    IS
-      l_vc_prc_name        pkg_utl_type.vc_obj_plsql := 'PRC_THRESHOLD_INS';
+      l_vc_prc_name        type.vc_obj_plsql := 'PRC_THRESHOLD_INS';
       l_d_threshold_from   DATE                      := NVL (p_d_threshold_from, TO_DATE ('01011111', 'ddmmyyyy'));
       l_d_threshold_to     DATE                      := NVL (p_d_threshold_to, TO_DATE ('09099999', 'ddmmyyyy'));
       l_n_keyfigure_id     NUMBER;
@@ -425,89 +315,86 @@ AS
       l_n_split_max        NUMBER;
    BEGIN
       -- Get the key figure id
-      SELECT k.qc_keyfigure_id
+      SELECT k.mes_keyfigure_id
         INTO l_n_keyfigure_id
-        FROM qc_case_t c
-           , qc_step_t s
-           , qc_keyfigure_t k
-       WHERE s.qc_case_id = c.qc_case_id
-         AND s.qc_step_id = k.qc_step_id
-         AND c.qc_case_code = p_vc_case_code
-         AND s.qc_step_code = p_vc_step_code
-         AND k.qc_keyfigure_code = p_vc_keyfigure_code;
+        FROM mes_query_t s
+           , mes_keyfigure_t k
+       WHERE s.mes_query_id = k.mes_query_id
+         AND s.mes_query_code = p_vc_query_code
+         AND k.mes_keyfigure_code = p_vc_keyfigure_code;
 
       IF l_n_keyfigure_id IS NOT NULL
       THEN
          -- Delete existing time slices if they reside between new boundary
-         DELETE      qc_threshold_t
-               WHERE qc_keyfigure_id = l_n_keyfigure_id
-                 AND qc_threshold_from > l_d_threshold_from
-                 AND qc_threshold_to < l_d_threshold_to;
+         DELETE      mes_threshold_t
+               WHERE mes_keyfigure_id = l_n_keyfigure_id
+                 AND mes_threshold_from > l_d_threshold_from
+                 AND mes_threshold_to < l_d_threshold_to;
 
-         log.LOG (SQL%ROWCOUNT || ' rows deleted', l_vc_prc_name);
+          trc.log_info_SUB_INFO (SQL%ROWCOUNT || ' rows deleted', l_vc_prc_name);
 
          -- If new slice inside existing then split
-         INSERT INTO qc_threshold_t
-                     (qc_keyfigure_id
-                    , qc_threshold_type
-                    , qc_threshold_min
-                    , qc_threshold_max
-                    , qc_threshold_from
-                    , qc_threshold_to
+         INSERT INTO mes_threshold_t
+                     (mes_keyfigure_id
+                    , mes_threshold_type
+                    , mes_threshold_min
+                    , mes_threshold_max
+                    , mes_threshold_from
+                    , mes_threshold_to
                      )
-            SELECT qc_keyfigure_id
-                 , qc_threshold_type
-                 , qc_threshold_min
-                 , qc_threshold_max
+            SELECT mes_keyfigure_id
+                 , mes_threshold_type
+                 , mes_threshold_min
+                 , mes_threshold_max
                  , l_d_threshold_to
-                 , qc_threshold_to
-              FROM qc_threshold_t
-             WHERE qc_keyfigure_id = l_n_keyfigure_id
-               AND qc_threshold_from < l_d_threshold_from
-               AND qc_threshold_to > l_d_threshold_to;
+                 , mes_threshold_to
+              FROM mes_threshold_t
+             WHERE mes_keyfigure_id = l_n_keyfigure_id
+               AND mes_threshold_from < l_d_threshold_from
+               AND mes_threshold_to > l_d_threshold_to;
 
-         log.LOG (SQL%ROWCOUNT || ' rows inserted', l_vc_prc_name);
+          trc.log_info_SUB_INFO (SQL%ROWCOUNT || ' rows inserted', l_vc_prc_name);
 
          -- Update existing time slice where upper bound > new lower bound
-         UPDATE qc_threshold_t
-            SET qc_threshold_to = l_d_threshold_from
-          WHERE qc_keyfigure_id = l_n_keyfigure_id
-            AND qc_threshold_from < l_d_threshold_from
-            AND qc_threshold_to > l_d_threshold_from;
+         UPDATE mes_threshold_t
+            SET mes_threshold_to = l_d_threshold_from
+          WHERE mes_keyfigure_id = l_n_keyfigure_id
+            AND mes_threshold_from < l_d_threshold_from
+            AND mes_threshold_to > l_d_threshold_from;
 
-         log.LOG (SQL%ROWCOUNT || ' rows updated', l_vc_prc_name);
+          trc.log_info_SUB_INFO (SQL%ROWCOUNT || ' rows updated', l_vc_prc_name);
 
          -- Update existing time slice where lower bound < new upper bound
-         UPDATE qc_threshold_t
-            SET qc_threshold_from = l_d_threshold_to
-          WHERE qc_keyfigure_id = l_n_keyfigure_id
-            AND qc_threshold_to > l_d_threshold_to
-            AND qc_threshold_from < l_d_threshold_to;
+         UPDATE mes_threshold_t
+            SET mes_threshold_from = l_d_threshold_to
+          WHERE mes_keyfigure_id = l_n_keyfigure_id
+            AND mes_threshold_to > l_d_threshold_to
+            AND mes_threshold_from < l_d_threshold_to;
 
-         log.LOG (SQL%ROWCOUNT || ' rows updated', l_vc_prc_name);
+          trc.log_info_SUB_INFO (SQL%ROWCOUNT || ' rows updated', l_vc_prc_name);
 
          -- Update time slice with same boundary
-         UPDATE    qc_threshold_t
-               SET qc_threshold_type = p_vc_threshold_type
-                 , qc_threshold_min = p_n_threshold_min
-                 , qc_threshold_max = p_n_threshold_max
-             WHERE qc_keyfigure_id = l_n_keyfigure_id
-               AND qc_threshold_from = l_d_threshold_from
-               AND qc_threshold_to = l_d_threshold_to
-         RETURNING qc_threshold_id
+         UPDATE    mes_threshold_t
+               SET mes_threshold_type = p_vc_threshold_type
+                 , mes_threshold_min = p_n_threshold_min
+                 , mes_threshold_max = p_n_threshold_max
+             WHERE mes_keyfigure_id = l_n_keyfigure_id
+               AND mes_threshold_from = l_d_threshold_from
+               AND mes_threshold_to = l_d_threshold_to
+         RETURNING mes_threshold_id
               INTO l_n_threshold_id;
 
-         log.LOG (SQL%ROWCOUNT || ' rows updated', l_vc_prc_name);
+          trc.log_info_SUB_INFO (SQL%ROWCOUNT || ' rows updated', l_vc_prc_name);
 
          IF l_n_threshold_id IS NULL
          THEN
-            INSERT INTO qc_threshold_t
-                        (qc_keyfigure_id
-                       , qc_threshold_type
-                       , qc_threshold_min
-                       , qc_threshold_max
-                       , qc_threshold_from
-                       , qc_threshold_to
+            INSERT INTO mes_threshold_t
+                        (mes_keyfigure_id
+                       , mes_threshold_type
+                       , mes_threshold_min
+                       , mes_threshold_max
+                       , mes_threshold_from
+                       , mes_threshold_to
                         )
                  VALUES (l_n_keyfigure_id
                        , p_vc_threshold_type
@@ -517,7 +404,7 @@ AS
                        , l_d_threshold_to
                         );
 
-            log.LOG (SQL%ROWCOUNT || ' rows inserted', l_vc_prc_name);
+             trc.log_info_SUB_INFO (SQL%ROWCOUNT || ' rows inserted', l_vc_prc_name);
          END IF;
 
          COMMIT;
@@ -525,135 +412,106 @@ AS
    END prc_threshold_ins;
 
    PROCEDURE prc_exec_ins (
-      p_vc_case_code        IN   VARCHAR2
-    , p_vc_step_code        IN   VARCHAR2
+      p_vc_query_code        IN   VARCHAR2
     , p_vc_keyfigure_code   IN   VARCHAR2
     , p_n_result_value      IN   NUMBER
     , p_vc_result_report    IN   CLOB
    )
    IS
-      l_vc_prc_name   pkg_utl_type.vc_obj_plsql := 'PRC_EXEC_INS';
+      l_vc_prc_name   type.vc_obj_plsql := 'PRC_EXEC_INS';
    BEGIN
-      INSERT INTO qc_exec_t
-                  (qc_keyfigure_id
-                 , qc_exec_result_value
-                 , qc_exec_result_report
+      INSERT INTO mes_exec_t
+                  (mes_keyfigure_id
+                 , mes_exec_result_value
+                 , mes_exec_result_report
                   )
-         SELECT k.qc_keyfigure_id
+         SELECT k.mes_keyfigure_id
               , p_n_result_value
               , p_vc_result_report
-           FROM qc_case_t d
-              , qc_step_t s
-              , qc_keyfigure_t k
-          WHERE d.qc_case_id = s.qc_case_id
-            AND s.qc_step_id = k.qc_step_id
-            AND d.qc_case_code = p_vc_case_code
-            AND s.qc_step_code = p_vc_step_code
-            AND k.qc_keyfigure_code = p_vc_keyfigure_code;
+           FROM mes_query_t s
+              , mes_keyfigure_t k
+          WHERE s.mes_query_id = k.mes_query_id
+            AND s.mes_query_code = p_vc_query_code
+            AND k.mes_keyfigure_code = p_vc_keyfigure_code;
 
-      log.LOG (SQL%ROWCOUNT || ' rows inserted', l_vc_prc_name);
+       trc.log_info_SUB_INFO (SQL%ROWCOUNT || ' rows inserted', l_vc_prc_name);
       COMMIT;
    END prc_exec_ins;
 
    PROCEDURE prc_exec (
-      p_vc_case_code           IN   VARCHAR2 DEFAULT 'ALL'
-    , p_vc_step_code           IN   VARCHAR2 DEFAULT 'ALL'
+      p_vc_query_code           IN   VARCHAR2 DEFAULT 'ALL'
     , p_b_exception_if_fails   IN   BOOLEAN DEFAULT FALSE
     , p_vc_storage_type        IN   VARCHAR2 DEFAULT 'VALUE'
    )
    IS
-      l_vc_prc_name       pkg_utl_type.vc_obj_plsql := 'PRC_EXEC';
+      l_vc_prc_name       type.vc_obj_plsql := 'PRC_EXEC';
       l_keyfigure         t_keyvalue;
-      l_vc_step_table     VARCHAR2 (100);
+      l_vc_query_table     VARCHAR2 (100);
       l_vc_stmt           VARCHAR2 (32000);
       l_vc_report         CLOB;
       l_vc_job_name       VARCHAR2 (100);
       l_n_gui             NUMBER;
-      l_n_step_no         NUMBER;
+      l_n_query_no         NUMBER;
       l_n_result          NUMBER;
       l_n_threshold_min   NUMBER;
       l_n_threshold_max   NUMBER;
       l_b_success         BOOLEAN                   := TRUE;
    BEGIN
-      l_vc_job_name    := 'QC_' || p_vc_case_code;
-      log.set_workflow_name ('QC_EXEC');
-      l_n_result       := pkg_utl_job.initialize (l_vc_job_name
-                                                , 'QC'
-                                                , l_n_gui
-                                                , l_n_step_no
-                                                 );
-      l_n_result       := pkg_utl_job.set_step_no (l_vc_job_name
-                                                 , 'QC'
-                                                 , l_n_gui
-                                                 , 0
-                                                 , 'BEGIN'
-                                                  );
-      log.set_console_logging (FALSE);
-      log.LOG ('Execute case ' || p_vc_case_code || ', steps ' || p_vc_step_code, 'CASE START');
-      log.LOG ('Results will be stored as ' || p_vc_storage_type, 'STORAGE ' || p_vc_storage_type);
+       trc.log_info_SUB_INFO ('Execute case query ' || p_vc_query_code, 'Query START');
+       trc.log_info_SUB_INFO ('Results will be stored as ' || p_vc_storage_type, 'STORAGE ' || p_vc_storage_type);
 
-      FOR r_step IN (SELECT   d.qc_case_code
-                            , s.qc_step_id
-                            , s.qc_step_code
-                            , s.qc_step_sql
-                         FROM qc_case_t d
-                            , qc_step_t s
-                        WHERE d.qc_case_id = s.qc_case_id
-                          AND (   p_vc_case_code IN (d.qc_case_code, 'ALL')
-                               OR p_vc_case_code IS NULL)
-                          AND (   p_vc_step_code IN (s.qc_step_code, 'ALL')
-                               OR p_vc_step_code IS NULL)
-                     ORDER BY d.qc_case_code
-                            , s.qc_step_order
-                            , s.qc_step_code)
+      FOR r_query IN (SELECT  s.mes_query_id
+                            , s.mes_query_code
+                            , s.mes_query_sql
+                         FROM mes_query_t s
+                        WHERE (   p_vc_query_code IN (s.mes_query_code, 'ALL')
+                               OR p_vc_query_code IS NULL)
+                     ORDER BY s.mes_query_code)
       LOOP
-         log.LOG ('Step ' || r_step.qc_step_code, 'STEP START');
+          trc.log_info_SUB_INFO ('query ' || r_query.mes_query_code, 'query START');
 
          BEGIN
             IF    p_vc_storage_type = 'VALUE'
                OR p_vc_storage_type IS NULL
             THEN
-               EXECUTE IMMEDIATE r_step.qc_step_sql
+               EXECUTE IMMEDIATE r_query.mes_query_sql
                BULK COLLECT INTO l_keyfigure;
 
-               log.LOG ('Step ' || r_step.qc_step_code || ': SQL executed ', 'SQL EXECUTED');
+                trc.log_info_SUB_INFO ('query ' || r_query.mes_query_code || ': SQL executed ', 'SQL EXECUTED');
 
                IF l_keyfigure.FIRST IS NOT NULL
                THEN
                   FOR i IN l_keyfigure.FIRST .. l_keyfigure.LAST
                   LOOP
-                     pkg_qc.prc_keyfigure_ins (r_step.qc_case_code
-                                             , r_step.qc_step_code
+                     prc_keyfigure_ins (r_query.mes_query_code
                                              , l_keyfigure (i).keyfigure
                                              , l_keyfigure (i).keyfigure
                                               );
 
                      IF p_b_exception_if_fails
                      THEN
-                        l_b_success    := fct_exec_verify (r_step.qc_case_code
-                                                         , r_step.qc_step_code
+                        l_b_success    := fct_exec_verify (r_query.mes_query_code
                                                          , l_keyfigure (i).keyfigure
                                                          , l_keyfigure (i).resultvalue
                                                           );
                      END IF;
 
-                     pkg_qc.prc_exec_ins (r_step.qc_case_code
-                                        , r_step.qc_step_code
+                     prc_exec_ins (r_query.mes_query_code
                                         , l_keyfigure (i).keyfigure
                                         , l_keyfigure (i).resultvalue
                                         , NULL
                                          );
-                     log.LOG ('Key figure ' || l_keyfigure (i).keyfigure || ' = ' || l_keyfigure (i).resultvalue || ' , result stored', 'KEY FIGURE STORED');
+                      trc.log_info_SUB_INFO ('Key figure ' || l_keyfigure (i).keyfigure || ' = ' || l_keyfigure (i).resultvalue || ' , result stored', 'KEY FIGURE STORED');
                   END LOOP;
                ELSE
-                  log.LOG ('Step ' || r_step.qc_step_code || ': no rows returned ', 'NO RESULTS');
+                   trc.log_info_SUB_INFO ('query ' || r_query.mes_query_code || ': no rows returned ', 'NO RESULTS');
                END IF;
             ELSIF p_vc_storage_type = 'REPORT'
             THEN
-               l_vc_step_table    := 'tmp_qc_step_' || TRIM (TO_CHAR (r_step.qc_step_id, '0000000000'));
+               l_vc_query_table    := 'tmp_mes_query_' || TRIM (TO_CHAR (r_query.mes_query_id, '0000000000'));
 
                BEGIN
-                  l_vc_stmt    := 'DROP TABLE ' || l_vc_step_table;
+                  l_vc_stmt    := 'DROP TABLE ' || l_vc_query_table;
 
                   EXECUTE IMMEDIATE l_vc_stmt;
                EXCEPTION
@@ -662,53 +520,39 @@ AS
                      NULL;
                END;
 
-               l_vc_stmt          := 'CREATE TABLE ' || l_vc_step_table || ' AS ' || r_step.qc_step_sql;
+               l_vc_stmt          := 'CREATE TABLE ' || l_vc_query_table || ' AS ' || r_query.mes_query_sql;
 
                EXECUTE IMMEDIATE l_vc_stmt;
 
-               log.LOG ('Step ' || r_step.qc_step_code || ': Table created ', 'SQL EXECUTED');
-               l_vc_report        := pkg_utl_doc.fct_get_table_dataset (SYS_CONTEXT ('USERENV', 'SESSION_USER'), l_vc_step_table);
-               pkg_qc.prc_keyfigure_ins (r_step.qc_case_code
-                                       , r_step.qc_step_code
+                trc.log_info_SUB_INFO ('query ' || r_query.mes_query_code || ': Table created ', 'SQL EXECUTED');
+               l_vc_report        := doc.fct_get_table_dataset (SYS_CONTEXT ('USERENV', 'SESSION_USER'), l_vc_query_table);
+               prc_keyfigure_ins (r_query.mes_query_code
                                        , 'REPORT'
                                        , 'REPORT'
                                         );
-               pkg_qc.prc_exec_ins (r_step.qc_case_code
-                                  , r_step.qc_step_code
+               prc_exec_ins (r_query.mes_query_code
                                   , 'REPORT'
                                   , NULL
                                   , l_vc_report
                                    );
-               log.LOG ('Report stored', 'REPORT STORED');
+                trc.log_info_SUB_INFO ('Report stored', 'REPORT STORED');
             END IF;
          EXCEPTION
             WHEN OTHERS
             THEN
-               log.LOG ('Step ' || r_step.qc_step_code || ': ' || SQLERRM
+                 trc.log_error ('query ' || r_query.mes_query_code || ': ' || SQLERRM
                               , 'ERROR'
-                              , log.gc_error
-                              , SQLCODE
                                );
          END;
 
-         log.LOG ('Step ' || r_step.qc_step_code, 'STEP FINISH');
+          trc.log_info_SUB_INFO ('query ' || r_query.mes_query_code, 'query FINISH');
       END LOOP;
 
-      log.LOG ('Execute case ' || p_vc_case_code || ', steps ' || p_vc_step_code || ' : success ' || CASE
+       trc.log_info_SUB_INFO ('Execute query ' || p_vc_query_code || ' : success ' || CASE
                           WHEN l_b_success
                              THEN 'TRUE'
                           ELSE 'FALSE'
                        END, 'CASE FINISH');
-      l_n_result       := pkg_utl_job.set_step_no (l_vc_job_name
-                                                 , 'QC'
-                                                 , l_n_gui
-                                                 , 1
-                                                 , 'END'
-                                                  );
-      l_n_result       := pkg_utl_job.finalize (l_vc_job_name
-                                              , 'QC'
-                                              , l_n_gui
-                                               );
 
       IF     p_b_exception_if_fails
          AND NOT l_b_success
@@ -718,16 +562,10 @@ AS
    EXCEPTION
       WHEN OTHERS
       THEN
-         log.LOG ('Step ' || p_vc_case_code || ', steps ' || p_vc_step_code || ' : failed'
-                        , 'CASE ERROR'
-                        , log.gc_error
-                        , SQLCODE
+           trc.log_error ('query ' || p_vc_query_code || ' : failed'
+                        , 'QUERY ERROR'
                          );
-         l_n_result    := pkg_utl_job.set_error_status (l_vc_job_name
-                                                      , 'QC'
-                                                      , l_n_gui
-                                                      , SQLERRM
-                                                       );
+
          RAISE;
    END;
 
@@ -737,36 +575,35 @@ AS
     , p_vc_storage_type        IN   VARCHAR2 DEFAULT 'VALUE'
    )
    IS
-      l_vc_prc_name   pkg_utl_type.vc_obj_plsql := 'PRC_EXEC_TAXONOMY';
+      l_vc_prc_name   type.vc_obj_plsql := 'PRC_EXEC_TAXONOMY';
    BEGIN
-      log.LOG ('Executing all cases belonging to taxonomy ' || p_vc_taxonomy_code || ' and its children', l_vc_prc_name);
+       trc.log_info_SUB_INFO ('Executing all cases belonging to taxonomy ' || p_vc_taxonomy_code || ' and its children', l_vc_prc_name);
 
-      FOR r_tax IN (SELECT     sys_taxonomy_id
-                             , sys_taxonomy_name
-                             , SYS_CONNECT_BY_PATH (sys_taxonomy_code, '/') sys_taxonomy_path
-                          FROM sys_taxonomy_t
-                    START WITH sys_taxonomy_code = p_vc_taxonomy_code
-                    CONNECT BY PRIOR sys_taxonomy_id = sys_taxonomy_parent_id)
+      FOR r_tax IN (SELECT     txn_id
+                             , txn_name
+                             , SYS_CONNECT_BY_PATH (txn_code, '/') txn_path
+                          FROM txn_t
+                    START WITH txn_code = p_vc_taxonomy_code
+                    CONNECT BY PRIOR txn_id = txn_parent_id)
       LOOP
-         log.LOG ('Executing all cases belonging to taxonomy ' || r_tax.sys_taxonomy_path, l_vc_prc_name);
+          trc.log_info_SUB_INFO ('Executing all cases belonging to taxonomy ' || r_tax.txn_path, l_vc_prc_name);
 
-         FOR r_case IN (SELECT c.qc_case_code
-                          FROM qc_case_taxonomy_t t
-                             , qc_case_t c
-                         WHERE t.qc_case_id = c.qc_case_id
-                           AND t.sys_taxonomy_id = r_tax.sys_taxonomy_id)
+         FOR r_query IN (SELECT c.mes_query_code
+                          FROM mes_txn_t t
+                             , mes_query_t c
+                         WHERE t.mes_query_id = c.mes_query_id
+                           AND t.txn_id = r_tax.txn_id)
          LOOP
-            prc_exec (r_case.qc_case_code
-                    , 'ALL'
+            prc_exec (r_query.mes_query_code
                     , p_b_exception_if_fails
                     , p_vc_storage_type
                      );
          END LOOP;
 
-         log.LOG ('All cases belonging to taxonomy ' || r_tax.sys_taxonomy_path || ' have been executed', l_vc_prc_name);
+          trc.log_info_SUB_INFO ('All cases belonging to taxonomy ' || r_tax.txn_path || ' have been executed', l_vc_prc_name);
       END LOOP;
 
-      log.LOG ('All cases belonging to taxonomy ' || p_vc_taxonomy_code || ' and its children have been executed', l_vc_prc_name);
+       trc.log_info_SUB_INFO ('All cases belonging to taxonomy ' || p_vc_taxonomy_code || ' and its children have been executed', l_vc_prc_name);
    END;
 /**
  * Package initialization
@@ -774,7 +611,7 @@ AS
 BEGIN
    c_body_version    := '$Id: pkg_qc-impl.sql 2288 2012-02-02 15:24:13Z nmarangoni $';
    c_body_url        := '$HeadURL: svn://qwp1466/svn_repository_bic/edwh/dwso/edwh_adm/packages/pkg_qc/pkg_qc-impl.sql $';
-END mes_main;
+END mes;
 /
 
 SHOW errors

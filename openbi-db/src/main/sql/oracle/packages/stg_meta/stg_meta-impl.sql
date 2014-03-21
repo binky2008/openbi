@@ -435,7 +435,7 @@ AS
    IS
       l_n_pk_pos_min   NUMBER;
    BEGIN
-      trc.log_info ('Prepare metadata', 'Start');
+        trc.log_info ('Prepare metadata', 'Start');
 
       FOR r_obj IN (SELECT stg_object_id
                          , stg_object_name
@@ -503,7 +503,7 @@ AS
          COMMIT;
       END LOOP;
 
-      trc.log_info ('Prepare metadata', 'Finish');
+        trc.log_info ('Prepare metadata', 'Finish');
    END prc_column_import;
 
    PROCEDURE prc_column_import_from_stg1 (
@@ -514,7 +514,7 @@ AS
    IS
       l_n_pk_pos_min   NUMBER;
    BEGIN
-      trc.LOG ('Prepare metadata', 'Start');
+       trc.log_info ('Prepare metadata', 'Start');
       prc_set_object_properties;
 
       FOR r_obj IN (SELECT stg_owner
@@ -568,7 +568,7 @@ AS
          COMMIT;
       END LOOP;
 
-      trc.LOG ('Prepare metadata', 'Finish');
+       trc.log_info ('Prepare metadata', 'Finish');
    END prc_column_import_from_stg1;
 
    PROCEDURE prc_check_column_changes (
@@ -578,7 +578,7 @@ AS
    )
    IS
    BEGIN
-      trc.log_info ('Check column changes', 'Start');
+        trc.log_info ('Check column changes', 'Start');
 
       FOR r_obj IN (SELECT   stg_source_id
                            , stg_source_code
@@ -642,7 +642,7 @@ AS
          COMMIT;
       END LOOP;
 
-      trc.log_info ('Check column changes', 'Finish');
+        trc.log_info ('Check column changes', 'Finish');
    END;
 
    PROCEDURE prc_set_object_properties

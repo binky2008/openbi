@@ -42,7 +42,8 @@ public class Main {
 			cmd = parser.parse(cmdOptions, args);
 		}
 		catch(Exception e) {
-			logger.error("Unexpected exception:" + e.toString());
+			logger.error("UNEXPECTED EXCEPTION: " + e.toString());
+			e.printStackTrace();
 		    throw e;
 		}
 		
@@ -59,7 +60,8 @@ public class Main {
 		    	properties.load(new FileInputStream(cmd.getOptionValue("propertyfile")));
             }
     		catch(Exception e) {
-    			logger.error("Cannot read property file:\n" + e.getMessage());
+    			logger.error("Cannot read property file: " + e.getMessage());
+    			e.printStackTrace();
     		    throw e;
     		}
 	    }
@@ -345,8 +347,8 @@ public class Main {
 					sourceConnectionBean.closeConnection();
 				}
 				catch (Exception e) {
-					logger.error("UNEXPECTED EXCEPTION");
-					logger.error(e.getMessage());
+					logger.error("UNEXPECTED EXCEPTION: " + e.getMessage());
+	    			e.printStackTrace();
 					try {
 						sourceConnectionBean.closeConnection();
 					}
@@ -420,8 +422,8 @@ public class Main {
 					targetConnectionBean.closeConnection();
 				}
 				catch (Exception e) {
-					logger.error("UNEXPECTED EXCEPTION");
-					logger.error(e.getMessage());
+					logger.error("UNEXPECTED EXCEPTION: " + e.getMessage());
+	    			e.printStackTrace();
 					try {
 						targetConnectionBean.closeConnection();
 					}
@@ -470,8 +472,8 @@ public class Main {
 						targetConnectionBean.closeConnection();
 					}
 					catch (Exception e) {
-						logger.error("UNEXPECTED EXCEPTION");
-						logger.error(e.getMessage());
+						logger.error("UNEXPECTED EXCEPTION: " + e.getMessage());
+		    			e.printStackTrace();
 						try {
 							targetConnectionBean.closeConnection();
 						}
@@ -498,8 +500,8 @@ public class Main {
 					fileMerge.mergeFiles();
 				}
 				catch (Exception e) {
-					logger.error("UNEXPECTED EXCEPTION");
-					logger.error(e.getMessage());
+					logger.error("UNEXPECTED EXCEPTION: " + e.getMessage());
+	    			e.printStackTrace();
 				    throw e;
 				}
 	    	}
@@ -673,9 +675,8 @@ public class Main {
 
 				}
 				catch (Exception e) {
-					e.printStackTrace();
-					logger.error("UNEXPECTED EXCEPTION");
-					logger.error(e.getMessage());
+					logger.error("UNEXPECTED EXCEPTION: " + e.getMessage());
+	    			e.printStackTrace();
 					try {
 						sourceConnectionBean.closeConnection();
 					}
@@ -706,7 +707,8 @@ public class Main {
 			optionsXML.getDocumentElement().normalize();
 		}
 		catch(Exception e) {
-			logger.error("Cannot load option file:\n" + e.getMessage());
+			logger.error("Cannot load option file: " + e.getMessage());
+			e.printStackTrace();
 		    throw e;
 		}
 		NodeList nList = optionsXML.getElementsByTagName("option");

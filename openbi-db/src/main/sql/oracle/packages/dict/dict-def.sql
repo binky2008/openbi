@@ -1,4 +1,5 @@
-CREATE OR REPLACE PACKAGE dict AUTHID CURRENT_USER AS
+CREATE OR REPLACE PACKAGE dict --AUTHID CURRENT_USER
+AS
   /**
   * Templates for standard ddls
   * APIs to construct list of columns and column definitions
