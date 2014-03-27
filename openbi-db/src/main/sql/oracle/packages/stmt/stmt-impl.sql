@@ -1,7 +1,10 @@
-CREATE OR REPLACE PACKAGE BODY stmt AS
+CREATE OR REPLACE PACKAGE BODY stmt
+AS
+/**
+ * Package initialization
+ */
 BEGIN
-  -- Versioning constants
-  c_body_version := '$Id: $';
-  c_body_url     := '$HeadURL: $';
+   c_body_version := '$Id: $';
+   c_body_url := '$HeadURL: $';
 END stmt;
 /

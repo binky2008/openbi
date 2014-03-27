@@ -2,7 +2,7 @@ SET serveroutput ON;
 
 BEGIN
     
-   ddl.prc_create_entity
+   ddls.prc_create_entity
                  ('user'
                 , 'user_code VARCHAR2 (10),
                    user_name VARCHAR2 (100),
