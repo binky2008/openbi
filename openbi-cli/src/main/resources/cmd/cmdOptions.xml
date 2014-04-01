@@ -1,0 +1,450 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cmdOptions>
+
+	<!-- Generic options -->
+	<option>
+		<name>propertyfile</name>
+		<description>Property file</description>
+		<argName>property file</argName>
+	</option>
+	<option>
+		<name>function</name>
+		<description>Function to execute</description>
+		<argName>function</argName>
+	</option>
+	
+	<!-- Wrapper script options -->
+	<option>
+		<name>wrapperscript</name>
+		<description>Name of the wrapper script</description>
+		<argName>Wrapper script name</argName>
+	</option>
+	<option>
+		<name>rootfolder</name>
+		<description>Root folder of the scripts to wrap</description>
+		<argName>Root folder</argName>
+	</option>
+	<option>
+		<name>defaultsubfolders</name>
+		<description>Default subfolders of the scripts to wrap</description>
+		<argName>Default subfolders</argName>
+	</option>
+	
+	<!-- Toad project options -->
+	<option>
+		<name>toadprojectname</name>
+		<description>Name of the TOAD project</description>
+		<argName>TOAD project name</argName>
+	</option>
+	<option>
+		<name>toadprojectfolder</name>
+		<description>Folder of the TOAD project</description>
+		<argName>TOAD project folder</argName>
+	</option>
+	<option>
+		<name>toadprojectfileslocation</name>
+		<description>Location of the project files</description>
+		<argName>project files folder</argName>
+	</option>
+	
+	<!-- Deployment file options -->
+	<option>
+		<name>deployfilename</name>
+		<description>Name of the deploy file</description>
+		<argName>deploy file name</argName>
+	</option>
+	<option>
+		<name>deployfileforlder</name>
+		<description>Folder of the deploy file</description>
+		<argName>deploy file folder</argName>
+	</option>
+	<option>
+		<name>dwsofolder</name>
+		<description>Folder of the DWSO files</description>
+		<argName>dwso folder</argName>
+	</option>
+	<option>
+		<name>dwsoinstallfile</name>
+		<description>DWSO install file</description>
+		<argName>dwso install file</argName>
+	</option>
+	
+	<!-- Import File Options -->
+	<option>
+		<name>infilefolder</name>
+		<description>Input file folder</description>
+		<argName>input file folder</argName>
+	</option>
+	<option>
+		<name>infilename</name>
+		<description>Input file name</description>
+		<argName>input file name</argName>
+	</option>
+	<option>
+		<name>infileformat</name>
+		<description>Input file format</description>
+		<argName>input file format</argName>
+	</option>
+	
+	<!-- Mail options -->
+	<option>
+		<name>mailhost</name>
+		<description>Host mail server</description>
+		<argName>mail host</argName>
+	</option>
+	<option>
+		<name>mailfrom</name>
+		<description>Sender address</description>
+		<argName>mail from</argName>
+	</option>
+	<option>
+		<name>mailto</name>
+		<description>List of receiver addresses</description>
+		<argName>mail to</argName>
+	</option>
+	<option>
+		<name>mailsubject</name>
+		<description>Subject</description>
+		<argName>mail subject</argName>
+	</option>
+	<option>
+		<name>mailcontentsource</name>
+		<description>Source of email content</description>
+		<argName>mail content source</argName>
+	</option>
+	<option>
+		<name>mailcontent</name>
+		<description>Content</description>
+		<argName>mail content</argName>
+	</option>
+	<option>
+		<name>mailcontenttype</name>
+		<description>Content type</description>
+		<argName>mail content type</argName>
+	</option>
+	<option>
+		<name>mailcontentformat</name>
+		<description>Content format</description>
+		<argName>mail content format</argName>
+	</option>
+	<option>
+		<name>mailcontentstyle</name>
+		<description>Content style</description>
+		<argName>mail content style</argName>
+	</option>
+	
+	<!-- DB Connection options -->
+	<option>
+		<name>dbconnpropertyfile</name>
+		<description>Connection Property File</description>
+		<argName>connectionproperty file</argName>
+	</option>
+	<option>
+		<name>dbconnkeywordfile</name>
+		<description>Connection Reserver Keyword File</description>
+		<argName>connection reserver keyword file</argName>
+	</option>
+	<option>
+		<name>dbdriverclass</name>
+		<description>Driver Class</description>
+		<argName>database driver class</argName>
+	</option>
+	<option>
+		<name>dbconnectionurl</name>
+		<description>Connection URL</description>
+		<argName>database connection url</argName>
+	</option>
+	<option>
+		<name>dbusername</name>
+		<description>Username</description>
+		<argName>database username</argName>
+	</option>
+	<option>
+		<name>dbpassword</name>
+		<description>Password</description>
+		<argName>database password</argName>
+	</option>
+	<option>
+		<name>dbquery</name>
+		<description>Query</description>
+		<argName>database query</argName>
+	</option>
+	<option>
+		<name>dboutputformat</name>
+		<description>Output Format</description>
+		<argName>database output format</argName>
+	</option>
+	<option>
+		<name>dbprocedure</name>
+		<description>Procedure</description>
+		<argName>procedure name</argName>
+	</option>
+	<option>
+		<name>dbtype</name>
+		<description>Database type</description>
+		<argName>database type</argName>
+	</option>
+	
+	<!-- DB dictionary options -->
+	<option>
+		<name>targetcolumns</name>
+		<description>Target Columns</description>
+		<argName>target columns</argName>
+	</option>
+	
+	
+	<!-- Table copy option -->
+	<option>
+		<name>srcdbconnpropertyfile</name>
+		<description>Source Connection Property File</description>
+		<argName>source connection property file</argName>
+	</option>
+	<option>
+		<name>srcdbconnkeywordfile</name>
+		<description>Source Connection Reserver Keyword File</description>
+		<argName>source connection reserver keywords file</argName>
+	</option>
+	<option>
+		<name>srcdbdriverclass</name>
+		<description>Source DB Driver Class</description>
+		<argName>source jdbc driver class</argName>
+	</option>
+	<option>
+		<name>srcdbconnectionurl</name>
+		<description>Source DB Connection URL</description>
+		<argName>source db connection url</argName>
+	</option>
+	<option>
+		<name>srcdbusername</name>
+		<description>Source DB Username</description>
+		<argName>source db username</argName>
+	</option>
+	<option>
+		<name>srcdbpassword</name>
+		<description>Source DB Password</description>
+		<argName>source db password</argName>
+	</option>
+	<option>
+		<name>sourcename</name>
+		<description>JNDI Source Name</description>
+		<argName>source name</argName>
+	</option>
+	<option>
+		<name>sourceschema</name>
+		<description>Source Schema</description>
+		<argName>source schema</argName>
+	</option>
+	<option>
+		<name>sourcetable</name>
+		<description>Source Table</description>
+		<argName>source table</argName>
+	</option>
+	<option>
+		<name>sourcequery</name>
+		<description>Source Query</description>
+		<argName>source query</argName>
+	</option>
+	<option>
+		<name>trgdbconnpropertyfile</name>
+		<description>Target Connection Property File</description>
+		<argName>target connection property file</argName>
+	</option>
+	<option>
+		<name>trgdbconnkeywordfile</name>
+		<description>Target Connection Reserver Keyword File</description>
+		<argName>target connection reserver keyword file</argName>
+	</option>
+	<option>
+		<name>trgdbdriverclass</name>
+		<description>Target DB Driver Class</description>
+		<argName>target jdbc driver class</argName>
+	</option>
+	<option>
+		<name>trgdbconnectionurl</name>
+		<description>Target DB Connection URL</description>
+		<argName>target db connection url</argName>
+	</option>
+	<option>
+		<name>trgdbusername</name>
+		<description>Target DB Username</description>
+		<argName>target db username</argName>
+	</option>
+	<option>
+		<name>trgdbpassword</name>
+		<description>Target DB Password</description>
+		<argName>target db password</argName>
+	</option>
+	<option>
+		<name>targetname</name>
+		<description>JNDI Target Name</description>
+		<argName>target name</argName>
+	</option>
+	<option>
+		<name>targetschema</name>
+		<description>Target Schema</description>
+		<argName>target schema</argName>
+	</option>
+	<option>
+		<name>targettable</name>
+		<description>Target Table</description>
+		<argName>target table</argName>
+	</option>
+	<option>
+		<name>trgcreate</name>
+		<description>Create Target Table</description>
+		<argName>create target table</argName>
+	</option>
+	<option>
+		<name>dropifexists</name>
+		<description>Drop target table if it exists</description>
+		<argName>drop if exists</argName>
+	</option>
+	<option>
+		<name>trgpreservedata</name>
+		<description>Preserve Target Data</description>
+		<argName>target preserve data</argName>
+	</option>
+	<option>
+		<name>commitfrequency</name>
+		<description>Commit Frequency</description>
+		<argName>commit frequency</argName>
+	</option>
+	<option>
+		<name>mapdeffile</name>
+		<description>Definition File for Mappings</description>
+		<argName>mapping definition file</argName>
+	</option>
+	
+	<!-- csv file series import option -->	
+	<option>
+		<name>sourcezipfile</name>
+		<description>Source ZIP File</description>
+		<argName>source zip file</argName>
+	</option>
+	<option>
+		<name>sourcedirectory</name>
+		<description>Source Directory</description>
+		<argName>source directory</argName>
+	</option>
+	<option>
+		<name>sourcewhereclause</name>
+		<description>Source Where Clause</description>
+		<argName>source where clause</argName>
+	</option>
+	<option>
+		<name>filenamecolumn</name>
+		<description>Target Column for File Name</description>
+		<argName>file name column</argName>
+	</option>
+	
+	<!-- File merge option -->
+	<option>
+		<name>distributionpattern</name>
+		<description>List of distribution patterns</description>
+		<argName>distribution pattern</argName>
+	</option>
+	<option>
+		<name>outputfilenamelist</name>
+		<description>List of Output files</description>
+		<argName>output file name list</argName>
+	</option>
+	<option>
+		<name>filenameoption</name>
+		<description>Append File Name at the beginning of each row</description>
+		<argName>file name option</argName>
+	</option>
+	<option>
+		<name>columnseparator</name>
+		<description>Column Separator</description>
+		<argName>column separator</argName>
+	</option>
+	
+	<!-- Directory copy option -->
+	<option>
+		<name>srcldapurl</name>
+		<description>Source LDAP URL</description>
+		<argName>source ldap url</argName>
+	</option>
+	<option>
+		<name>srcldapprincipal</name>
+		<description>Source LDAP Principal (bind user)</description>
+		<argName>source ldap principal</argName>
+	</option>
+	<option>
+		<name>srcldappassword</name>
+		<description>Source LDAP Password (bind user)</description>
+		<argName>source ldap password</argName>
+	</option>
+	<option>
+		<name>srcldapfolder</name>
+		<description>Source LDAP Folder</description>
+		<argName>source ldap folder</argName>
+	</option>
+	<option>
+		<name>trgldapurl</name>
+		<description>Target LDAP URL</description>
+		<argName>target ldap url</argName>
+	</option>
+	<option>
+		<name>trgldapprincipal</name>
+		<description>Target LDAP Principal (bind user)</description>
+		<argName>target ldap principal</argName>
+	</option>
+	<option>
+		<name>trgldappassword</name>
+		<description>Target LDAP Password (bind user)</description>
+		<argName>target ldap password</argName>
+	</option>
+	<option>
+		<name>trgldapfolder</name>
+		<description>Target LDAP Folder</description>
+		<argName>target ldap folder</argName>
+	</option>
+	
+	<!-- ETL generation Option -->
+	<option>
+		<name>bodiabapdataflowprefix</name>
+		<description>Dataflow prefix</description>
+		<argName>bodi dataflow prefix</argName>
+	</option>
+	<option>
+		<name>bodidataflowprefix</name>
+		<description>Dataflow prefix</description>
+		<argName>bodi dataflow prefix</argName>
+	</option>
+	<option>
+		<name>bodiworkflowprefix</name>
+		<description>Workflow prefix</description>
+		<argName>bodi workflow prefix</argName>
+	</option>
+	<option>
+		<name>bodijobprefix</name>
+		<description>Job prefix</description>
+		<argName>bodi job prefix</argName>
+	</option>
+	<option>
+		<name>bodijobisabap</name>
+		<description>The job use ABAP (y/n)</description>
+		<argName>bodi job use ABAP (y/n)</argName>
+	</option>
+	<option>
+		<name>bodijobisparameterized</name>
+		<description>The job is parameterized (y/n)</description>
+		<argName>bodi job is parameterized (y/n)</argName>
+	</option>
+	<option>
+		<name>bodiexportfile</name>
+		<description>Export file</description>
+		<argName>bodi export file</argName>
+	</option>
+	<option>
+		<name>bodisourcedatastore</name>
+		<description>Source DataStore</description>
+		<argName>bodi source datastore</argName>
+	</option>
+	<option>
+		<name>boditargetdatastore</name>
+		<description>Target DataStore</description>
+		<argName>bodi target datastore</argName>
+	</option>
+</cmdOptions>

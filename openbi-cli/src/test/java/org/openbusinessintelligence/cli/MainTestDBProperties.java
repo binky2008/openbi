@@ -196,4 +196,20 @@ public class MainTestDBProperties {
 			fail("Exception: \n" + e);
 		}
 	}
+
+	@Test
+	public void testHive() {
+		
+		initArguments();
+		//
+		arguments[3] = "msas6275ixl_hive";
+		arguments[5] = "";
+		// Perform test
+		try {
+			Main.main(arguments);
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
 }

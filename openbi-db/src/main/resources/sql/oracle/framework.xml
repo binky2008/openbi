@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<modules>
+	<module name="tool">
+		<script delimiter="/">packages/type/type-def.sql</script>
+		<script delimiter="/">packages/type/type-impl.sql</script>
+	</module>
+</modules>

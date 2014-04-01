@@ -15,6 +15,7 @@ import org.w3c.dom.*;
 import org.apache.commons.cli.*;
 import org.openbusinessintelligence.core.data.*;
 import org.openbusinessintelligence.core.db.*;
+import org.openbusinessintelligence.install.*;
 import org.openbusinessintelligence.core.file.*;
 import org.openbusinessintelligence.core.xml.*;
 import org.openbusinessintelligence.etl.sapds.*;
@@ -46,7 +47,7 @@ public class Main {
 			e.printStackTrace();
 		    throw e;
 		}
-		
+
 	    if (cmd.hasOption("help")) {
 	        // print help
 			HelpFormatter formatter = new HelpFormatter();
@@ -69,6 +70,8 @@ public class Main {
 	    	
 	    	// Do something depending on function
 	    	String function = cmd.getOptionValue("function");
+	    	logger.info("Function=" + function);
+	    	
 	    	if (function.equalsIgnoreCase("toadproject")) {
 	    		// Generate a TOAD project file
 				org.openbusinessintelligence.core.toad.ToadProjectFileCreator toadProjectCreator = new org.openbusinessintelligence.core.toad.ToadProjectFileCreator();
@@ -176,6 +179,38 @@ public class Main {
 	    		mailSender.setMailSubject(getOption("mailsubject"));
 	    		mailSender.setMailContent(mailContent);
 	    		mailSender.sendMail();
+	    	}
+	    	/*
+    		* Install back-end side framework components
+    		*/
+	    	if (function.equalsIgnoreCase("installframework")) {
+				logger.info("Install framework");
+
+				org.openbusinessintelligence.install.InstallFramework installer = new org.openbusinessintelligence.install.InstallFramework();
+				
+	    		org.openbusinessintelligence.core.db.ConnectionBean connectionBean = new org.openbusinessintelligence.core.db.ConnectionBean();
+	    		connectionBean.setPropertyFile(getOption("dbconnpropertyfile"));
+	    		connectionBean.setKeyWordFile(getOption("dbconnkeywordfile"));
+	    		connectionBean.setDatabaseDriver(getOption("dbdriverclass"));
+	    		connectionBean.setConnectionURL(getOption("dbconnectionurl"));
+	    		connectionBean.setUserName(getOption("dbusername"));
+	    		connectionBean.setPassWord(getOption("dbpassword"));
+				
+				try {
+					connectionBean.openConnection();
+				}
+				catch (Exception e) {
+					logger.error("UNEXPECTED EXCEPTION");
+					logger.error(e.getMessage());
+				    throw e;
+				}
+				
+				installer.setSourceConnection(connectionBean);
+				installer.setDatabaseType(getOption("dbtype"));
+				installer.install();
+				
+				connectionBean.closeConnection();
+				logger.info("Framework installed"); 
 	    	}
 	    	/*
     		* Execute a store procedure
@@ -703,7 +738,7 @@ public class Main {
 		try {
 			DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
 			javax.xml.parsers.DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
-			optionsXML = docBuilder.parse(Thread.currentThread().getContextClassLoader().getResource("cmd/coreCmdOptions.xml").toString());
+			optionsXML = docBuilder.parse(Thread.currentThread().getContextClassLoader().getResource("cmd/cmdOptions.xml").toString());
 			optionsXML.getDocumentElement().normalize();
 		}
 		catch(Exception e) {
@@ -738,7 +773,7 @@ public class Main {
 				optionValue = properties.getProperty(optionName);			
 			}
 			catch(NullPointerException npe) {
-				
+				logger.debug("No such option");
 			}
 		}
 		else {

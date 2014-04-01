@@ -1,6 +1,7 @@
 apply plugin: 'java'
 apply plugin: 'eclipse'
 
+sourceCompatibility = 1.7
 version = '0.1'
 
 jar {
@@ -21,10 +22,6 @@ dependencies {
 	runtime fileTree(dir: 'C:/Program Files/Java/lib/common')
 	runtime fileTree(dir: 'C:/Program Files/Java/lib/jdbc')
     testCompile group: 'junit', name: 'junit', version: '4.+'
-}
-
-test {
-    systemProperties 'property': 'value'
 }
 
 uploadArchives {

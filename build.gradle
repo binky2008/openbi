@@ -9,7 +9,19 @@ task wrapper(type: Wrapper) {
 version = '0.1'
 mainClassName = 'org.openbusinessintelligence.cli.Main'
 
-subprojects {
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	compile project(':openbi-core')
+	compile project(':openbi-db')
+	compile project(':openbi-etl')
+	compile project(':openbi-repo')
+	compile project(':openbi-cli')
+}
+
+/*subprojects {
 	apply plugin: 'java'
 	apply plugin: 'eclipse'
 
@@ -26,4 +38,4 @@ subprojects {
 	jar {
 		manifest.attributes provider: 'Open Business Intelligence'
 	}
-}
+}*/
