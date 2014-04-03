@@ -1,6 +1,6 @@
 CREATE OR REPLACE VIEW stag_queue_object_v
 AS
-   SELECT   q.stag_queue_code
+     SELECT q.stag_queue_code
           , qo.stag_object_id
           , s.stag_source_code
           , o.stag_object_name
@@ -8,7 +8,12 @@ AS
           , qo.etl_step_session_id
           , qo.etl_step_begin_date AS step_begin
           , qo.etl_step_end_date AS step_finish
-          , NUMTODSINTERVAL (qo.etl_step_end_date - qo.etl_step_begin_date, 'day') step_duration
+          , NUMTODSINTERVAL (
+                 qo.etl_step_end_date
+               - qo.etl_step_begin_date
+             , 'day'
+            )
+               step_duration
        FROM stag_queue_object_t qo
           , stag_queue_t q
           , stag_object_t o
@@ -20,12 +25,3 @@ AS
           , qo.etl_step_end_date DESC NULLS FIRST
           , qo.stag_queue_id DESC
           , qo.stag_queue_object_id;
-
-COMMENT ON TABLE stag_queue_object_v  IS
-   '$Author: nmarangoni $
-$Date: $
-$Revision: $
-$Id: $
-$HeadURL: $';
-
-GRANT SELECT ON stag_queue_object_v TO PUBLIC;

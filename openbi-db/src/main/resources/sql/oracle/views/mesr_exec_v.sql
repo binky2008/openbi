@@ -1,6 +1,6 @@
 CREATE OR REPLACE VIEW mesr_exec_v
 AS
-   SELECT   q.mesr_query_code
+     SELECT q.mesr_query_code
           , q.mesr_query_name
           , k.mesr_keyfigure_code
           , k.mesr_keyfigure_name
@@ -16,15 +16,18 @@ AS
       WHERE q.mesr_query_id = k.mesr_query_id(+)
         AND k.mesr_keyfigure_id = e.mesr_keyfigure_id(+)
         AND e.mesr_keyfigure_id = t.mesr_keyfigure_id(+)
-        AND NVL (t.mesr_threshold_from(+), TO_DATE ('01011111', 'ddmmyyyy')) <= e.update_date
-        AND e.update_date <= NVL (t.mesr_threshold_to(+), TO_DATE ('09099999', 'ddmmyyyy'))
+        AND NVL (
+               t.mesr_threshold_from(+)
+             , TO_DATE (
+                  '10000101'
+                , 'yyyymmdd'
+               )
+            ) <= e.update_date
+        AND e.update_date <= NVL (
+                                t.mesr_threshold_to(+)
+                              , TO_DATE (
+                                   '99991231'
+                                 , 'yyyymmdd'
+                                )
+                             )
    ORDER BY e.update_date DESC;
-
-COMMENT ON TABLE mesr_exec_v IS
-   '$Author: nmarangoni $
-$Date: $
-$Revision: $
-$Id: $
-$HeadURL: $';
-
-GRANT SELECT ON mesr_exec_v TO PUBLIC;

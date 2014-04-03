@@ -54,6 +54,3 @@ AS
     , p_vc_taxonomy_code   IN VARCHAR2
    );
 END taxn;
-/
-
-SHOW ERRORS

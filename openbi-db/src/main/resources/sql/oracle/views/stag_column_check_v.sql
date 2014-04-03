@@ -1,6 +1,6 @@
 CREATE OR REPLACE VIEW stag_column_check_v
 AS
-   SELECT   sc.stag_source_id
+     SELECT sc.stag_source_id
           , sc.stag_source_code
           , ob.stag_object_id
           , ob.stag_object_name
@@ -30,9 +30,10 @@ AS
                   , k.stag_column_def AS stag_column_src_def
                   , k.stag_column_nk_pos AS stag_column_src_nk_pos
                   , c.update_date
-               FROM stag_column_check_t k FULL OUTER JOIN stag_column_t c ON c.stag_object_id = k.stag_object_id
-                                                                                  AND c.stag_column_name = k.stag_column_name
-                    ) co
+               FROM stag_column_check_t k
+                    FULL OUTER JOIN stag_column_t c
+                       ON c.stag_object_id = k.stag_object_id
+                      AND c.stag_column_name = k.stag_column_name) co
           , stag_object_t ob
           , stag_source_t sc
       WHERE ob.stag_object_id = co.stag_object_id
@@ -40,13 +41,3 @@ AS
    ORDER BY sc.stag_source_code
           , ob.stag_object_name
           , NVL (co.stag_column_stag_pos, co.stag_column_src_pos);
-
-COMMENT ON TABLE stag_column_check_v  IS
-   '$Author: nmarangoni $
-$Date: $
-$Revision: $
-$Id: $
-$HeadURL: $';
-
-
-GRANT SELECT ON stag_column_check_v TO PUBLIC;

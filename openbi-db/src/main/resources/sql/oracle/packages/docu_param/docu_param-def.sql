@@ -241,6 +241,3 @@ a.control {
 </xsl:template>
 </xsl:stylesheet>';
 END docu_param;
-/
-
-SHOW ERRORS

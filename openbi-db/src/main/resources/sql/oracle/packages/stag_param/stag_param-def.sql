@@ -41,6 +41,3 @@ AS
     */
    c_vc_list_grantee            VARCHAR2 (1000) := 'EDWH_CL,EDWH_QC,CORE';
 END stag_param;
-/
-
-SHOW errors

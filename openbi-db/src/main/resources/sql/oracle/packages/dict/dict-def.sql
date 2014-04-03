@@ -368,4 +368,3 @@ ORDER BY position';
    )
       RETURN BOOLEAN;
 END dict;
-/

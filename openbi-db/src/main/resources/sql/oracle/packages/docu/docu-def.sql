@@ -1,4 +1,4 @@
-CREATE OR REPLACE PACKAGE doc
+CREATE OR REPLACE PACKAGE docu
    AUTHID CURRENT_USER
 AS
    /**
@@ -149,5 +149,4 @@ AS
     , p_vc_docu_url       IN VARCHAR2 DEFAULT NULL
     , p_vc_docu_desc      IN VARCHAR2 DEFAULT NULL
    );
-END doc;
-/
+END docu;

@@ -7,8 +7,12 @@
  */
 
 @tables\user_t.sql;
-@tables\taxn_t.sql;
+@tables\user_uk.sql;
+@tables\taxn_t.sql
+@tables\taxn_uk.sql;
+@tables\taxn_data.sql;
 @tables\taxn_user_t.sql;
+@tables\taxn_user_uk.sql;
 
 -- Views
 @views\taxn_v.sql;
@@ -17,6 +21,3 @@
 -- Packages
 @packages\taxn\taxn-def.sql;
 @packages\taxn\taxn-def.sql;
-
--- Grants
---@grants\enable.sql;

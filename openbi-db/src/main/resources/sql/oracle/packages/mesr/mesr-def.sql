@@ -1,4 +1,5 @@
-CREATE OR REPLACE PACKAGE mesr AUTHID CURRENT_USER
+CREATE OR REPLACE PACKAGE mesr
+   AUTHID CURRENT_USER
 AS
    /**
    *
@@ -26,67 +27,70 @@ AS
    c_body_url                VARCHAR2 (1024);
 
    PROCEDURE prc_mesr_taxn_ins (
-      p_vc_query_code       IN   VARCHAR2
-    , p_vc_taxonomy_code   IN   VARCHAR2
+      p_vc_query_code      IN VARCHAR2
+    , p_vc_taxonomy_code   IN VARCHAR2
    );
 
    PROCEDURE prc_mesr_taxn_del (
-      p_vc_query_code       IN   VARCHAR2
-    , p_vc_taxonomy_code   IN   VARCHAR2
+      p_vc_query_code      IN VARCHAR2
+    , p_vc_taxonomy_code   IN VARCHAR2
    );
 
    PROCEDURE prc_query_ins (
-      p_vc_query_code   IN   VARCHAR2
-    , p_vc_query_name   IN   VARCHAR2
-    , p_vc_query_sql    IN   CLOB
+      p_vc_query_code   IN VARCHAR2
+    , p_vc_query_name   IN VARCHAR2
+    , p_vc_query_sql    IN CLOB
    );
 
    PROCEDURE prc_query_del (
-      p_vc_query_code   IN   VARCHAR2
-    , p_b_cascade      IN   BOOLEAN DEFAULT FALSE
+      p_vc_query_code   IN VARCHAR2
+    , p_b_cascade       IN BOOLEAN DEFAULT FALSE
    );
 
    PROCEDURE prc_keyfigure_ins (
-      p_vc_query_code        IN   VARCHAR2
-    , p_vc_keyfigure_code   IN   VARCHAR2
-    , p_vc_keyfigure_name   IN   VARCHAR2
+      p_vc_query_code       IN VARCHAR2
+    , p_vc_keyfigure_code   IN VARCHAR2
+    , p_vc_keyfigure_name   IN VARCHAR2
    );
 
    PROCEDURE prc_keyfigure_del (
-      p_vc_query_code        IN   VARCHAR2
-    , p_vc_keyfigure_code   IN   VARCHAR2
-    , p_b_cascade           IN   BOOLEAN DEFAULT FALSE
+      p_vc_query_code       IN VARCHAR2
+    , p_vc_keyfigure_code   IN VARCHAR2
+    , p_b_cascade           IN BOOLEAN DEFAULT FALSE
    );
 
    PROCEDURE prc_threshold_ins (
-      p_vc_query_code        IN   VARCHAR2
-    , p_vc_keyfigure_code   IN   VARCHAR2
-    , p_vc_threshold_type   IN   VARCHAR2
-    , p_n_threshold_min     IN   NUMBER
-    , p_n_threshold_max     IN   NUMBER
-    , p_d_threshold_from    IN   DATE DEFAULT TO_DATE ('01011111', 'ddmmyyyy')
-    , p_d_threshold_to      IN   DATE DEFAULT TO_DATE ('09099999', 'ddmmyyyy')
+      p_vc_query_code       IN VARCHAR2
+    , p_vc_keyfigure_code   IN VARCHAR2
+    , p_vc_threshold_type   IN VARCHAR2
+    , p_n_threshold_min     IN NUMBER
+    , p_n_threshold_max     IN NUMBER
+    , p_d_threshold_from    IN DATE DEFAULT TO_DATE (
+                                               '01011111'
+                                             , 'ddmmyyyy'
+                                            )
+    , p_d_threshold_to      IN DATE DEFAULT TO_DATE (
+                                               '09099999'
+                                             , 'ddmmyyyy'
+                                            )
    );
 
    PROCEDURE prc_exec_ins (
-      p_vc_query_code        IN   VARCHAR2
-    , p_vc_keyfigure_code   IN   VARCHAR2
-    , p_n_result_value      IN   NUMBER
-    , p_vc_result_report    IN   CLOB
+      p_vc_query_code       IN VARCHAR2
+    , p_vc_keyfigure_code   IN VARCHAR2
+    , p_n_result_value      IN NUMBER
+    , p_vc_result_report    IN CLOB
    );
 
    PROCEDURE prc_exec (
-      p_vc_query_code           IN   VARCHAR2 DEFAULT 'ALL'
-    , p_b_exception_if_fails   IN   BOOLEAN DEFAULT FALSE
-    , p_vc_storage_type        IN   VARCHAR2 DEFAULT 'VALUE'
+      p_vc_query_code          IN VARCHAR2 DEFAULT 'ALL'
+    , p_b_exception_if_fails   IN BOOLEAN DEFAULT FALSE
+    , p_vc_storage_type        IN VARCHAR2 DEFAULT 'VALUE'
    );
 
    PROCEDURE prc_exec_taxonomy (
-      p_vc_taxonomy_code       IN   VARCHAR2
-    , p_b_exception_if_fails   IN   BOOLEAN DEFAULT FALSE
-    , p_vc_storage_type        IN   VARCHAR2 DEFAULT 'VALUE'
+      p_vc_taxonomy_code       IN VARCHAR2
+    , p_b_exception_if_fails   IN BOOLEAN DEFAULT FALSE
+    , p_vc_storage_type        IN VARCHAR2 DEFAULT 'VALUE'
    );
 END mesr;
-/
-
-SHOW errors

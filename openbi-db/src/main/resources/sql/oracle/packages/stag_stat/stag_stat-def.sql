@@ -64,6 +64,3 @@ AS
     , p_vc_table_name     VARCHAR2
    );
 END stag_stat;
-/
-
-SHOW ERRORS

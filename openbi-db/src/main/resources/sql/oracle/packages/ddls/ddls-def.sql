@@ -327,4 +327,3 @@ END #pkgName#;';
     , p_b_cdc_flag          BOOLEAN DEFAULT FALSE
    );
 END ddls;
-/

@@ -1,6 +1,6 @@
 CREATE OR REPLACE VIEW mesr_threshold_v
 AS
-   SELECT   q.mesr_query_code
+     SELECT q.mesr_query_code
           , q.mesr_query_name
           , q.mesr_query_sql
           , k.mesr_keyfigure_code
@@ -18,12 +18,3 @@ AS
    ORDER BY q.mesr_query_id DESC
           , k.mesr_keyfigure_id DESC
           , t.mesr_threshold_id DESC;
-
-COMMENT ON TABLE mesr_threshold_v IS
-   '$Author: nmarangoni $
-$Date: $
-$Revision: $
-$Id: $
-$HeadURL: $';
-
-GRANT SELECT ON mesr_threshold_v TO PUBLIC;

@@ -170,6 +170,3 @@ BEGIN
    c_body_version := '$Id: $';
    c_body_url := '$HeadURL: $';
 END taxn;
-/
-
-SHOW ERRORS;

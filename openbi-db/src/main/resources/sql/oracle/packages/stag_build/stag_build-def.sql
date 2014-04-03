@@ -1,4 +1,5 @@
-CREATE OR REPLACE PACKAGE stag_build AUTHID CURRENT_USER
+CREATE OR REPLACE PACKAGE stag_build
+   AUTHID CURRENT_USER
 AS
    /**
    *
@@ -29,34 +30,31 @@ AS
     * Build all target objects
     */
    PROCEDURE prc_build_all (
-      p_vc_source_code    VARCHAR2 DEFAULT 'ALL'
-    , p_vc_object_name    VARCHAR2 DEFAULT 'ALL'
-    , p_b_indx_st1_flag   BOOLEAN DEFAULT FALSE
-    , p_b_drop_st1_flag   BOOLEAN DEFAULT TRUE
-    , p_b_drop_st2_flag   BOOLEAN DEFAULT FALSE
-    , p_b_raise_flag      BOOLEAN DEFAULT FALSE
+      p_vc_source_code     VARCHAR2 DEFAULT 'ALL'
+    , p_vc_object_name     VARCHAR2 DEFAULT 'ALL'
+    , p_b_indx_st1_flag    BOOLEAN DEFAULT FALSE
+    , p_b_drop_st1_flag    BOOLEAN DEFAULT TRUE
+    , p_b_drop_st2_flag    BOOLEAN DEFAULT FALSE
+    , p_b_raise_flag       BOOLEAN DEFAULT FALSE
    );
 
    /**
     * Build stg2 only target objects
     */
    PROCEDURE prc_build_tc_only (
-      p_vc_source_code    VARCHAR2 DEFAULT 'ALL'
-    , p_vc_object_name    VARCHAR2 DEFAULT 'ALL'
-    , p_b_indx_st1_flag   BOOLEAN DEFAULT FALSE
-    , p_b_drop_st1_flag   BOOLEAN DEFAULT TRUE
-    , p_b_drop_st2_flag   BOOLEAN DEFAULT FALSE
-    , p_b_raise_flag      BOOLEAN DEFAULT FALSE
+      p_vc_source_code     VARCHAR2 DEFAULT 'ALL'
+    , p_vc_object_name     VARCHAR2 DEFAULT 'ALL'
+    , p_b_indx_st1_flag    BOOLEAN DEFAULT FALSE
+    , p_b_drop_st1_flag    BOOLEAN DEFAULT TRUE
+    , p_b_drop_st2_flag    BOOLEAN DEFAULT FALSE
+    , p_b_raise_flag       BOOLEAN DEFAULT FALSE
    );
 
    /**
     * Upgrade stage2 table
     */
    PROCEDURE prc_upgrade_stage2 (
-      p_vc_source_code   VARCHAR2
-    , p_vc_object_name   VARCHAR2
+      p_vc_source_code    VARCHAR2
+    , p_vc_object_name    VARCHAR2
    );
 END stag_build;
-/
-
-SHOW errors

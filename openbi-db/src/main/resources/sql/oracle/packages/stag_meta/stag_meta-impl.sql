@@ -944,6 +944,3 @@ BEGIN
    c_body_version := '$Id: $';
    c_body_url := '$HeadURL: $';
 END stag_meta;
-/
-
-SHOW ERRORS

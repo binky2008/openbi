@@ -42,6 +42,3 @@ AS
 
    PROCEDURE prc_disable_stag;
 END enbl;
-/
-
-SHOW ERRORS

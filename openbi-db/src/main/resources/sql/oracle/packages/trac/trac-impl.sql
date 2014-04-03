@@ -570,6 +570,3 @@ EXCEPTION
       -- Never ever stop working master procedure
       NULL;
 END trac;
-/
-
-SHOW ERRORS

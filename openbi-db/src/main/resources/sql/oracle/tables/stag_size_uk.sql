@@ -1,0 +1,1 @@
+ALTER TABLE stag_size_t ADD (CONSTRAINT stag_size_uk UNIQUE (stag_table_name, create_date));

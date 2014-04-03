@@ -12,6 +12,11 @@
 		<description>Function to execute</description>
 		<argName>function</argName>
 	</option>
+	<option>
+		<name>module</name>
+		<description>Module</description>
+		<argName>module</argName>
+	</option>
 	
 	<!-- Wrapper script options -->
 	<option>

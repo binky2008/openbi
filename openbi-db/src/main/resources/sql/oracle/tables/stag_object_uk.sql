@@ -1,0 +1,1 @@
+ALTER TABLE stag_object_t ADD (CONSTRAINT stag_object_uk UNIQUE ( stag_object_root));

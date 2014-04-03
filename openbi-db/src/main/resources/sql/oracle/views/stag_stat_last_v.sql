@@ -1,77 +1,101 @@
 CREATE OR REPLACE VIEW stag_stat_last_v
 AS
-   SELECT   stage_source
+     SELECT stage_source
           , stage_object
           , MIN (first_date) AS first_begin_date
           , MAX (CASE
                     WHEN stage_id = 2
-                    AND stage_action = 'ANL'
-                       THEN last_date
-                 END) AS last_complete_date
+                     AND stage_action = 'ANL' THEN
+                       last_date
+                 END)
+               AS last_complete_date
           , SUM (CASE
                     WHEN stage_id = 1
-                    AND stage_action = 'INS'
-                       THEN stat_value
-                    ELSE 0
-                 END) AS stg1_insert_cnt
+                     AND stage_action = 'INS' THEN
+                       stat_value
+                    ELSE
+                       0
+                 END)
+               AS stg1_insert_cnt
           , SUM (CASE
                     WHEN stage_id = 1
-                    AND stage_action = 'INS'
-                       THEN stat_duration
-                    ELSE 0
-                 END) AS stg1_insert_duration
+                     AND stage_action = 'INS' THEN
+                       stat_duration
+                    ELSE
+                       0
+                 END)
+               AS stg1_insert_duration
           , SUM (CASE
                     WHEN stage_id = 1
-                    AND stage_action = 'ANL'
-                       THEN stat_duration
-                    ELSE 0
-                 END) AS stg1_analyze_duration
+                     AND stage_action = 'ANL' THEN
+                       stat_duration
+                    ELSE
+                       0
+                 END)
+               AS stg1_analyze_duration
           , SUM (CASE
-                    WHEN stage_id = 1
-                       THEN stat_duration
-                    ELSE 0
-                 END) AS stg1_duration
-          , SUM (CASE
-                    WHEN stage_id = 2
-                    AND stage_action = 'IDT'
-                       THEN stat_value
-                    ELSE 0
-                 END) AS stg2_insert_cnt
+                    WHEN stage_id = 1 THEN
+                       stat_duration
+                    ELSE
+                       0
+                 END)
+               AS stg1_duration
           , SUM (CASE
                     WHEN stage_id = 2
-                    AND stage_action = 'IDT'
-                       THEN stat_duration
-                    ELSE 0
-                 END) AS stg2_insert_duration
+                     AND stage_action = 'IDT' THEN
+                       stat_value
+                    ELSE
+                       0
+                 END)
+               AS stg2_insert_cnt
           , SUM (CASE
                     WHEN stage_id = 2
-                    AND stage_action IN ('MDT', 'MDE', 'FDI', 'FUP', 'FIN')
-                       THEN stat_value
-                    ELSE 0
-                 END) AS stg2_delta_cnt
+                     AND stage_action = 'IDT' THEN
+                       stat_duration
+                    ELSE
+                       0
+                 END)
+               AS stg2_insert_duration
           , SUM (CASE
                     WHEN stage_id = 2
-                    AND stage_action IN ('MDT', 'MDE', 'FDI', 'FUP', 'FIN')
-                       THEN stat_duration
-                    ELSE 0
-                 END) AS stg2_delta_duration
+                     AND stage_action IN ('MDT', 'MDE', 'FDI', 'FUP', 'FIN') THEN
+                       stat_value
+                    ELSE
+                       0
+                 END)
+               AS stg2_delta_cnt
           , SUM (CASE
                     WHEN stage_id = 2
-                    AND stage_action = 'ANL'
-                       THEN stat_duration
-                    ELSE 0
-                 END) AS stg2_analyze_duration
+                     AND stage_action IN ('MDT', 'MDE', 'FDI', 'FUP', 'FIN') THEN
+                       stat_duration
+                    ELSE
+                       0
+                 END)
+               AS stg2_delta_duration
           , SUM (CASE
                     WHEN stage_id = 2
-                       THEN stat_duration
-                    ELSE 0
-                 END) AS stg2_duration
-       FROM (SELECT   sc.stag_source_code AS stage_source
+                     AND stage_action = 'ANL' THEN
+                       stat_duration
+                    ELSE
+                       0
+                 END)
+               AS stg2_analyze_duration
+          , SUM (CASE
+                    WHEN stage_id = 2 THEN
+                       stat_duration
+                    ELSE
+                       0
+                 END)
+               AS stg2_duration
+       FROM (  SELECT sc.stag_source_code AS stage_source
                     , ob.stag_object_name AS stage_object
                     , ty.stag_stat_type_code AS stage_action
                     , st.stag_id AS stage_id
                     , SUM (st.stag_stat_value) AS stat_value
-                    , ROUND ((MAX (st.update_date) - MIN (st.create_date)) * 86400) AS stat_duration
+                    , ROUND (  (  MAX (st.update_date)
+                                - MIN (st.create_date))
+                             * 86400)
+                         AS stat_duration
                     , MAX (st.update_date) AS last_date
                     , MIN (st.create_date) AS first_date
                  FROM (SELECT s.*
@@ -91,12 +115,3 @@ AS
                     , st.stag_id)
    GROUP BY stage_source
           , stage_object;
-
-COMMENT ON TABLE stag_stat_last_v IS
-   '$Author: nmarangoni $
-$Date: $
-$Revision: $
-$Id: $
-$HeadURL: $';
-
-GRANT SELECT ON stag_stat_last_v TO PUBLIC;

@@ -125,6 +125,3 @@ AS
 
    PROCEDURE prc_set_object_properties;
 END stag_meta;
-/
-
-SHOW ERRORS

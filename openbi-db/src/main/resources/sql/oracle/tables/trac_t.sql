@@ -20,10 +20,3 @@ BEGIN
     , TRUE
    );
 END;
-/
-
-COMMENT ON TABLE trac_t IS '$Author: nmarangoni $
-$Date: $
-$Revision: $
-$Id: $
-$HeadURL: $';

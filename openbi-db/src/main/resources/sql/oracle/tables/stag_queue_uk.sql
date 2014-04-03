@@ -1,0 +1,1 @@
+ALTER TABLE stag_queue_t ADD CONSTRAINT stag_queue_uk UNIQUE (stag_queue_code);

@@ -206,4 +206,3 @@ AS
                                 FROM #tableNameDiff# #tablePartitionStage2#
                                WHERE #columnDmlOperation# = ''I'';';
 END stmt;
-/

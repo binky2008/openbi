@@ -49,7 +49,7 @@ AS
          AND t.mesr_threshold_from <= SYSDATE
          AND SYSDATE < t.mesr_threshold_to;
 
-       trac.log_sub_info (
+      trac.log_sub_info (
             'Key figure '
          || p_vc_keyfigure_code
          || ' type '
@@ -66,14 +66,14 @@ AS
         AND l_n_threshold_max IS NOT NULL
         AND p_n_exec_value NOT BETWEEN l_n_threshold_min AND l_n_threshold_max THEN
             l_b_success := FALSE;
-             trac.log_sub_info (
+            trac.log_sub_info (
                   'Result '
                || p_n_exec_value
                || ' not ok'
              , 'RESULT NOT OK'
             );
          ELSE
-             trac.log_sub_info (
+            trac.log_sub_info (
                   'Result '
                || p_n_exec_value
                || ' ok'
@@ -96,7 +96,7 @@ AS
                      WHERE mesr_keyfigure_id = l_n_keyfigure_id)
              WHERE mesr_exec_id = mesr_exec_last;
 
-             trac.log_sub_info (
+            trac.log_sub_info (
                   'Previous result = '
                || l_n_result_previous
              , 'VERIFYING INCREMENT'
@@ -112,14 +112,14 @@ AS
               AND l_n_threshold_max IS NOT NULL
               AND l_n_increment NOT BETWEEN l_n_threshold_min AND l_n_threshold_max THEN
                   l_b_success := FALSE;
-                   trac.log_sub_info (
+                  trac.log_sub_info (
                         'Increment '
                      || l_n_increment
                      || ' not ok'
                    , 'RESULT NOT OK'
                   );
                ELSE
-                   trac.log_sub_info (
+                  trac.log_sub_info (
                         'Increment '
                      || l_n_increment
                      || ' ok'
@@ -127,14 +127,14 @@ AS
                   );
                END IF;
             ELSE
-                trac.log_sub_info (
+               trac.log_sub_info (
                      'Previous result = '
                   || l_n_result_previous
                 , 'RESULT OK'
                );
             END IF;
          ELSE
-             trac.log_sub_info (
+            trac.log_sub_info (
                   'Key figure '
                || p_vc_keyfigure_code
                || ' type '
@@ -155,7 +155,7 @@ AS
    IS
       l_vc_prc_name   TYPE.vc_obj_plsql := 'PRC_mesr_TAXONOMY_INS';
    BEGIN
-       trac.log_sub_info (
+      trac.log_sub_info (
          l_vc_prc_name
        , 'Inserting in mesr_case_taxonomy_t'
       );
@@ -179,7 +179,7 @@ AS
                      , src.taxn_id
                     );
 
-       trac.log_sub_info (
+      trac.log_sub_info (
          l_vc_prc_name
        ,    SQL%ROWCOUNT
          || ' rows merged'
@@ -194,20 +194,20 @@ AS
    IS
       l_vc_prc_name   TYPE.vc_obj_plsql := 'PRC_CASE_TAXONOMY_DEL';
    BEGIN
-       trac.log_sub_info (
+      trac.log_sub_info (
          'Deleting in mesr_case_taxonomy_t'
        , l_vc_prc_name
       );
 
       DELETE mesr_taxn_t
        WHERE mesr_query_id = (SELECT mesr_query_id
-                               FROM mesr_query_t
-                              WHERE mesr_query_code = p_vc_query_code)
+                                FROM mesr_query_t
+                               WHERE mesr_query_code = p_vc_query_code)
          AND taxn_id = (SELECT taxn_id
-                         FROM taxn_t
-                        WHERE taxn_code = p_vc_taxonomy_code);
+                          FROM taxn_t
+                         WHERE taxn_code = p_vc_taxonomy_code);
 
-       trac.log_sub_info (
+      trac.log_sub_info (
          l_vc_prc_name
        ,    SQL%ROWCOUNT
          || ' rows deleted'
@@ -244,7 +244,7 @@ AS
                      , src.query_sql
                     );
 
-       trac.log_sub_info (
+      trac.log_sub_info (
             SQL%ROWCOUNT
          || ' rows merged'
        , l_vc_prc_name
@@ -294,7 +294,7 @@ AS
       DELETE mesr_query_t
        WHERE mesr_query_id = l_n_query_id;
 
-       trac.log_sub_info (
+      trac.log_sub_info (
             SQL%ROWCOUNT
          || ' rows deleted'
        , l_vc_prc_name
@@ -332,7 +332,7 @@ AS
                      , src.keyfigure_name
                     );
 
-       trac.log_sub_info (
+      trac.log_sub_info (
             SQL%ROWCOUNT
          || ' rows merged'
        , l_vc_prc_name
@@ -376,7 +376,7 @@ AS
       DELETE mesr_exec_t
        WHERE mesr_keyfigure_id = l_n_keyfigure_id;
 
-       trac.log_sub_info (
+      trac.log_sub_info (
             SQL%ROWCOUNT
          || ' rows deleted'
        , l_vc_prc_name
@@ -385,7 +385,7 @@ AS
       DELETE mesr_threshold_t
        WHERE mesr_keyfigure_id = l_n_keyfigure_id;
 
-       trac.log_sub_info (
+      trac.log_sub_info (
             SQL%ROWCOUNT
          || ' rows deleted'
        , l_vc_prc_name
@@ -394,7 +394,7 @@ AS
       DELETE mesr_keyfigure_t
        WHERE mesr_keyfigure_id = l_n_keyfigure_id;
 
-       trac.log_sub_info (
+      trac.log_sub_info (
             SQL%ROWCOUNT
          || ' rows deleted'
        , l_vc_prc_name
@@ -457,7 +457,7 @@ AS
             AND mesr_threshold_from > l_d_threshold_from
             AND mesr_threshold_to < l_d_threshold_to;
 
-          trac.log_sub_info (
+         trac.log_sub_info (
                SQL%ROWCOUNT
             || ' rows deleted'
           , l_vc_prc_name
@@ -483,7 +483,7 @@ AS
                AND mesr_threshold_from < l_d_threshold_from
                AND mesr_threshold_to > l_d_threshold_to;
 
-          trac.log_sub_info (
+         trac.log_sub_info (
                SQL%ROWCOUNT
             || ' rows inserted'
           , l_vc_prc_name
@@ -496,7 +496,7 @@ AS
             AND mesr_threshold_from < l_d_threshold_from
             AND mesr_threshold_to > l_d_threshold_from;
 
-          trac.log_sub_info (
+         trac.log_sub_info (
                SQL%ROWCOUNT
             || ' rows updated'
           , l_vc_prc_name
@@ -509,7 +509,7 @@ AS
             AND mesr_threshold_to > l_d_threshold_to
             AND mesr_threshold_from < l_d_threshold_to;
 
-          trac.log_sub_info (
+         trac.log_sub_info (
                SQL%ROWCOUNT
             || ' rows updated'
           , l_vc_prc_name
@@ -526,7 +526,7 @@ AS
          RETURNING mesr_threshold_id
               INTO l_n_threshold_id;
 
-          trac.log_sub_info (
+         trac.log_sub_info (
                SQL%ROWCOUNT
             || ' rows updated'
           , l_vc_prc_name
@@ -550,7 +550,7 @@ AS
                          , l_d_threshold_to
                         );
 
-             trac.log_sub_info (
+            trac.log_sub_info (
                   SQL%ROWCOUNT
                || ' rows inserted'
              , l_vc_prc_name
@@ -584,7 +584,7 @@ AS
             AND s.mesr_query_code = p_vc_query_code
             AND k.mesr_keyfigure_code = p_vc_keyfigure_code;
 
-       trac.log_sub_info (
+      trac.log_sub_info (
             SQL%ROWCOUNT
          || ' rows inserted'
        , l_vc_prc_name
@@ -611,12 +611,12 @@ AS
       l_n_threshold_max   NUMBER;
       l_b_success         BOOLEAN := TRUE;
    BEGIN
-       trac.log_sub_info (
+      trac.log_sub_info (
             'Execute case query '
          || p_vc_query_code
        , 'Query START'
       );
-       trac.log_sub_info (
+      trac.log_sub_info (
             'Results will be stored as '
          || p_vc_storage_type
        ,    'STORAGE '
@@ -630,7 +630,7 @@ AS
                          WHERE (p_vc_query_code IN (s.mesr_query_code, 'ALL')
                              OR p_vc_query_code IS NULL)
                       ORDER BY s.mesr_query_code) LOOP
-          trac.log_sub_info (
+         trac.log_sub_info (
                'query '
             || r_query.mesr_query_code
           , 'query START'
@@ -641,7 +641,7 @@ AS
             OR p_vc_storage_type IS NULL THEN
                EXECUTE IMMEDIATE r_query.mesr_query_sql BULK COLLECT INTO l_keyfigure;
 
-                trac.log_sub_info (
+               trac.log_sub_info (
                      'query '
                   || r_query.mesr_query_code
                   || ': SQL executed '
@@ -671,7 +671,7 @@ AS
                       , l_keyfigure (i).resultvalue
                       , NULL
                      );
-                      trac.log_sub_info (
+                     trac.log_sub_info (
                            'Key figure '
                         || l_keyfigure (i).keyfigure
                         || ' = '
@@ -681,7 +681,7 @@ AS
                      );
                   END LOOP;
                ELSE
-                   trac.log_sub_info (
+                  trac.log_sub_info (
                         'query '
                      || r_query.mesr_query_code
                      || ': no rows returned '
@@ -715,14 +715,14 @@ AS
 
                EXECUTE IMMEDIATE l_vc_stmt;
 
-                trac.log_sub_info (
+               trac.log_sub_info (
                      'query '
                   || r_query.mesr_query_code
                   || ': Table created '
                 , 'SQL EXECUTED'
                );
                l_vc_report :=
-                  doc.fct_get_table_dataset (
+                  docu.fct_get_table_dataset (
                      SYS_CONTEXT (
                         'USERENV'
                       , 'SESSION_USER'
@@ -740,14 +740,14 @@ AS
                 , NULL
                 , l_vc_report
                );
-                trac.log_sub_info (
+               trac.log_sub_info (
                   'Report stored'
                 , 'REPORT STORED'
                );
             END IF;
          EXCEPTION
             WHEN OTHERS THEN
-                trac.log_error (
+               trac.log_error (
                      'query '
                   || r_query.mesr_query_code
                   || ': '
@@ -756,14 +756,14 @@ AS
                );
          END;
 
-          trac.log_sub_info (
+         trac.log_sub_info (
                'query '
             || r_query.mesr_query_code
           , 'query FINISH'
          );
       END LOOP;
 
-       trac.log_sub_info (
+      trac.log_sub_info (
             'Execute query '
          || p_vc_query_code
          || ' : success '
@@ -785,7 +785,7 @@ AS
       END IF;
    EXCEPTION
       WHEN OTHERS THEN
-          trac.log_error (
+         trac.log_error (
                'query '
             || p_vc_query_code
             || ' : failed'
@@ -802,7 +802,7 @@ AS
    IS
       l_vc_prc_name   TYPE.vc_obj_plsql := 'PRC_EXEC_TAXONOMY';
    BEGIN
-       trac.log_sub_info (
+      trac.log_sub_info (
             'Executing all cases belonging to taxonomy '
          || p_vc_taxonomy_code
          || ' and its children'
@@ -819,7 +819,7 @@ AS
                           FROM taxn_t
                     START WITH taxn_code = p_vc_taxonomy_code
                     CONNECT BY PRIOR taxn_id = taxn_parent_id) LOOP
-          trac.log_sub_info (
+         trac.log_sub_info (
                'Executing all cases belonging to taxonomy '
             || r_tax.taxn_path
           , l_vc_prc_name
@@ -837,7 +837,7 @@ AS
             );
          END LOOP;
 
-          trac.log_sub_info (
+         trac.log_sub_info (
                'All cases belonging to taxonomy '
             || r_tax.taxn_path
             || ' have been executed'
@@ -845,7 +845,7 @@ AS
          );
       END LOOP;
 
-       trac.log_sub_info (
+      trac.log_sub_info (
             'All cases belonging to taxonomy '
          || p_vc_taxonomy_code
          || ' and its children have been executed'
@@ -859,6 +859,3 @@ BEGIN
    c_body_version := '$Id: $';
    c_body_url := '$HeadURL: $';
 END mesr;
-/
-
-SHOW ERRORS

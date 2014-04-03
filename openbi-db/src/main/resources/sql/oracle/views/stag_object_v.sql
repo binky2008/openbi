@@ -1,6 +1,6 @@
 CREATE OR REPLACE VIEW stag_object_v
 AS
-   SELECT   sc.stag_source_id
+     SELECT sc.stag_source_id
           , sc.stag_source_code
           , ob.stag_object_id
           , ob.stag_object_name
@@ -28,12 +28,3 @@ AS
       WHERE ob.stag_source_id = sc.stag_source_id
    ORDER BY sc.stag_source_code
           , ob.stag_object_name;
-
-COMMENT ON TABLE stag_object_v  IS
-   '$Author: nmarangoni $
-$Date: $
-$Revision: $
-$Id: $
-$HeadURL: $';
-
-GRANT SELECT ON stag_object_v TO PUBLIC;

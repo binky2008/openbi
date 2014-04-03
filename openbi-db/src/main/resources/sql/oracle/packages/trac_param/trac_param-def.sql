@@ -51,4 +51,3 @@ AS
                                   , 'TERMINAL'
                                  );
 END trac_param;
-/

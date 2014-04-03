@@ -104,6 +104,3 @@ AS
     , p_b_raise_flag      BOOLEAN DEFAULT FALSE
    );
 END stag_ddl;
-/
-
-SHOW ERRORS

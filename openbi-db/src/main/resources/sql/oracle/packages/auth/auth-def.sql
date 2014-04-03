@@ -42,6 +42,3 @@ AS
 
    PROCEDURE prc_revoke_stag (p_vc_schema VARCHAR2);
 END auth;
-/
-
-SHOW ERRORS

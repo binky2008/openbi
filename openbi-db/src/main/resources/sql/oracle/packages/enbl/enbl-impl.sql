@@ -183,6 +183,3 @@ BEGIN
    c_body_version := '$Id: $';
    c_body_url := '$HeadURL: $';
 END enbl;
-/
-
-SHOW ERRORS

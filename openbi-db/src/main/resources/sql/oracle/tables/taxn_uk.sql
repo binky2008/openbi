@@ -1,0 +1,1 @@
+ALTER TABLE taxn_t ADD (CONSTRAINT taxn_uk UNIQUE (taxn_code));

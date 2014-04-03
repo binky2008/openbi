@@ -14,12 +14,3 @@ AS
         , stag_source_bodi_ds
         , update_date
      FROM stag_source_t;
-
-COMMENT ON TABLE stag_source_v  IS
-   '$Author: nmarangoni $
-$Date: $
-$Revision: $
-$Id: $
-$HeadURL: $';
-
-GRANT SELECT ON stag_source_v TO PUBLIC;

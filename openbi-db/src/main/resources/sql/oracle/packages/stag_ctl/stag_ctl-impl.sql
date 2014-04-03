@@ -78,21 +78,21 @@ AS
       l_n_di_gui    NUMBER;
       l_n_step_no   NUMBER;
    BEGIN
-       trac.log_info (
+      trac.log_info (
          'Enqueue all objects'
        , 'Enqueue Begin'
       );
 
       DELETE stag_queue_object_t
        WHERE stag_queue_id IN (SELECT stag_queue_id
-                                FROM stag_queue_t
-                               WHERE stag_queue_code = p_vc_queue_code)
+                                 FROM stag_queue_t
+                                WHERE stag_queue_code = p_vc_queue_code)
          AND stag_object_id IN (SELECT o.stag_object_id
-                                 FROM stag_object_t o
-                                    , stag_source_t s
-                                WHERE o.stag_source_id = s.stag_source_id
-                                  AND p_vc_source_code IN (s.stag_source_code, 'ALL')
-                                  AND p_vc_object_name IN (o.stag_object_name, 'ALL'));
+                                  FROM stag_object_t o
+                                     , stag_source_t s
+                                 WHERE o.stag_source_id = s.stag_source_id
+                                   AND p_vc_source_code IN (s.stag_source_code, 'ALL')
+                                   AND p_vc_object_name IN (o.stag_object_name, 'ALL'));
 
       INSERT INTO stag_queue_object_t (
                      stag_queue_id
@@ -111,7 +111,7 @@ AS
             AND p_vc_object_name IN (o.stag_object_name, 'ALL');
 
       COMMIT;
-       trac.log_info (
+      trac.log_info (
          'Enqueue all objects'
        , 'Enqueue End'
       );
@@ -203,7 +203,7 @@ AS
       l_vc_package          TYPE.vc_obj_plsql;
       l_vc_std_load_modus   TYPE.vc_obj_plsql;
    BEGIN
-       trac.log_info (
+      trac.log_info (
             'Queue '
          || p_n_queue_id
          || ': Step Begin'
@@ -223,16 +223,16 @@ AS
                    )
               , etl_step_begin_date = SYSDATE
           WHERE stag_queue_object_id = (SELECT MIN (stag_queue_object_id)
-                                         FROM stag_queue_object_t
-                                        WHERE etl_step_status = 0
-                                          AND stag_queue_id = p_n_queue_id)
+                                          FROM stag_queue_object_t
+                                         WHERE etl_step_status = 0
+                                           AND stag_queue_id = p_n_queue_id)
       RETURNING stag_object_id
            INTO l_n_object_id;
 
       COMMIT;
 
       IF l_n_object_id IS NULL THEN
-          trac.log_info (
+         trac.log_info (
                'Queue '
             || p_n_queue_id
             || ': No steps available in queue'
@@ -254,7 +254,7 @@ AS
           WHERE s.stag_source_id = o.stag_source_id
             AND o.stag_object_id = l_n_object_id;
 
-          trac.log_info (
+         trac.log_info (
             'Execute procedure '
           ,    'Stream '
             || p_n_queue_id
@@ -268,7 +268,7 @@ AS
                   ELSE
                      '.prc_load'
                END;
-          trac.log_info (
+         trac.log_info (
                'o='
             || l_n_object_id
             || ' prc='
@@ -283,7 +283,7 @@ AS
                || l_vc_prc_name
                || '; END;';
 
-             trac.log_info (
+            trac.log_info (
                   'Queue '
                || p_n_queue_id
                || ': Step executed'
@@ -298,7 +298,7 @@ AS
              WHERE stag_object_id = l_n_object_id;
          EXCEPTION
             WHEN OTHERS THEN
-                trac.log_info (
+               trac.log_info (
                      'Queue '
                   || p_n_queue_id
                   || ': Error'
@@ -314,7 +314,7 @@ AS
          END;
 
          COMMIT;
-          trac.log_info (
+         trac.log_info (
                'Queue '
             || p_n_queue_id
             || ': End'
@@ -339,31 +339,31 @@ AS
        WHERE stag_queue_code = p_vc_queue_code;
 
       IF l_n_queue_id IS NOT NULL THEN
-          trac.log_info (
+         trac.log_info (
             'Execute single steps'
           , 'Queue Begin'
          );
 
          WHILE fct_queue_finished (l_n_queue_id) = FALSE LOOP
             IF fct_step_available (l_n_queue_id) = TRUE THEN
-                trac.log_info (
+               trac.log_info (
                   'Execute next available step'
                 , 'Step Begin'
                );
                prc_execute_step (l_n_queue_id);
-                trac.log_info (
+               trac.log_info (
                   'Step executed'
                 , 'Step End'
                );
             END IF;
          END LOOP;
 
-          trac.log_info (
+         trac.log_info (
             'No more steps to execute'
           , 'Stream End'
          );
       ELSE
-          trac.log_info (
+         trac.log_info (
                'Queue '
             || p_vc_queue_code
             || ' doesn''t exist'
@@ -394,8 +394,8 @@ AS
            , etl_step_begin_date = NULL
            , etl_step_end_date = NULL
        WHERE stag_queue_id IN (SELECT stag_queue_id
-                                FROM stag_queue_t
-                               WHERE stag_queue_code = p_vc_queue_code);
+                                 FROM stag_queue_t
+                                WHERE stag_queue_code = p_vc_queue_code);
 
       COMMIT;
    END prc_initialize_queue;
@@ -414,7 +414,7 @@ AS
       l_n_result    NUMBER;
       l_n_part_id   NUMBER;
    BEGIN
-       trac.log_info (
+      trac.log_info (
          'Start'
        , p_vc_workflow_name
        , NULL
@@ -470,7 +470,7 @@ AS
        , 1
        , 0
       );
-       trac.log_info (
+      trac.log_info (
          'Finish'
        , p_vc_workflow_name
        , NULL
@@ -494,7 +494,7 @@ AS
        , 0
        , 1
       );
-       trac.log_error (
+      trac.log_error (
          'Error'
        , p_vc_workflow_name
       );
@@ -506,6 +506,3 @@ BEGIN
    c_body_version := '$Id: $';
    c_body_url := '$HeadURL: $';
 END stag_ctl;
-/
-
-SHOW ERRORS

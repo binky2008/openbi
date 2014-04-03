@@ -1,4 +1,4 @@
-CREATE OR REPLACE PACKAGE BODY doc
+CREATE OR REPLACE PACKAGE BODY docu
 IS
    /**
    * $Author: nmarangoni $
@@ -384,5 +384,4 @@ IS
 BEGIN
    c_body_version := '$Id: $';
    c_body_url := '$HeadURL: $';
-END doc;
-/
+END docu;

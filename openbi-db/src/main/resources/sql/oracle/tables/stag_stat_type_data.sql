@@ -9,4 +9,3 @@ BEGIN
 	stag_meta.prc_stat_type_ins ( 'FIN', 'INSERT DIFFERENCE', 'Insert in STG2 Table with new rows from the Difference table') ;
 	stag_meta.prc_stat_type_ins ( 'MHI', 'MERGE HISTORY', 'Merge in STG2 Table with new rows from the History table') ;
 END;
-/

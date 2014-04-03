@@ -8,16 +8,22 @@
 
 @tables\stag_column_t.sql;
 @tables\stag_column_check_t.sql;
+@tables\stag_column_tmp_drop.sql;
 @tables\stag_column_tmp.sql;
-@tables\stag_ddl_t.sql;
+@tables\stag_ddl_t.sql
 @tables\stag_object_t.sql;
+@tables\stag_object_uk.sql;
 @tables\stag_queue_t.sql;
+@tables\stag_queue_uk.sql;
 @tables\stag_queue_object_t.sql;
+@tables\stag_queue_object_uk.sql;
 @tables\stag_source_db_t.sql;
 @tables\stag_source_t.sql;
 @tables\stag_stat_type_t.sql;
+@tables\stag_stat_type_data.sql;
 @tables\stag_stat_t.sql;
 @tables\stag_size_t.sql;
+@tables\stag_size_uk.sql;
 
 -- Views
 @views\stag_column_v.sql;
@@ -43,6 +49,3 @@
 @packages\stag_build\stag_build-impl.sql;
 @packages\stag_ctl\stag_ctl-def.sql;
 @packages\stag_ctl\stag_ctl-impl.sql;
-
--- Grants
---@grants\enable.sql;

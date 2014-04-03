@@ -20,7 +20,7 @@ public class InstallFramework {
 
     private ConnectionBean connection = null;
     private String databaseType = "";
-    private String module = "tool";
+    private String module = "all";
 	
     // Constructor
     public InstallFramework() {
@@ -68,11 +68,15 @@ public class InstallFramework {
     	ScriptRunner runner;
 
 		modules = frameworkXML.getElementsByTagName("module");
+		logger.debug("Found " + modules.getLength() + " modules");
  		for (int m = 0; m < modules.getLength(); m++) {
  			mNode = modules.item(m);
  			if (mNode.getNodeType() == Node.ELEMENT_NODE) {
  				mElement = (Element) mNode;
- 				if (mElement.getAttribute("name").equalsIgnoreCase(module)) {
+ 				if (
+ 					mElement.getAttribute("name").equalsIgnoreCase(module) ||
+ 					module.equalsIgnoreCase("all")
+ 				) {
  					logger.debug("Installing " + module + " module");
  					scripts = mElement.getElementsByTagName("script");
  			 		for (int s = 0; s < scripts.getLength(); s++) {
@@ -85,12 +89,22 @@ public class InstallFramework {
  		 					
  		 					reader = Resources.getResourceAsReader("sql/" + databaseType + "/" + script);
  					    	runner = new ScriptRunner(connection.getConnection());
- 					    	runner.setSendFullScript(true);
+ 					    	if (delimiter.equalsIgnoreCase("/")) {
+ 					    		runner.setDelimiter("/");
+ 					    	}
+ 					    	else if (delimiter.equalsIgnoreCase(";")) {
+ 	 					    	runner.setDelimiter(";");
+ 					    	}
+ 					    	else {
+ 					    		runner.setSendFullScript(true);
+ 					    	}
  							runner.runScript(reader);
  							connection.getConnection().commit();
  							reader.close();
+ 		 					logger.debug("Script " + script + " executed");
  			 			}
  			 		}
+ 					logger.debug("Module " + module + " installed");
  				}
  			}
  		}

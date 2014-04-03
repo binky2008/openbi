@@ -207,6 +207,7 @@ public class Main {
 				
 				installer.setSourceConnection(connectionBean);
 				installer.setDatabaseType(getOption("dbtype"));
+				installer.setModule(getOption("module"));
 				installer.install();
 				
 				connectionBean.closeConnection();

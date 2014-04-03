@@ -28,16 +28,16 @@ AS
       l_n_result              NUMBER;
    BEGIN
       --trac.set_console_logging (FALSE);
-       trac.log_info (
+      trac.log_info (
          'Set object names'
        , 'Start'
       );
       stag_meta.prc_set_object_properties;
-       trac.log_info (
+      trac.log_info (
          'Set object names'
        , 'Finish'
       );
-       trac.log_info (
+      trac.log_info (
          'Build objects'
        , 'Start'
       );
@@ -105,7 +105,7 @@ AS
                          AND p_vc_source_code IN (s.stag_source_code, 'ALL')
                          AND p_vc_object_name IN (o.stag_object_name, 'ALL')
                     ORDER BY stag_object_id) LOOP
-          trac.log_info (
+         trac.log_info (
                'Object '
             || r_obj.stag_object_name
           , 'Start'
@@ -317,7 +317,7 @@ AS
             FALSE
           , TRUE
          );
-          trac.log_info (
+         trac.log_info (
                'Object '
             || r_obj.stag_object_name
           , 'Finish'
@@ -346,16 +346,16 @@ AS
       l_n_result              NUMBER;
    BEGIN
       --trac.set_console_logging (FALSE);
-       trac.log_info (
+      trac.log_info (
          'Set object names'
        , 'Start'
       );
       stag_meta.prc_set_object_properties;
-       trac.log_info (
+      trac.log_info (
          'Set object names'
        , 'Finish'
       );
-       trac.log_info (
+      trac.log_info (
          'Build objects'
        , 'Start'
       );
@@ -407,7 +407,7 @@ AS
                          AND p_vc_source_code IN (s.stag_source_code, 'ALL')
                          AND p_vc_object_name IN (o.stag_object_name, 'ALL')
                     ORDER BY stag_object_id) LOOP
-          trac.log_info (
+         trac.log_info (
                'Object '
             || r_obj.stag_object_name
           , 'Start'
@@ -611,7 +611,7 @@ AS
             TRUE
           , TRUE
          );
-          trac.log_info (
+         trac.log_info (
                'Object '
             || r_obj.stag_object_name
           , 'Finish'
@@ -634,16 +634,16 @@ AS
       l_n_result             NUMBER;
    BEGIN
       --trac.set_console_logging (FALSE);
-       trac.log_info (
+      trac.log_info (
          'Set object names'
        , 'Start'
       );
       stag_meta.prc_set_object_properties;
-       trac.log_info (
+      trac.log_info (
          'Set object names'
        , 'Finish'
       );
-       trac.log_info (
+      trac.log_info (
          'Build objects'
        , 'Start'
       );
@@ -678,7 +678,7 @@ AS
                          AND p_vc_source_code IN (s.stag_source_code, 'ALL')
                          AND p_vc_object_name IN (o.stag_object_name, 'ALL')
                     ORDER BY stag_object_id) LOOP
-          trac.log_info (
+         trac.log_info (
                'Object '
             || r_obj.stag_object_name
           , 'Start'
@@ -842,7 +842,7 @@ AS
          ELSE
             stag_ddl.prc_create_stage2_synonym (TRUE);
          END IF;*/
-          trac.log_info (
+         trac.log_info (
                'Object '
             || r_obj.stag_object_name
           , 'Finish'
@@ -856,6 +856,3 @@ BEGIN
    c_body_version := '$Id: $';
    c_body_url := '$HeadURL: $';
 END stag_build;
-/
-
-SHOW ERRORS
