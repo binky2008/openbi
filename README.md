@@ -6,5 +6,11 @@ The software is in pre-release status.
 At the moment only these features are supported:
 
 ## Print help
-bin/openbi help
+bin\openbi help
+
+## Generate TOAD project file
+bin\openbi toadproject ^
+	-toadprojectname oracle-dwh-objects ^
+	-toadprojectfolder D:/DEV/projects/TOAD_projects ^
+	-toadprojectfileslocation D:/DEV/projects/SVN/oracle-dwh-objects
 
