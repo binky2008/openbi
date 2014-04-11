@@ -14,23 +14,23 @@ AS
    /**
    * Package spec version string.
    */
-   c_spec_version     CONSTANT VARCHAR2 (1024) := '$Id: $';
+   c_spec_version        CONSTANT VARCHAR2 (1024) := '$Id: $';
    /**
    * Package spec repository URL.
    */
-   c_spec_url         CONSTANT VARCHAR2 (1024) := '$HeadURL: $';
+   c_spec_url            CONSTANT VARCHAR2 (1024) := '$HeadURL: $';
    /**
    * Package body version string.
    */
-   c_body_version              VARCHAR2 (1024);
+   c_body_version                 VARCHAR2 (1024);
    /**
    * Package body repository URL.
    */
-   c_body_url                  VARCHAR2 (1024);
+   c_body_url                     VARCHAR2 (1024);
    --
    --
    -- Copy the content of a source table into a target table
-   c_sql_insert_copy      CLOB := '
+   c_sql_insert_copy              CLOB := '
         INSERT /*+APPEND*/ INTO #targetIdentifier# #partition# (
                #utlColumnList#
                #sourceDBColumnName#
@@ -43,7 +43,7 @@ AS
    --
    -- Copy the content of a source table into a target table
    -- deduplicating source values among a defined natural key
-   c_sql_insert_dedupl      CLOB := '
+   c_sql_insert_dedupl            CLOB := '
         INSERT /*+APPEND*/
           WHEN row_rank = 1
            AND #notNullClause#
@@ -67,7 +67,7 @@ AS
                 #filterClause#;';
    --
    -- Store the difference between 2 tables
-   c_sql_insert_diff_with_nk     CLOB := '
+   c_sql_insert_diff_with_nk      CLOB := '
       INSERT
         INTO #diffIdentifier# #targetPartition# (
             #targetColumnList#
@@ -155,7 +155,7 @@ AS
    --
    --
    -- Merge token of the staging 2 procedure - 1 single statement
-   c_sql_reconcile_merge   CLOB := '
+   c_sql_reconcile_merge          CLOB := '
       MERGE /*+APPEND*/
          INTO #targetIdentifier# trg
       USING
@@ -180,7 +180,7 @@ AS
    --
    --
    -- Merge token of the staging 2 procedure - 2 separate statement
-   c_sql_reconcile_update   CLOB := '
+   c_sql_reconcile_update         CLOB := '
       MERGE /*+APPEND*/
          INTO #tableNameStage2# trg
       USING
@@ -197,7 +197,7 @@ AS
    --
    --
    -- Merge token of the staging 2 procedure - 2 separate statement
-   c_sql_reconcile_insert   CLOB := '
+   c_sql_reconcile_insert         CLOB := '
       INSERT /*+APPEND*/ INTO #tableNameStage2# #tablePartitionStage2# (
                               #listColTarget#
                             , #listColUtl#)
@@ -205,4 +205,23 @@ AS
                                    , #listValUtl#
                                 FROM #tableNameDiff# #tablePartitionStage2#
                                WHERE #columnDmlOperation# = ''I'';';
+
+   /**
+   * Substitute a parameter (#parameter_name#) with a text
+   *
+   * @param p_vc_code_string     Parameterized string
+   * @param p_vc_param_name      Name of the parameter, surrounded by "#"
+   * @param p_vc_param_value     Substitute text
+   */
+   PROCEDURE prc_set_text_param (
+      p_vc_code_string   IN OUT CLOB
+    , p_vc_param_name    IN     TYPE.vc_obj_plsql
+    , p_vc_param_value   IN     CLOB
+   );
+
+   PROCEDURE prc_get_identifier (
+      p_vc_dblink         VARCHAR2
+    , p_vc_schema_name    VARCHAR2
+    , p_vc_object_name    VARCHAR2
+   );
 END stmt;

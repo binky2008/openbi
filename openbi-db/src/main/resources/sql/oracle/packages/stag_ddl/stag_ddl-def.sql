@@ -73,6 +73,13 @@ AS
    g_vc_table_name_hist        TYPE.vc_obj_plsql;
    g_vc_col_hist_order         TYPE.vc_max_plsql;
 
+   FUNCTION fct_get_identifier (
+      p_vc_dblink         VARCHAR2
+    , p_vc_schema_name    VARCHAR2
+    , p_vc_object_name    VARCHAR2
+   )
+      RETURN VARCHAR2;
+
    PROCEDURE prc_create_stage1_table (
       p_b_drop_flag     BOOLEAN DEFAULT FALSE
     , p_b_raise_flag    BOOLEAN DEFAULT FALSE

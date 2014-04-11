@@ -6,17 +6,16 @@ import org.junit.Test;
 
 public class MainTestDBProperties {
 	
-	private String[] arguments = new String[6];
+	private String[] arguments = new String[5];
 	
 	public void initArguments() {
 		
 		// Function to test
-		arguments[0] = "-function";
-		arguments[1] = "dbproperties";
+		arguments[0] = "dbproperties";
 		// Mandatory arguments
-		arguments[2] = "-dbconnpropertyfile";
+		arguments[1] = "-dbconnpropertyfile";
 		// Optional arguments
-		arguments[4] = "-dbconnkeywordfile";
+		arguments[3] = "-dbconnkeywordfile";
 		
 	}
 
@@ -25,8 +24,8 @@ public class MainTestDBProperties {
 		
 		initArguments();
 		//
-		arguments[3] = "localhost_mysql_test";
-		arguments[5] = "";
+		arguments[2] = "localhost_mysql_test";
+		arguments[4] = "";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -41,8 +40,8 @@ public class MainTestDBProperties {
 		
 		initArguments();
 		//
-		arguments[3] = "localhost_postgresql_postgres_test";
-		arguments[5] = "";
+		arguments[2] = "localhost_postgresql_postgres_test";
+		arguments[4] = "";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -57,8 +56,8 @@ public class MainTestDBProperties {
 		
 		initArguments();
 		//
-		arguments[3] = "localhost_sqlserver_test";
-		arguments[5] = "";
+		arguments[2] = "localhost_sqlserver_test";
+		arguments[4] = "";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -73,8 +72,8 @@ public class MainTestDBProperties {
 		
 		initArguments();
 		//
-		arguments[3] = "localhost_db2_sample_test";
-		arguments[5] = "";
+		arguments[2] = "localhost_db2_sample_test";
+		arguments[4] = "";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -89,8 +88,8 @@ public class MainTestDBProperties {
 		
 		initArguments();
 		//
-		arguments[3] = "localhost_derby_sample";
-		arguments[5] = "";
+		arguments[2] = "localhost_derby_sample";
+		arguments[4] = "";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -106,8 +105,8 @@ public class MainTestDBProperties {
 		
 		initArguments();
 		//
-		arguments[3] = "localhost_oracle_test";
-		arguments[5] = "";
+		arguments[2] = "localhost_oracle_test";
+		arguments[4] = "";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -122,8 +121,8 @@ public class MainTestDBProperties {
 		
 		initArguments();
 		//
-		arguments[3] = "localhost_informix_test";
-		arguments[5] = "";
+		arguments[2] = "localhost_informix_test";
+		arguments[4] = "";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -138,8 +137,8 @@ public class MainTestDBProperties {
 		
 		initArguments();
 		//
-		arguments[3] = "msas120i_hana_01_dwh_stage";
-		arguments[5] = "HDBKeywords";
+		arguments[2] = "msas120i_hana_01_dwh_stage";
+		arguments[4] = "HDBKeywords";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -154,8 +153,8 @@ public class MainTestDBProperties {
 		
 		initArguments();
 		//
-		arguments[3] = "localhost_sybase_demo";
-		arguments[5] = "";
+		arguments[2] = "localhost_sybase_demo";
+		arguments[4] = "";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -170,8 +169,8 @@ public class MainTestDBProperties {
 		
 		initArguments();
 		//
-		arguments[3] = "localhost_teradata_test";
-		arguments[5] = "";
+		arguments[2] = "localhost_teradata_test";
+		arguments[4] = "";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -186,8 +185,8 @@ public class MainTestDBProperties {
 		
 		initArguments();
 		//
-		arguments[3] = "localhost_firebird_test";
-		arguments[5] = "";
+		arguments[2] = "localhost_firebird_test";
+		arguments[4] = "";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -197,13 +196,13 @@ public class MainTestDBProperties {
 		}
 	}
 
-	@Test
+	/*@Test
 	public void testHive() {
 		
 		initArguments();
 		//
-		arguments[3] = "msas6275ixl_hive";
-		arguments[5] = "";
+		arguments[2] = "msas6275ixl_hive";
+		arguments[4] = "";
 		// Perform test
 		try {
 			Main.main(arguments);
@@ -211,5 +210,5 @@ public class MainTestDBProperties {
 		catch (Exception e) {
 			fail("Exception: \n" + e);
 		}
-	}
+	}*/
 }

@@ -6,34 +6,33 @@ import org.junit.Test;
 
 public class MainTestETLXMLTable {
 	
-	private String[] arguments = new String[24];
+	private String[] arguments = new String[23];
 	
 	public void initArguments() {
 		
 		// Function to test
-		arguments[0]  = "-function";
-		arguments[1]  = "createetlxml";
+		arguments[0]  = "createetlxml";
 		// Mandatory arguments
-		arguments[2]  = "-srcdbconnpropertyfile";
-		arguments[4] = "-srcdbconnkeywordfile";
-		arguments[6] = "-sourceschema";
-		arguments[8] = "-sourcetable";
+		arguments[1]  = "-srcdbconnpropertyfile";
+		arguments[3] = "-srcdbconnkeywordfile";
+		arguments[5] = "-sourceschema";
+		arguments[7] = "-sourcetable";
 		//
-		arguments[10] = "-bodidataflowprefix";
-		arguments[12] = "-bodiworkflowprefix";
-		arguments[14] = "-bodijobprefix";
-		arguments[16] = "-bodisourcedatastore";
-		arguments[18] = "-boditargetdatastore";
-		arguments[20] = "-targettable";
-		arguments[22] = "-bodiexportfile";
+		arguments[9] = "-bodidataflowprefix";
+		arguments[11] = "-bodiworkflowprefix";
+		arguments[13] = "-bodijobprefix";
+		arguments[15] = "-bodisourcedatastore";
+		arguments[17] = "-boditargetdatastore";
+		arguments[19] = "-targettable";
+		arguments[21] = "-bodiexportfile";
 	}
 	
 	public void initSourceMySQL() {
 		// Target properties
-		arguments[3] = "msas4263ixl_mysql_sugarcrm";
-		arguments[5] = "";
-		arguments[7] = "sugarcrm";
-		arguments[9] = "users";
+		arguments[2] = "msas4263ixl_mysql_sugarcrm";
+		arguments[4] = "";
+		arguments[6] = "sugarcrm";
+		arguments[8] = "users";
 	}
 
 	@Test
@@ -42,13 +41,13 @@ public class MainTestETLXMLTable {
 		initArguments();
 		initSourceMySQL();
 		//
-		arguments[11] = "df";
-		arguments[13] = "wf";
-		arguments[15] = "jb";
-		arguments[17] = "msas4263ixl_mysql_sugarcrm";
-		arguments[19] = "HID_DWH_STAGE";
-		arguments[21] = "stg_scr_users";
-		arguments[23] = "D:/DEV/test.xml";
+		arguments[10] = "df";
+		arguments[12] = "wf";
+		arguments[14] = "jb";
+		arguments[16] = "msas4263ixl_mysql_sugarcrm";
+		arguments[18] = "HID_DWH_STAGE";
+		arguments[20] = "stg_scr_users";
+		arguments[22] = "D:/DEV/test.xml";
 		// Perform test
 		try {
 			Main.main(arguments);

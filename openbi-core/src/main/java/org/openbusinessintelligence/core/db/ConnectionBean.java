@@ -118,7 +118,7 @@ public class ConnectionBean {
 	    	}
 	    }
     	if (keyWords.contains(objectName.toUpperCase())) {
-    		identifier += quoteString + objectName + quoteString + ".";
+    		identifier += quoteString + objectName + quoteString;
     	}
     	else {
     		identifier += objectName;

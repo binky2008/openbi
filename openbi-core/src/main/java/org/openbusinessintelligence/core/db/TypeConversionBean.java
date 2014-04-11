@@ -183,6 +183,15 @@ public class TypeConversionBean {
        				if (sourceColumnType.contains("INTERVALYM")) {
        					targetColumnType = "INTERVAL YEAR TO MONTH";
        			}
+           		if (targetProductName.toUpperCase().contains("INFORMIX")) {
+       				if (sourceColumnType.contains("DATETIME")) {
+       					targetColumnType = "DATETIME YEAR TO FRACTION(3)";
+       				}
+       				if (sourceColumnType.contains("INTERVAL")) {
+       					targetColumnType = "VARCHAR";
+                        targetColumnLength = 255;
+       				}
+           		}
        		}
        		else if (
                 sourceColumnType.contains("BIT") ||
@@ -570,7 +579,10 @@ public class TypeConversionBean {
        		else if (targetProductName.toUpperCase().contains("ORACLE")) {
         		targetColumnType = "XMLTYPE";
     		}
-       		else if (targetProductName.toUpperCase().contains("HDB")) {
+       		else if (
+       			targetProductName.toUpperCase().contains("HDB") ||
+           		targetProductName.toUpperCase().contains("TERADATA")
+           	) {
         		targetColumnType = "CLOB";
     		}
        		else {

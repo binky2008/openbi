@@ -5,177 +5,173 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 
 public class MainTestCopySchemaFromOracle {
+
+	private String[] sourceArgs = new String[3];
+	private String[] targetArgs = new String[3];
 	
-	private String[] arguments = new String[18];
-	
-	public void initArguments() {
-		
-		// Function to test
-		arguments[0] = "-function";
-		arguments[1] = "tablecopy";
-		// Mandatory arguments
-		arguments[2]  = "-srcdbconnpropertyfile";
-		arguments[4]  = "-srcdbconnkeywordfile";
-		arguments[6]  = "-sourceschema";
-		arguments[8]  = "-trgdbconnpropertyfile";
-		arguments[10] = "-trgdbconnkeywordfile";
-		arguments[12] = "-targetschema";
-		//
-		arguments[14] = "-trgcreate";
-		arguments[15] = "true";
-		arguments[16] = "-dropifexists";
-		arguments[17] = "true";
-		
-	}
-	
-	public void initSourceOracle() {
-		// Source properties
-		arguments[3] = "localhost_oracle_sugarcrm";
-		arguments[5] = "";
-		arguments[7] = "sugarcrm";
+	private void initSource() {
+		sourceArgs[0] = "localhost_oracle_sugarcrm";
+		sourceArgs[1] = "";
+		sourceArgs[2] = "sugarcrm";
 	}
 
 	@Test
 	public void testOracleToMySQL() {
 		
-		initArguments();
-		initSourceOracle();
+		initSource();
 		//
-		arguments[9]  = "localhost_mysql_dwhstage";
-		arguments[11] = "";
-		arguments[13] = "dwhstage";
+		targetArgs[0] = "localhost_mysql_dwhstage";
+		targetArgs[1] = "";
+		targetArgs[2] = "dwhstage";
+		//
+		MainTestCopySchemaHelper.initSource(sourceArgs);
+		MainTestCopySchemaHelper.initTarget(targetArgs);
 		// Perform test
 		try {
-			Main.main(arguments);
+			MainTestCopySchemaHelper.execute();
 		}
 		catch (Exception e) {
-			fail("Exception: \n" + e.getMessage() + "\n" + e.getStackTrace());
+			fail("Exception: \n" + e);
 		}
 	}
 
 	@Test
 	public void testOracleToPostgreSQL() {
 		
-		initArguments();
-		initSourceOracle();
+		initSource();
 		//
-		arguments[9] = "localhost_postgresql_postgres_sugarcrm";
-		arguments[11] = "";
-		arguments[13] = "sugarcrm";
+		targetArgs[0] = "localhost_postgresql_postgres_sugarcrm";
+		targetArgs[1] = "";
+		targetArgs[2] = "sugarcrm";
+		//
+		MainTestCopySchemaHelper.initSource(sourceArgs);
+		MainTestCopySchemaHelper.initTarget(targetArgs);
 		// Perform test
 		try {
-			Main.main(arguments);
+			MainTestCopySchemaHelper.execute();
 		}
 		catch (Exception e) {
-			fail("Exception: \n" + e.getMessage() + "\n" + e.getStackTrace());
+			fail("Exception: \n" + e);
 		}
 	}
 
 	@Test
 	public void testOracleToOracle() {
 		
-		initArguments();
-		initSourceOracle();
+		initSource();
 		//
-		arguments[9] = "localhost_oracle_dwhstage";
-		arguments[11] = "";
-		arguments[13] = "dwhstage";
+		targetArgs[0] = "localhost_oracle_dwhstage";
+		targetArgs[1] = "";
+		targetArgs[2] = "dwhstage";
+		//
+		MainTestCopySchemaHelper.initSource(sourceArgs);
+		MainTestCopySchemaHelper.initTarget(targetArgs);
 		// Perform test
 		try {
-			Main.main(arguments);
+			MainTestCopySchemaHelper.execute();
 		}
 		catch (Exception e) {
-			fail("Exception: \n" + e.getMessage() + "\n" + e.getStackTrace());
+			fail("Exception: \n" + e);
 		}
 	}
 
 	@Test
 	public void testOracleToDB2() {
 		
-		initArguments();
-		initSourceOracle();
+		initSource();
 		//
-		arguments[9] = "localhost_db2_sample_sugarcrm";
-		arguments[11] = "";
-		arguments[13] = "sugarcrm";
+		targetArgs[0] = "localhost_db2_sample_sugarcrm";
+		targetArgs[1] = "";
+		targetArgs[2] = "sugarcrm";
+		//
+		MainTestCopySchemaHelper.initSource(sourceArgs);
+		MainTestCopySchemaHelper.initTarget(targetArgs);
 		// Perform test
 		try {
-			Main.main(arguments);
+			MainTestCopySchemaHelper.execute();
 		}
 		catch (Exception e) {
-			fail("Exception: \n" + e.getMessage() + "\n" + e.getStackTrace());
+			fail("Exception: \n" + e);
 		}
 	}
 
 	@Test
 	public void testOracleToInformix() {
 		
-		initArguments();
-		initSourceOracle();
+		initSource();
 		//
-		arguments[9]  = "localhost_informix_sugarcrm";
-		arguments[11] = "";
-		arguments[13] = "sugarcrm";
+		targetArgs[0] = "localhost_informix_sugarcrm";
+		targetArgs[1] = "";
+		targetArgs[2] = "sugarcrm";
+		//
+		MainTestCopySchemaHelper.initSource(sourceArgs);
+		MainTestCopySchemaHelper.initTarget(targetArgs);
 		// Perform test
 		try {
-			Main.main(arguments);
+			MainTestCopySchemaHelper.execute();
 		}
 		catch (Exception e) {
-			fail("Exception: \n" + e.getMessage() + "\n" + e.getStackTrace());
+			fail("Exception: \n" + e);
 		}
 	}
 
 	@Test
 	public void testOracleToSQLServer() {
 		
-		initArguments();
-		initSourceOracle();
+		initSource();
 		//
-		arguments[9] = "localhost_sqlserver_sugarcrm";
-		arguments[11] = "";
-		arguments[13] = "dbo";
+		targetArgs[0] = "localhost_sqlserver_sugarcrm";
+		targetArgs[1] = "";
+		targetArgs[2] = "dbo";
+		//
+		MainTestCopySchemaHelper.initSource(sourceArgs);
+		MainTestCopySchemaHelper.initTarget(targetArgs);
 		// Perform test
 		try {
-			Main.main(arguments);
+			MainTestCopySchemaHelper.execute();
 		}
 		catch (Exception e) {
-			fail("Exception: \n" + e.getMessage() + "\n" + e.getStackTrace());
+			fail("Exception: \n" + e);
 		}
 	}
 
 	@Test
 	public void testOracleToHANA() {
 		
-		initArguments();
-		initSourceOracle();
+		initSource();
 		//
-		arguments[9] = "msas120i_hana_01_sugarcrm";
-		arguments[11] = "HDBKeywords";
-		arguments[13] = "sugarcrm";
+		targetArgs[0] = "msas120i_hana_01_sugarcrm";
+		targetArgs[1] = "HDBKeywords";
+		targetArgs[2] = "sugarcrm";
+		//
+		MainTestCopySchemaHelper.initSource(sourceArgs);
+		MainTestCopySchemaHelper.initTarget(targetArgs);
 		// Perform test
 		try {
-			Main.main(arguments);
+			MainTestCopySchemaHelper.execute();
 		}
 		catch (Exception e) {
-			fail("Exception: \n" + e.getMessage() + "\n" + e.getStackTrace());
+			fail("Exception: \n" + e);
 		}
 	}
 
 	@Test
 	public void testOracletoTeradata() {
 		
-		initArguments();
-		initSourceOracle();
+		initSource();
 		//
-		arguments[9] = "localhost_teradata_sugarcrm";
-		arguments[11] = "TDBKeywords";
-		arguments[13] = "sugarcrm";
+		targetArgs[0] = "localhost_teradata_sugarcrm";
+		targetArgs[1] = "TDBKeywords";
+		targetArgs[2] = "sugarcrm";
+		//
+		MainTestCopySchemaHelper.initSource(sourceArgs);
+		MainTestCopySchemaHelper.initTarget(targetArgs);
 		// Perform test
 		try {
-			Main.main(arguments);
+			MainTestCopySchemaHelper.execute();
 		}
 		catch (Exception e) {
-			fail("Exception: \n" + e.getMessage() + "\n" + e.getStackTrace());
+			fail("Exception: \n" + e);
 		}
 	}
 }

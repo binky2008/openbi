@@ -6,29 +6,28 @@ import org.junit.Test;
 
 public class MainTestGenerateDataMySQL {
 	
-	private String[] arguments = new String[12];
+	private String[] arguments = new String[11];
 	
 	public void initArguments() {
 		
 		// Function to test
-		arguments[0]  = "-function";
-		arguments[1]  = "generaterandomdata";
+		arguments[0]  = "generaterandomdata";
 		// Mandatory arguments
-		arguments[2]  = "-trgdbconnpropertyfile";
-		arguments[4] = "-trgdbconnkeywordfile";
-		arguments[6] = "-targetschema";
-		arguments[8] = "-targettable";
+		arguments[1]  = "-trgdbconnpropertyfile";
+		arguments[3] = "-trgdbconnkeywordfile";
+		arguments[5] = "-targetschema";
+		arguments[7] = "-targettable";
 		//
-		arguments[10] = "-rowcount";
+		arguments[9] = "-rowcount";
 	}
 	
 	public void initSourceMySQL() {
 		// Target properties
-		arguments[3] = "localhost_mysql_test";
-		arguments[5] = "";
-		arguments[7] = "test";
-		arguments[9] = "tab_test";
-		arguments[11] = "1000";
+		arguments[2] = "localhost_mysql_test";
+		arguments[4] = "";
+		arguments[6] = "test";
+		arguments[8] = "tab_test";
+		arguments[10] = "1000";
 	}
 
 	@Test

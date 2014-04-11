@@ -80,7 +80,7 @@ AS
    -- Standard parameters for a generated procedure
    c_sql_prc_param              CLOB := 'p_n_stream NUMBER DEFAULT NULL';
    -- Code body for the wrapper procedure
-   c_sql_stag_wrapper            CLOB := '
+   c_sql_stag_wrapper           CLOB := '
         trac.log_sub_debug (l_vc_prc_name, ''Staging Begin'', ''Start extracting from #tableName#'');
 
 		#prcStage1#
@@ -450,9 +450,6 @@ AS
    l_vc_col_src                 TYPE.vc_max_plsql;
    l_vc_col_dupl                TYPE.vc_max_plsql;
    l_vc_col_pk_notnull          TYPE.vc_max_plsql;
-   -- Backwards compatibility
-   l_vc_uk_column_name          TYPE.vc_max_plsql;
-   l_vc_uk_sequence_name        TYPE.vc_max_plsql;
    -- Anonymization
    l_vc_def_anonymized          TYPE.vc_max_plsql;
    l_vc_col_anonymized          TYPE.vc_max_plsql;
@@ -461,6 +458,17 @@ AS
    l_vc_fct_anonymized          TYPE.vc_max_plsql;
    l_vc_ini_anonymized          TYPE.vc_max_plsql;
    l_vc_viw_anonymized          TYPE.vc_max_plsql;
+
+   FUNCTION fct_get_identifier (
+      p_vc_dblink         VARCHAR2
+    , p_vc_schema_name    VARCHAR2
+    , p_vc_object_name    VARCHAR2
+   )
+      RETURN VARCHAR2
+   IS
+   BEGIN
+      RETURN NULL;
+   END;
 
    PROCEDURE prc_set_tech_columns (p_vc_code_string IN OUT CLOB)
    IS
@@ -796,7 +804,7 @@ AS
       l_sql_create         CLOB;
       l_sql_list_col_utl   VARCHAR2 (32000);
    BEGIN
-       trac.log_info (
+      trac.log_info (
          l_vc_message
        , 'Stage 1 Table: Begin'
       );
@@ -878,7 +886,7 @@ AS
       );
 
       BEGIN
-          trac.log_info (
+         trac.log_info (
             l_vc_message
           , 'Creating table...'
          );
@@ -889,13 +897,13 @@ AS
           , p_b_drop_flag
           , TRUE
          );
-          trac.log_info (
+         trac.log_info (
             l_vc_message
           , 'Table created'
          );
       EXCEPTION
          WHEN OTHERS THEN
-             trac.log_error (
+            trac.log_error (
                'Stage 1 Table: Warning'
              , SQLERRM
             );
@@ -903,7 +911,7 @@ AS
       END;
 
       BEGIN
-          trac.log_info (
+         trac.log_info (
             l_vc_message
           , 'Setting compression option...'
          );
@@ -913,13 +921,13 @@ AS
             || g_vc_table_name_stage1
             || ' COMPRESS FOR QUERY LOW';
 
-          trac.log_info (
+         trac.log_info (
             l_vc_message
           , 'Compression option set'
          );
       EXCEPTION
          WHEN OTHERS THEN
-             trac.log_info (
+            trac.log_info (
                SQLERRM
              , 'FOR QUERY LOW option not available'
             );
@@ -974,7 +982,7 @@ AS
             RAISE;
       END;*/
       IF g_n_parallel_degree > 1 THEN
-          trac.log_info (
+         trac.log_info (
             l_vc_message
           , 'Setting parallel option...'
          );
@@ -985,14 +993,14 @@ AS
             || ' PARALLEL '
             || g_n_parallel_degree;
 
-          trac.log_info (
+         trac.log_info (
             l_vc_message
           , 'Parallel option set...'
          );
       END IF;
 
       -- Comments from source system
-       trac.log_info (
+      trac.log_info (
          l_vc_message
        , 'Setting comments...'
       );
@@ -1020,17 +1028,17 @@ AS
             || '''';
       END LOOP;
 
-       trac.log_info (
+      trac.log_info (
          l_vc_message
        , 'Comments set...'
       );
-       trac.log_info (
+      trac.log_info (
          l_vc_message
        , 'Stage 1 Table: End'
       );
    EXCEPTION
       WHEN OTHERS THEN
-          trac.log_info (
+         trac.log_info (
             SQLERRM
           , 'Stage 1 Table: Error'
          );
@@ -1051,7 +1059,7 @@ AS
       l_sql_create         CLOB;
       l_sql_list_col_utl   VARCHAR2 (32000);
    BEGIN
-       trac.log_info (
+      trac.log_info (
          l_vc_message
        , 'Duplicates Table: Begin'
       );
@@ -1142,7 +1150,7 @@ AS
          );
       EXCEPTION
          WHEN OTHERS THEN
-             trac.log_error (
+            trac.log_error (
                'Duplicates Table: Warning'
              , SQLERRM
             );
@@ -1158,13 +1166,13 @@ AS
          ddls.prc_execute (l_sql_create);
       END IF;
 
-       trac.log_info (
+      trac.log_info (
          l_vc_message
        , 'Duplicates Table: End'
       );
    EXCEPTION
       WHEN OTHERS THEN
-          trac.log_info (
+         trac.log_info (
             SQLERRM
           , 'Duplicates Table: Error'
          );
@@ -1186,7 +1194,7 @@ AS
       l_sql_subpart_template   VARCHAR2 (32000);
       l_sql_list_col_utl       VARCHAR2 (32000);
    BEGIN
-       trac.log_info (
+      trac.log_info (
          l_vc_message
        , 'Difference table: Begin'
       );
@@ -1248,7 +1256,7 @@ AS
          );
       EXCEPTION
          WHEN OTHERS THEN
-             trac.log_error (
+            trac.log_error (
                'Difference Table: Warning'
              , SQLERRM
             );
@@ -1298,7 +1306,7 @@ AS
          );
       EXCEPTION
          WHEN OTHERS THEN
-             trac.log_error (
+            trac.log_error (
                'Difference table: Warning'
              , SQLERRM
             );
@@ -1314,13 +1322,13 @@ AS
          ddls.prc_execute (l_sql_create);
       END IF;
 
-       trac.log_info (
+      trac.log_info (
          l_vc_message
        , 'Difference table: End'
       );
    EXCEPTION
       WHEN OTHERS THEN
-          trac.log_info (
+         trac.log_info (
             SQLERRM
           , 'Difference table: Error'
          );
@@ -1343,7 +1351,7 @@ AS
       l_l_utl_columns      DBMS_SQL.varchar2s;
       l_sql_utl_columns    TYPE.vc_max_plsql := c_sql_utl_columns;
    BEGIN
-       trac.log_info (
+      trac.log_info (
          l_vc_message
        , 'Diff Table: Begin'
       );
@@ -1416,14 +1424,14 @@ AS
          );
       EXCEPTION
          WHEN OTHERS THEN
-             trac.log_error (
+            trac.log_error (
                'Stage 2 Table Create: Warning'
              , SQLERRM
             );
 
             IF l_vc_def_anonymized IS NOT NULL THEN
                BEGIN
-                   trac.log_info (
+                  trac.log_info (
                      'Add new anonymized columns'
                    , 'Stage 2 Table Add Anonymized'
                   );
@@ -1440,7 +1448,7 @@ AS
                      || ')';
                EXCEPTION
                   WHEN OTHERS THEN
-                      trac.log_warn (
+                     trac.log_warn (
                         SQLERRM
                       , 'Stage 2 Table Add Anonymized: Warning'
                      );
@@ -1453,7 +1461,7 @@ AS
 
             IF l_vc_ini_anonymized IS NOT NULL THEN
                BEGIN
-                   trac.log_info (
+                  trac.log_info (
                      'Fill new anonymized columns'
                    , 'Stage 2 Table Upd Anonymized'
                   );
@@ -1471,7 +1479,7 @@ AS
                   COMMIT;
                EXCEPTION
                   WHEN OTHERS THEN
-                      trac.log_warn (
+                     trac.log_warn (
                         SQLERRM
                       , 'Stage 2 Table Upd Anonymized: Warning'
                      );
@@ -1506,7 +1514,7 @@ AS
                || g_vc_fb_archive;
          EXCEPTION
             WHEN OTHERS THEN
-                trac.log_info (
+               trac.log_info (
                   SQLERRM
                 , 'Stage 2 Table: FLASHBACK'
                );
@@ -1520,7 +1528,7 @@ AS
             || ' COMPRESS FOR QUERY LOW';
       EXCEPTION
          WHEN OTHERS THEN
-             trac.log_info (
+            trac.log_info (
                   SQLERRM
                || ' - FOR QUERY LOW option not available'
              , 'Stage 2 Table: COMPRESS'
@@ -1581,7 +1589,7 @@ AS
          );
       EXCEPTION
          WHEN OTHERS THEN
-             trac.log_warn (
+            trac.log_warn (
                SQLERRM
              , 'Stage 2 Natural Key: Warning'
             );
@@ -1645,7 +1653,7 @@ AS
             );
          EXCEPTION
             WHEN OTHERS THEN
-                trac.log_warn (
+               trac.log_warn (
                   SQLERRM
                 , 'Stage 2 Natural Key: Warning'
                );
@@ -1662,13 +1670,13 @@ AS
          || ' TO '
          || stag_param.c_vc_list_grantee;
 
-       trac.log_info (
+      trac.log_info (
          l_vc_message
        , 'Stage 2 Table: End'
       );
    EXCEPTION
       WHEN OTHERS THEN
-          trac.log_info (
+         trac.log_info (
             SQLERRM
           , 'Stage 2 Table: Error'
          );
@@ -1685,7 +1693,7 @@ AS
                            || g_vc_view_name_stage2;
       l_sql_create   TYPE.vc_max_plsql;
    BEGIN
-       trac.log_info (
+      trac.log_info (
          l_vc_message
        , 'Stage 2 View: Begin'
       );
@@ -1719,13 +1727,13 @@ AS
          || ' TO '
          || stag_param.c_vc_list_grantee;
 
-       trac.log_info (
+      trac.log_info (
          l_vc_message
        , 'Stage 2 View: End'
       );
    EXCEPTION
       WHEN OTHERS THEN
-          trac.log_info (
+         trac.log_info (
             SQLERRM
           , 'Stage 2 View: Error'
          );
@@ -1744,7 +1752,7 @@ AS
                            || g_vc_view_name_stage2;
       l_sql_create   TYPE.vc_max_plsql;
    BEGIN
-       trac.log_info (
+      trac.log_info (
          l_vc_message
        , 'Stage 2 Synonym: Begin'
       );
@@ -1770,13 +1778,13 @@ AS
          || ' TO '
          || stag_param.c_vc_list_grantee;
 
-       trac.log_info (
+      trac.log_info (
          l_vc_message
        , 'Stage 2 Synonym: End'
       );
    EXCEPTION
       WHEN OTHERS THEN
-          trac.log_info (
+         trac.log_info (
             SQLERRM
           , 'Stage 2 Synonym: Error'
          );
@@ -1795,7 +1803,7 @@ AS
                            || g_vc_view_name_stage2;
       l_sql_create   TYPE.vc_max_plsql;
    BEGIN
-       trac.log_info (
+      trac.log_info (
          l_vc_message
        , 'Stage 2 View: Begin'
       );
@@ -1830,13 +1838,13 @@ AS
          || ' TO '
          || stag_param.c_vc_list_grantee;
 
-       trac.log_info (
+      trac.log_info (
          l_vc_message
        , 'Stage 2 View: End'
       );
    EXCEPTION
       WHEN OTHERS THEN
-          trac.log_info (
+         trac.log_info (
             SQLERRM
           , 'Stage 2 View: Error'
          );
@@ -1857,7 +1865,7 @@ AS
       l_sql_prc_token    CLOB;
       l_sql_prc_buffer   CLOB;
    BEGIN
-       trac.log_info (
+      trac.log_info (
          l_vc_message
        , 'Begin'
       );
@@ -1945,7 +1953,7 @@ AS
             l_sql_pkg_body_buffer
          || CHR (10)
          || l_sql_prc;
-       trac.log_info (
+      trac.log_info (
          l_vc_message
        , 'End'
       );
@@ -1960,7 +1968,7 @@ AS
       l_sql_prc_token    CLOB;
       l_sql_prc_buffer   CLOB;
    BEGIN
-       trac.log_info (
+      trac.log_info (
          l_vc_message
        , 'Begin'
       );
@@ -2032,7 +2040,7 @@ AS
             l_sql_pkg_body_buffer
          || CHR (10)
          || l_sql_prc;
-       trac.log_info (
+      trac.log_info (
          l_vc_message
        , 'End'
       );
@@ -2053,7 +2061,7 @@ AS
       l_vc_col_anonymized := '';
       l_vc_fct_anonymized := '';
       -- ANONYMIZATION prc_set_anonymized_columns;
-       trac.log_info (
+      trac.log_info (
          l_vc_message
        , 'Begin'
       );
@@ -2202,24 +2210,6 @@ AS
             l_sql_prc_token
           , 'listColPk'
           , g_vc_col_pk_src
-         );
-         ddls.prc_set_text_param (
-            l_sql_prc_token
-          , 'backwardCompColumns'
-          , CASE
-               WHEN l_vc_uk_column_name IS NOT NULL THEN
-                     l_vc_uk_column_name
-                  || ' ,'
-            END
-         );
-         ddls.prc_set_text_param (
-            l_sql_prc_token
-          , 'backwardCompValues'
-          , CASE
-               WHEN l_vc_uk_sequence_name IS NOT NULL THEN
-                     l_vc_uk_sequence_name
-                  || '.nextval, '
-            END
          );
          ddls.prc_set_text_param (
             l_sql_prc_token
@@ -2393,7 +2383,7 @@ AS
             l_sql_pkg_body_buffer
          || CHR (10)
          || l_sql_prc;
-       trac.log_info (
+      trac.log_info (
          l_vc_message
        , 'End'
       );
@@ -2408,7 +2398,7 @@ AS
       l_sql_prc_token    CLOB;
       l_sql_prc_buffer   CLOB;
    BEGIN
-       trac.log_info (
+      trac.log_info (
          l_vc_message
        , 'Begin'
       );
@@ -2707,7 +2697,7 @@ AS
             l_sql_pkg_body_buffer
          || CHR (10)
          || l_sql_prc;
-       trac.log_info (
+      trac.log_info (
          l_vc_message
        , 'End'
       );
@@ -2726,7 +2716,7 @@ AS
       l_n_increment_bound   NUMBER;
       l_d_increment_bound   DATE;
    BEGIN
-       trac.log_info (
+      trac.log_info (
          l_vc_message
        , 'Begin'
       );
@@ -3070,7 +3060,7 @@ AS
             || l_sql_prc;
       END LOOP;
 
-       trac.log_info (
+      trac.log_info (
          l_vc_message
        , 'End'
       );
@@ -3093,7 +3083,7 @@ AS
       l_vc_clause_update     TYPE.vc_max_plsql;
       l_vc_col_nvl2          TYPE.vc_max_plsql;
    BEGIN
-       trac.log_info (
+      trac.log_info (
          l_vc_message
        , 'Begin'
       );
@@ -3163,7 +3153,7 @@ AS
       IF g_vc_col_pk = l_vc_col_pk_2
       OR (g_vc_col_pk IS NULL
       AND l_vc_col_pk_2 IS NULL) THEN
-          trac.log_info (
+         trac.log_info (
                'Source '
             || g_vc_source_code
             || ', Object '
@@ -3172,7 +3162,7 @@ AS
           , 'CHECK PK'
          );
       ELSE
-          trac.log_info (
+         trac.log_info (
                'Source '
             || g_vc_source_code
             || ', Object '
@@ -3471,25 +3461,6 @@ AS
        , 'sourceTable'
        , g_vc_table_name_source
       );
-      ddls.prc_set_text_param (
-         l_sql_prc_buffer
-       , 'backwardCompColumns'
-       , CASE
-            WHEN l_vc_uk_column_name IS NOT NULL THEN
-                  ' ,'
-               || l_vc_uk_column_name
-         END
-      );
-      ddls.prc_set_text_param (
-         l_sql_prc_buffer
-       , 'backwardCompValues'
-       , CASE
-            WHEN l_vc_uk_sequence_name IS NOT NULL THEN
-                  ' ,'
-               || l_vc_uk_sequence_name
-               || '.nextval'
-         END
-      );
       --
       -- Load stage 2 with table comparison
       --
@@ -3598,7 +3569,7 @@ AS
             l_sql_pkg_body_buffer
          || CHR (10)
          || l_sql_prc;
-       trac.log_info (
+      trac.log_info (
          l_vc_message
        , 'End'
       );
@@ -3620,7 +3591,7 @@ AS
       l_vc_ins_col_source    TYPE.vc_max_plsql;
       l_vc_ins_col_target    TYPE.vc_max_plsql;
    BEGIN
-       trac.log_info (
+      trac.log_info (
          l_vc_message
        , 'Begin'
       );
@@ -3881,25 +3852,6 @@ AS
        , 'sourceTable'
        , g_vc_table_name_source
       );
-      ddls.prc_set_text_param (
-         l_sql_prc_buffer
-       , 'backwardCompColumns'
-       , CASE
-            WHEN l_vc_uk_column_name IS NOT NULL THEN
-                  ' ,'
-               || l_vc_uk_column_name
-         END
-      );
-      ddls.prc_set_text_param (
-         l_sql_prc_buffer
-       , 'backwardCompValues'
-       , CASE
-            WHEN l_vc_uk_sequence_name IS NOT NULL THEN
-                  ' ,'
-               || l_vc_uk_sequence_name
-               || '.nextval'
-         END
-      );
       --
       -- Load stage 2 with table comparison
       --
@@ -3944,7 +3896,7 @@ AS
             l_sql_pkg_body_buffer
          || CHR (10)
          || l_sql_prc;
-       trac.log_info (
+      trac.log_info (
          l_vc_message
        , 'End'
       );
@@ -3962,7 +3914,7 @@ AS
       l_sql_prc_token    CLOB;
       l_sql_prc_buffer   CLOB;
    BEGIN
-       trac.log_info (
+      trac.log_info (
          l_vc_message
        , 'Begin'
       );
@@ -4142,7 +4094,7 @@ AS
             l_sql_pkg_body_buffer
          || CHR (10)
          || l_sql_prc;
-       trac.log_info (
+      trac.log_info (
          l_vc_message
        , 'End'
       );
@@ -4156,7 +4108,7 @@ AS
       l_sql_create   CLOB;
    BEGIN
       -- Package head
-       trac.log_info (
+      trac.log_info (
          l_vc_message
        , 'Package head: Begin'
       );
@@ -4190,12 +4142,12 @@ AS
        , FALSE
        , p_b_raise_flag
       );
-       trac.log_info (
+      trac.log_info (
          l_vc_message
        , 'Package head: End'
       );
       -- Package body
-       trac.log_info (
+      trac.log_info (
          l_vc_message
        , 'Package body: Begin'
       );
@@ -4229,7 +4181,7 @@ AS
        , FALSE
        , p_b_raise_flag
       );
-       trac.log_info (
+      trac.log_info (
          l_vc_message
        , 'Package body: End'
       );
@@ -4245,7 +4197,7 @@ AS
                            || g_vc_package_main;
       l_sql_create   CLOB;
    BEGIN
-       trac.log_info (
+      trac.log_info (
          l_vc_message
        , 'Begin'
       );
@@ -4313,7 +4265,7 @@ AS
       --
       -- Compile package
       prc_compile_package_main (p_b_raise_flag);
-       trac.log_info (
+      trac.log_info (
          l_vc_message
        , 'End'
       );

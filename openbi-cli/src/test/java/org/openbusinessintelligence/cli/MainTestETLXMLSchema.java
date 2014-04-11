@@ -6,31 +6,30 @@ import org.junit.Test;
 
 public class MainTestETLXMLSchema {
 	
-	private String[] arguments = new String[20];
+	private String[] arguments = new String[19];
 	
 	public void initArguments() {
 		
 		// Function to test
-		arguments[0]  = "-function";
-		arguments[1]  = "createetlxml";
+		arguments[0]  = "createetlxml";
 		// Mandatory arguments
-		arguments[2]  = "-srcdbconnpropertyfile";
-		arguments[4] = "-srcdbconnkeywordfile";
-		arguments[6] = "-sourceschema";
+		arguments[1]  = "-srcdbconnpropertyfile";
+		arguments[3] = "-srcdbconnkeywordfile";
+		arguments[5] = "-sourceschema";
 		//
-		arguments[8] = "-bodidataflowprefix";
-		arguments[10] = "-bodiworkflowprefix";
-		arguments[12] = "-bodijobprefix";
-		arguments[14] = "-bodisourcedatastore";
-		arguments[16] = "-boditargetdatastore";
-		arguments[18] = "-bodiexportfile";
+		arguments[7] = "-bodidataflowprefix";
+		arguments[9] = "-bodiworkflowprefix";
+		arguments[11] = "-bodijobprefix";
+		arguments[13] = "-bodisourcedatastore";
+		arguments[15] = "-boditargetdatastore";
+		arguments[17] = "-bodiexportfile";
 	}
 	
 	public void initSourceMySQL() {
 		// Target properties
-		arguments[3] = "msas4263ixl_mysql_sugarcrm";
-		arguments[5] = "";
-		arguments[7] = "sugarcrm";
+		arguments[2] = "msas4263ixl_mysql_sugarcrm";
+		arguments[4] = "";
+		arguments[6] = "sugarcrm";
 	}
 
 	@Test
@@ -39,12 +38,12 @@ public class MainTestETLXMLSchema {
 		initArguments();
 		initSourceMySQL();
 		//
-		arguments[9] = "df";
-		arguments[11] = "wf";
-		arguments[13] = "jb";
-		arguments[15] = "msas4263ixl_mysql_sugarcrm";
-		arguments[17] = "msas4263ixl_oracle_dwhstage";
-		arguments[19] = "D:/DEV/test.xml";
+		arguments[8] = "df";
+		arguments[10] = "wf";
+		arguments[12] = "jb";
+		arguments[14] = "msas4263ixl_mysql_sugarcrm";
+		arguments[16] = "msas4263ixl_oracle_dwhstage";
+		arguments[18] = "D:/DEV/test.xml";
 		// Perform test
 		try {
 			Main.main(arguments);

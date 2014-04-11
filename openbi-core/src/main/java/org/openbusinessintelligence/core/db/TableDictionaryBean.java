@@ -142,8 +142,6 @@ public class TableDictionaryBean {
         	
         	logger.debug("Column " + (i) + "  Name: " + columnNames[i - 1] + " Type: " + columnType[i - 1] + "  Length: " + columnLength[i - 1] + " Precision: " + columnPrecision[i - 1] + " Scale: " +columnScale[i - 1]);
         	
-
-
         	columnTypeAttribute = "";
         	columnDefinition[i - 1] = columnType[i - 1];
         	
