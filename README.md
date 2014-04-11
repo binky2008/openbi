@@ -67,7 +67,8 @@ _other options_
 
 - trgcreate = set true if target table is to be created
 - dropifexists = set true if table has to be dropped and recreated
--
+- trgpreservedata = set true if target table must not be emptied
+- commitfrequency = rows for each commit
 
 Example:
 ```
