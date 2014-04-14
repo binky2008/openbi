@@ -372,7 +372,7 @@ AS
       END IF;
    END prc_execute_queue;
 
-   PROCEDURE prc_truncate_stg1 (p_vc_source_code VARCHAR2)
+   PROCEDURE prc_truncate_stage (p_vc_source_code VARCHAR2)
    IS
    BEGIN
       FOR r_obj IN (SELECT stag_package_name
@@ -399,106 +399,6 @@ AS
 
       COMMIT;
    END prc_initialize_queue;
-
-   PROCEDURE prc_bodi_stg1_job_init (
-      p_vc_source_code              VARCHAR2
-    , p_vc_object_name              VARCHAR2
-    , p_stage_id                    NUMBER
-    , p_vc_workflow_name            VARCHAR2
-    , p_vc_repository_name          VARCHAR2
-    , p_n_gui                IN OUT NUMBER
-    , p_n_stat_id            IN OUT NUMBER
-   )
-   IS
-      l_n_step_no   NUMBER;
-      l_n_result    NUMBER;
-      l_n_part_id   NUMBER;
-   BEGIN
-      trac.log_info (
-         'Start'
-       , p_vc_workflow_name
-       , NULL
-       , NULL
-       , NULL
-      );
-
-      -- Try to get partition id from workflow name (example JOB_IRB_ABC_R04 => 4)
-      BEGIN
-         -- Try with 2-digit partition id
-         l_n_part_id :=
-            TO_NUMBER (SUBSTR (
-                          TRIM (p_vc_workflow_name)
-                        , -2
-                       ));
-      EXCEPTION
-         WHEN OTHERS THEN
-            BEGIN
-               -- Try with 2-digit partition id
-               l_n_part_id :=
-                  TO_NUMBER (SUBSTR (
-                                TRIM (p_vc_workflow_name)
-                              , -1
-                             ));
-            EXCEPTION
-               WHEN OTHERS THEN
-                  NULL;
-            -- No partition given
-            END;
-      END;
-
-      p_n_stat_id :=
-         stag_stat.prc_stat_begin (
-            p_vc_source_code
-          , p_vc_object_name
-          , p_stage_id
-          , l_n_part_id
-          , 'INS'
-         );
-   END prc_bodi_stg1_job_init;
-
-   PROCEDURE prc_bodi_stg1_job_final (
-      p_vc_workflow_name      VARCHAR2
-    , p_vc_repository_name    VARCHAR2
-    , p_n_gui                 NUMBER
-    , p_n_stat_id             NUMBER
-   )
-   IS
-      l_n_result   NUMBER;
-   BEGIN
-      stag_stat.prc_stat_end (
-         p_n_stat_id
-       , 1
-       , 0
-      );
-      trac.log_info (
-         'Finish'
-       , p_vc_workflow_name
-       , NULL
-       , NULL
-       , NULL
-      );
-   END prc_bodi_stg1_job_final;
-
-   PROCEDURE prc_bodi_stg1_job_error (
-      p_vc_workflow_name      VARCHAR2
-    , p_vc_repository_name    VARCHAR2
-    , p_n_gui                 NUMBER
-    , p_n_stat_id             NUMBER
-   )
-   IS
-      l_n_step_no   NUMBER;
-      l_n_result    NUMBER;
-   BEGIN
-      stag_stat.prc_stat_end (
-         p_n_stat_id
-       , 0
-       , 1
-      );
-      trac.log_error (
-         'Error'
-       , p_vc_workflow_name
-      );
-   END prc_bodi_stg1_job_error;
 /**
  * Package initialization
  */

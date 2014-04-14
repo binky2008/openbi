@@ -41,7 +41,7 @@ AS
    /**
     * Build stg2 only target objects
     */
-   PROCEDURE prc_build_tc_only (
+   PROCEDURE prc_build_hist (
       p_vc_source_code     VARCHAR2 DEFAULT 'ALL'
     , p_vc_object_name     VARCHAR2 DEFAULT 'ALL'
     , p_b_indx_st1_flag    BOOLEAN DEFAULT FALSE
@@ -53,7 +53,7 @@ AS
    /**
     * Upgrade stage2 table
     */
-   PROCEDURE prc_upgrade_stage2 (
+   PROCEDURE prc_upgrade_hist (
       p_vc_source_code    VARCHAR2
     , p_vc_object_name    VARCHAR2
    );

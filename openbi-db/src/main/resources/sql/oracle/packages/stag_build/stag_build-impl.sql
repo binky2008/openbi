@@ -280,11 +280,11 @@ AS
                END
             || l_vc_col_pk;
          -- Create target objects
-         stag_ddl.prc_create_stage1_table (
+         stag_ddl.prc_create_stage_table (
             p_b_drop_st1_flag
           , p_b_raise_flag
          );
-         stag_ddl.prc_create_stage2_table (
+         stag_ddl.prc_create_hist_table (
             p_b_drop_st2_flag
           , p_b_raise_flag
          );
@@ -298,7 +298,7 @@ AS
          END IF;*/
          IF stag_ddl.g_vc_fb_archive IS NOT NULL
         AND stag_ddl.g_n_fbda_flag = 1 THEN
-            stag_ddl.prc_create_stage2_hist (p_b_raise_flag);
+            stag_ddl.prc_create_fbda_view (p_b_raise_flag);
          END IF;
 
          IF l_vc_col_pk IS NOT NULL
@@ -325,7 +325,7 @@ AS
       END LOOP;
    END prc_build_all;
 
-   PROCEDURE prc_build_tc_only (
+   PROCEDURE prc_build_hist (
       p_vc_source_code     VARCHAR2 DEFAULT 'ALL'
     , p_vc_object_name     VARCHAR2 DEFAULT 'ALL'
     , p_b_indx_st1_flag    BOOLEAN DEFAULT FALSE
@@ -579,11 +579,11 @@ AS
                END
             || l_vc_col_pk;
          -- Create target objects
-         stag_ddl.prc_create_stage1_table (
+         stag_ddl.prc_create_stage_table (
             p_b_drop_st1_flag
           , p_b_raise_flag
          );
-         stag_ddl.prc_create_stage2_table (
+         stag_ddl.prc_create_hist_table (
             p_b_drop_st2_flag
           , p_b_raise_flag
          );
@@ -617,9 +617,9 @@ AS
           , 'Finish'
          );
       END LOOP;
-   END prc_build_tc_only;
+   END prc_build_hist;
 
-   PROCEDURE prc_upgrade_stage2 (
+   PROCEDURE prc_upgrade_hist (
       p_vc_source_code    VARCHAR2
     , p_vc_object_name    VARCHAR2
    )
@@ -826,7 +826,7 @@ AS
             || l_vc_table_name_bkp;
 
          -- Create target object
-         stag_ddl.prc_create_stage2_table (
+         stag_ddl.prc_create_hist_table (
             FALSE
           , TRUE
          );

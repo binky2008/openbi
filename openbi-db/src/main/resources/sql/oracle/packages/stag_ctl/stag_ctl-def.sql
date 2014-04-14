@@ -54,29 +54,5 @@ AS
 
    PROCEDURE prc_initialize_queue (p_vc_queue_code VARCHAR2);
 
-   PROCEDURE prc_truncate_stg1 (p_vc_source_code VARCHAR2);
-
-   PROCEDURE prc_bodi_stg1_job_init (
-      p_vc_source_code              VARCHAR2
-    , p_vc_object_name              VARCHAR2
-    , p_stage_id                    NUMBER
-    , p_vc_workflow_name            VARCHAR2
-    , p_vc_repository_name          VARCHAR2
-    , p_n_gui                IN OUT NUMBER
-    , p_n_stat_id            IN OUT NUMBER
-   );
-
-   PROCEDURE prc_bodi_stg1_job_final (
-      p_vc_workflow_name      VARCHAR2
-    , p_vc_repository_name    VARCHAR2
-    , p_n_gui                 NUMBER
-    , p_n_stat_id             NUMBER
-   );
-
-   PROCEDURE prc_bodi_stg1_job_error (
-      p_vc_workflow_name      VARCHAR2
-    , p_vc_repository_name    VARCHAR2
-    , p_n_gui                 NUMBER
-    , p_n_stat_id             NUMBER
-   );
+   PROCEDURE prc_truncate_stage (p_vc_source_code VARCHAR2);
 END stag_ctl;
