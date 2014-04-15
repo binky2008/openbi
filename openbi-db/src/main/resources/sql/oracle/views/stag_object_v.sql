@@ -7,14 +7,14 @@ AS
           , ob.stag_object_comment
           , ob.stag_object_root
           , ob.stag_src_table_name
-          , ob.stag_stg1_table_name
-          , ob.stag_stg2_table_name
-          , ob.stag_stg2_nk_name
+          , ob.stag_stage_table_name
+          , ob.stag_hist_table_name
+          , ob.stag_hist_nk_name
           , ob.stag_dupl_table_name
           , ob.stag_diff_table_name
           , ob.stag_diff_nk_name
-          , ob.stag_stg2_view_name
-          , ob.stag_stg2_hist_name
+          , ob.stag_hist_view_name
+          , ob.stag_hist_fbda_name
           , ob.stag_package_name
           , ob.stag_source_nk_flag
           , ob.stag_parallel_degree

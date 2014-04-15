@@ -49,10 +49,10 @@ AS
                            , d.stag_source_db_link
                            , d.stag_source_owner
                            , s.stag_owner
-                           , s.stag_ts_stg1_data
-                           , s.stag_ts_stg1_indx
-                           , s.stag_ts_stg2_data
-                           , s.stag_ts_stg2_indx
+                           , s.stag_ts_stage_data
+                           , s.stag_ts_stage_indx
+                           , s.stag_ts_hist_data
+                           , s.stag_ts_hist_indx
                            , s.stag_fb_archive
                            , o.stag_object_id
                            , o.stag_parallel_degree
@@ -64,11 +64,11 @@ AS
                            , o.stag_dupl_table_name
                            , o.stag_diff_table_name
                            , o.stag_diff_nk_name
-                           , o.stag_stg1_table_name
-                           , o.stag_stg2_table_name
-                           , o.stag_stg2_nk_name
-                           , o.stag_stg2_view_name
-                           , o.stag_stg2_hist_name
+                           , o.stag_stage_table_name
+                           , o.stag_hist_table_name
+                           , o.stag_hist_nk_name
+                           , o.stag_hist_view_name
+                           , o.stag_hist_fbda_name
                            , o.stag_package_name
                            , o.stag_filter_clause
                            , o.stag_partition_clause
@@ -239,22 +239,22 @@ AS
          stag_ddl.g_n_increment_buffer := r_obj.stag_increment_buffer;
          stag_ddl.g_vc_table_name_dupl := r_obj.stag_dupl_table_name;
          stag_ddl.g_vc_table_name_diff := r_obj.stag_diff_table_name;
-         stag_ddl.g_vc_table_name_stage1 := r_obj.stag_stg1_table_name;
-         stag_ddl.g_vc_table_name_stage2 := r_obj.stag_stg2_table_name;
+         stag_ddl.g_vc_table_name_stage := r_obj.stag_stage_table_name;
+         stag_ddl.g_vc_table_name_hist := r_obj.stag_hist_table_name;
          stag_ddl.g_vc_nk_name_diff := r_obj.stag_diff_nk_name;
-         stag_ddl.g_vc_nk_name_stage2 := r_obj.stag_stg2_nk_name;
-         stag_ddl.g_vc_view_name_stage2 := r_obj.stag_stg2_view_name;
-         stag_ddl.g_vc_view_name_history := r_obj.stag_stg2_hist_name;
+         stag_ddl.g_vc_nk_name_hist := r_obj.stag_hist_nk_name;
+         stag_ddl.g_vc_view_name_hist := r_obj.stag_hist_view_name;
+         stag_ddl.g_vc_view_name_fbda := r_obj.stag_hist_fbda_name;
          stag_ddl.g_vc_package_main := r_obj.stag_package_name;
          --
          stag_ddl.g_vc_col_def := l_vc_col_def;
          stag_ddl.g_vc_col_all := l_vc_col_all;
          stag_ddl.g_vc_col_pk_src := l_vc_col_pk;
          --
-         stag_ddl.g_vc_tablespace_stg1_data := r_obj.stag_ts_stg1_data;
-         stag_ddl.g_vc_tablespace_stg1_indx := r_obj.stag_ts_stg1_indx;
-         stag_ddl.g_vc_tablespace_stg2_data := r_obj.stag_ts_stg2_data;
-         stag_ddl.g_vc_tablespace_stg2_indx := r_obj.stag_ts_stg2_indx;
+         stag_ddl.g_vc_tablespace_stage_data := r_obj.stag_ts_stage_data;
+         stag_ddl.g_vc_tablespace_stage_indx := r_obj.stag_ts_stage_indx;
+         stag_ddl.g_vc_tablespace_hist_data := r_obj.stag_ts_hist_data;
+         stag_ddl.g_vc_tablespace_hist_indx := r_obj.stag_ts_hist_indx;
          stag_ddl.g_vc_fb_archive := r_obj.stag_fb_archive;
          --
          stag_ddl.g_l_dblink :=
@@ -367,10 +367,10 @@ AS
                            , d.stag_source_db_link
                            , d.stag_source_owner
                            , s.stag_owner
-                           , s.stag_ts_stg1_data
-                           , s.stag_ts_stg1_indx
-                           , s.stag_ts_stg2_data
-                           , s.stag_ts_stg2_indx
+                           , s.stag_ts_stage_data
+                           , s.stag_ts_stage_indx
+                           , s.stag_ts_hist_data
+                           , s.stag_ts_hist_indx
                            , s.stag_fb_archive
                            , o.stag_object_id
                            , o.stag_parallel_degree
@@ -382,11 +382,11 @@ AS
                            , o.stag_dupl_table_name
                            , o.stag_diff_table_name
                            , o.stag_diff_nk_name
-                           , o.stag_stg1_table_name
-                           , o.stag_stg2_table_name
-                           , o.stag_stg2_nk_name
-                           , o.stag_stg2_view_name
-                           , o.stag_stg2_hist_name
+                           , o.stag_stage_table_name
+                           , o.stag_hist_table_name
+                           , o.stag_hist_nk_name
+                           , o.stag_hist_view_name
+                           , o.stag_hist_fbda_name
                            , o.stag_package_name
                            , o.stag_filter_clause
                            , o.stag_partition_clause
@@ -537,22 +537,22 @@ AS
          stag_ddl.g_vc_partition_clause := r_obj.stag_partition_clause;
          stag_ddl.g_vc_table_name_dupl := r_obj.stag_dupl_table_name;
          stag_ddl.g_vc_table_name_diff := r_obj.stag_diff_table_name;
-         stag_ddl.g_vc_table_name_stage1 := r_obj.stag_stg1_table_name;
-         stag_ddl.g_vc_table_name_stage2 := r_obj.stag_stg2_table_name;
+         stag_ddl.g_vc_table_name_stage := r_obj.stag_stage_table_name;
+         stag_ddl.g_vc_table_name_hist := r_obj.stag_hist_table_name;
          stag_ddl.g_vc_nk_name_diff := r_obj.stag_diff_nk_name;
-         stag_ddl.g_vc_nk_name_stage2 := r_obj.stag_stg2_nk_name;
-         stag_ddl.g_vc_view_name_stage2 := r_obj.stag_stg2_view_name;
-         stag_ddl.g_vc_view_name_history := r_obj.stag_stg2_hist_name;
+         stag_ddl.g_vc_nk_name_hist := r_obj.stag_hist_nk_name;
+         stag_ddl.g_vc_view_name_hist := r_obj.stag_hist_view_name;
+         stag_ddl.g_vc_view_name_fbda := r_obj.stag_hist_fbda_name;
          stag_ddl.g_vc_package_main := r_obj.stag_package_name;
          --
          stag_ddl.g_vc_col_def := l_vc_col_def;
          stag_ddl.g_vc_col_all := l_vc_col_all;
          stag_ddl.g_vc_col_pk_src := l_vc_col_pk;
          --
-         stag_ddl.g_vc_tablespace_stg1_data := r_obj.stag_ts_stg1_data;
-         stag_ddl.g_vc_tablespace_stg1_indx := r_obj.stag_ts_stg1_indx;
-         stag_ddl.g_vc_tablespace_stg2_data := r_obj.stag_ts_stg2_data;
-         stag_ddl.g_vc_tablespace_stg2_indx := r_obj.stag_ts_stg2_indx;
+         stag_ddl.g_vc_tablespace_stage_data := r_obj.stag_ts_stage_data;
+         stag_ddl.g_vc_tablespace_stage_indx := r_obj.stag_ts_stage_indx;
+         stag_ddl.g_vc_tablespace_hist_data := r_obj.stag_ts_hist_data;
+         stag_ddl.g_vc_tablespace_hist_indx := r_obj.stag_ts_hist_indx;
          stag_ddl.g_vc_fb_archive := r_obj.stag_fb_archive;
          stag_ddl.g_n_fbda_flag := r_obj.stag_fbda_flag;
          --
@@ -653,14 +653,14 @@ AS
                            , s.stag_source_code
                            , s.stag_owner
                            , d.stag_source_db_link
-                           , s.stag_ts_stg2_data
-                           , s.stag_ts_stg2_indx
+                           , s.stag_ts_hist_data
+                           , s.stag_ts_hist_indx
                            , o.stag_object_id
                            , stag_object_name
                            , o.stag_parallel_degree
-                           , o.stag_stg2_table_name
-                           , o.stag_stg2_view_name
-                           , o.stag_stg2_nk_name
+                           , o.stag_hist_table_name
+                           , o.stag_hist_view_name
+                           , o.stag_hist_nk_name
                            , o.stag_partition_clause
                         FROM stag_source_t s
                            , (SELECT stag_source_id
@@ -760,14 +760,14 @@ AS
             );
          --
          stag_ddl.g_vc_partition_clause := r_obj.stag_partition_clause;
-         stag_ddl.g_vc_table_name_stage2 := r_obj.stag_stg2_table_name;
-         stag_ddl.g_vc_view_name_stage2 := r_obj.stag_stg2_view_name;
-         stag_ddl.g_vc_nk_name_stage2 := r_obj.stag_stg2_nk_name;
+         stag_ddl.g_vc_table_name_hist := r_obj.stag_hist_table_name;
+         stag_ddl.g_vc_view_name_hist := r_obj.stag_hist_view_name;
+         stag_ddl.g_vc_nk_name_hist := r_obj.stag_hist_nk_name;
          --
          stag_ddl.g_vc_col_def := l_vc_col_def;
          --
-         stag_ddl.g_vc_tablespace_stg2_data := r_obj.stag_ts_stg2_data;
-         stag_ddl.g_vc_tablespace_stg2_indx := r_obj.stag_ts_stg2_indx;
+         stag_ddl.g_vc_tablespace_hist_data := r_obj.stag_ts_hist_data;
+         stag_ddl.g_vc_tablespace_hist_indx := r_obj.stag_ts_hist_indx;
          --
          stag_ddl.g_l_dblink :=
             TYPE.fct_string_to_list (
@@ -790,12 +790,12 @@ AS
          FOR r_cst IN (SELECT constraint_name
                          FROM all_constraints
                         WHERE owner = r_obj.stag_owner
-                          AND table_name = r_obj.stag_stg2_table_name) LOOP
+                          AND table_name = r_obj.stag_hist_table_name) LOOP
             EXECUTE IMMEDIATE
                   'ALTER TABLE '
                || r_obj.stag_owner
                || '.'
-               || r_obj.stag_stg2_table_name
+               || r_obj.stag_hist_table_name
                || ' DROP CONSTRAINT '
                || r_cst.constraint_name;
          END LOOP;
@@ -803,7 +803,7 @@ AS
          FOR r_idx IN (SELECT index_name
                          FROM all_indexes
                         WHERE owner = r_obj.stag_owner
-                          AND table_name = r_obj.stag_stg2_table_name) LOOP
+                          AND table_name = r_obj.stag_hist_table_name) LOOP
             EXECUTE IMMEDIATE
                   'DROP INDEX '
                || r_obj.stag_owner
@@ -813,7 +813,7 @@ AS
 
          l_vc_table_name_bkp :=
             SUBSTR (
-                  r_obj.stag_stg2_table_name
+                  r_obj.stag_hist_table_name
                || '_BKP'
              , 1
              , 30
@@ -821,7 +821,7 @@ AS
 
          EXECUTE IMMEDIATE
                'RENAME '
-            || r_obj.stag_stg2_table_name
+            || r_obj.stag_hist_table_name
             || ' TO '
             || l_vc_table_name_bkp;
 
@@ -832,7 +832,7 @@ AS
          );
          -- Migrate data
          ddls.prc_migrate_table (
-            r_obj.stag_stg2_table_name
+            r_obj.stag_hist_table_name
           , l_vc_table_name_bkp
          );
          -- Create view or synonym (depending on the environment)

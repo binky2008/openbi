@@ -214,6 +214,12 @@ END #pkgName#;';
          RAISE;
    END #prcName#;';
 
+   -- Create table template
+   c_template_create_table           CLOB := 'CREATE TABLE #tableName# (#listColUtl##listColumns#) #storageClause#';
+   -- Template to add a primary key
+   c_template_create_pk              CLOB := 'ALTER TABLE #tableName# ADD (CONSTRAINT #pkName# PRIMARY KEY (#listColPk#) USING INDEX #storageClause#)';
+   -- Template to add a primary key
+   c_template_create_notnull         CLOB := 'ALTER TABLE #tableName# MODIFY (#columnName# NOT NULL)';
    /**
    * Substitute a parameter (#parameter_name#) with a text
    *

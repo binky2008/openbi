@@ -159,7 +159,7 @@ AS
                            , t.num_rows
                         FROM stag_object_v o
                            , user_tables t
-                       WHERE o.stag_stg2_table_name = t.table_name
+                       WHERE o.stag_hist_table_name = t.table_name
                          AND stag_source_code = p_vc_source_code
                     ORDER BY t.num_rows) LOOP
          l_n_tot_rows :=
@@ -264,9 +264,11 @@ AS
                l_vc_package
             || CASE
                   WHEN l_vc_std_load_modus = 'D' THEN
-                     '.prc_load_delta'
+                        '.'
+                     || stag_param.c_vc_procedure_wrapper_incr
                   ELSE
-                     '.prc_load'
+                        '.'
+                     || stag_param.c_vc_procedure_wrapper
                END;
          trac.log_info (
                'o='

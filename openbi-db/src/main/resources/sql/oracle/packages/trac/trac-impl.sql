@@ -61,6 +61,7 @@ AS
     , p_vc_text_big         IN CLOB DEFAULT NULL
     , p_n_row_count         IN NUMBER DEFAULT NULL
     , p_n_external_job_id   IN NUMBER DEFAULT NULL
+    , p_vc_call_stack       IN VARCHAR2 DEFAULT NULL
    )
    IS
       l_call_stack        VARCHAR2 (2000);
@@ -72,7 +73,7 @@ AS
       l_object_name       VARCHAR2 (200);
       l_message_long      VARCHAR2 (4000);
       l_message_short     VARCHAR2 (500);
-      l_trac_id            NUMBER;
+      l_trac_id           NUMBER;
       PRAGMA AUTONOMOUS_TRANSACTION;
    BEGIN
       IF g_b_message_max_reached THEN
@@ -85,7 +86,7 @@ AS
          g_n_message_count :=
               g_n_message_count
             + 1;
-         l_call_stack := DBMS_UTILITY.format_call_stack;
+         l_call_stack := NVL (p_vc_call_stack, DBMS_UTILITY.format_call_stack);
          l_call_stack_line :=
             SUBSTR (
                l_call_stack
@@ -280,6 +281,7 @@ AS
        , p_vc_text_big
        , p_n_row_count
        , p_n_external_job_id
+       , DBMS_UTILITY.format_call_stack
       );
    EXCEPTION
       WHEN OTHERS THEN
@@ -303,6 +305,7 @@ AS
        , p_vc_text_big
        , p_n_row_count
        , p_n_external_job_id
+       , DBMS_UTILITY.format_call_stack
       );
    EXCEPTION
       WHEN OTHERS THEN
@@ -326,6 +329,7 @@ AS
        , p_vc_text_big
        , p_n_row_count
        , p_n_external_job_id
+       , DBMS_UTILITY.format_call_stack
       );
    EXCEPTION
       WHEN OTHERS THEN
@@ -349,6 +353,7 @@ AS
        , p_vc_text_big
        , p_n_row_count
        , p_n_external_job_id
+       , DBMS_UTILITY.format_call_stack
       );
    EXCEPTION
       WHEN OTHERS THEN
@@ -372,6 +377,7 @@ AS
        , p_vc_text_big
        , p_n_row_count
        , p_n_external_job_id
+       , DBMS_UTILITY.format_call_stack
       );
    EXCEPTION
       WHEN OTHERS THEN
@@ -395,6 +401,7 @@ AS
        , p_vc_text_big
        , p_n_row_count
        , p_n_external_job_id
+       , DBMS_UTILITY.format_call_stack
       );
    EXCEPTION
       WHEN OTHERS THEN
@@ -422,6 +429,7 @@ AS
        , p_vc_text_big
        , p_n_row_count
        , p_n_external_job_id
+       , DBMS_UTILITY.format_call_stack
       );
    EXCEPTION
       WHEN OTHERS THEN
@@ -446,6 +454,7 @@ AS
        , p_vc_text_big
        , p_n_row_count
        , p_n_external_job_id
+       , DBMS_UTILITY.format_call_stack
       );
    EXCEPTION
       WHEN OTHERS THEN
@@ -470,6 +479,7 @@ AS
        , p_vc_text_big
        , p_n_row_count
        , p_n_external_job_id
+       , DBMS_UTILITY.format_call_stack
       );
    EXCEPTION
       WHEN OTHERS THEN
@@ -494,6 +504,7 @@ AS
        , p_vc_text_big
        , p_n_row_count
        , p_n_external_job_id
+       , DBMS_UTILITY.format_call_stack
       );
    EXCEPTION
       WHEN OTHERS THEN
@@ -518,6 +529,7 @@ AS
        , p_vc_text_big
        , p_n_row_count
        , p_n_external_job_id
+       , DBMS_UTILITY.format_call_stack
       );
    EXCEPTION
       WHEN OTHERS THEN
@@ -542,6 +554,7 @@ AS
        , p_vc_text_big
        , p_n_row_count
        , p_n_external_job_id
+       , DBMS_UTILITY.format_call_stack
       );
    EXCEPTION
       WHEN OTHERS THEN

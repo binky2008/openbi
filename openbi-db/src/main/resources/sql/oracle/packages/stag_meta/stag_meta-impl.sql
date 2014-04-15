@@ -7,16 +7,6 @@ AS
    * $Id: $
    * $HeadURL: $
    */
-   -- List of object suffixes
-   c_vc_suffix_table_source   TYPE.vc_max_plsql := 'SRC';
-   c_vc_suffix_table_dupl     TYPE.vc_max_plsql := 'DUP';
-   c_vc_suffix_table_diff     TYPE.vc_max_plsql := 'DIF';
-   c_vc_suffix_table_stage1   TYPE.vc_max_plsql := 'ST1';
-   c_vc_suffix_table_stage2   TYPE.vc_max_plsql := 'ST2';
-   c_vc_suffix_view_history   TYPE.vc_max_plsql := 'H';
-   c_vc_suffix_nk_diff        TYPE.vc_max_plsql := 'NKD';
-   c_vc_suffix_nk_stage2      TYPE.vc_max_plsql := 'NK';
-   c_vc_suffix_package        TYPE.vc_max_plsql := 'PKG';
 
    FUNCTION fct_get_column_list (
       p_vc_object_id     IN NUMBER
@@ -192,10 +182,10 @@ AS
          UPDATE SET trg.stag_source_prefix = src.source_prefix
                   , trg.stag_source_name = src.source_name
                   , trg.stag_owner = src.stage_owner
-                  , trg.stag_ts_stg1_data = src.ts_stg1_data
-                  , trg.stag_ts_stg1_indx = src.ts_stg1_indx
-                  , trg.stag_ts_stg2_data = src.ts_stg2_data
-                  , trg.stag_ts_stg2_indx = src.ts_stg2_indx
+                  , trg.stag_ts_stage_data = src.ts_stg1_data
+                  , trg.stag_ts_stage_indx = src.ts_stg1_indx
+                  , trg.stag_ts_hist_data = src.ts_stg2_data
+                  , trg.stag_ts_hist_indx = src.ts_stg2_indx
                   , trg.stag_fb_archive = src.fb_archive
                   , trg.stag_bodi_ds = src.bodi_ds
                   , trg.stag_source_bodi_ds = src.source_bodi_ds
@@ -205,10 +195,10 @@ AS
                      , trg.stag_source_prefix
                      , trg.stag_source_name
                      , trg.stag_owner
-                     , trg.stag_ts_stg1_data
-                     , trg.stag_ts_stg1_indx
-                     , trg.stag_ts_stg2_data
-                     , trg.stag_ts_stg2_indx
+                     , trg.stag_ts_stage_data
+                     , trg.stag_ts_stage_indx
+                     , trg.stag_ts_hist_data
+                     , trg.stag_ts_hist_indx
                      , trg.stag_fb_archive
                      , trg.stag_bodi_ds
                      , trg.stag_source_bodi_ds
@@ -598,7 +588,7 @@ AS
                   WHEN r_obj.stag_source_db_link IS NULL
                    AND r_obj.stag_source_owner = r_obj.stag_owner THEN
                         '_'
-                     || c_vc_suffix_table_source
+                     || stag_param.c_vc_suffix_tab_source
                END
           , 'stag_column_tmp'
           , NULL
@@ -677,7 +667,7 @@ AS
       FOR r_obj IN (SELECT stag_owner
                          , stag_object_id
                          , stag_object_name
-                         , stag_stg1_table_name
+                         , stag_stage_table_name
                       FROM stag_object_t o
                          , stag_source_t s
                      WHERE o.stag_source_id = s.stag_source_id
@@ -687,7 +677,7 @@ AS
          dict.prc_import_metadata (
             NULL
           , r_obj.stag_owner
-          , r_obj.stag_stg1_table_name
+          , r_obj.stag_stage_table_name
           , 'stag_column_tmp'
           , NULL
           , p_b_check_dependencies
@@ -767,7 +757,7 @@ AS
                            , stag_owner
                            , stag_object_id
                            , stag_object_name
-                           , stag_stg1_table_name
+                           , stag_stage_table_name
                         FROM (SELECT s.stag_source_id
                                    , s.stag_source_code
                                    , d.stag_source_db_link
@@ -775,7 +765,7 @@ AS
                                    , s.stag_owner
                                    , o.stag_object_id
                                    , o.stag_object_name
-                                   , o.stag_stg1_table_name
+                                   , o.stag_stage_table_name
                                    , ROW_NUMBER () OVER (PARTITION BY o.stag_object_id ORDER BY d.stag_source_db_id) AS source_db_order
                                 FROM stag_source_t s
                                    , stag_source_db_t d
@@ -795,7 +785,7 @@ AS
                   WHEN r_obj.stag_source_db_link IS NULL
                    AND r_obj.stag_source_owner = r_obj.stag_owner THEN
                         '_'
-                     || c_vc_suffix_table_source
+                     || stag_param.c_vc_suffix_tab_source
                END
           , 'stag_column_tmp'
           , NULL
@@ -898,40 +888,40 @@ AS
               , stag_src_table_name =
                       r_obj.stag_object_root
                    || '_'
-                   || c_vc_suffix_table_source
+                   || stag_param.c_vc_suffix_tab_source
               , stag_dupl_table_name =
                       r_obj.stag_object_root
                    || '_'
-                   || c_vc_suffix_table_dupl
+                   || stag_param.c_vc_suffix_tab_dupl
               , stag_diff_table_name =
                       r_obj.stag_object_root
                    || '_'
-                   || c_vc_suffix_table_diff
+                   || stag_param.c_vc_suffix_tab_diff
               , stag_diff_nk_name =
                       r_obj.stag_object_root
                    || '_'
-                   || c_vc_suffix_nk_diff
-              , stag_stg1_table_name =
+                   || stag_param.c_vc_suffix_nk_diff
+              , stag_stage_table_name =
                       r_obj.stag_object_root
                    || '_'
-                   || c_vc_suffix_table_stage1
-              , stag_stg2_table_name =
+                   || stag_param.c_vc_suffix_tab_stag
+              , stag_hist_table_name =
                       r_obj.stag_object_root
                    || '_'
-                   || c_vc_suffix_table_stage2
-              , stag_stg2_nk_name =
+                   || stag_param.c_vc_suffix_tab_hist
+              , stag_hist_nk_name =
                       r_obj.stag_object_root
                    || '_'
-                   || c_vc_suffix_nk_stage2
-              , stag_stg2_view_name = r_obj.stag_view_stage2_name
-              , stag_stg2_hist_name =
+                   || stag_param.c_vc_suffix_nk_hist
+              , stag_hist_view_name = r_obj.stag_view_stage2_name
+              , stag_hist_fbda_name =
                       r_obj.stag_object_root
                    || '_'
-                   || c_vc_suffix_view_history
+                   || stag_param.c_vc_suffix_view_fbda
               , stag_package_name =
                       r_obj.stag_object_root
                    || '_'
-                   || c_vc_suffix_package
+                   || stag_param.c_vc_suffix_package
           WHERE stag_object_id = r_obj.stag_object_id;
 
          COMMIT;

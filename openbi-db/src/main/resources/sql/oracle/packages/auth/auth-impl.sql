@@ -67,7 +67,7 @@ AS
                           , 'GRANT INSERT,UPDATE,DELETE ON stag_stat_t TO '
                           , 'GRANT INSERT,UPDATE,DELETE ON stag_size_t TO '
                           , 'GRANT INSERT,UPDATE,DELETE ON stag_ddl_t TO '
-                          , 'GRANT INSERT,UPDATE,DELETE ON stag_column_tmp TO '
+                          , 'GRANT INSERT,UPDATE,DELETE,SELECT ON stag_column_tmp TO '
                           , 'GRANT INSERT,UPDATE,DELETE ON stag_source_t TO '
                           , 'GRANT INSERT,UPDATE,DELETE ON stag_source_db_t TO '
                           , 'GRANT INSERT,UPDATE,DELETE ON stag_object_t TO '
