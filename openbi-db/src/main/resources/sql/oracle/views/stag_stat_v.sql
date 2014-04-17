@@ -7,7 +7,6 @@ AS
           , st.stag_partition
           , st.stag_load_id
           , ty.stag_stat_type_name
-          , st.stag_id
           , st.stag_stat_value
           , st.stag_stat_error
           , st.create_date AS stat_start

@@ -29,14 +29,24 @@ AS
    c_body_url                     VARCHAR2 (1024);
    --
    --
+   -- Enable/disable parallel execution
+   c_token_enable_parallel_dml    CLOB := 'EXECUTE IMMEDIATE ''ALTER SESSION ENABLE PARALLEL DML'';';
+   c_token_disable_parallel_dml   CLOB := 'EXECUTE IMMEDIATE ''ALTER SESSION DISABLE PARALLEL DML'';';
+   --
+   -- Truncate token of the staging 1 procedure
+   c_token_truncate_table         CLOB := 'EXECUTE IMMEDIATE ''TRUNCATE TABLE #tableName# DROP STORAGE'';
+          trac.log_sub_debug (l_vc_prc_name, ''Truncate'', ''Table #tableName# truncated'');';
+   --
+   -- Truncate token of the staging 1 procedure
+   c_token_truncate_partition     CLOB := 'EXECUTE IMMEDIATE ''ALTER TABLE #tableName# TRUNCATE #tablePartition#'';
+          trac.log_sub_debug (l_vc_prc_name, ''Truncate'', ''Table #tableName# #tablePartition# truncated'');';
+   --
    -- Copy the content of a source table into a target table
    c_sql_insert_copy              CLOB := '
         INSERT /*+APPEND*/ INTO #targetIdentifier# #partition# (
                #utlColumnList#
-               #sourceDBColumnName#
                #targetColumnList#)
         SELECT #utlValueList#
-               #sourceDBIdentifier#
                #sourceColumnList#
           FROM #sourceIdentifier#
                #filterClause#;';
@@ -47,22 +57,18 @@ AS
         INSERT /*+APPEND*/
           WHEN row_rank = 1
            AND #notNullClause#
-          THEN INTO #targetIdentifier# #tablePartition# (
+          THEN INTO #targetIdentifier# #partition# (
                 #utlColumnList#
-                #sourceDBColumnName#
                 #targetColumnList#)
              VALUES (
                 #utlValueList#
-                #sourceDBIdentifier#
                 #sourceColumnList#)
-          ELSE INTO #deduplIdentifier# #tablePartition# (
-                #sourceDBColumnName#
+          ELSE INTO #deduplIdentifier# #partition# (
                 #deduplColumnList#)
              VALUES (
-                #sourceDBIdentifier#
                 #deduplColumnList#)
          SELECT #deduplColumnList#
-              , ROW_NUMBER () over (PARTITION BY #nkColumnList# #deduplRankClause#) AS row_rank
+              , ROW_NUMBER () over (PARTITION BY #pkColumnList# #deduplRankClause#) AS row_rank
            FROM #sourceIdentifier#
                 #filterClause#;';
    --
@@ -219,9 +225,9 @@ AS
     , p_vc_param_value   IN     CLOB
    );
 
-   PROCEDURE prc_get_identifier (
+   /*PROCEDURE prc_get_identifier (
       p_vc_dblink         VARCHAR2
     , p_vc_schema_name    VARCHAR2
     , p_vc_object_name    VARCHAR2
-   );
+   );*/
 END stmt;

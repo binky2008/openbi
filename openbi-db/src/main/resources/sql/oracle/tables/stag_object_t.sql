@@ -20,9 +20,7 @@ BEGIN
        stag_filter_clause VARCHAR2(4000),
        stag_increment_buffer NUMBER,
        stag_partition_clause VARCHAR2(4000),
-       stag_delta_flag NUMBER DEFAULT 0,
-       stag_fbda_flag NUMBER DEFAULT 0,
-       stag_std_load_modus VARCHAR2(10) DEFAULT ''F'''
+       stag_fbda_flag NUMBER DEFAULT 0'
     , 'DROP'
     , TRUE
     , TRUE

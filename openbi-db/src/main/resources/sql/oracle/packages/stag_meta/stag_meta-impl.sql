@@ -344,7 +344,6 @@ AS
                        , p_vc_partition_clause AS partition_clause
                        , p_vc_fbda_flag AS fbda_flag
                        , p_vc_increment_buffer AS increment_buffer
-                       , p_vc_std_load_modus AS std_load_modus
                     FROM stag_source_t
                    WHERE stag_source_code = p_vc_source_code) src
               ON (trg.stag_source_id = src.stag_source_id
@@ -355,7 +354,6 @@ AS
                   , trg.stag_partition_clause = partition_clause
                   , trg.stag_fbda_flag = src.fbda_flag
                   , trg.stag_increment_buffer = src.increment_buffer
-                  , trg.stag_std_load_modus = src.std_load_modus
       WHEN NOT MATCHED THEN
          INSERT     (
                        trg.stag_source_id
@@ -365,7 +363,6 @@ AS
                      , trg.stag_partition_clause
                      , trg.stag_fbda_flag
                      , trg.stag_increment_buffer
-                     , trg.stag_std_load_modus
                     )
              VALUES (
                        src.stag_source_id
@@ -375,7 +372,6 @@ AS
                      , src.partition_clause
                      , src.fbda_flag
                      , src.increment_buffer
-                     , src.std_load_modus
                     );
 
       COMMIT;

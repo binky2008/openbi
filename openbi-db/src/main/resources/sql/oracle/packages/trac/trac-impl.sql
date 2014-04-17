@@ -80,6 +80,8 @@ AS
          RETURN;
       END IF;
 
+      DBMS_OUTPUT.put_line (trac_param.g_n_log_level);
+
       -- Log Only Messages smaller or equal logLevel
       IF p_n_severity <= trac_param.g_n_log_level THEN
          -- counter increment
@@ -242,16 +244,6 @@ AS
                    INTO l_trac_id;
 
             COMMIT;
-         /*IF p_vc_text_big IS NOT NULL THEN
-           INSERT INTO trac_text_t
-             (log_id
-             ,trac_text_big)
-           VALUES
-             (l_log_id
-             ,p_vc_text_big);
-
-           COMMIT;
-         END IF;*/
          END IF;
       END IF;
    EXCEPTION

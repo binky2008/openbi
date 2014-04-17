@@ -244,11 +244,9 @@ AS
          SELECT s.stag_owner
               , o.stag_object_name
               , o.stag_package_name
-              , o.stag_std_load_modus
            INTO l_vc_owner
               , l_vc_object
               , l_vc_package
-              , l_vc_std_load_modus
            FROM stag_source_t s
               , stag_object_t o
           WHERE s.stag_source_id = o.stag_source_id

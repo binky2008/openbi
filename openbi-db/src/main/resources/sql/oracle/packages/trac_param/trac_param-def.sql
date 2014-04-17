@@ -20,7 +20,7 @@ AS
    --
    g_b_log_console         BOOLEAN := FALSE;                                                                                                                                                                             -- If TRUE, log is sent to dbms_output
    g_b_log_table           BOOLEAN := TRUE;                                                                                                                                                                         -- If TRUE, log is written in the log table
-   g_n_log_level           NUMBER := gc_log_info;                                                                                                                                                                            -- Log level for the whole session
+   g_n_log_level           NUMBER := gc_log_all;                                                                                                                                                                            -- Log level for the whole session
    --
    g_n_log_message_max     NUMBER := 5000;                                                                                                                                                                        -- maximum number of messages for one session
    g_n_log_console_max     NUMBER := 40000;                                                                                                                                                                        -- maximum Buffer-Size for dbms_out messages

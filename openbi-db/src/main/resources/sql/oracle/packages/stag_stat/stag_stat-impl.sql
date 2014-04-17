@@ -10,7 +10,6 @@ AS
    FUNCTION prc_stat_begin (
       p_vc_source_code       VARCHAR2
     , p_vc_object_name       VARCHAR2
-    , p_n_stage_id           NUMBER DEFAULT NULL
     , p_n_partition          NUMBER DEFAULT NULL
     , p_vc_stat_type_code    VARCHAR2 DEFAULT NULL
    )
@@ -36,10 +35,7 @@ AS
       DBMS_APPLICATION_INFO.set_module (
             'OBJECT '
          || p_vc_object_name
-       ,    'STAGE'
-         || p_n_stage_id
-         || ' '
-         || ' PART'
+       ,    'STAGE PART'
          || p_n_partition
          || ' '
          || p_vc_stat_type_code
@@ -59,16 +55,14 @@ AS
        WHERE stag_stat_type_code = p_vc_stat_type_code;
 
       INSERT INTO stag_stat_t (
-                     stag_id
-                   , stag_object_id
+                     stag_object_id
                    , stag_partition
                    , stag_load_id
                    , stag_stat_type_id
                    , stag_stat_sid
                   )
            VALUES (
-                     p_n_stage_id
-                   , l_n_object_id
+                     l_n_object_id
                    , p_n_partition
                    , l_n_load_id
                    , l_n_stat_type_id

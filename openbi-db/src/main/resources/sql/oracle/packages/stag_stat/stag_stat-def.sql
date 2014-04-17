@@ -37,14 +37,12 @@ AS
     *
     * @param p_vc_source_code       Source name
     * @param p_vc_object_name       Object name
-    * @param p_n_stage_id           Stage id (1 or 2)
     * @param p_n_partition          Table partition
     * @param p_vc_stat_type_code    Statistics type
     */
    FUNCTION prc_stat_begin (
       p_vc_source_code       VARCHAR2
     , p_vc_object_name       VARCHAR2
-    , p_n_stage_id           NUMBER DEFAULT NULL
     , p_n_partition          NUMBER DEFAULT NULL
     , p_vc_stat_type_code    VARCHAR2 DEFAULT NULL
    )

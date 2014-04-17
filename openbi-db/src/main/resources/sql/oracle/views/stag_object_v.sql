@@ -21,7 +21,6 @@ AS
           , ob.stag_partition_clause
           , ob.stag_filter_clause
           , ob.stag_fbda_flag
-          , stag_std_load_modus
           , ob.update_date
        FROM stag_object_t ob
           , stag_source_t sc

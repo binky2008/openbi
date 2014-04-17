@@ -26,6 +26,13 @@ BEGIN
    dwhadmin.stag_meta.prc_column_ins (
       'SGC'
     , 'ACCOUNTS'
+    , 'ID'
+    , p_n_column_nk_pos   => 1
+   );
+   --
+   dwhadmin.stag_meta.prc_column_ins (
+      'SGC'
+    , 'ACCOUNTS'
     , 'DESCRIPTION'
     , p_n_column_edwh_flag   => 0
    );

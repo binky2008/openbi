@@ -16,6 +16,7 @@ AS
     , p_b_raise_flag       BOOLEAN DEFAULT FALSE
    )
    IS
+      l_vc_prc_name           TYPE.vc_obj_plsql := 'prc_build_all';
       l_vc_stage_db_list      TYPE.vc_max_plsql;
       l_vc_stage_owner_list   TYPE.vc_max_plsql;
       l_vc_distr_code_list    TYPE.vc_max_plsql;
@@ -28,18 +29,21 @@ AS
       l_n_result              NUMBER;
    BEGIN
       --trac.set_console_logging (FALSE);
-      trac.log_info (
-         'Set object names'
+      trac.log_sub_info (
+         l_vc_prc_name
        , 'Start'
+       , 'Build all db objects needed for a stage data flow'
       );
       stag_meta.prc_set_object_properties;
-      trac.log_info (
-         'Set object names'
-       , 'Finish'
+      trac.log_sub_debug (
+         l_vc_prc_name
+       , 'Object properties'
+       , 'Set names of db objects to be built'
       );
-      trac.log_info (
-         'Build objects'
-       , 'Start'
+      trac.log_sub_debug (
+         l_vc_prc_name
+       , 'Build objects'
+       , 'Start building db objects'
       );
 
       -- Select all objects
@@ -105,10 +109,11 @@ AS
                          AND p_vc_source_code IN (s.stag_source_code, 'ALL')
                          AND p_vc_object_name IN (o.stag_object_name, 'ALL')
                     ORDER BY stag_object_id) LOOP
-         trac.log_info (
-               'Object '
+         trac.log_sub_debug (
+            l_vc_prc_name
+          ,    'Object '
             || r_obj.stag_object_name
-          , 'Start'
+          , 'Start building objects'
          );
          -- Reset list strings
          l_vc_stage_db_list := '';
@@ -276,7 +281,9 @@ AS
                CASE
                   WHEN l_vc_col_pk IS NOT NULL
                    AND stag_ddl.g_l_dblink.COUNT > 1 THEN
-                     ' DI_REGION_ID,  '
+                        ' '
+                     || stag_param.c_vc_column_source_db
+                     || ',  '
                END
             || l_vc_col_pk;
          -- Create target objects
@@ -317,12 +324,24 @@ AS
             FALSE
           , TRUE
          );
-         trac.log_info (
-               'Object '
+         trac.log_sub_debug (
+            l_vc_prc_name
+          ,    'Object '
             || r_obj.stag_object_name
-          , 'Finish'
+          , 'Finish building db objects'
          );
       END LOOP;
+
+      trac.log_sub_debug (
+         l_vc_prc_name
+       , 'Build objects'
+       , 'Finished building db objects'
+      );
+      trac.log_sub_info (
+         l_vc_prc_name
+       , 'Finish'
+       , 'Build complete'
+      );
    END prc_build_all;
 
    PROCEDURE prc_build_hist (
@@ -334,6 +353,7 @@ AS
     , p_b_raise_flag       BOOLEAN DEFAULT FALSE
    )
    IS
+      l_vc_prc_name           TYPE.vc_obj_plsql := 'prc_build_hist';
       l_vc_stage_db_list      TYPE.vc_max_plsql;
       l_vc_stage_owner_list   TYPE.vc_max_plsql;
       l_vc_distr_code_list    TYPE.vc_max_plsql;
@@ -346,18 +366,21 @@ AS
       l_n_result              NUMBER;
    BEGIN
       --trac.set_console_logging (FALSE);
-      trac.log_info (
-         'Set object names'
+      trac.log_sub_info (
+         l_vc_prc_name
        , 'Start'
+       , 'Build db objects needed for the hist part of a stage data flow'
       );
       stag_meta.prc_set_object_properties;
-      trac.log_info (
-         'Set object names'
-       , 'Finish'
+      trac.log_sub_debug (
+         l_vc_prc_name
+       , 'Object properties'
+       , 'Set names of db objects to be built'
       );
-      trac.log_info (
-         'Build objects'
-       , 'Start'
+      trac.log_sub_debug (
+         l_vc_prc_name
+       , 'Build objects'
+       , 'Start building db objects'
       );
 
       -- Select all objects
@@ -407,10 +430,11 @@ AS
                          AND p_vc_source_code IN (s.stag_source_code, 'ALL')
                          AND p_vc_object_name IN (o.stag_object_name, 'ALL')
                     ORDER BY stag_object_id) LOOP
-         trac.log_info (
-               'Object '
+         trac.log_sub_debug (
+            l_vc_prc_name
+          ,    'Object '
             || r_obj.stag_object_name
-          , 'Start'
+          , 'Start building objects'
          );
          -- Reset list strings
          l_vc_stage_db_list := '';
@@ -575,7 +599,9 @@ AS
                CASE
                   WHEN l_vc_col_pk IS NOT NULL
                    AND stag_ddl.g_l_distr_code.COUNT > 1 THEN
-                     ' DI_REGION_ID,  '
+                        ' '
+                     || stag_param.c_vc_column_source_db
+                     || ',  '
                END
             || l_vc_col_pk;
          -- Create target objects
@@ -611,12 +637,24 @@ AS
             TRUE
           , TRUE
          );
-         trac.log_info (
-               'Object '
+         trac.log_sub_debug (
+            l_vc_prc_name
+          ,    'Object '
             || r_obj.stag_object_name
-          , 'Finish'
+          , 'Finish building db objects'
          );
       END LOOP;
+
+      trac.log_sub_debug (
+         l_vc_prc_name
+       , 'Build objects'
+       , 'Finished building db objects'
+      );
+      trac.log_sub_info (
+         l_vc_prc_name
+       , 'Finish'
+       , 'Build complete'
+      );
    END prc_build_hist;
 
    PROCEDURE prc_upgrade_hist (
@@ -624,6 +662,7 @@ AS
     , p_vc_object_name    VARCHAR2
    )
    IS
+      l_vc_prc_name          TYPE.vc_obj_plsql := 'prc_upgrade_hist';
       l_vc_stage_db_list     TYPE.vc_max_plsql;
       l_vc_distr_code_list   TYPE.vc_max_plsql;
       l_vc_col_def           TYPE.vc_max_plsql;
@@ -634,18 +673,21 @@ AS
       l_n_result             NUMBER;
    BEGIN
       --trac.set_console_logging (FALSE);
-      trac.log_info (
-         'Set object names'
+      trac.log_sub_info (
+         l_vc_prc_name
        , 'Start'
+       , 'Upgrade hist table with newly added columns'
       );
       stag_meta.prc_set_object_properties;
-      trac.log_info (
-         'Set object names'
-       , 'Finish'
+      trac.log_sub_debug (
+         l_vc_prc_name
+       , 'Object properties'
+       , 'Set names of db objects to be built'
       );
-      trac.log_info (
-         'Build objects'
-       , 'Start'
+      trac.log_sub_debug (
+         l_vc_prc_name
+       , 'Build objects'
+       , 'Start building db objects'
       );
 
       -- Select all objects
@@ -678,10 +720,11 @@ AS
                          AND p_vc_source_code IN (s.stag_source_code, 'ALL')
                          AND p_vc_object_name IN (o.stag_object_name, 'ALL')
                     ORDER BY stag_object_id) LOOP
-         trac.log_info (
-               'Object '
+         trac.log_sub_debug (
+            l_vc_prc_name
+          ,    'Object '
             || r_obj.stag_object_name
-          , 'Start'
+          , 'Start building objects'
          );
          -- Reset list strings
          l_vc_stage_db_list := '';
@@ -782,7 +825,9 @@ AS
          stag_ddl.g_vc_col_pk :=
                CASE
                   WHEN stag_ddl.g_l_dblink.COUNT > 1 THEN
-                     ' DI_REGION_ID,  '
+                        ' '
+                     || stag_param.c_vc_column_source_db
+                     || ',  '
                END
             || l_vc_col_pk;
 
@@ -842,12 +887,24 @@ AS
          ELSE
             stag_ddl.prc_create_stage2_synonym (TRUE);
          END IF;*/
-         trac.log_info (
-               'Object '
+         trac.log_sub_debug (
+            l_vc_prc_name
+          ,    'Object '
             || r_obj.stag_object_name
-          , 'Finish'
+          , 'Finish building db objects'
          );
       END LOOP;
+
+      trac.log_sub_debug (
+         l_vc_prc_name
+       , 'Build objects'
+       , 'Finished building db objects'
+      );
+      trac.log_sub_info (
+         l_vc_prc_name
+       , 'Finish'
+       , 'Build complete'
+      );
    END;
 /**
  * Package initialization
