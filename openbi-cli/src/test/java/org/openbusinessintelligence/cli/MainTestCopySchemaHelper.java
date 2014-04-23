@@ -4,7 +4,7 @@ import static org.junit.Assert.fail;
 
 public class MainTestCopySchemaHelper {
 
-	private static String[] arguments = new String[17];
+	private static String[] arguments = new String[21];
 	
 	public static void initArguments() {
 		
@@ -18,10 +18,14 @@ public class MainTestCopySchemaHelper {
 		arguments[9]  = "-trgdbconnkeywordfile";
 		arguments[11] = "-targetschema";
 		// Common options
-		arguments[13] = "-trgcreate";
-		arguments[14] = "true";
-		arguments[15] = "-dropifexists";
-		arguments[16] = "true";
+		arguments[13] = "-trgtableprefix";
+		arguments[14] = "zzz";
+		arguments[15] = "-trgtablesuffix";
+		arguments[16] = "stg";
+		arguments[17] = "-trgcreate";
+		arguments[18] = "true";
+		arguments[19] = "-dropifexists";
+		arguments[20] = "true";
 		
 	}
 	

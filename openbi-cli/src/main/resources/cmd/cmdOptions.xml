@@ -310,6 +310,16 @@
 		<argName>target preserve data</argName>
 	</option>
 	<option>
+		<name>trgtableprefix</name>
+		<description>Target table prefix</description>
+		<argName>target table prefix</argName>
+	</option>
+	<option>
+		<name>trgtablesuffix</name>
+		<description>Target table suffix</description>
+		<argName>target table suffix</argName>
+	</option>
+	<option>
 		<name>commitfrequency</name>
 		<description>Commit Frequency</description>
 		<argName>commit frequency</argName>

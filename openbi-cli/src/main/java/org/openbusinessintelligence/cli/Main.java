@@ -301,8 +301,31 @@ public class Main {
     			(sourceQuery == null || sourceSchema.equals(""))
     		) {
 				logger.info("Copy all objects of a schema");
+				String tablePrefix = getOption("trgtableprefix");
+		    	logger.info("Table prefix: " + tablePrefix);
+				String tableSuffix = getOption("trgtablesuffix");
+		    	logger.info("Table suffix: " + tableSuffix);
 				sourceTableList = sourceConnectionBean.getTableList();
-				targetTableList = sourceTableList;
+				targetTableList = new String[sourceTableList.length];
+				
+				if (tablePrefix == null || tablePrefix.equals("")) {
+					tablePrefix = "";
+				}
+				else {
+					tablePrefix = tablePrefix + "_";
+				}
+				
+				if (tableSuffix == null || tableSuffix.equals("")) {
+					tableSuffix = "";
+				}
+				else {
+					tableSuffix = "_" + tableSuffix;
+				}
+				
+				for (int i = 0; i < sourceTableList.length; i++ ) {
+					targetTableList[i] = tablePrefix + sourceTableList[i] + tableSuffix;
+					logger.debug("Target: " + targetTableList[i] + " - source: " + sourceTableList[i]);
+				}
     		}
     		else {
 				logger.info("Copy a single table or the result of a query");
@@ -325,7 +348,7 @@ public class Main {
 		    		org.openbusinessintelligence.core.db.TableCreateBean tableCreate = new org.openbusinessintelligence.core.db.TableCreateBean();
 		    		dictionaryConversionBean.setSourceConnection(sourceConnectionBean);
 	    			for (int i = 0; i < sourceTableList.length; i++ ) {
-						logger.info("Creating table: " + sourceTableList[i]);
+						logger.info("Creating table: " + targetTableList[i] + " from table " + sourceTableList[i]);
 						dictionaryConversionBean.setSourceTable(sourceTableList[i]);
 			    		dictionaryConversionBean.setSourceQuery(sourceQuery);
 			    		//
