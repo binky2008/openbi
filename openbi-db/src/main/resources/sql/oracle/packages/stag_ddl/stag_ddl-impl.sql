@@ -128,7 +128,7 @@ AS
 			  FROM #owner##sourceTable##dblink#
                    #filterClause#;
                    
-        #InsertStatement#
+        --#InsertStatement#
 
 		l_n_result := SQL%ROWCOUNT;
 

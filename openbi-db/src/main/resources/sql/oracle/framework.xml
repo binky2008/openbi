@@ -61,8 +61,6 @@
 	<module name="stag">
 		<script>tables/stag_column_t.sql</script>
 		<script>tables/stag_column_check_t.sql</script>
-		<script>tables/stag_column_tmp_drop.sql</script>
-		<script delimiter=";">tables/stag_column_tmp.sql</script>
 		<script>tables/stag_ddl_t.sql</script>
 		<script>tables/stag_object_t.sql</script>
 		<script delimiter=";">tables/stag_object_uk.sql</script>

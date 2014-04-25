@@ -8,8 +8,6 @@
 
 @tables\stag_column_t.sql;
 @tables\stag_column_check_t.sql;
-@tables\stag_column_tmp_drop.sql;
-@tables\stag_column_tmp.sql;
 @tables\stag_ddl_t.sql
 @tables\stag_object_t.sql;
 @tables\stag_object_uk.sql;

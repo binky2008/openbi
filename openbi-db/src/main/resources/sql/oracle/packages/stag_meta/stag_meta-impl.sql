@@ -1,13 +1,18 @@
 CREATE OR REPLACE PACKAGE BODY stag_meta
 AS
    /**
-   * $Author: nmarangoni $
-   * $Date: $
-   * $Revision: $
-   * $Id: $
-   * $HeadURL: $
-   */
 
+   * $Author: nmarangoni $
+
+   * $Date: $
+
+   * $Revision: $
+
+   * $Id: $
+
+   * $HeadURL: $
+
+   */
    FUNCTION fct_get_column_list (
       p_vc_object_id     IN NUMBER
     , p_vc_column_type   IN VARCHAR2
@@ -533,11 +538,11 @@ AS
    BEGIN
       DELETE stag_column_t
        WHERE stag_object_id = (SELECT o.stag_object_id
-                                FROM stag_source_t s
-                                   , stag_object_t o
-                               WHERE s.stag_source_id = o.stag_source_id
-                                 AND s.stag_source_code = p_vc_source_code
-                                 AND o.stag_object_name = p_vc_object_name)
+                                 FROM stag_source_t s
+                                    , stag_object_t o
+                                WHERE s.stag_source_id = o.stag_source_id
+                                  AND s.stag_source_code = p_vc_source_code
+                                  AND o.stag_object_name = p_vc_object_name)
          AND stag_column_name = p_vc_column_name;
 
       COMMIT;
@@ -549,9 +554,22 @@ AS
     , p_b_check_dependencies   IN BOOLEAN DEFAULT TRUE
    )
    IS
-      l_n_pk_pos_min   NUMBER;
+      TYPE r_column IS RECORD (
+         stag_column_pos       NUMBER
+       , stag_column_name      VARCHAR2 (50)
+       , stag_column_comment   VARCHAR2 (4000)
+       , stag_column_def       VARCHAR2 (4000)
+       , stag_column_nk_pos    NUMBER
+      );
+
+      TYPE t_t_columns IS TABLE OF r_column;
+
+      l_t_columns      t_t_columns;
+      cur_columns      SYS_REFCURSOR;
+      l_sql_col_def    CLOB := dict.c_sql_col_def;
+      l_n_pk_pos_max   NUMBER;
    BEGIN
-       trac.log_info (
+      trac.log_info (
          'Prepare metadata'
        , 'Start'
       );
@@ -575,72 +593,80 @@ AS
                                AND p_vc_source_code IN (s.stag_source_code, 'ALL')
                                AND p_vc_object_name IN (o.stag_object_name, 'ALL'))
                      WHERE db_rank = 1) LOOP
-         -- Load metadata in the temp table
-         dict.prc_import_metadata (
-            r_obj.stag_source_db_link
-          , r_obj.stag_source_owner
-          ,    r_obj.stag_object_name
-            || CASE
-                  WHEN r_obj.stag_source_db_link IS NULL
-                   AND r_obj.stag_source_owner = r_obj.stag_owner THEN
-                        '_'
-                     || stag_param.c_vc_suffix_tab_source
-               END
-          , 'stag_column_tmp'
-          , NULL
-          , p_b_check_dependencies
+         dict.g_vc_src_obj_dblink := r_obj.stag_source_db_link;
+         dict.prc_set_text_param (
+            l_sql_col_def
+          , 'sql_obj_pk'
+          , CASE
+               WHEN p_b_check_dependencies THEN
+                  dict.c_sql_obj_col_pk
+               ELSE
+                  dict.c_sql_obj_col_pk_nodep
+            END
          );
+         dict.prc_set_src_param (l_sql_col_def);
 
-         SELECT NVL (MIN (stag_column_nk_pos), 0) INTO l_n_pk_pos_min FROM stag_column_tmp;
+         EXECUTE IMMEDIATE l_sql_col_def
+            BULK COLLECT INTO l_t_columns
+            USING r_obj.stag_source_owner
+                , r_obj.stag_object_name;
+
+         FOR i IN l_t_columns.FIRST .. l_t_columns.LAST LOOP
+            MERGE INTO stag_column_t trg
+                 USING (SELECT l_t_columns (i).stag_column_name AS stag_column_name
+                             , l_t_columns (i).stag_column_comment AS stag_column_comment
+                             , l_t_columns (i).stag_column_pos AS stag_column_pos
+                             , l_t_columns (i).stag_column_def AS stag_column_def
+                             , l_t_columns (i).stag_column_nk_pos AS stag_column_nk_pos
+                          FROM DUAL) src
+                    ON (trg.stag_column_name = src.stag_column_name
+                    AND trg.stag_object_id = r_obj.stag_object_id)
+            WHEN MATCHED THEN
+               UPDATE SET trg.stag_column_pos = src.stag_column_pos
+                        , trg.stag_column_def = src.stag_column_def
+                        , trg.stag_column_comment = src.stag_column_comment
+                        , trg.stag_column_nk_pos = src.stag_column_nk_pos
+            WHEN NOT MATCHED THEN
+               INSERT     (
+                             trg.stag_object_id
+                           , trg.stag_column_pos
+                           , trg.stag_column_name
+                           , trg.stag_column_comment
+                           , trg.stag_column_def
+                           , trg.stag_column_nk_pos
+                           , trg.stag_column_edwh_flag
+                          )
+                   VALUES (
+                             r_obj.stag_object_id
+                           , src.stag_column_pos
+                           , src.stag_column_name
+                           , src.stag_column_comment
+                           , src.stag_column_def
+                           , src.stag_column_nk_pos
+                           , 1
+                          );
+
+            l_n_pk_pos_max :=
+               GREATEST (
+                  NVL (l_t_columns (i).stag_column_nk_pos, 0)
+                , l_n_pk_pos_max
+               );
+         END LOOP;
 
          UPDATE stag_object_t
             SET stag_source_nk_flag =
                    CASE
-                      WHEN l_n_pk_pos_min = 0 THEN
+                      WHEN l_n_pk_pos_max = 0 THEN
                          0
                       ELSE
                          1
                    END
           WHERE stag_object_id = r_obj.stag_object_id;
 
-         MERGE INTO stag_column_t trg
-              USING (SELECT stag_column_name
-                          , stag_column_comment
-                          , stag_column_pos
-                          , stag_column_def
-                          , stag_column_nk_pos
-                       FROM stag_column_tmp) src
-                 ON (trg.stag_column_name = src.stag_column_name
-                 AND trg.stag_object_id = r_obj.stag_object_id)
-         WHEN MATCHED THEN
-            UPDATE SET trg.stag_column_pos = src.stag_column_pos
-                     , trg.stag_column_def = src.stag_column_def
-                     , trg.stag_column_comment = src.stag_column_comment
-                     , trg.stag_column_nk_pos = src.stag_column_nk_pos
-         WHEN NOT MATCHED THEN
-            INSERT     (
-                          trg.stag_object_id
-                        , trg.stag_column_pos
-                        , trg.stag_column_name
-                        , trg.stag_column_comment
-                        , trg.stag_column_def
-                        , trg.stag_column_nk_pos
-                        , trg.stag_column_edwh_flag
-                       )
-                VALUES (
-                          r_obj.stag_object_id
-                        , src.stag_column_pos
-                        , src.stag_column_name
-                        , src.stag_column_comment
-                        , src.stag_column_def
-                        , src.stag_column_nk_pos
-                        , 1
-                       );
-
          COMMIT;
       END LOOP;
 
-       trac.log_info (
+      trac.log_info (
          'Prepare metadata'
        , 'Finish'
       );
@@ -652,9 +678,22 @@ AS
     , p_b_check_dependencies   IN BOOLEAN DEFAULT TRUE
    )
    IS
-      l_n_pk_pos_min   NUMBER;
+      TYPE r_column IS RECORD (
+         stag_column_pos       NUMBER
+       , stag_column_name      VARCHAR2 (50)
+       , stag_column_comment   VARCHAR2 (4000)
+       , stag_column_def       VARCHAR2 (4000)
+       , stag_column_nk_pos    NUMBER
+      );
+
+      TYPE t_t_columns IS TABLE OF r_column;
+
+      l_t_columns      t_t_columns;
+      cur_columns      SYS_REFCURSOR;
+      l_sql_col_def    CLOB := dict.c_sql_col_def;
+      l_n_pk_pos_max   NUMBER;
    BEGIN
-       trac.log_info (
+      trac.log_info (
          'Prepare metadata'
        , 'Start'
       );
@@ -669,66 +708,79 @@ AS
                      WHERE o.stag_source_id = s.stag_source_id
                        AND p_vc_source_code IN (s.stag_source_code, 'ALL')
                        AND p_vc_object_name IN (o.stag_object_name, 'ALL')) LOOP
-         -- Load metadata in the temp table
-         dict.prc_import_metadata (
-            NULL
-          , r_obj.stag_owner
-          , r_obj.stag_stage_table_name
-          , 'stag_column_tmp'
-          , NULL
-          , p_b_check_dependencies
+         dict.prc_set_text_param (
+            l_sql_col_def
+          , 'sql_obj_pk'
+          , CASE
+               WHEN p_b_check_dependencies THEN
+                  dict.c_sql_obj_col_pk
+               ELSE
+                  dict.c_sql_obj_col_pk_nodep
+            END
          );
+         dict.prc_set_src_param (l_sql_col_def);
 
-         SELECT NVL (MIN (stag_column_nk_pos), 0) INTO l_n_pk_pos_min FROM stag_column_tmp;
+         EXECUTE IMMEDIATE l_sql_col_def
+            BULK COLLECT INTO l_t_columns
+            USING r_obj.stag_owner
+                , r_obj.stag_object_name;
+
+         FOR i IN l_t_columns.FIRST .. l_t_columns.LAST LOOP
+            MERGE INTO stag_column_t trg
+                 USING (SELECT l_t_columns (i).stag_column_name AS stag_column_name
+                             , l_t_columns (i).stag_column_comment AS stag_column_comment
+                             , l_t_columns (i).stag_column_pos AS stag_column_pos
+                             , l_t_columns (i).stag_column_def AS stag_column_def
+                             , l_t_columns (i).stag_column_nk_pos AS stag_column_nk_pos
+                          FROM DUAL) src
+                    ON (trg.stag_column_name = src.stag_column_name
+                    AND trg.stag_object_id = r_obj.stag_object_id)
+            WHEN MATCHED THEN
+               UPDATE SET trg.stag_column_pos = src.stag_column_pos
+                        , trg.stag_column_def = src.stag_column_def
+                        , trg.stag_column_comment = src.stag_column_comment
+                        , trg.stag_column_nk_pos = src.stag_column_nk_pos
+            WHEN NOT MATCHED THEN
+               INSERT     (
+                             trg.stag_object_id
+                           , trg.stag_column_pos
+                           , trg.stag_column_name
+                           , trg.stag_column_comment
+                           , trg.stag_column_def
+                           , trg.stag_column_nk_pos
+                           , trg.stag_column_edwh_flag
+                          )
+                   VALUES (
+                             r_obj.stag_object_id
+                           , src.stag_column_pos
+                           , src.stag_column_name
+                           , src.stag_column_comment
+                           , src.stag_column_def
+                           , src.stag_column_nk_pos
+                           , 1
+                          );
+
+            l_n_pk_pos_max :=
+               GREATEST (
+                  NVL (l_t_columns (i).stag_column_nk_pos, 0)
+                , l_n_pk_pos_max
+               );
+         END LOOP;
 
          UPDATE stag_object_t
             SET stag_source_nk_flag =
                    CASE
-                      WHEN l_n_pk_pos_min = 0 THEN
+                      WHEN l_n_pk_pos_max = 0 THEN
                          0
                       ELSE
                          1
                    END
           WHERE stag_object_id = r_obj.stag_object_id;
 
-         MERGE INTO stag_column_t trg
-              USING (SELECT stag_column_name
-                          , stag_column_comment
-                          , stag_column_pos
-                          , stag_column_def
-                          , stag_column_nk_pos
-                       FROM stag_column_tmp) src
-                 ON (trg.stag_column_name = src.stag_column_name
-                 AND trg.stag_object_id = r_obj.stag_object_id)
-         WHEN MATCHED THEN
-            UPDATE SET trg.stag_column_pos = src.stag_column_pos
-                     , trg.stag_column_def = src.stag_column_def
-                     , trg.stag_column_comment = src.stag_column_comment
-                     , trg.stag_column_nk_pos = src.stag_column_nk_pos
-         WHEN NOT MATCHED THEN
-            INSERT     (
-                          trg.stag_object_id
-                        , trg.stag_column_pos
-                        , trg.stag_column_name
-                        , trg.stag_column_comment
-                        , trg.stag_column_def
-                        , trg.stag_column_nk_pos
-                        , trg.stag_column_edwh_flag
-                       )
-                VALUES (
-                          r_obj.stag_object_id
-                        , src.stag_column_pos
-                        , src.stag_column_name
-                        , src.stag_column_comment
-                        , src.stag_column_def
-                        , src.stag_column_nk_pos
-                        , 1
-                       );
-
          COMMIT;
       END LOOP;
 
-       trac.log_info (
+      trac.log_info (
          'Prepare metadata'
        , 'Finish'
       );
@@ -740,8 +792,21 @@ AS
     , p_b_check_dependencies   IN BOOLEAN DEFAULT TRUE
    )
    IS
+      TYPE r_column IS RECORD (
+         stag_column_pos       NUMBER
+       , stag_column_name      VARCHAR2 (50)
+       , stag_column_comment   VARCHAR2 (4000)
+       , stag_column_def       VARCHAR2 (4000)
+       , stag_column_nk_pos    NUMBER
+      );
+
+      TYPE t_t_columns IS TABLE OF r_column;
+
+      l_t_columns     t_t_columns;
+      cur_columns     SYS_REFCURSOR;
+      l_sql_col_def   CLOB := dict.c_sql_col_def;
    BEGIN
-       trac.log_info (
+      trac.log_info (
          'Check column changes'
        , 'Start'
       );
@@ -772,58 +837,62 @@ AS
                                  AND p_vc_object_name IN (o.stag_object_name, 'ALL'))
                        WHERE source_db_order = 1
                     ORDER BY stag_object_id) LOOP
-         -- Load metadata in the temp table
-         dict.prc_import_metadata (
-            r_obj.stag_source_db_link
-          , r_obj.stag_source_owner
-          ,    r_obj.stag_object_name
-            || CASE
-                  WHEN r_obj.stag_source_db_link IS NULL
-                   AND r_obj.stag_source_owner = r_obj.stag_owner THEN
-                        '_'
-                     || stag_param.c_vc_suffix_tab_source
-               END
-          , 'stag_column_tmp'
-          , NULL
-          , p_b_check_dependencies
+         dict.g_vc_src_obj_dblink := r_obj.stag_source_db_link;
+         dict.prc_set_text_param (
+            l_sql_col_def
+          , 'sql_obj_pk'
+          , CASE
+               WHEN p_b_check_dependencies THEN
+                  dict.c_sql_obj_col_pk
+               ELSE
+                  dict.c_sql_obj_col_pk_nodep
+            END
          );
+         dict.prc_set_src_param (l_sql_col_def);
+
+         EXECUTE IMMEDIATE l_sql_col_def
+            BULK COLLECT INTO l_t_columns
+            USING r_obj.stag_source_owner
+                , r_obj.stag_object_name;
 
          DELETE stag_column_check_t
           WHERE stag_object_id = r_obj.stag_object_id;
 
-         MERGE INTO stag_column_check_t trg
-              USING (SELECT stag_column_name
-                          , stag_column_comment
-                          , stag_column_pos
-                          , stag_column_def
-                          , stag_column_nk_pos
-                       FROM stag_column_tmp) src
-                 ON (trg.stag_column_name = src.stag_column_name
-                 AND trg.stag_object_id = r_obj.stag_object_id)
-         WHEN MATCHED THEN
-            UPDATE SET trg.stag_column_pos = src.stag_column_pos
-                     , trg.stag_column_def = src.stag_column_def
-                     , trg.stag_column_nk_pos = src.stag_column_nk_pos
-         WHEN NOT MATCHED THEN
-            INSERT     (
-                          trg.stag_object_id
-                        , trg.stag_column_pos
-                        , trg.stag_column_name
-                        , trg.stag_column_def
-                        , trg.stag_column_nk_pos
-                       )
-                VALUES (
-                          r_obj.stag_object_id
-                        , src.stag_column_pos
-                        , src.stag_column_name
-                        , src.stag_column_def
-                        , src.stag_column_nk_pos
-                       );
+         FOR i IN l_t_columns.FIRST .. l_t_columns.LAST LOOP
+            MERGE INTO stag_column_check_t trg
+                 USING (SELECT l_t_columns (i).stag_column_name AS stag_column_name
+                             , l_t_columns (i).stag_column_comment AS stag_column_comment
+                             , l_t_columns (i).stag_column_pos AS stag_column_pos
+                             , l_t_columns (i).stag_column_def AS stag_column_def
+                             , l_t_columns (i).stag_column_nk_pos AS stag_column_nk_pos
+                          FROM DUAL) src
+                    ON (trg.stag_column_name = src.stag_column_name
+                    AND trg.stag_object_id = r_obj.stag_object_id)
+            WHEN MATCHED THEN
+               UPDATE SET trg.stag_column_pos = src.stag_column_pos
+                        , trg.stag_column_def = src.stag_column_def
+                        , trg.stag_column_nk_pos = src.stag_column_nk_pos
+            WHEN NOT MATCHED THEN
+               INSERT     (
+                             trg.stag_object_id
+                           , trg.stag_column_pos
+                           , trg.stag_column_name
+                           , trg.stag_column_def
+                           , trg.stag_column_nk_pos
+                          )
+                   VALUES (
+                             r_obj.stag_object_id
+                           , src.stag_column_pos
+                           , src.stag_column_name
+                           , src.stag_column_def
+                           , src.stag_column_nk_pos
+                          );
+         END LOOP;
 
          COMMIT;
       END LOOP;
 
-       trac.log_info (
+      trac.log_info (
          'Check column changes'
        , 'Finish'
       );
@@ -924,7 +993,9 @@ AS
       END LOOP;
    END;
 /**
+
  * Package initialization
+
  */
 BEGIN
    c_body_version := '$Id: $';
