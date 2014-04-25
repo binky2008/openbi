@@ -589,31 +589,6 @@ public class TypeConversionBean {
         		targetColumnType = "XML";
     		}
        	}
-   		// BLOB types
-       	else if (
-       		sourceColumnType.contains("BLOB") ||
-       		sourceColumnType.contains("BYTE") ||
-       		sourceColumnType.contains("BFILE") ||
-       		sourceColumnType.contains("LONG") ||
-       		sourceColumnType.contains("IMAGE") ||
-       		sourceColumnType.contains("BINARY") ||
-       		sourceColumnType.contains("GEOGRAPHY") ||
-       		sourceColumnType.contains("GEOMETRY")
-       	) {
-       		if (targetProductName.toUpperCase().contains("POSTGRES")) {
-        		targetColumnType = "BYTEA";
-    		}
-       		else if (targetProductName.toUpperCase().contains("INFORMIX")) {
-        		targetColumnType = "BYTE";
-    		}
-       		else if (targetProductName.toUpperCase().contains("MICROSOFT")) {
-        		targetColumnType = "VARBINARY";
-        		targetColumnLength = -1;
-    		}
-       		else {
-        		targetColumnType = "BLOB";
-    		}
-       	}
    		// Date/time types
        	else if (
        			sourceColumnType.contains("DATE") ||
@@ -797,6 +772,31 @@ public class TypeConversionBean {
    			else {
    				targetColumnType = "BOOLEAN";
    			}
+       	}
+   		// BLOB types
+       	else if (
+       		sourceColumnType.contains("BLOB") ||
+       		sourceColumnType.contains("BYTE") ||
+       		sourceColumnType.contains("BFILE") ||
+       		sourceColumnType.contains("LONG") ||
+       		sourceColumnType.contains("IMAGE") ||
+       		sourceColumnType.contains("BINARY") ||
+       		sourceColumnType.contains("GEOGRAPHY") ||
+       		sourceColumnType.contains("GEOMETRY")
+       	) {
+       		if (targetProductName.toUpperCase().contains("POSTGRES")) {
+        		targetColumnType = "BYTEA";
+    		}
+       		else if (targetProductName.toUpperCase().contains("INFORMIX")) {
+        		targetColumnType = "BYTE";
+    		}
+       		else if (targetProductName.toUpperCase().contains("MICROSOFT")) {
+        		targetColumnType = "VARBINARY";
+        		targetColumnLength = -1;
+    		}
+       		else {
+        		targetColumnType = "BLOB";
+    		}
        	}
        	else {
        		targetColumnType = sourceColumnType;

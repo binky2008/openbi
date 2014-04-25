@@ -262,6 +262,8 @@ public class Main {
 	    	/*
     		* Copy tables between 2 databases
     		*/
+	    	boolean copySchema = false;
+	    	
 			logger.info("Copy an entire schema, a single table or the result of a query from a database to another");
 			
 	    	org.openbusinessintelligence.core.db.ConnectionBean sourceConnectionBean = new org.openbusinessintelligence.core.db.ConnectionBean();
@@ -295,15 +297,23 @@ public class Main {
 	    	logger.info("Target table: " + targetTable);
 	    	String[] sourceTableList = null;
 	    	String[] targetTableList = null;
+	    	
+	    	String tablePrefix = "";
+	    	String tableSuffix = "";
+	    	
 			sourceConnectionBean.setSchemaName(sourceSchema);
     		if ((sourceSchema != null) &&
     			(sourceTable == null || sourceSchema.equals("")) &&
     			(sourceQuery == null || sourceSchema.equals(""))
     		) {
+    			copySchema = true;
+    		}
+    		
+    		if (copySchema) {
 				logger.info("Copy all objects of a schema");
-				String tablePrefix = getOption("trgtableprefix");
+				tablePrefix = getOption("trgtableprefix");
 		    	logger.info("Table prefix: " + tablePrefix);
-				String tableSuffix = getOption("trgtablesuffix");
+				tableSuffix = getOption("trgtablesuffix");
 		    	logger.info("Table suffix: " + tableSuffix);
 				sourceTableList = sourceConnectionBean.getTableList();
 				targetTableList = new String[sourceTableList.length];
@@ -358,6 +368,9 @@ public class Main {
 			    		columnNames = dictionaryConversionBean.getTargetColumnNames();
 			    		columnDefs = dictionaryConversionBean.getTargetColumnDefinition();
 			    		// Create a table basing on the result
+			    		if (copySchema) {
+			    			targetTableList[i] = targetConnectionBean.getNormalizedObjectName(sourceTableList[i], tablePrefix, tableSuffix);
+			    		}
 			    		tableCreate.setTargetConnection(targetConnectionBean);
 			    		tableCreate.setTargetSchema(targetSchema);
 			    		tableCreate.setTargetTable(targetTableList[i]);

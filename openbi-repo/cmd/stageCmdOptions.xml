@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cmdOptions>
+
+	<!-- Generic options -->
+	<option>
+		<name>propertyfile</name>
+		<description>Property file</description>
+		<argName>property file</argName>
+	</option>
+	<option>
+		<name>function</name>
+		<description>Function to execute</description>
+		<argName>function</argName>
+	</option>
+	
+	<!-- Metadata options -->
+	<option>
+		<name>stagetargetpropertyfile</name>
+		<description>Properties of the stage db</description>
+		<argName>stage target property file</argName>
+	</option>
+	<option>
+		<name>stagesourcecode</name>
+		<description>Stage source code from the stage metadata</description>
+		<argName>stage source code</argName>
+	</option>
+	<option>
+		<name>stageobjectname</name>
+		<description>Stage object name from the stage metadata</description>
+		<argName>stage object name</argName>
+	</option>
+	
+	<!-- Execution options -->
+	<option>
+		<name>distributioncode</name>
+		<description>Distribution code for parallel load</description>
+		<argName>distribution code</argName>
+	</option>
+	<option>
+		<name>trgpreservedata</name>
+		<description>Preserve Target Data</description>
+		<argName>target preserve data</argName>
+	</option>
+	<option>
+		<name>commitfrequency</name>
+		<description>Commit Frequency</description>
+		<argName>commit frequency</argName>
+	</option>
+	
+	<!-- Script generation -->
+	<option>
+		<name>scriptprefix</name>
+		<description>Prefix for generated load scripts</description>
+		<argName>script prefix</argName>
+	</option>
+	<option>
+		<name>scriptdirectory</name>
+		<description>Directory for generated load scripts</description>
+		<argName>script directory</argName>
+	</option>
+	
+	<!-- Bodi generation -->
+	<option>
+		<name>bodiabapdataflowprefix</name>
+		<description>Dataflow prefix</description>
+		<argName>bodi dataflow prefix</argName>
+	</option>
+	<option>
+		<name>bodidataflowprefix</name>
+		<description>Dataflow prefix</description>
+		<argName>bodi dataflow prefix</argName>
+	</option>
+	<option>
+		<name>bodiworkflowprefix</name>
+		<description>Workflow prefix</description>
+		<argName>bodi workflow prefix</argName>
+	</option>
+	<option>
+		<name>bodijobprefix</name>
+		<description>Job prefix</description>
+		<argName>bodi job prefix</argName>
+	</option>
+	<option>
+		<name>bodijobisabap</name>
+		<description>The job use ABAP (y/n)</description>
+		<argName>bodi job use ABAP (y/n)</argName>
+	</option>
+	<option>
+		<name>bodijobisparameterized</name>
+		<description>The job is parameterized (y/n)</description>
+		<argName>bodi job is parameterized (y/n)</argName>
+	</option>
+	<option>
+		<name>bodiexportfile</name>
+		<description>Export file</description>
+		<argName>bodi export file</argName>
+	</option>
+	
+</cmdOptions>

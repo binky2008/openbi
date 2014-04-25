@@ -3,6 +3,7 @@ package org.openbusinessintelligence.cli;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
+import org.openbusinessintelligence.cli.helper.MainTestCopySchemaHelper;
 
 public class MainTestCopySchemaFromOracle {
 
@@ -40,9 +41,9 @@ public class MainTestCopySchemaFromOracle {
 		
 		initSource();
 		//
-		targetArgs[0] = "localhost_postgresql_postgres_sugarcrm";
+		targetArgs[0] = "localhost_postgresql_postgres_dwhstage";
 		targetArgs[1] = "";
-		targetArgs[2] = "sugarcrm";
+		targetArgs[2] = "dwhstage";
 		//
 		MainTestCopySchemaHelper.initSource(sourceArgs);
 		MainTestCopySchemaHelper.initTarget(targetArgs);
@@ -80,9 +81,9 @@ public class MainTestCopySchemaFromOracle {
 		
 		initSource();
 		//
-		targetArgs[0] = "localhost_db2_sample_sugarcrm";
+		targetArgs[0] = "localhost_db2_sample_dwhstage";
 		targetArgs[1] = "";
-		targetArgs[2] = "sugarcrm";
+		targetArgs[2] = "dwhstage";
 		//
 		MainTestCopySchemaHelper.initSource(sourceArgs);
 		MainTestCopySchemaHelper.initTarget(targetArgs);
@@ -100,9 +101,9 @@ public class MainTestCopySchemaFromOracle {
 		
 		initSource();
 		//
-		targetArgs[0] = "localhost_informix_sugarcrm";
+		targetArgs[0] = "localhost_informix_dwhstage";
 		targetArgs[1] = "";
-		targetArgs[2] = "sugarcrm";
+		targetArgs[2] = "dwhstage";
 		//
 		MainTestCopySchemaHelper.initSource(sourceArgs);
 		MainTestCopySchemaHelper.initTarget(targetArgs);
@@ -120,9 +121,9 @@ public class MainTestCopySchemaFromOracle {
 		
 		initSource();
 		//
-		targetArgs[0] = "localhost_sqlserver_sugarcrm";
+		targetArgs[0] = "localhost_sqlserver_dwh";
 		targetArgs[1] = "";
-		targetArgs[2] = "dbo";
+		targetArgs[2] = "stage";
 		//
 		MainTestCopySchemaHelper.initSource(sourceArgs);
 		MainTestCopySchemaHelper.initTarget(targetArgs);
@@ -140,9 +141,9 @@ public class MainTestCopySchemaFromOracle {
 		
 		initSource();
 		//
-		targetArgs[0] = "msas120i_hana_01_sugarcrm";
+		targetArgs[0] = "msas120i_hana_01_dwh_stage";
 		targetArgs[1] = "HDBKeywords";
-		targetArgs[2] = "sugarcrm";
+		targetArgs[2] = "dwh_stage";
 		//
 		MainTestCopySchemaHelper.initSource(sourceArgs);
 		MainTestCopySchemaHelper.initTarget(targetArgs);
@@ -160,9 +161,9 @@ public class MainTestCopySchemaFromOracle {
 		
 		initSource();
 		//
-		targetArgs[0] = "localhost_teradata_sugarcrm";
+		targetArgs[0] = "localhost_teradata_dwhstage";
 		targetArgs[1] = "TDBKeywords";
-		targetArgs[2] = "sugarcrm";
+		targetArgs[2] = "dwhstage";
 		//
 		MainTestCopySchemaHelper.initSource(sourceArgs);
 		MainTestCopySchemaHelper.initTarget(targetArgs);

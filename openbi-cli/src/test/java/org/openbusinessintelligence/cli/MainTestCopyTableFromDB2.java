@@ -3,6 +3,7 @@ package org.openbusinessintelligence.cli;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
+import org.openbusinessintelligence.cli.helper.MainTestCopyTableHelper;
 
 public class MainTestCopyTableFromDB2 {
 	private String[] sourceArgs = new String[3];

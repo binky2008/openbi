@@ -14,4 +14,13 @@ CREATE USER sugarcrm FROM DBC AS
 	PASSWORD  =  sugarcrm,
 	PERMANENT = 209715200;
 
-grant select on DBC.UDTInfo to sugarcrm;	
+grant select on DBC.UDTInfo to sugarcrm;
+
+-- DWHSTAGE
+DROP USER dwhstage;
+
+CREATE USER dwhstage FROM DBC AS 
+	PASSWORD  =  dwhstage,
+	PERMANENT = 209715200;
+
+grant select on DBC.UDTInfo to dwhstage;	

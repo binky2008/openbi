@@ -1,7 +1,5 @@
 package org.openbusinessintelligence.core.db;
 
-import java.sql.*;
-
 import javax.xml.parsers.*;
 
 import org.slf4j.LoggerFactory;
@@ -34,8 +32,6 @@ public class DictionaryConversionBean {
     // Declarations of internally used variables
     private int columnCount = 0;
     private int[] columnPkPositions = null;
-    private String[] targetColumnInPk = null;
-    private String[] targetColumnNonInPk = null;
     //
     private String[] sourceColumnNames = null;
     private String[] sourceColumnType = null;
@@ -113,7 +109,6 @@ public class DictionaryConversionBean {
     	return columnPkPositions;
     }
     
-    // Execution methods
     public void retrieveColumns() throws Exception {
     	
     	TableDictionaryBean sourceDictionary = new TableDictionaryBean();

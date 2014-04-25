@@ -96,6 +96,38 @@ public class ConnectionBean {
     	return databaseProductName;
     }
     
+    // Get normalizer obejct name
+    public String getNormalizedObjectName(String name, String prefix, String suffix) throws Exception {
+
+    	String normalizedRoot = name;
+    	String normalizedName = "";
+    	int objectMaxLength;
+    	int rootMaxLength;
+    	int prefixLength;
+    	int suffixLength;
+    	
+    	objectMaxLength = metadata.getMaxTableNameLength();
+    			
+		prefixLength = prefix.length();
+		suffixLength = suffix.length();
+		
+    	rootMaxLength = objectMaxLength - prefixLength - suffixLength;
+		
+		logger.debug("Object max length: " + objectMaxLength);
+		logger.debug("Prefix length: " + prefixLength);
+		logger.debug("Suffix length " + suffixLength);
+		logger.debug("Root max length: " + rootMaxLength);
+    	
+		if (name.length() > rootMaxLength) {
+			logger.debug("Normalized root: " + name.substring(0, rootMaxLength - 1));
+			normalizedRoot = name.substring(0, rootMaxLength - 1);
+			logger.debug("Normalized name: " + normalizedName);
+		}
+		normalizedName = prefix + normalizedRoot + suffix;
+    	
+    	return normalizedName;
+    }
+    
     // Get complete identifier string
     public String getObjectIdentifier(String objectName) {
 		logger.debug("Getting complete identifier for object " + objectName);
