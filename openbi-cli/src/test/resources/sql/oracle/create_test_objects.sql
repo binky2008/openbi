@@ -31,3 +31,34 @@ CREATE TABLE tab_test (
   , col_SDO_GEOMETRY SDO_GEOMETRY
   , col_SDO_RASTER SDO_RASTER
 );
+
+DROP TABLE bigtable;
+CREATE TABLE bigtable (
+   col_pk       NUMBER
+ , col_number   NUMBER
+ , col_text     VARCHAR2 (4000)
+ , CONSTRAINT bigtable_pk PRIMARY KEY (col_pk)
+);
+
+DECLARE
+   l_n_rows       NUMBER := 10000;
+   l_vc_bigtext   VARCHAR2 (4000);
+BEGIN
+   FOR i IN 1 .. l_n_rows LOOP
+      INSERT INTO bigtable
+           VALUES (
+                     i
+                   , DBMS_RANDOM.random
+                   , DBMS_RANDOM.string (
+                        'a'
+                      , TRUNC (DBMS_RANDOM.VALUE (
+                                  1
+                                , 4000
+                               ))
+                     )
+                  );
+   END LOOP;
+
+   COMMIT;
+END;
+/

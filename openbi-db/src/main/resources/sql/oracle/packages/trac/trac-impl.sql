@@ -80,8 +80,6 @@ AS
          RETURN;
       END IF;
 
-      DBMS_OUTPUT.put_line (trac_param.g_n_log_level);
-
       -- Log Only Messages smaller or equal logLevel
       IF p_n_severity <= trac_param.g_n_log_level THEN
          -- counter increment

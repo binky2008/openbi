@@ -37,9 +37,11 @@ AS
    c_vc_suffix_nk_hist             VARCHAR2 (50) := 'HNK';
    c_vc_suffix_view_fbda           TYPE.vc_max_plsql := 'H';
    c_vc_suffix_package             TYPE.vc_max_plsql := 'PKG';
+   c_vc_prefix_partition           TYPE.vc_max_plsql := 'P';
    --
    c_vc_procedure_trunc_stage      TYPE.vc_max_plsql := 'prc_trunc_stage';
    c_vc_procedure_trunc_diff       TYPE.vc_max_plsql := 'prc_trunc_diff';
+   c_vc_procedure_load_init        TYPE.vc_max_plsql := 'prc_load_init';
    c_vc_procedure_load_stage       TYPE.vc_max_plsql := 'prc_load_stage';
    c_vc_procedure_load_stage_p     TYPE.vc_max_plsql := 'prc_load_stage_p';
    c_vc_procedure_load_diff        TYPE.vc_max_plsql := 'prc_load_diff';

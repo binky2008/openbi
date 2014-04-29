@@ -8,12 +8,12 @@ AS
    * $HeadURL: $
    */
    PROCEDURE prc_build_all (
-      p_vc_source_code     VARCHAR2 DEFAULT 'ALL'
-    , p_vc_object_name     VARCHAR2 DEFAULT 'ALL'
-    , p_b_indx_st1_flag    BOOLEAN DEFAULT FALSE
-    , p_b_drop_st1_flag    BOOLEAN DEFAULT TRUE
-    , p_b_drop_st2_flag    BOOLEAN DEFAULT FALSE
-    , p_b_raise_flag       BOOLEAN DEFAULT FALSE
+      p_vc_source_code       VARCHAR2 DEFAULT 'ALL'
+    , p_vc_object_name       VARCHAR2 DEFAULT 'ALL'
+    , p_b_index_flag         BOOLEAN DEFAULT FALSE
+    , p_b_drop_stage_flag    BOOLEAN DEFAULT TRUE
+    , p_b_drop_hist_flag     BOOLEAN DEFAULT FALSE
+    , p_b_raise_flag         BOOLEAN DEFAULT FALSE
    )
    IS
       l_vc_prc_name           TYPE.vc_obj_plsql := 'prc_build_all';
@@ -228,6 +228,24 @@ AS
                ELSE
                   r_obj.stag_object_name
             END;
+         stag_ddl.g_vc_source_identifier :=
+            CASE
+               WHEN r_obj.stag_source_db_link IS NULL
+                AND r_obj.stag_source_owner = r_obj.stag_owner THEN
+                  r_obj.stag_src_table_name
+               ELSE
+                     CASE
+                        WHEN r_obj.stag_source_owner IS NOT NULL THEN
+                              r_obj.stag_source_owner
+                           || '.'
+                     END
+                  || r_obj.stag_object_name
+                  || CASE
+                        WHEN r_obj.stag_source_db_link IS NOT NULL THEN
+                              '@'
+                           || r_obj.stag_source_db_link
+                     END
+            END;
          --
          stag_ddl.g_vc_dedupl_rank_clause :=
             CASE
@@ -238,7 +256,7 @@ AS
                   'ORDER BY rowid DESC'
             END;
          stag_ddl.g_vc_filter_clause := r_obj.stag_filter_clause;
-         stag_ddl.g_vc_partition_clause := r_obj.stag_partition_clause;
+         stag_ddl.g_vc_partition_expr := r_obj.stag_partition_clause;
          stag_ddl.g_vc_increment_column := r_obj.stag_increment_column;
          stag_ddl.g_vc_increment_coldef := r_obj.stag_increment_coldef;
          stag_ddl.g_n_increment_buffer := r_obj.stag_increment_buffer;
@@ -288,11 +306,11 @@ AS
             || l_vc_col_pk;
          -- Create target objects
          stag_ddl.prc_create_stage_table (
-            p_b_drop_st1_flag
+            p_b_drop_stage_flag
           , p_b_raise_flag
          );
          stag_ddl.prc_create_hist_table (
-            p_b_drop_st2_flag
+            p_b_drop_hist_flag
           , p_b_raise_flag
          );
 
@@ -345,12 +363,10 @@ AS
    END prc_build_all;
 
    PROCEDURE prc_build_hist (
-      p_vc_source_code     VARCHAR2 DEFAULT 'ALL'
-    , p_vc_object_name     VARCHAR2 DEFAULT 'ALL'
-    , p_b_indx_st1_flag    BOOLEAN DEFAULT FALSE
-    , p_b_drop_st1_flag    BOOLEAN DEFAULT TRUE
-    , p_b_drop_st2_flag    BOOLEAN DEFAULT FALSE
-    , p_b_raise_flag       BOOLEAN DEFAULT FALSE
+      p_vc_source_code    VARCHAR2 DEFAULT 'ALL'
+    , p_vc_object_name    VARCHAR2 DEFAULT 'ALL'
+    , p_b_drop_flag       BOOLEAN DEFAULT FALSE
+    , p_b_raise_flag      BOOLEAN DEFAULT FALSE
    )
    IS
       l_vc_prc_name           TYPE.vc_obj_plsql := 'prc_build_hist';
@@ -437,48 +453,9 @@ AS
           , 'Start building objects'
          );
          -- Reset list strings
-         l_vc_stage_db_list := '';
-         l_vc_stage_owner_list := '';
-         l_vc_distr_code_list := '';
          l_vc_col_def := '';
          l_vc_col_all := '';
          l_vc_col_pk := '';
-
-         -- Build list of values for objects with multiple sources
-         FOR r_db IN (SELECT stag_source_db_link
-                           , stag_source_owner
-                           , stag_distribution_code
-                        FROM stag_source_db_t
-                       WHERE stag_source_id = r_obj.stag_source_id) LOOP
-            l_vc_stage_db_list :=
-                  l_vc_stage_db_list
-               || r_db.stag_source_db_link
-               || ',';
-            l_vc_stage_owner_list :=
-                  l_vc_stage_owner_list
-               || r_db.stag_source_owner
-               || ',';
-            l_vc_distr_code_list :=
-                  l_vc_distr_code_list
-               || r_db.stag_distribution_code
-               || ',';
-         END LOOP;
-
-         l_vc_stage_db_list :=
-            RTRIM (
-               l_vc_stage_db_list
-             , ','
-            );
-         l_vc_stage_owner_list :=
-            RTRIM (
-               l_vc_stage_owner_list
-             , ','
-            );
-         l_vc_distr_code_list :=
-            RTRIM (
-               l_vc_distr_code_list
-             , ','
-            );
 
          -- Build list of columns
          FOR r_col IN (  SELECT NVL (stag_column_name_map, stag_column_name) AS stag_column_name
@@ -533,33 +510,13 @@ AS
          stag_ddl.g_vc_table_comment := r_obj.stag_object_comment;
          stag_ddl.g_vc_source_code := r_obj.stag_source_code;
          stag_ddl.g_vc_prefix_src := r_obj.stag_source_prefix;
-         stag_ddl.g_vc_dblink := r_obj.stag_source_db_link;
-         stag_ddl.g_vc_owner_src := r_obj.stag_source_owner;
          stag_ddl.g_vc_owner_stg :=
             SYS_CONTEXT (
                'USERENV'
              , 'CURRENT_USER'
             );
-         stag_ddl.g_vc_table_name_source :=
-            CASE
-               WHEN r_obj.stag_source_db_link IS NULL
-                AND r_obj.stag_source_owner = r_obj.stag_owner THEN
-                  r_obj.stag_src_table_name
-               ELSE
-                  r_obj.stag_object_name
-            END;
-         --
-         stag_ddl.g_vc_dedupl_rank_clause :=
-            CASE
-               WHEN r_obj.stag_source_db_link IS NULL
-                AND r_obj.stag_source_owner = r_obj.stag_owner THEN
-                  'ORDER BY 1'
-               ELSE
-                  'ORDER BY rowid DESC'
-            END;
          stag_ddl.g_vc_filter_clause := r_obj.stag_filter_clause;
-         stag_ddl.g_vc_partition_clause := r_obj.stag_partition_clause;
-         stag_ddl.g_vc_table_name_dupl := r_obj.stag_dupl_table_name;
+         stag_ddl.g_vc_partition_expr := r_obj.stag_partition_clause;
          stag_ddl.g_vc_table_name_diff := r_obj.stag_diff_table_name;
          stag_ddl.g_vc_table_name_stage := r_obj.stag_stage_table_name;
          stag_ddl.g_vc_table_name_hist := r_obj.stag_hist_table_name;
@@ -573,28 +530,11 @@ AS
          stag_ddl.g_vc_col_all := l_vc_col_all;
          stag_ddl.g_vc_col_pk_src := l_vc_col_pk;
          --
-         stag_ddl.g_vc_tablespace_stage_data := r_obj.stag_ts_stage_data;
-         stag_ddl.g_vc_tablespace_stage_indx := r_obj.stag_ts_stage_indx;
          stag_ddl.g_vc_tablespace_hist_data := r_obj.stag_ts_hist_data;
          stag_ddl.g_vc_tablespace_hist_indx := r_obj.stag_ts_hist_indx;
          stag_ddl.g_vc_fb_archive := r_obj.stag_fb_archive;
          stag_ddl.g_n_fbda_flag := r_obj.stag_fbda_flag;
          --
-         stag_ddl.g_l_dblink :=
-            TYPE.fct_string_to_list (
-               l_vc_stage_db_list
-             , ','
-            );
-         stag_ddl.g_l_owner_src :=
-            TYPE.fct_string_to_list (
-               l_vc_stage_owner_list
-             , ','
-            );
-         stag_ddl.g_l_distr_code :=
-            TYPE.fct_string_to_list (
-               l_vc_distr_code_list
-             , ','
-            );
          stag_ddl.g_vc_col_pk :=
                CASE
                   WHEN l_vc_col_pk IS NOT NULL
@@ -605,12 +545,8 @@ AS
                END
             || l_vc_col_pk;
          -- Create target objects
-         stag_ddl.prc_create_stage_table (
-            p_b_drop_st1_flag
-          , p_b_raise_flag
-         );
          stag_ddl.prc_create_hist_table (
-            p_b_drop_st2_flag
+            p_b_drop_flag
           , p_b_raise_flag
          );
 
@@ -802,7 +738,7 @@ AS
              , 'CURRENT_USER'
             );
          --
-         stag_ddl.g_vc_partition_clause := r_obj.stag_partition_clause;
+         stag_ddl.g_vc_partition_expr := r_obj.stag_partition_clause;
          stag_ddl.g_vc_table_name_hist := r_obj.stag_hist_table_name;
          stag_ddl.g_vc_view_name_hist := r_obj.stag_hist_view_name;
          stag_ddl.g_vc_nk_name_hist := r_obj.stag_hist_nk_name;

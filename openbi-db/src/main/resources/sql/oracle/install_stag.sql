@@ -18,7 +18,6 @@
 @tables\stag_source_db_t.sql;
 @tables\stag_source_t.sql;
 @tables\stag_stat_type_t.sql;
-@tables\stag_stat_type_data.sql;
 @tables\stag_stat_t.sql;
 @tables\stag_size_t.sql;
 @tables\stag_size_uk.sql;
@@ -31,7 +30,6 @@
 @views\stag_queue_v.sql;
 @views\stag_source_db_v.sql;
 @views\stag_source_v.sql;
-@views\stag_stat_last_v.sql;
 @views\stag_stat_v.sql;
 @views\stag_size_v.sql;
 
@@ -47,3 +45,5 @@
 @packages\stag_build\stag_build-impl.sql;
 @packages\stag_ctl\stag_ctl-def.sql;
 @packages\stag_ctl\stag_ctl-impl.sql;
+-- Data
+@tables\stag_stat_type_data.sql;

@@ -91,6 +91,18 @@ AS
 		#prcTruncDiff#
 
         trac.log_sub_debug (l_vc_prc_name, ''Staging End'', ''Stage completed for #tableName#'');';
+   -- Statistics token
+   c_token_analyze                CLOB := '
+        l_n_stat_id := stag_stat.prc_stat_begin(''#sourceCode#'', ''#objectName#'', NULL, ''#statisticsType#'');
+        
+        DBMS_STATS.UNLOCK_TABLE_STATS (''#stgOwner#'', ''#tableName#'') ;
+        DBMS_STATS.GATHER_TABLE_STATS (''#stgOwner#'', ''#tableName#'', NULL, 1);
+        stag_stat.prc_size_store(''#sourceCode#'', ''#objectName#'', ''#tableName#'');
+
+        stag_stat.prc_stat_end(l_n_stat_id, 0);
+
+          trac.log_sub_debug (l_vc_prc_name, ''STAT END'', ''#tableName# : Statistics gathered'');
+        ';
    -- Check token of the init procedure
    c_token_check_table_isempty    CLOB := '
 		  trac.log_sub_debug (l_vc_prc_name, ''CHECK'', ''Check table #tableName# '');
@@ -108,299 +120,106 @@ AS
    -- Insert token of the staging 1 procedure
    c_token_stage_get_incr_bound   CLOB := '
    
-          trac.log_sub_debug (l_vc_prc_name, ''INCR BOUND'', ''#tableName# #partitionId# : get last #incrementColumn#'');
+          trac.log_sub_debug (l_vc_prc_name, ''INCR BOUND'', ''#tableName# #partition# : get last #incrementColumn#'');
    
         SELECT MAX(#incrementColumn#)
           INTO l_t_increment_bound
-          FROM #tableNameStage2# #tablePartition#;
+          FROM #histTableName# #partition#;
           
-          trac.log_sub_debug (l_vc_prc_name, ''INCR BOUND'', ''#tableName# #partitionId# : last #incrementColumn# = '' || l_t_increment_bound);
+          trac.log_sub_debug (l_vc_prc_name, ''INCR BOUND'', ''#tableName# #partition# : last #incrementColumn# = '' || l_t_increment_bound);
         
         ';
    -- Insert token of the staging procedure
-   c_token_stage_insert           CLOB := 'l_n_stat_id := stag_stat.prc_stat_begin(''#sourceCode#'', ''#objectName#'', #partition#, ''SIN'');
+   c_token_stage_insert           CLOB := '
+        l_n_stat_id := stag_stat.prc_stat_begin(''#sourceCode#'', ''#objectName#'', #partitionId#, ''STIN'');
 
         #computeIncrementBound#
-
-		INSERT /*+APPEND*/ INTO #tableName# #tablePartition#
-			(#listColUtl##listColAllTrg#)
-			SELECT #listValUtl##listColAllSrc#
-			  FROM #owner##sourceTable##dblink#
-                   #filterClause#;
                    
-        --#InsertStatement#
+        #insertStatement#
 
 		l_n_result := SQL%ROWCOUNT;
 
 		stag_stat.prc_stat_end(l_n_stat_id, l_n_result);
 
-      COMMIT;
+        COMMIT;
 
-        trac.log_sub_debug (l_vc_prc_name, ''INSERT END'', ''#tableName# #partitionId# : '' || l_n_result || '' rows inserted'', NULL, l_n_result);
-		';
-   -- Insert-deduplicate token of the staging procedure
-   c_token_stage_dedupl           CLOB := '
-		l_n_stat_id := stag_stat.prc_stat_begin(''#sourceCode#'', ''#objectName#'', #partition#, ''SIN'');
-
-        #computeIncrementBound#
-
-		INSERT /*+APPEND*/
-		  WHEN row_rank = 1 AND
-				 #notNullClause#
-		  THEN
-				INTO #tableName# #tablePartition#
-					(#listColUtl##listColAllTrg#)
-			 VALUES
-					(#listValUtl##listColAllSrc#)
-		  ELSE
-				INTO #tableNameDupl# #tablePartition#
-					(#listColDupl#)
-			 VALUES
-					(#listColDupl#)
-		 SELECT #listColDupl#
-				, ROW_NUMBER () over (PARTITION BY #listColPk# #deduplRankClause#) AS row_rank
-			FROM #owner##sourceTable##dblink#
-                 #filterClause#;
-
-		l_n_result := SQL%ROWCOUNT;
-
-		stag_stat.prc_stat_end(l_n_stat_id, l_n_result);
-
-      COMMIT;
-
-        trac.log_sub_debug (l_vc_prc_name, ''INSERT END'', ''#tableName# #partitionId# : '' || l_n_result || '' rows inserted'', NULL, l_n_result);
-		';
-   -- Statistics token of the staging procedure
-   c_token_stage_stats            CLOB := '
-        l_n_stat_id := stag_stat.prc_stat_begin(''#sourceCode#'', ''#objectName#'', NULL, ''SAN'');
-		
-		DBMS_STATS.UNLOCK_TABLE_STATS (''#stgOwner#'', ''#tableName#'') ;
-		DBMS_STATS.GATHER_TABLE_STATS (''#stgOwner#'', ''#tableName#'', NULL, 1);
-		stag_stat.prc_size_store(''#sourceCode#'', ''#sourceTable#'', ''#tableName#'');
-
-		stag_stat.prc_stat_end(l_n_stat_id, 0);
-
-		  trac.log_sub_debug (l_vc_prc_name, ''STAT END'', ''#tableName# : Statistics gathered'');
-		';
-   -- Statistics token of the staging procedure (deduplication version)
-   c_token_stage_dupl_stats       CLOB := '
-		DBMS_STATS.UNLOCK_TABLE_STATS (''#stgOwner#'', ''#tableName#'') ;
-		DBMS_STATS.GATHER_TABLE_STATS (''#stgOwner#'', ''#tableName#'', NULL, 1);
-		stag_stat.prc_size_store(''#sourceCode#'', ''#sourceTable#'', ''#tableName#'');
-
-		trac.log_sub_debug (l_vc_prc_name, ''STAT END'', ''#tableName# : Statistics gathered'');
+        trac.log_sub_debug (l_vc_prc_name, ''INSERT END'', ''#targetIdentifier# #partition# : '' || l_n_result || '' rows inserted'', NULL, l_n_result);
 		';
    -- Check token of the historicizing procedure
    c_token_check_nk_equal         CLOB := '
         l_b_ok := dict.fct_check_pk (
-			NULL, ''#stgOwner#'', ''#tableNameStage1#'', ''#stgOwner#'', ''#tableNameStage2#''
+			NULL, ''#stgOwner#'', ''#stageTableName#'', ''#stgOwner#'', ''#histTableName#''
 		);
 		IF l_b_ok THEN
-			  trac.log_sub_debug (l_vc_prc_name, ''CHECK NK'', ''#tableNameStage1# and #tableNameStage2# have the same NK'');
+			  trac.log_sub_debug (l_vc_prc_name, ''CHECK NK'', ''#stageTableName# and #histTableName# have the same NK'');
 		ELSE
-			  trac.log_sub_warn (l_vc_prc_name, ''CHECK NK'', ''#tableNameStage1# and #tableNameStage2# have not the same NK'');		
+			  trac.log_sub_warn (l_vc_prc_name, ''CHECK NK'', ''#stageTableName# and #histTableName# have not the same NK'');		
 		END IF;
         
-        SELECT COUNT(*) INTO l_n_result FROM #tableNameStage1#;
+        SELECT COUNT(*) INTO l_n_result FROM #stageTableName#;
         
         IF l_n_result = 0 THEN
-            trac.log_sub_error (l_vc_prc_name, ''CHECK'', ''Table #tableNameStage1# is empty'');
+            trac.log_sub_error (l_vc_prc_name, ''CHECK'', ''Table #stageTableName# is empty'');
             raise_application_error (-20000, ''Stage1 table is empty.'');        
         END IF;
         
         EXECUTE IMMEDIATE ''ALTER SESSION ENABLE PARALLEL DML'';
 		
 		-- Truncate Diff table
-		 trac.log_sub_debug (l_vc_prc_name, ''DIFF TRUNCATE'', ''Truncate #tableNameDiff#'');		
-		EXECUTE IMMEDIATE ''TRUNCATE TABLE #tableNameDiff# DROP STORAGE'';
-		 trac.log_sub_debug (l_vc_prc_name, ''DIFF TRUNCATE'', ''#tableNameDiff# truncated'');
+		 trac.log_sub_debug (l_vc_prc_name, ''DIFF TRUNCATE'', ''Truncate #diffIdentifier#'');		
+		EXECUTE IMMEDIATE ''TRUNCATE TABLE #diffIdentifier# DROP STORAGE'';
+		 trac.log_sub_debug (l_vc_prc_name, ''DIFF TRUNCATE'', ''#diffIdentifier# truncated'');
 		';
    -- Diff token of the historicizing procedure - with nk
-   c_token_diff_with_nk           CLOB := '
-		 trac.log_sub_debug (l_vc_prc_name, ''DIFF BEGIN'', ''Insert into #tableNameDiff#'');
+   c_token_diff_insert            CLOB := '
+		trac.log_sub_debug (l_vc_prc_name, ''DIFF BEGIN'', ''Insert into #diffIdentifier#'');
 
-		l_n_stat_id := stag_stat.prc_stat_begin(''#sourceCode#'', ''#objectName#'', #partition#, ''DIN'');
-		
-		INSERT
-		INTO #tableNameDiff# #tablePartitionStage2# (
-			#listColAll#
-		  , #listColUtl#)
-		SELECT
-			#listColAll#
-		  , #listColUtl#
-		FROM (SELECT
-				 #listColAllNVL2#
-				, CASE
-						WHEN src.rowid IS NOT NULL
-						AND trg.rowid  IS NULL
-						THEN ''I'' -- new row in src
-						WHEN src.rowid       IS NULL
-						AND trg.rowid        IS NOT NULL
-						AND trg.#dmlOpColumnName# <> ''D''
-						THEN ''D'' -- row was deleted in src
-						WHEN src.rowid      IS NOT NULL
-						AND trg.rowid       IS NOT NULL
-						AND trg.#dmlOpColumnName# = ''D''
-						THEN ''R'' -- row was deleted and now reappeared
-						WHEN src.rowid IS NOT NULL
-						AND trg.rowid  IS NOT NULL
-						AND (#updateClause#)
-						THEN ''U''
-						ELSE NULL -- nothing to be done
-					END AS #dmlOpColumnName#
-                  , trg.#validFromColumnName#
-                  , trg.#validToColumnName#
-				FROM #tableNameStage1# #tablePartitionStage1# src
-				#joinType# OUTER JOIN #tableNameStage2# #tablePartitionStage2# trg
-				ON	#listOnClause#)
-		WHERE
-			#dmlOpColumnName# IS NOT NULL;
-
+		l_n_stat_id := stag_stat.prc_stat_begin(''#sourceCode#'', ''#objectName#'', #partitionId#, ''DFIN'');
+      
+        #insertStatement#
+        
 		l_n_result := SQL%ROWCOUNT;
 
       COMMIT;
 
 	  stag_stat.prc_stat_end(l_n_stat_id, l_n_result);
 		
-      trac.log_sub_debug (l_vc_prc_name, ''DIFF INSERTED'', ''#tableNameDiff# : '' || l_n_result || '' rows inserted'');
+      trac.log_sub_debug (l_vc_prc_name, ''DIFF INSERTED'', ''#diffIdentifier# : '' || l_n_result || '' rows inserted'');
 ';
-   -- Diff token of the historicizing procedure - witouth nk
-   c_token_diff_without_nk        CLOB := '
-	    trac.log_sub_debug (l_vc_prc_name, ''DIFF BEGIN'', ''Insert into #tableNameDiff#'');
-
-		l_n_stat_id := stag_stat.prc_stat_begin(''#sourceCode#'', ''#objectName#'', #partition#, ''DIN'');
-		
-		INSERT
-		INTO #tableNameDiff# #tablePartitionStage2# (
-			#listColAll#
-		  , #listColUtl#)
-		SELECT
-			#listColAll#
-		  , #listColUtl#
-		FROM (SELECT #listColAll#
-             , #validFromColumnName#
-             , #validToColumnName#
-             , CASE
-                  WHEN cnt_in_src > 0
-                  AND cnt_in_dst = 0
-                     THEN ''I''                                                                                                                                                          -- new row in src
-                  WHEN cnt_in_src > 0
-                  AND cnt_in_dst > 0
-                  AND #dmlOpColumnName#_dst = ''D''
-                     THEN ''R''
-                  WHEN cnt_in_src = 0
-                  AND cnt_in_dst > 0
-                  AND #dmlOpColumnName#_dst <> ''D''
-                     THEN ''D''
-                  ELSE NULL
-               END AS #dmlOpColumnName#
-          FROM (SELECT   #listColAll#
-                       , MAX (#validFromColumnName#) AS #validFromColumnName#
-                       , MAX (#validToColumnName#) AS #validToColumnName#
-                       , MAX (#dmlOpColumnName#_dst) AS #dmlOpColumnName#_dst
-                       , COUNT (rowid_src) AS cnt_in_src
-                       , COUNT (rowid_dst) AS cnt_in_dst
-                    FROM (SELECT #listColAll#
-                               , NULL AS #validFromColumnName#
-                               , NULL AS #validToColumnName#
-                               , NULL AS #dmlOpColumnName#_dst
-                               , ROWID AS rowid_src
-                               , NULL AS rowid_dst
-                            FROM #tableNameStage1# #tablePartitionStage1#
-                          UNION ALL
-                          SELECT #listColAll#
-                               , #validFromColumnName#
-                               , #validToColumnName#
-                               , #dmlOpColumnName# AS #dmlOpColumnName#_dst
-                               , NULL AS rowid_src
-                               , ROWID AS rowid_dst
-                            FROM #tableNameStage2# #tablePartitionStage2#)
-                GROUP BY #listColAll#))
-		WHERE
-			#dmlOpColumnName# #operationClause#;
-
-		l_n_result := SQL%ROWCOUNT;
-
-      COMMIT;
-
-		stag_stat.prc_stat_end(l_n_stat_id, l_n_result);
-		
-        trac.log_sub_debug (l_vc_prc_name, ''DIFF INSERTED'', ''#tableNameDiff# : '' || l_n_result || '' rows inserted'');
-';
-   c_token_diff_stats             CLOB := '
-        l_n_stat_id := stag_stat.prc_stat_begin(''#sourceCode#'', ''#objectName#'', NULL, ''DAN'');
-
-        DBMS_STATS.UNLOCK_TABLE_STATS (''#stgOwner#'', ''#tableNameDiff#'') ;
-        DBMS_STATS.GATHER_TABLE_STATS (''#stgOwner#'', ''#tableNameDiff#'', NULL, 1);
-        stag_stat.prc_size_store(''#sourceCode#'', ''#sourceTable#'', ''#tableNameDiff#'');
-
-        stag_stat.prc_stat_end(l_n_stat_id, 0);
-
-        trac.log_sub_debug (l_vc_prc_name, ''DIFF ANALYZED'', ''#tableNameDiff# : Statistics gathered'');
-        ';
    -- Merge token of the historicizing procedure - 2 separate statement
    c_token_hist_reconcile         CLOB := '
         #enableParallelDML#
 		
 		-- Update Stage2 table
 		
-		 trac.log_sub_debug (l_vc_prc_name, ''STG2 UPDATE'', ''Update #tableNameStage2#'');
-		l_n_stat_id := stag_stat.prc_stat_begin(''#sourceCode#'', ''#objectName#'', #partition#, ''HUP'');
+		trac.log_sub_debug (l_vc_prc_name, ''HIST UPDATE'', ''Update #histTableName#'');
+		l_n_stat_id := stag_stat.prc_stat_begin(''#sourceCode#'', ''#objectName#'', #partitionId#, ''HSUP'');
 
-      MERGE /*+APPEND*/
-		 INTO #tableNameStage2# trg
-      USING
-			(SELECT DECODE (#dmlOpColumnName#, ''R'', ''U'', #dmlOpColumnName#) AS #dmlOpColumnName#
-					, #listColAll#
-				FROM #tableNameDiff# #tablePartitionStage2#
-			  WHERE #dmlOpColumnName# IN (''U'', ''R'', ''D'')) src
-				  ON (#listOnClause#)
-		WHEN MATCHED THEN
-			 UPDATE
-				 SET #matchedClause#
-					  trg.#dmlOpColumnName# = src.#dmlOpColumnName#
-					, trg.#validFromColumnName# = SYSDATE;
+        #updateStatement#
 
 		l_n_result := SQL%ROWCOUNT;
 
 		stag_stat.prc_stat_end(l_n_stat_id, l_n_result);
 
-      COMMIT;
+        COMMIT;
 		
-        trac.log_sub_debug (l_vc_prc_name, ''STG2 UPDATED'', ''#tableNameStage2# : '' || l_n_result || '' rows updated'');
+        trac.log_sub_debug (l_vc_prc_name, ''HIST UPDATED'', ''#histTableName# : '' || l_n_result || '' rows updated'');
 		
 		-- Insert into Stage2 table
 		
-        trac.log_sub_debug (l_vc_prc_name, ''STG2 INSERT'', ''#tableNameStage2# : Insert'');
+        trac.log_sub_debug (l_vc_prc_name, ''HIST INSERT'', ''#histTableName# : Insert'');
 
-	  l_n_stat_id := stag_stat.prc_stat_begin(''#sourceCode#'', ''#objectName#'', #partition#, ''HIN'');
+	    l_n_stat_id := stag_stat.prc_stat_begin(''#sourceCode#'', ''#objectName#'', #partitionId#, ''HSIN'');
+        
+        #insertStatement#
 
-	  INSERT /*+APPEND*/ INTO #tableNameStage2# #tablePartitionStage2# trg (
-											#listColTarget#
-										  , #listColUtl#)
-							  SELECT #listColSource#
-								   , #listValUtl#
-								FROM #tableNameDiff# #tablePartitionStage2# src
-							   WHERE #dmlOpColumnName# = ''I'';
+        l_n_result := SQL%ROWCOUNT;
 
-      l_n_result := SQL%ROWCOUNT;
+        stag_stat.prc_stat_end(l_n_stat_id, l_n_result);
 
-      stag_stat.prc_stat_end(l_n_stat_id, l_n_result);
+	    COMMIT;
 
-	  COMMIT;
-
-        trac.log_sub_debug (l_vc_prc_name, ''DIFF END'', ''#tableNameStage2# : '' || l_n_result || '' rows inserted'');';
-   c_token_hist_stats             CLOB := '
-        l_n_stat_id := stag_stat.prc_stat_begin(''#sourceCode#'', ''#objectName#'', NULL, ''HAN'');
-
-		DBMS_STATS.UNLOCK_TABLE_STATS (''#stgOwner#'', ''#tableNameStage2#'') ;
-		DBMS_STATS.GATHER_TABLE_STATS (''#stgOwner#'', ''#tableNameStage2#'', NULL, 1);
-		stag_stat.prc_size_store(''#sourceCode#'', ''#sourceTable#'', ''#tableNameStage2#'');
-
-		stag_stat.prc_stat_end(l_n_stat_id, 0);
-
-		  trac.log_sub_debug (l_vc_prc_name, ''STAT END'', ''#tableNameStage2# : Statistics gathered'');
-		';
+        trac.log_sub_debug (l_vc_prc_name, ''HIST END'', ''#histTableName# : '' || l_n_result || '' rows inserted'');';
    -- Buffers
    l_buffer_pkg_head              CLOB;
    l_buffer_pkg_body              CLOB;
@@ -416,15 +235,29 @@ AS
    l_vc_ini_anonymized            TYPE.vc_max_plsql;
    l_vc_viw_anonymized            TYPE.vc_max_plsql;
 
-   FUNCTION fct_get_identifier (
-      p_vc_dblink         VARCHAR2
-    , p_vc_schema_name    VARCHAR2
-    , p_vc_object_name    VARCHAR2
-   )
+   FUNCTION fct_get_partition_db (p_vc_db_identifier VARCHAR2)
       RETURN VARCHAR2
    IS
    BEGIN
-      RETURN NULL;
+      RETURN    CHR (10)
+             || ' PARTITION '
+             || stag_param.c_vc_prefix_partition
+             || '_'
+             || p_vc_db_identifier
+             || ' VALUES ('''
+             || p_vc_db_identifier
+             || ''') NOLOGGING COMPRESS';
+   END;
+
+   FUNCTION fct_get_partition_expr
+      RETURN VARCHAR2
+   IS
+   BEGIN
+      RETURN    ' CASE WHEN TRIM( TRANSLATE ('
+             || g_vc_partition_expr
+             || ',''0123456789'',''          '')) IS NULL THEN TO_NUMBER('
+             || g_vc_partition_expr
+             || ') ELSE 0 END';
    END;
 
    PROCEDURE prc_set_utl_columns (p_vc_code_string IN OUT CLOB)
@@ -763,7 +596,7 @@ AS
             WHEN g_l_distr_code.COUNT > 1 THEN
                   c_token_utl_coldef_source_db
                || ','
-            WHEN g_vc_partition_clause IS NOT NULL THEN
+            WHEN g_vc_partition_expr IS NOT NULL THEN
                   c_token_utl_coldef_partition
                || ','
          END;
@@ -811,25 +644,21 @@ AS
 
             l_sql_create :=
                   l_sql_create
-               || CHR (10)
-               || ' PARTITION P_'
-               || g_l_distr_code (i)
-               || ' VALUES ('''
-               || g_l_distr_code (i)
-               || ''') NOLOGGING COMPRESS';
+               || fct_get_partition_db (g_l_distr_code (i));
          END LOOP;
 
          l_sql_create :=
                l_sql_create
             || CHR (10)
             || ')';
-      ELSIF g_vc_partition_clause IS NOT NULL THEN
+      ELSIF g_vc_partition_expr IS NOT NULL THEN
          l_sql_create :=
                l_sql_create
             || CHR (10)
             || c_token_partition;
       END IF;
 
+      prc_set_utl_columns (l_sql_create);
       prc_store_ddl (
          'TABLE'
        , g_vc_table_name_stage
@@ -1032,7 +861,7 @@ AS
             WHEN g_l_distr_code.COUNT > 1 THEN
                   c_token_utl_coldef_source_db
                || ','
-            WHEN g_vc_partition_clause IS NOT NULL THEN
+            WHEN g_vc_partition_expr IS NOT NULL THEN
                   c_token_utl_coldef_partition
                || ','
          END;
@@ -1080,25 +909,21 @@ AS
 
             l_sql_create :=
                   l_sql_create
-               || CHR (10)
-               || 'PARTITION P_'
-               || g_l_distr_code (i)
-               || ' VALUES ('''
-               || g_l_distr_code (i)
-               || ''') NOLOGGING COMPRESS';
+               || fct_get_partition_db (g_l_distr_code (i));
          END LOOP;
 
          l_sql_create :=
                l_sql_create
             || CHR (10)
             || ')';
-      ELSIF g_vc_partition_clause IS NOT NULL THEN
+      ELSIF g_vc_partition_expr IS NOT NULL THEN
          l_sql_create :=
                l_sql_create
             || CHR (10)
             || c_token_partition;
       END IF;
 
+      prc_set_utl_columns (l_sql_create);
       prc_store_ddl (
          'TABLE'
        , g_vc_table_name_dupl
@@ -1171,7 +996,7 @@ AS
                WHEN g_l_distr_code.COUNT > 1 THEN
                      c_token_utl_coldef_source_db
                   || ','
-               WHEN g_vc_partition_clause IS NOT NULL THEN
+               WHEN g_vc_partition_expr IS NOT NULL THEN
                      c_token_utl_coldef_partition
                   || ','
             END;
@@ -1196,7 +1021,7 @@ AS
        , 'storageClause'
        ,    'NOLOGGING '
          || CASE
-               WHEN g_vc_partition_clause IS NOT NULL THEN
+               WHEN g_vc_partition_expr IS NOT NULL THEN
                   c_token_diff_subpartition
                ELSE
                   c_token_diff_partition
@@ -1334,7 +1159,7 @@ AS
                WHEN g_l_distr_code.COUNT > 1 THEN
                      c_token_utl_coldef_source_db
                   || ','
-               WHEN g_vc_partition_clause IS NOT NULL THEN
+               WHEN g_vc_partition_expr IS NOT NULL THEN
                      c_token_utl_coldef_partition
                   || ','
             END;
@@ -1366,7 +1191,7 @@ AS
             END
       );
 
-      IF g_vc_partition_clause IS NOT NULL THEN
+      IF g_vc_partition_expr IS NOT NULL THEN
          l_sql_create :=
                l_sql_create
             || CHR (10)
@@ -1831,7 +1656,7 @@ AS
    IS
       l_vc_prc_name      TYPE.vc_max_plsql := 'prc_create_prc_trunc_stage';
       l_vc_message       VARCHAR2 (32000)
-                            :=    'Procedure Trunc stage1 '
+                            :=    'Procedure Trunc Stage table'
                                || g_vc_package_main;
       l_sql_prc          CLOB;
       l_sql_prc_token    CLOB;
@@ -1935,7 +1760,7 @@ AS
    IS
       l_vc_prc_name      TYPE.vc_max_plsql := 'prc_create_prc_trunc_diff';
       l_vc_message       VARCHAR2 (32000)
-                            :=    'Procedure Trunc diff '
+                            :=    'Procedure Trunc diff table'
                                || g_vc_package_main;
       l_sql_prc          CLOB;
       l_sql_prc_token    CLOB;
@@ -2021,17 +1846,19 @@ AS
 
    PROCEDURE prc_create_prc_init (p_b_raise_flag BOOLEAN DEFAULT FALSE)
    IS
-      l_vc_prc_name      TYPE.vc_max_plsql := 'prc_create_prc_init';
-      l_vc_message       VARCHAR2 (32000)
-                            :=    'Procedure load init '
-                               || g_vc_package_main;
-      l_sql_prc          CLOB;
-      l_sql_prc_token    CLOB;
-      l_sql_prc_buffer   CLOB;
+      l_vc_prc_name         TYPE.vc_max_plsql := 'prc_create_prc_init';
+      l_vc_message          VARCHAR2 (32000)
+                               :=    'Procedure load init'
+                                  || g_vc_package_main;
+      l_sql_prc             CLOB;
+      l_sql_prc_token       CLOB;
+      l_sql_prc_buffer      CLOB;
       -- List of columns
-      l_vc_col_all       TYPE.vc_max_plsql;
-      l_list_utl_col     TYPE.vc_max_plsql;
-      l_list_utl_val     TYPE.vc_max_plsql;
+      l_vc_col_all          TYPE.vc_max_plsql;
+      l_list_utl_col        TYPE.vc_max_plsql;
+      l_list_utl_val        TYPE.vc_max_plsql;
+      l_list_utl_col_dupl   TYPE.vc_max_plsql;
+      l_list_utl_val_dupl   TYPE.vc_max_plsql;
    BEGIN
       l_vc_col_anonymized := '';
       l_vc_fct_anonymized := '';
@@ -2042,17 +1869,20 @@ AS
       );
       --
       -- Set utl columns strings
+      l_list_utl_col_dupl :=
+         CASE
+            WHEN g_l_distr_code.COUNT > 1 THEN
+                  c_token_utl_column_source_db
+               || ','
+            WHEN g_vc_partition_expr IS NOT NULL THEN
+                  c_token_utl_column_partition
+               || ','
+         END;
+      prc_set_utl_columns (l_list_utl_col_dupl);
       l_list_utl_col :=
             c_token_utl_column_hist
          || ','
-         || CASE
-               WHEN g_l_distr_code.COUNT > 1 THEN
-                     c_token_utl_column_source_db
-                  || ','
-               WHEN g_vc_partition_clause IS NOT NULL THEN
-                     c_token_utl_column_partition
-                  || ','
-            END;
+         || l_list_utl_col_dupl;
       prc_set_utl_columns (l_list_utl_col);
       --
       -- Get lists of columns
@@ -2074,7 +1904,7 @@ AS
       ddls.prc_set_text_param (
          l_sql_prc
        , 'prcName'
-       , 'prc_load_init'
+       , stag_param.c_vc_procedure_load_init
       );
       ddls.prc_set_text_param (
          l_sql_prc
@@ -2115,8 +1945,22 @@ AS
             || l_sql_prc_token;
       END IF;
 
-      -- Fill stage table for each source db
+      -- Fill stage hist for each source db
       FOR i IN g_l_distr_code.FIRST .. g_l_distr_code.LAST LOOP
+         l_sql_prc_token := c_token_stage_insert;
+         --
+         -- Values for the utility columns
+         l_list_utl_val_dupl :=
+            CASE
+               WHEN g_l_distr_code.COUNT > 1 THEN
+                     ''''
+                  || g_l_distr_code (i)
+                  || ''', '
+               WHEN g_vc_partition_expr IS NOT NULL THEN
+                     fct_get_partition_expr
+                  || ','
+            END;
+
          IF g_n_source_nk_flag = 0
         AND g_vc_col_pk_src IS NOT NULL THEN
             l_vc_col_pk_notnull :=
@@ -2125,126 +1969,93 @@ AS
                 , 'PK'
                 , 'AND_NOTNULL'
                );
-            l_sql_prc_token := c_token_stage_dedupl;
             ddls.prc_set_text_param (
                l_sql_prc_token
-             , 'tableNameDupl'
+             , 'insertStatement'
+             , stmt.c_sql_insert_dedupl
+            );
+            ddls.prc_set_text_param (
+               l_sql_prc_token
+             , 'duplIdentifier'
              , g_vc_table_name_dupl
             );
             ddls.prc_set_text_param (
                l_sql_prc_token
-             , 'notNullClause'
-             , l_vc_col_pk_notnull
+             , 'pkColumnList'
+             , g_vc_col_pk_src
             );
             ddls.prc_set_text_param (
                l_sql_prc_token
              , 'deduplRankClause'
              , g_vc_dedupl_rank_clause
             );
+            ddls.prc_set_text_param (
+               l_sql_prc_token
+             , 'utlColumnListForDupl'
+             , l_list_utl_col_dupl
+            );
+            ddls.prc_set_text_param (
+               l_sql_prc_token
+             , 'utlValueListForDupl'
+             , l_list_utl_val_dupl
+            );
+            ddls.prc_set_text_param (
+               l_sql_prc_token
+             , 'notNullClause'
+             , l_vc_col_pk_notnull
+            );
          ELSE
-            l_sql_prc_token := c_token_stage_insert;
+            ddls.prc_set_text_param (
+               l_sql_prc_token
+             , 'insertStatement'
+             , stmt.c_sql_insert_copy
+            );
          END IF;
 
-         --
-         -- Values for the utility columns
          l_list_utl_val :=
                c_token_utl_colval_hist
-            || CASE
-                  WHEN g_l_distr_code.COUNT > 1 THEN
-                        ''''
-                     || g_l_distr_code (i)
-                     || ''', '
-                  WHEN g_vc_partition_clause IS NOT NULL THEN
-                        ' CASE WHEN TRIM( TRANSLATE ('
-                     || g_vc_partition_clause
-                     || ',''0123456789'',''          '')) IS NULL THEN TO_NUMBER('
-                     || g_vc_partition_clause
-                     || ') ELSE 0 END, '
-               END;
+            || ','
+            || l_list_utl_val_dupl;
          -- There is no optional incremental retrieval (this is an init procedure)
          ddls.prc_set_text_param (
             l_sql_prc_token
           , 'computeIncrementBound'
           , NULL
          );
-         ddls.prc_set_text_param (
+         --
+         --
+         stmt.prc_set_text_param (
             l_sql_prc_token
-          , 'dblink'
-          , CASE
-               WHEN g_l_dblink (i) IS NOT NULL THEN
-                     '@'
-                  || g_l_dblink (i)
-            END
-         );
-         ddls.prc_set_text_param (
-            l_sql_prc_token
-          , 'owner'
-          ,    g_l_owner_src (i)
-            || '.'
-         );
-         ddls.prc_set_text_param (
-            l_sql_prc_token
-          , 'tableName'
+          , 'targetIdentifier'
           , g_vc_table_name_hist
          );
-         ddls.prc_set_text_param (
+         stmt.prc_set_text_param (
             l_sql_prc_token
-          , 'tablePartition'
-          , NULL
+          , 'sourceIdentifier'
+          , g_vc_source_identifier
          );
          ddls.prc_set_text_param (
             l_sql_prc_token
-          , 'listColAllTrg'
-          ,    l_vc_col_all
-            || CHR (10)
-            || l_vc_col_anonymized
+          , 'sourceColumnList'
+          , g_vc_col_all
          );
          ddls.prc_set_text_param (
             l_sql_prc_token
-          , 'listColAllSrc'
-          ,    l_vc_col_all
-            || CHR (10)
-            || l_vc_fct_anonymized
+          , 'targetColumnList'
+          , g_vc_col_all
          );
          ddls.prc_set_text_param (
             l_sql_prc_token
-          , 'listColDupl'
-          , l_vc_col_dupl
-         );
-         ddls.prc_set_text_param (
-            l_sql_prc_token
-          , 'listColPk'
-          , g_vc_col_pk_src
-         );
-         ddls.prc_set_text_param (
-            l_sql_prc_token
-          , 'listColUtl'
+          , 'utlColumnList'
           , l_list_utl_col
          );
          ddls.prc_set_text_param (
             l_sql_prc_token
-          , 'listValUtl'
-          ,    l_list_utl_val
-            || ', '
+          , 'utlValueList'
+          , l_list_utl_val
          );
-         ddls.prc_set_text_param (
-            l_sql_prc_token
-          , 'partitionId'
-          , CASE
-               WHEN g_l_distr_code.COUNT > 1 THEN
-                  g_l_distr_code (i)
-            END
-         );
-         ddls.prc_set_text_param (
-            l_sql_prc_token
-          , 'partition'
-          , CASE
-               WHEN g_l_distr_code.COUNT > 1 THEN
-                  TRIM (TO_CHAR (i))
-               ELSE
-                  'NULL'
-            END
-         );
+         --
+         --
          ddls.prc_set_text_param (
             l_sql_prc_token
           , 'filterClause'
@@ -2254,13 +2065,40 @@ AS
                   || g_vc_filter_clause
             END
          );
+         ddls.prc_set_text_param (
+            l_sql_prc_token
+          , 'partition'
+          , CASE
+               WHEN g_l_distr_code.COUNT > 1 THEN
+                     'PARTITION ('
+                  || stag_param.c_vc_prefix_partition
+                  || '_'
+                  || g_l_distr_code (i)
+                  || ')'
+            END
+         );
+         ddls.prc_set_text_param (
+            l_sql_prc_token
+          , 'partitionId'
+          , CASE
+               WHEN g_l_distr_code.COUNT > 1 THEN
+                  TRIM (TO_CHAR (i))
+               ELSE
+                  'NULL'
+            END
+         );
          l_sql_prc_buffer :=
                l_sql_prc_buffer
             || CHR (10)
             || l_sql_prc_token;
       END LOOP;
 
-      l_sql_prc_token := c_token_stage_stats;
+      l_sql_prc_token := c_token_analyze;
+      ddls.prc_set_text_param (
+         l_sql_prc_token
+       , 'statisticsType'
+       , 'HSAN'
+      );
       ddls.prc_set_text_param (
          l_sql_prc_token
        , 'tableName'
@@ -2284,7 +2122,12 @@ AS
       IF g_n_source_nk_flag = 0
      AND g_vc_col_pk_src IS NOT NULL THEN
          -- Truncate duplicates table
-         l_sql_prc_token := c_token_stage_dupl_stats;
+         l_sql_prc_token := c_token_analyze;
+         ddls.prc_set_text_param (
+            l_sql_prc_token
+          , 'statisticsType'
+          , 'DUAN'
+         );
          ddls.prc_set_text_param (
             l_sql_prc_token
           , 'tableName'
@@ -2356,7 +2199,7 @@ AS
       ddls.prc_set_text_param (
          l_sql_prc
        , 'prcName'
-       , 'prc_load_init'
+       , stag_param.c_vc_procedure_load_init
       );
       l_buffer_pkg_body :=
             l_buffer_pkg_body
@@ -2391,7 +2234,7 @@ AS
             WHEN g_l_distr_code.COUNT > 1 THEN
                   c_token_utl_column_source_db
                || ','
-            WHEN g_vc_partition_clause IS NOT NULL THEN
+            WHEN g_vc_partition_expr IS NOT NULL THEN
                   c_token_utl_column_partition
                || ','
          END;
@@ -2444,37 +2287,10 @@ AS
             || l_sql_prc_token;
       END IF;
 
+      -- Fill stage table for each source db
       -- Fill stage for each source db
       FOR i IN g_l_distr_code.FIRST .. g_l_distr_code.LAST LOOP
-         IF g_n_source_nk_flag = 0
-        AND g_vc_col_pk_src IS NOT NULL THEN
-            l_vc_col_pk_notnull :=
-               stag_meta.fct_get_column_list (
-                  g_n_object_id
-                , 'PK'
-                , 'AND_NOTNULL'
-               );
-            l_sql_prc_token := c_token_stage_dedupl;
-            ddls.prc_set_text_param (
-               l_sql_prc_token
-             , 'tableNameDupl'
-             , g_vc_table_name_dupl
-            );
-            ddls.prc_set_text_param (
-               l_sql_prc_token
-             , 'notNullClause'
-             , l_vc_col_pk_notnull
-            );
-            ddls.prc_set_text_param (
-               l_sql_prc_token
-             , 'deduplRankClause'
-             , g_vc_dedupl_rank_clause
-            );
-         ELSE
-            -- If no deduplication is needed use normal insert statement
-            l_sql_prc_token := c_token_stage_insert;
-         END IF;
-
+         l_sql_prc_token := c_token_stage_insert;
          --
          -- Values for the utility columns
          l_list_utl_val :=
@@ -2483,13 +2299,62 @@ AS
                      ''''
                   || g_l_distr_code (i)
                   || ''', '
-               WHEN g_vc_partition_clause IS NOT NULL THEN
-                     ' CASE WHEN TRIM( TRANSLATE ('
-                  || g_vc_partition_clause
-                  || ',''0123456789'',''          '')) IS NULL THEN TO_NUMBER('
-                  || g_vc_partition_clause
-                  || ') ELSE 0 END, '
+               WHEN g_vc_partition_expr IS NOT NULL THEN
+                     fct_get_partition_expr
+                  || ', '
             END;
+
+         IF g_n_source_nk_flag = 0
+        AND g_vc_col_pk_src IS NOT NULL THEN
+            l_vc_col_pk_notnull :=
+               stag_meta.fct_get_column_list (
+                  g_n_object_id
+                , 'PK'
+                , 'AND_NOTNULL'
+               );
+            ddls.prc_set_text_param (
+               l_sql_prc_token
+             , 'insertStatement'
+             , stmt.c_sql_insert_dedupl
+            );
+            ddls.prc_set_text_param (
+               l_sql_prc_token
+             , 'duplIdentifier'
+             , g_vc_table_name_dupl
+            );
+            ddls.prc_set_text_param (
+               l_sql_prc_token
+             , 'pkColumnList'
+             , g_vc_col_pk_src
+            );
+            ddls.prc_set_text_param (
+               l_sql_prc_token
+             , 'deduplRankClause'
+             , g_vc_dedupl_rank_clause
+            );
+            ddls.prc_set_text_param (
+               l_sql_prc_token
+             , 'utlColumnListForDupl'
+             , l_list_utl_col
+            );
+            ddls.prc_set_text_param (
+               l_sql_prc_token
+             , 'utlValueListForDupl'
+             , l_list_utl_val
+            );
+            ddls.prc_set_text_param (
+               l_sql_prc_token
+             , 'notNullClause'
+             , l_vc_col_pk_notnull
+            );
+         ELSE
+            ddls.prc_set_text_param (
+               l_sql_prc_token
+             , 'insertStatement'
+             , stmt.c_sql_insert_copy
+            );
+         END IF;
+
          -- Add optional increment retrieval statement
          ddls.prc_set_text_param (
             l_sql_prc_token
@@ -2499,6 +2364,45 @@ AS
                   c_token_stage_get_incr_bound
             END
          );
+         --
+         --
+         ddls.prc_set_text_param (
+            l_sql_prc_token
+          , 'insertStatement'
+          , stmt.c_sql_insert_copy
+         );
+         stmt.prc_set_text_param (
+            l_sql_prc_token
+          , 'targetIdentifier'
+          , g_vc_table_name_stage
+         );
+         stmt.prc_set_text_param (
+            l_sql_prc_token
+          , 'sourceIdentifier'
+          , g_vc_source_identifier
+         );
+         ddls.prc_set_text_param (
+            l_sql_prc_token
+          , 'sourceColumnList'
+          , g_vc_col_all
+         );
+         ddls.prc_set_text_param (
+            l_sql_prc_token
+          , 'targetColumnList'
+          , g_vc_col_all
+         );
+         ddls.prc_set_text_param (
+            l_sql_prc_token
+          , 'utlColumnList'
+          , l_list_utl_col
+         );
+         ddls.prc_set_text_param (
+            l_sql_prc_token
+          , 'utlValueList'
+          , l_list_utl_val
+         );
+         --
+         --
          ddls.prc_set_text_param (
             l_sql_prc_token
           , 'incrementColumn'
@@ -2506,81 +2410,8 @@ AS
          );
          ddls.prc_set_text_param (
             l_sql_prc_token
-          , 'tableName'
-          , g_vc_table_name_stage
-         );
-         ddls.prc_set_text_param (
-            l_sql_prc_token
-          , 'tableNameStage2'
+          , 'histTableName'
           , g_vc_table_name_hist
-         );
-         ddls.prc_set_text_param (
-            l_sql_prc_token
-          , 'listColAllTrg'
-          , g_vc_col_all
-         );
-         ddls.prc_set_text_param (
-            l_sql_prc_token
-          , 'listColAllSrc'
-          , g_vc_col_all
-         );
-         ddls.prc_set_text_param (
-            l_sql_prc_token
-          , 'listColDupl'
-          , l_vc_col_dupl
-         );
-         ddls.prc_set_text_param (
-            l_sql_prc_token
-          , 'listColPk'
-          , g_vc_col_pk_src
-         );
-         ddls.prc_set_text_param (
-            l_sql_prc_token
-          , 'listColUtl'
-          , l_list_utl_col
-         );
-         ddls.prc_set_text_param (
-            l_sql_prc_token
-          , 'listValUtl'
-          , l_list_utl_val
-         );
-         ddls.prc_set_text_param (
-            l_sql_prc_token
-          , 'dblink'
-          , CASE
-               WHEN g_l_dblink (i) IS NOT NULL THEN
-                     '@'
-                  || g_l_dblink (i)
-            END
-         );
-         ddls.prc_set_text_param (
-            l_sql_prc_token
-          , 'owner'
-          ,    g_l_owner_src (i)
-            || '.'
-         );
-         ddls.prc_set_text_param (
-            l_sql_prc_token
-          , 'partitionId'
-          , CASE
-               WHEN g_l_distr_code.COUNT > 1 THEN
-                  g_l_distr_code (i)
-            END
-         );
-         ddls.prc_set_text_param (
-            l_sql_prc_token
-          , 'partition'
-          , CASE
-               WHEN g_l_distr_code.COUNT > 1 THEN
-                  TRIM (TO_CHAR (i))
-               ELSE
-                  'NULL'
-            END
-         );
-         ddls.prc_set_text_param (
-            l_sql_prc_token
-          , 'tablePartition'
-          , NULL
          );
          ddls.prc_set_text_param (
             l_sql_prc_token
@@ -2602,6 +2433,28 @@ AS
                      || ' > l_t_increment_bound - '
                      || NVL (g_n_increment_buffer, 0)
                END
+         );
+         ddls.prc_set_text_param (
+            l_sql_prc_token
+          , 'partition'
+          , CASE
+               WHEN g_l_distr_code.COUNT > 1 THEN
+                     'PARTITION ('
+                  || stag_param.c_vc_prefix_partition
+                  || '_'
+                  || g_l_distr_code (i)
+                  || ')'
+            END
+         );
+         ddls.prc_set_text_param (
+            l_sql_prc_token
+          , 'partitionId'
+          , CASE
+               WHEN g_l_distr_code.COUNT > 1 THEN
+                  TRIM (TO_CHAR (i))
+               ELSE
+                  'NULL'
+            END
          );
          l_sql_prc_buffer :=
                l_sql_prc_buffer
@@ -2701,7 +2554,7 @@ AS
             WHEN g_l_distr_code.COUNT > 1 THEN
                   c_token_utl_column_source_db
                || ','
-            WHEN g_vc_partition_clause IS NOT NULL THEN
+            WHEN g_vc_partition_expr IS NOT NULL THEN
                   c_token_utl_column_partition
                || ','
          END;
@@ -2731,7 +2584,7 @@ AS
                || CHR (10)
                || l_sql_prc;
          END LOOP;
-      ELSIF g_vc_partition_clause IS NOT NULL THEN
+      ELSIF g_vc_partition_expr IS NOT NULL THEN
          FOR i IN 0 .. 9 LOOP
             -- Stage1 procedure head
             l_sql_prc := ddls.c_template_prc_head;
@@ -2760,13 +2613,52 @@ AS
       IF g_l_distr_code.COUNT > 1 THEN
          l_n_iter_begin := g_l_dblink.FIRST;
          l_n_iter_end := g_l_dblink.LAST;
-      ELSIF g_vc_partition_clause IS NOT NULL THEN
+      ELSIF g_vc_partition_expr IS NOT NULL THEN
          l_n_iter_begin := 0;
          l_n_iter_end := 9;
       END IF;
 
       FOR i IN l_n_iter_begin .. l_n_iter_end LOOP
-         l_sql_prc_buffer := stmt.c_token_truncate_partition;
+         l_sql_prc_token := stmt.c_token_truncate_partition;
+         ddls.prc_set_text_param (
+            l_sql_prc_token
+          , 'tableName'
+          , g_vc_table_name_stage
+         );
+         ddls.prc_set_text_param (
+            l_sql_prc_token
+          , 'partition'
+          , CASE
+               WHEN g_l_distr_code.COUNT > 1 THEN
+                     'PARTITION ('
+                  || stag_param.c_vc_prefix_partition
+                  || '_'
+                  || g_l_distr_code (i)
+                  || ')'
+               WHEN g_vc_partition_expr IS NOT NULL THEN
+                     'PARTITION ('
+                  || stag_param.c_vc_prefix_partition
+                  || TO_CHAR (i)
+                  || ')'
+            END
+         );
+         -- Fill stage table for each source db
+         l_sql_prc_token :=
+               l_sql_prc_token
+            || CHR (10)
+            || c_token_stage_insert;
+         --
+         -- Values for the utility columns
+         l_list_utl_val :=
+            CASE
+               WHEN g_l_distr_code.COUNT > 1 THEN
+                     ''''
+                  || g_l_distr_code (i)
+                  || ''', '
+               WHEN g_vc_partition_expr IS NOT NULL THEN
+                     fct_get_partition_expr
+                  || ', '
+            END;
 
          IF g_n_source_nk_flag = 0
         AND g_vc_col_pk_src IS NOT NULL THEN
@@ -2776,171 +2668,157 @@ AS
                 , 'PK'
                 , 'AND_NOTNULL'
                );
-            l_sql_prc_buffer :=
-                  l_sql_prc_buffer
-               || CHR (10)
-               || c_token_stage_dedupl;
             ddls.prc_set_text_param (
-               l_sql_prc_buffer
-             , 'tableNameDupl'
+               l_sql_prc_token
+             , 'insertStatement'
+             , stmt.c_sql_insert_dedupl
+            );
+            ddls.prc_set_text_param (
+               l_sql_prc_token
+             , 'duplIdentifier'
              , g_vc_table_name_dupl
             );
             ddls.prc_set_text_param (
-               l_sql_prc_buffer
-             , 'notNullClause'
-             , l_vc_col_pk_notnull
+               l_sql_prc_token
+             , 'pkColumnList'
+             , g_vc_col_pk_src
             );
             ddls.prc_set_text_param (
-               l_sql_prc_buffer
+               l_sql_prc_token
              , 'deduplRankClause'
              , g_vc_dedupl_rank_clause
             );
+            ddls.prc_set_text_param (
+               l_sql_prc_token
+             , 'utlColumnListForDupl'
+             , l_list_utl_col
+            );
+            ddls.prc_set_text_param (
+               l_sql_prc_token
+             , 'utlValueListForDupl'
+             , l_list_utl_val
+            );
+            ddls.prc_set_text_param (
+               l_sql_prc_token
+             , 'notNullClause'
+             , l_vc_col_pk_notnull
+            );
          ELSE
-            l_sql_prc_buffer :=
-                  l_sql_prc_buffer
-               || CHR (10)
-               || c_token_stage_insert;
+            ddls.prc_set_text_param (
+               l_sql_prc_token
+             , 'insertStatement'
+             , stmt.c_sql_insert_copy
+            );
          END IF;
 
-         --
-         -- Values for the utility columns
-         l_list_utl_val :=
-            CASE
-               WHEN g_l_distr_code.COUNT > 1 THEN
-                     ''''
-                  || g_l_distr_code (i)
-                  || ''', '
-               WHEN g_vc_partition_clause IS NOT NULL THEN
-                     ' CASE WHEN TRIM( TRANSLATE ('
-                  || g_vc_partition_clause
-                  || ',''0123456789'',''          '')) IS NULL THEN TO_NUMBER('
-                  || g_vc_partition_clause
-                  || ') ELSE 0 END, '
-            END;
          -- Add optional increment retrieval statement
          ddls.prc_set_text_param (
-            l_sql_prc_buffer
+            l_sql_prc_token
           , 'computeIncrementBound'
           , CASE
                WHEN g_vc_increment_column IS NOT NULL THEN
                   c_token_stage_get_incr_bound
             END
          );
+         --
+         --
+         g_vc_source_identifier :=
+            CASE
+               WHEN g_l_dblink.COUNT = 1 THEN
+                  CASE
+                     WHEN g_l_dblink (1) IS NULL
+                      AND g_l_owner_src (1) = g_vc_owner_stg THEN
+                        g_vc_table_name_source
+                     ELSE
+                           CASE
+                              WHEN g_l_owner_src (1) IS NOT NULL THEN
+                                    g_l_owner_src (1)
+                                 || '.'
+                           END
+                        || g_vc_table_name_source
+                        || CASE
+                              WHEN g_l_dblink (1) IS NOT NULL THEN
+                                    '@'
+                                 || g_l_dblink (1)
+                           END
+                  END
+               ELSE
+                  CASE
+                     WHEN g_l_dblink (i) IS NULL
+                      AND g_l_owner_src (i) = g_vc_owner_stg THEN
+                        g_vc_table_name_source
+                     ELSE
+                        CASE
+                           WHEN g_l_owner_src (i) IS NOT NULL THEN
+                                 g_l_owner_src (i)
+                              || '.'
+                              || g_vc_table_name_source
+                              || CASE
+                                    WHEN g_l_dblink (i) IS NOT NULL THEN
+                                          '@'
+                                       || g_l_dblink (i)
+                                 END
+                        END
+                  END
+            END;
+         --
+         --
          ddls.prc_set_text_param (
-            l_sql_prc_buffer
+            l_sql_prc_token
+          , 'insertStatement'
+          , stmt.c_sql_insert_copy
+         );
+         stmt.prc_set_text_param (
+            l_sql_prc_token
+          , 'targetIdentifier'
+          , g_vc_table_name_stage
+         );
+         stmt.prc_set_text_param (
+            l_sql_prc_token
+          , 'sourceIdentifier'
+          , g_vc_source_identifier
+         );
+         ddls.prc_set_text_param (
+            l_sql_prc_token
+          , 'sourceColumnList'
+          , g_vc_col_all
+         );
+         ddls.prc_set_text_param (
+            l_sql_prc_token
+          , 'targetColumnList'
+          , g_vc_col_all
+         );
+         ddls.prc_set_text_param (
+            l_sql_prc_token
+          , 'utlColumnList'
+          , l_list_utl_col
+         );
+         ddls.prc_set_text_param (
+            l_sql_prc_token
+          , 'utlValueList'
+          , l_list_utl_val
+         );
+         --
+         --
+         ddls.prc_set_text_param (
+            l_sql_prc_token
           , 'incrementColumn'
           , g_vc_increment_column
          );
          ddls.prc_set_text_param (
-            l_sql_prc_buffer
-          , 'tableName'
-          , g_vc_table_name_stage
-         );
-         ddls.prc_set_text_param (
-            l_sql_prc_buffer
-          , 'listColAllTrg'
-          , g_vc_col_all
-         );
-         ddls.prc_set_text_param (
-            l_sql_prc_buffer
-          , 'listColAllSrc'
-          , g_vc_col_all
-         );
-         ddls.prc_set_text_param (
-            l_sql_prc_buffer
-          , 'listColDupl'
-          , l_vc_col_dupl
-         );
-         ddls.prc_set_text_param (
-            l_sql_prc_buffer
-          , 'listColPk'
-          , g_vc_col_pk_src
-         );
-         ddls.prc_set_text_param (
-            l_sql_prc_buffer
-          , 'listColUtl'
-          , l_list_utl_col
-         );
-         ddls.prc_set_text_param (
-            l_sql_prc_buffer
-          , 'listValUtl'
-          , l_list_utl_val
-         );
-         ddls.prc_set_text_param (
-            l_sql_prc_buffer
-          , 'dblink'
-          , CASE
-               WHEN g_l_distr_code.COUNT > 1
-                AND g_l_dblink (i) IS NOT NULL THEN
-                     '@'
-                  || g_l_dblink (i)
-               WHEN g_l_dblink.COUNT = 1
-                AND g_l_dblink (1) IS NOT NULL THEN
-                     '@'
-                  || g_l_dblink (1)
-            END
-         );
-         ddls.prc_set_text_param (
-            l_sql_prc_buffer
-          , 'owner'
-          ,    CASE
-                  WHEN g_l_distr_code.COUNT > 1 THEN
-                     g_l_owner_src (i)
-                  WHEN g_l_dblink.COUNT = 1 THEN
-                     g_l_owner_src (1)
-               END
-            || '.'
-         );
-         ddls.prc_set_text_param (
-            l_sql_prc_buffer
-          , 'partitionId'
-          , CASE
-               WHEN g_l_distr_code.COUNT > 1 THEN
-                  g_l_distr_code (i)
-               WHEN g_vc_partition_clause IS NOT NULL THEN
-                  TO_CHAR (i)
-            END
-         );
-         ddls.prc_set_text_param (
-            l_sql_prc_buffer
-          , 'partition'
-          , CASE
-               WHEN g_l_distr_code.COUNT > 1
-                 OR g_vc_partition_clause IS NOT NULL THEN
-                  TRIM (TO_CHAR (i))
-               ELSE
-                  'NULL'
-            END
-         );
-         ddls.prc_set_text_param (
-            l_sql_prc_buffer
-          , 'tablePartition'
-          ,    'PARTITION (p'
-            || CASE
-                  WHEN g_l_distr_code.COUNT > 1 THEN
-                        '_'
-                     || g_l_distr_code (i)
-                  ELSE
-                     TO_CHAR (i)
-               END
-            || ')'
-         );
-         ddls.prc_set_text_param (
-            l_sql_prc_buffer
+            l_sql_prc_token
           , 'filterClause'
           ,    CASE
-                  WHEN g_vc_partition_clause IS NOT NULL THEN
-                        ' WHERE CASE WHEN TRIM( TRANSLATE ('
-                     || g_vc_partition_clause
-                     || ',''0123456789'',''          '')) IS NULL THEN TO_NUMBER('
-                     || g_vc_partition_clause
-                     || ') ELSE 0 END = '
+                  WHEN g_vc_partition_expr IS NOT NULL THEN
+                        ' WHERE '
+                     || fct_get_partition_expr
+                     || ' = '
                      || i
                END
             || CASE
                   WHEN g_vc_filter_clause IS NOT NULL THEN
                         CASE
-                           WHEN g_vc_partition_clause IS NULL THEN
+                           WHEN g_vc_partition_expr IS NULL THEN
                               ' WHERE '
                            ELSE
                               ' AND '
@@ -2950,7 +2828,7 @@ AS
             || CASE
                   WHEN g_vc_increment_column IS NOT NULL THEN
                         CASE
-                           WHEN g_vc_partition_clause IS NULL
+                           WHEN g_vc_partition_expr IS NULL
                             AND g_vc_filter_clause IS NULL THEN
                               ' WHERE '
                            ELSE
@@ -2959,6 +2837,34 @@ AS
                      || g_vc_increment_column
                      || ' > l_t_increment_bound'
                END
+         );
+         ddls.prc_set_text_param (
+            l_sql_prc_token
+          , 'partition'
+          , CASE
+               WHEN g_l_distr_code.COUNT > 1 THEN
+                     'PARTITION ('
+                  || stag_param.c_vc_prefix_partition
+                  || '_'
+                  || g_l_distr_code (i)
+                  || ')'
+               WHEN g_vc_partition_expr IS NOT NULL THEN
+                     'PARTITION ('
+                  || stag_param.c_vc_prefix_partition
+                  || TO_CHAR (i)
+                  || ')'
+            END
+         );
+         ddls.prc_set_text_param (
+            l_sql_prc_token
+          , 'partitionId'
+          , CASE
+               WHEN g_l_distr_code.COUNT > 1
+                 OR g_vc_partition_expr IS NOT NULL THEN
+                  TRIM (TO_CHAR (i))
+               ELSE
+                  'NULL'
+            END
          );
          -- Put body in the generic prc template
          l_sql_prc := ddls.c_template_prc_body;
@@ -2995,7 +2901,7 @@ AS
          ddls.prc_set_text_param (
             l_sql_prc
           , 'prcBody'
-          , l_sql_prc_buffer
+          , l_sql_prc_token
          );
          ddls.prc_set_text_param (
             l_sql_prc
@@ -3039,39 +2945,36 @@ AS
 
    PROCEDURE prc_create_prc_load_diff (p_b_raise_flag BOOLEAN DEFAULT FALSE)
    IS
-      l_vc_prc_name          TYPE.vc_max_plsql := 'prc_create_prc_load_diff';
-      l_vc_message           VARCHAR2 (32000)
-                                :=    'Procedure load hist'
-                                   || g_vc_package_main;
-      l_sql_prc              CLOB;
-      l_sql_prc_token        CLOB;
-      l_sql_prc_token_iter   CLOB;
-      l_sql_prc_buffer       CLOB;
+      l_vc_prc_name         TYPE.vc_max_plsql := 'prc_create_prc_load_diff';
+      l_vc_message          VARCHAR2 (32000)
+                               :=    'Procedure load hist'
+                                  || g_vc_package_main;
+      l_sql_prc             CLOB;
+      l_sql_prc_token       CLOB;
+      l_sql_prc_buffer      CLOB;
+      --
+      l_n_iter_begin        NUMBER;
+      l_n_iter_end          NUMBER;
       -- List of columns
-      l_vc_col_all           TYPE.vc_max_plsql;
-      l_vc_col_pk_2          TYPE.vc_max_plsql;
-      l_vc_clause_on         TYPE.vc_max_plsql;
-      l_vc_upd_clause_set    TYPE.vc_max_plsql;
-      l_vc_clause_update     TYPE.vc_max_plsql;
-      l_vc_col_nvl2          TYPE.vc_max_plsql;
+      l_vc_col_all          TYPE.vc_max_plsql;
+      l_vc_col_pk_hist      TYPE.vc_max_plsql;
+      l_vc_clause_on        TYPE.vc_max_plsql;
+      l_vc_upd_clause_set   TYPE.vc_max_plsql;
+      l_vc_clause_update    TYPE.vc_max_plsql;
+      l_vc_col_nvl2         TYPE.vc_max_plsql;
       -- Utl columns
-      l_list_utl_col         TYPE.vc_max_plsql;
-      l_list_utl_val         TYPE.vc_max_plsql;
+      l_list_utl_col        TYPE.vc_max_plsql;
+      l_list_utl_val        TYPE.vc_max_plsql;
    BEGIN
       trac.log_info (
          l_vc_message
        , 'Begin'
       );
-      -- Set anonymizad column lists
-      l_vc_set_anonymized := '';
-      l_vc_col_anonymized := '';
-      l_vc_fct_anonymized := '';
-      -- ANONYMIZATION prc_set_anonymized_columns;
       --
       -- Set utl columns strings
       l_list_utl_col := c_token_utl_column_hist;
       -- Get list of pk columns of the History Table
-      l_vc_col_pk_2 :=
+      l_vc_col_pk_hist :=
          dict.fct_get_column_list (
             NULL
           , g_vc_owner_stg
@@ -3128,16 +3031,16 @@ AS
           , 'LIST_SIMPLE'
          );                                                                                                                                                                -- In case the pk of stage 1 and History Tables is not the same, write a warning log
 
-      IF g_vc_col_pk = l_vc_col_pk_2
+      IF g_vc_col_pk = l_vc_col_pk_hist
       OR (g_vc_col_pk IS NULL
-      AND l_vc_col_pk_2 IS NULL) THEN
+      AND l_vc_col_pk_hist IS NULL) THEN
          trac.log_info (
                'Source '
             || g_vc_source_code
             || ', Object '
             || g_vc_table_name_source
             || ' : Stage and hist table have the same Natural Keys'
-          , 'CHECK PK'
+          , 'CHECK NK'
          );
       ELSE
          trac.log_info (
@@ -3150,7 +3053,18 @@ AS
          );
       END IF;
 
-      l_sql_prc_token := c_token_stage_stats;
+      -- analyze stage table
+      l_sql_prc_token := c_token_analyze;
+      ddls.prc_set_text_param (
+         l_sql_prc_token
+       , 'statisticsType'
+       , 'STAN'
+      );
+      ddls.prc_set_text_param (
+         l_sql_prc_token
+       , 'stgOwner'
+       , g_vc_owner_stg
+      );
       ddls.prc_set_text_param (
          l_sql_prc_token
        , 'tableName'
@@ -3166,7 +3080,17 @@ AS
       IF g_n_source_nk_flag = 0
      AND g_vc_col_pk_src IS NOT NULL THEN
          -- Analyse duplicates table
-         l_sql_prc_token := c_token_stage_dupl_stats;
+         l_sql_prc_token := c_token_analyze;
+         ddls.prc_set_text_param (
+            l_sql_prc_token
+          , 'statisticsType'
+          , 'DUAN'
+         );
+         ddls.prc_set_text_param (
+            l_sql_prc_token
+          , 'stgOwner'
+          , g_vc_owner_stg
+         );
          ddls.prc_set_text_param (
             l_sql_prc_token
           , 'tableName'
@@ -3183,11 +3107,31 @@ AS
             || l_sql_prc_token;
       END IF;
 
-      -- Check stage2 table and truncate diff
+      -- Check hist/stage nk differences and truncate diff table
       l_sql_prc_buffer :=
             l_sql_prc_buffer
          || CHR (10)
          || c_token_check_nk_equal;
+      ddls.prc_set_text_param (
+         l_sql_prc_buffer
+       , 'stgOwner'
+       , g_vc_owner_stg
+      );
+      ddls.prc_set_text_param (
+         l_sql_prc_buffer
+       , 'stageTableName'
+       , g_vc_table_name_stage
+      );
+      ddls.prc_set_text_param (
+         l_sql_prc_buffer
+       , 'diffTableName'
+       , g_vc_table_name_stage
+      );
+      ddls.prc_set_text_param (
+         l_sql_prc_buffer
+       , 'histTableName'
+       , g_vc_table_name_stage
+      );
 
       IF g_n_source_nk_flag = 0
      AND g_vc_col_pk_src IS NULL THEN
@@ -3218,18 +3162,6 @@ AS
              , 'trg'
              , 'src'
             );
-         l_vc_upd_clause_set :=
-            dict.fct_get_column_subset (
-               NULL
-             , g_vc_owner_stg
-             , g_vc_table_name_stage
-             , g_vc_owner_stg
-             , g_vc_table_name_hist
-             , 'COMMON_NPK'
-             , 'SET_ALIAS'
-             , 'trg'
-             , 'src'
-            );
          l_vc_col_nvl2 :=
             dict.fct_get_column_subset (
                NULL
@@ -3256,60 +3188,35 @@ AS
             );
       END IF;
 
-      IF g_vc_partition_clause IS NOT NULL THEN
-         l_sql_prc_token := '';
+      l_n_iter_begin := 0;
 
-         FOR i IN 0 .. 9 LOOP
-            IF g_n_source_nk_flag = 0
-           AND g_vc_col_pk_src IS NULL THEN
-               l_sql_prc_token_iter := c_token_diff_without_nk;
-            ELSE
-               l_sql_prc_token_iter := c_token_diff_with_nk;
-            END IF;
-
-            dict.prc_set_text_param (
-               l_sql_prc_token_iter
-             , 'enableParallelDML'
-             , CASE
-                  WHEN l_vc_set_anonymized IS NOT NULL THEN
-                     stmt.c_token_enable_parallel_dml
-                  ELSE
-                     stmt.c_token_disable_parallel_dml
-               END
-            );
-            dict.prc_set_text_param (
-               l_sql_prc_token_iter
-             , 'partition'
-             , TO_CHAR (i)
-            );
-            dict.prc_set_text_param (
-               l_sql_prc_token_iter
-             , 'tablePartitionStage1'
-             ,    ' PARTITION (P'
-               || i
-               || ')'
-            );
-            dict.prc_set_text_param (
-               l_sql_prc_token_iter
-             , 'tablePartitionStage2'
-             ,    ' PARTITION (P'
-               || i
-               || ')'
-            );
-            l_sql_prc_token :=
-                  l_sql_prc_token
-               || CHR (10)
-               || l_sql_prc_token_iter;
-         END LOOP;
+      IF g_vc_partition_expr IS NOT NULL THEN
+         l_n_iter_end := 9;
       ELSE
+         l_n_iter_end := 0;
+      END IF;
+
+      l_sql_prc_token := '';
+
+      FOR i IN l_n_iter_begin .. l_n_iter_end LOOP
+         l_sql_prc_token := c_token_diff_insert;
+
          IF g_n_source_nk_flag = 0
         AND g_vc_col_pk_src IS NULL THEN
-            l_sql_prc_token := c_token_diff_without_nk;
+            ddls.prc_set_text_param (
+               l_sql_prc_token
+             , 'insertStatement'
+             , stmt.c_sql_insert_diff_without_nk
+            );
          ELSE
-            l_sql_prc_token := c_token_diff_with_nk;
+            ddls.prc_set_text_param (
+               l_sql_prc_token
+             , 'insertStatement'
+             , stmt.c_sql_insert_diff_with_nk
+            );
          END IF;
 
-         ddls.prc_set_text_param (
+         dict.prc_set_text_param (
             l_sql_prc_token
           , 'enableParallelDML'
           , CASE
@@ -3321,105 +3228,124 @@ AS
          );
          ddls.prc_set_text_param (
             l_sql_prc_token
-          , 'partition'
-          , 'NULL'
+          , 'diffPartition'
+          , CASE
+               WHEN g_vc_partition_expr IS NOT NULL THEN
+                     'PARTITION ('
+                  || stag_param.c_vc_prefix_partition
+                  || TO_CHAR (i)
+                  || ')'
+            END
          );
          ddls.prc_set_text_param (
             l_sql_prc_token
-          , 'tablePartitionStage1'
-          , NULL
+          , 'sourcePartition'
+          , CASE
+               WHEN g_vc_partition_expr IS NOT NULL THEN
+                     'PARTITION ('
+                  || stag_param.c_vc_prefix_partition
+                  || TO_CHAR (i)
+                  || ')'
+            END
          );
          ddls.prc_set_text_param (
             l_sql_prc_token
-          , 'tablePartitionStage2'
-          , NULL
+          , 'targetPartition'
+          , CASE
+               WHEN g_vc_partition_expr IS NOT NULL THEN
+                     'PARTITION ('
+                  || stag_param.c_vc_prefix_partition
+                  || TO_CHAR (i)
+                  || ')'
+            END
          );
-      END IF;
+         ddls.prc_set_text_param (
+            l_sql_prc_token
+          , 'partitionId'
+          , CASE
+               WHEN g_vc_partition_expr IS NOT NULL THEN
+                  TRIM (TO_CHAR (i))
+               ELSE
+                  'NULL'
+            END
+         );
+         l_sql_prc_buffer :=
+               l_sql_prc_buffer
+            || CHR (10)
+            || l_sql_prc_token;
+      END LOOP;
 
-      ddls.prc_set_text_param (
-         l_sql_prc_token
-       , 'listColAllNVL2'
-       , l_vc_col_nvl2
-      );
-      ddls.prc_set_text_param (
-         l_sql_prc_token
-       , 'updateClause'
-       , NVL (l_vc_clause_update, '1=0')
-      );
-      ddls.prc_set_text_param (
-         l_sql_prc_token
-       , 'listOnClause'
-       , l_vc_clause_on
-      );
-      -- Set the matched clause of the merge statement. This exists only if there are non-NK columns to set
-      ddls.prc_set_text_param (
-         l_sql_prc_token
-       , 'matchedClause'
-       , CASE
-            WHEN l_vc_upd_clause_set IS NOT NULL THEN
-                  l_vc_upd_clause_set
-               || CHR (10)
-               || l_vc_set_anonymized
-               || ', '
-         END
-      );
-      ddls.prc_set_text_param (
-         l_sql_prc_token
-       , 'listColUtl'
-       , l_list_utl_col
-      );
-      ddls.prc_set_text_param (
-         l_sql_prc_token
-       , 'listValUtl'
-       , c_token_utl_colval_hist
-      );
-      l_sql_prc_buffer :=
-            l_sql_prc_buffer
-         || CHR (10)
-         || l_sql_prc_token
-         || CHR (10)
-         || c_token_diff_stats;
-      prc_set_utl_columns (l_sql_prc_buffer);
-      -- Put all other code parameters
+      -- Set object identifiers
       ddls.prc_set_text_param (
          l_sql_prc_buffer
-       , 'stgOwner'
-       , g_vc_owner_stg
-      );
-      ddls.prc_set_text_param (
-         l_sql_prc_buffer
-       , 'tableNameDiff'
+       , 'diffIdentifier'
        , g_vc_table_name_diff
       );
       ddls.prc_set_text_param (
          l_sql_prc_buffer
-       , 'tableNameStage1'
+       , 'sourceIdentifier'
        , g_vc_table_name_stage
       );
       ddls.prc_set_text_param (
          l_sql_prc_buffer
-       , 'tableNameStage2'
+       , 'targetIdentifier'
        , g_vc_table_name_hist
+      );
+      -- Set list of columns
+      ddls.prc_set_text_param (
+         l_sql_prc_buffer
+       , 'nvl2ColumnList'
+       , l_vc_col_nvl2
       );
       ddls.prc_set_text_param (
          l_sql_prc_buffer
-       , 'listColAll'
+       , 'targetColumnList'
        , l_vc_col_all
       );
       ddls.prc_set_text_param (
          l_sql_prc_buffer
-       , 'listColTarget'
-       ,    l_vc_col_all
-         || CHR (10)
-         || l_vc_col_anonymized
+       , 'utlColumnList'
+       , l_list_utl_col
+      );
+      -- Set clauses
+      ddls.prc_set_text_param (
+         l_sql_prc_buffer
+       , 'updateClause'
+       , l_vc_clause_update
       );
       ddls.prc_set_text_param (
          l_sql_prc_buffer
-       , 'listColSource'
-       ,    l_vc_col_all
-         || CHR (10)
-         || l_vc_fct_anonymized
+       , 'joinClause'
+       , l_vc_clause_on
       );
+      prc_set_utl_columns (l_sql_prc_buffer);
+      -- Ad analyze token
+      l_sql_prc_token := c_token_analyze;
+      ddls.prc_set_text_param (
+         l_sql_prc_token
+       , 'statisticsType'
+       , 'DFAN'
+      );
+      ddls.prc_set_text_param (
+         l_sql_prc_token
+       , 'stgOwner'
+       , g_vc_owner_stg
+      );
+      ddls.prc_set_text_param (
+         l_sql_prc_token
+       , 'tableName'
+       , g_vc_table_name_diff
+      );
+      ddls.prc_set_text_param (
+         l_sql_prc_token
+       , 'partition'
+       , NULL
+      );
+      l_sql_prc_buffer :=
+            l_sql_prc_buffer
+         || CHR (10)
+         || l_sql_prc_token;
+      -- Put all other code parameters
       ddls.prc_set_text_param (
          l_sql_prc_buffer
        , 'sourceCode'
@@ -3435,8 +3361,6 @@ AS
        , 'sourceTable'
        , g_vc_table_name_source
       );
-      --
-      -- Load stage 2 with table comparison
       --
       -- Put body in the generic prc template
       l_sql_prc := ddls.c_template_prc_body;
@@ -3551,20 +3475,20 @@ AS
 
    PROCEDURE prc_create_prc_load_hist (p_b_raise_flag BOOLEAN DEFAULT FALSE)
    IS
-      l_vc_prc_name          TYPE.vc_max_plsql := 'prc_create_prc_load_hist';
-      l_vc_message           VARCHAR2 (32000)
-                                :=    'Procedure load diff-to-stage2 '
-                                   || g_vc_package_main;
-      l_sql_prc              CLOB;
-      l_sql_prc_token        CLOB;
-      l_sql_prc_token_iter   CLOB;
-      l_sql_prc_buffer       CLOB;
+      l_vc_prc_name         TYPE.vc_max_plsql := 'prc_create_prc_load_hist';
+      l_vc_message          VARCHAR2 (32000)
+                               :=    'Procedure load diff-to-stage2 '
+                                  || g_vc_package_main;
+      l_sql_prc             CLOB;
+      l_sql_prc_token       CLOB;
+      l_sql_prc_buffer      CLOB;
+      --
+      l_n_iter_begin        NUMBER;
+      l_n_iter_end          NUMBER;
       -- List of columns
-      l_vc_col_all           TYPE.vc_max_plsql;
-      l_vc_clause_on         TYPE.vc_max_plsql;
-      l_vc_upd_clause_set    TYPE.vc_max_plsql;
-      l_vc_ins_col_source    TYPE.vc_max_plsql;
-      l_vc_ins_col_target    TYPE.vc_max_plsql;
+      l_vc_col_simple       TYPE.vc_max_plsql;
+      l_vc_clause_on        TYPE.vc_max_plsql;
+      l_vc_upd_clause_set   TYPE.vc_max_plsql;
    BEGIN
       trac.log_info (
          l_vc_message
@@ -3598,7 +3522,7 @@ AS
       -- BODY
       --
       -- Get list of all columns
-      l_vc_col_all :=
+      l_vc_col_simple :=
          dict.fct_get_column_subset (
             NULL
           , g_vc_owner_stg
@@ -3608,19 +3532,8 @@ AS
           , 'COMMON_ALL'
           , 'LIST_SIMPLE'
          );
-      -- In case the pk of stage 1 and History Tables is not the same, write a warning log
-      l_vc_ins_col_source :=
-         dict.fct_get_column_subset (
-            NULL
-          , g_vc_owner_stg
-          , g_vc_table_name_stage
-          , g_vc_owner_stg
-          , g_vc_table_name_hist
-          , 'COMMON_ALL'
-          , 'LIST_ALIAS'
-          , 'src'
-         );
-      l_vc_ins_col_target :=
+
+      /*l_vc_ins_col_target :=
          dict.fct_get_column_subset (
             NULL
           , g_vc_owner_stg
@@ -3630,8 +3543,7 @@ AS
           , 'COMMON_ALL'
           , 'LIST_ALIAS'
           , 'trg'
-         );
-
+         );*/
       IF g_n_source_nk_flag = 0
      AND g_vc_col_pk_src IS NULL THEN
          -- If there is no natural key (tecnical PK) then use the alternate difference method
@@ -3675,45 +3587,28 @@ AS
             );
       END IF;
 
-      IF g_vc_partition_clause IS NOT NULL THEN
-         FOR i IN 0 .. 9 LOOP
-            l_sql_prc_token_iter := c_token_hist_reconcile;
-            ddls.prc_set_text_param (
-               l_sql_prc_token_iter
-             , 'enableParallelDML'
-             , CASE
-                  WHEN l_vc_set_anonymized IS NOT NULL THEN
-                     stmt.c_token_enable_parallel_dml
-                  ELSE
-                     stmt.c_token_disable_parallel_dml
-               END
-            );
-            ddls.prc_set_text_param (
-               l_sql_prc_token_iter
-             , 'partition'
-             , TO_CHAR (i)
-            );
-            ddls.prc_set_text_param (
-               l_sql_prc_token_iter
-             , 'tablePartitionStage1'
-             ,    ' PARTITION (P'
-               || i
-               || ')'
-            );
-            ddls.prc_set_text_param (
-               l_sql_prc_token_iter
-             , 'tablePartitionStage2'
-             ,    ' PARTITION (P'
-               || i
-               || ')'
-            );
-            l_sql_prc_token :=
-                  l_sql_prc_token
-               || CHR (10)
-               || l_sql_prc_token_iter;
-         END LOOP;
+      l_n_iter_begin := 0;
+
+      IF g_vc_partition_expr IS NOT NULL THEN
+         l_n_iter_end := 9;
       ELSE
+         l_n_iter_end := 0;
+      END IF;
+
+      l_sql_prc_token := '';
+
+      FOR i IN l_n_iter_begin .. l_n_iter_end LOOP
          l_sql_prc_token := c_token_hist_reconcile;
+         ddls.prc_set_text_param (
+            l_sql_prc_token
+          , 'updateStatement'
+          , stmt.c_sql_reconcile_update
+         );
+         ddls.prc_set_text_param (
+            l_sql_prc_token
+          , 'insertStatement'
+          , stmt.c_sql_reconcile_insert
+         );
          ddls.prc_set_text_param (
             l_sql_prc_token
           , 'enableParallelDML'
@@ -3726,48 +3621,112 @@ AS
          );
          ddls.prc_set_text_param (
             l_sql_prc_token
-          , 'partition'
-          , 'NULL'
+          , 'diffPartition'
+          , CASE
+               WHEN g_vc_partition_expr IS NOT NULL THEN
+                     'PARTITION ('
+                  || stag_param.c_vc_prefix_partition
+                  || TO_CHAR (i)
+                  || ')'
+            END
          );
          ddls.prc_set_text_param (
             l_sql_prc_token
-          , 'tablePartitionStage1'
-          , NULL
+          , 'diffPartition'
+          , CASE
+               WHEN g_vc_partition_expr IS NOT NULL THEN
+                     'PARTITION ('
+                  || stag_param.c_vc_prefix_partition
+                  || TO_CHAR (i)
+                  || ')'
+            END
          );
          ddls.prc_set_text_param (
             l_sql_prc_token
-          , 'tablePartitionStage2'
-          , NULL
+          , 'targetPartition'
+          , CASE
+               WHEN g_vc_partition_expr IS NOT NULL THEN
+                     'PARTITION ('
+                  || stag_param.c_vc_prefix_partition
+                  || TO_CHAR (i)
+                  || ')'
+            END
          );
-      END IF;
+         ddls.prc_set_text_param (
+            l_sql_prc_token
+          , 'partitionId'
+          , CASE
+               WHEN g_vc_partition_expr IS NOT NULL THEN
+                  TRIM (TO_CHAR (i))
+               ELSE
+                  'NULL'
+            END
+         );
+         l_sql_prc_buffer :=
+               l_sql_prc_buffer
+            || CHR (10)
+            || l_sql_prc_token;
+      END LOOP;
 
+      -- Set object identifiers
       ddls.prc_set_text_param (
-         l_sql_prc_token
-       , 'tableNameDiff'
+         l_sql_prc_buffer
+       , 'diffIdentifier'
        , g_vc_table_name_diff
       );
       ddls.prc_set_text_param (
-         l_sql_prc_token
-       , 'listColSource'
-       ,    l_vc_ins_col_source
+         l_sql_prc_buffer
+       , 'targetIdentifier'
+       , g_vc_table_name_hist
+      );
+      -- Set list of columns
+      ddls.prc_set_text_param (
+         l_sql_prc_buffer
+       , 'diffColumnList'
+       ,    l_vc_col_simple
          || CHR (10)
          || l_vc_ins_anonymized
       );
       ddls.prc_set_text_param (
-         l_sql_prc_token
-       , 'listColTarget'
-       ,    l_vc_ins_col_target
+         l_sql_prc_buffer
+       , 'targetColumnList'
+       ,    l_vc_col_simple
          || CHR (10)
          || l_vc_col_anonymized
       );
       ddls.prc_set_text_param (
-         l_sql_prc_token
-       , 'listOnClause'
+         l_sql_prc_buffer
+       , 'utlColumnList'
+       , c_token_utl_column_hist
+      );
+      ddls.prc_set_text_param (
+         l_sql_prc_buffer
+       , 'utlValueList'
+       , c_token_utl_colval_hist
+      );
+      /* ddls.prc_set_text_param (
+          l_sql_prc_token
+        , 'listColSource'
+        ,    l_vc_ins_col_source
+          || CHR (10)
+          || l_vc_ins_anonymized
+       );
+       ddls.prc_set_text_param (
+          l_sql_prc_token
+        , 'listColTarget'
+        ,    l_vc_ins_col_target
+          || CHR (10)
+          || l_vc_col_anonymized
+       );*/
+      -- Set clauses
+      ddls.prc_set_text_param (
+         l_sql_prc_buffer
+       , 'joinClause'
        , l_vc_clause_on
       );
       -- Set the matched clause of the merge statement. This exists only if there are non-NK columns to set
       ddls.prc_set_text_param (
-         l_sql_prc_token
+         l_sql_prc_buffer
        , 'matchedClause'
        , CASE
             WHEN l_vc_upd_clause_set IS NOT NULL THEN
@@ -3777,44 +3736,28 @@ AS
                || ', '
          END
       );
-      ddls.prc_set_text_param (
-         l_sql_prc_token
-       , 'listColUtl'
-       , c_token_utl_column_hist
-      );
-      ddls.prc_set_text_param (
-         l_sql_prc_token
-       , 'listValUtl'
-       , c_token_utl_colval_hist
-      );
-      l_sql_prc_buffer :=
-            l_sql_prc_buffer
-         || CHR (10)
-         || l_sql_prc_token
-         || CHR (10)
-         || c_token_hist_stats;
       prc_set_utl_columns (l_sql_prc_buffer);
-      -- Put all other code parameters
+      -- Analyze token
+      l_sql_prc_token := c_token_analyze;
       ddls.prc_set_text_param (
-         l_sql_prc_buffer
+         l_sql_prc_token
+       , 'statisticsType'
+       , 'HSAN'
+      );
+      ddls.prc_set_text_param (
+         l_sql_prc_token
        , 'stgOwner'
        , g_vc_owner_stg
       );
       ddls.prc_set_text_param (
-         l_sql_prc_buffer
-       , 'tableNameStage1'
-       , g_vc_table_name_stage
-      );
-      ddls.prc_set_text_param (
-         l_sql_prc_buffer
-       , 'tableNameStage2'
+         l_sql_prc_token
+       , 'tableName'
        , g_vc_table_name_hist
       );
-      ddls.prc_set_text_param (
-         l_sql_prc_buffer
-       , 'listColAll'
-       , l_vc_col_all
-      );
+      l_sql_prc_buffer :=
+            l_sql_prc_buffer
+         || CHR (10)
+         || l_sql_prc_token;                                                                                                                                                                                                   -- Put all other code parameters
       ddls.prc_set_text_param (
          l_sql_prc_buffer
        , 'sourceCode'
@@ -3824,11 +3767,6 @@ AS
          l_sql_prc_buffer
        , 'objectName'
        , g_vc_object_name
-      );
-      ddls.prc_set_text_param (
-         l_sql_prc_buffer
-       , 'sourceTable'
-       , g_vc_table_name_source
       );
       --
       -- Load stage 2 with table comparison
@@ -4206,8 +4144,8 @@ AS
    END prc_compile_package_main;
 
    PROCEDURE prc_create_package_main (
-      p_b_tc_only_flag    BOOLEAN DEFAULT FALSE
-    , p_b_raise_flag      BOOLEAN DEFAULT FALSE
+      p_b_hist_only_flag    BOOLEAN DEFAULT FALSE
+    , p_b_raise_flag        BOOLEAN DEFAULT FALSE
    )
    IS
       l_vc_prc_name   TYPE.vc_max_plsql := 'prc_create_package_main';
@@ -4223,7 +4161,7 @@ AS
       l_buffer_pkg_head := '';
       l_buffer_pkg_body := '';
 
-      IF NOT p_b_tc_only_flag THEN
+      IF NOT p_b_hist_only_flag THEN
          -- Get list of columns for the stage 1 and init procedures
          l_vc_col_src :=
             dict.fct_get_column_list (
@@ -4254,21 +4192,20 @@ AS
       -- Trunc Diff table
       prc_create_prc_trunc_diff (p_b_raise_flag);
 
-      IF NOT p_b_tc_only_flag THEN
+      IF NOT p_b_hist_only_flag THEN
          --
          -- Initial load
          prc_create_prc_init (p_b_raise_flag);
+         --
+         -- Stage 1 load
+         prc_create_prc_load_stage (p_b_raise_flag);
 
          IF g_l_dblink.COUNT > 1
-         OR g_vc_partition_clause IS NOT NULL THEN
+         OR g_vc_partition_expr IS NOT NULL THEN
             --
             -- Stage 1 load - single partitions
             prc_create_prc_load_stage_p (p_b_raise_flag);
          END IF;
-
-         --
-         -- Stage 1 load
-         prc_create_prc_load_stage (p_b_raise_flag);
       END IF;
 
       --
@@ -4278,7 +4215,7 @@ AS
       --
       -- Wrapper
       prc_create_prc_wrapper (
-         p_b_tc_only_flag
+         p_b_hist_only_flag
        , p_b_raise_flag
       );
       --

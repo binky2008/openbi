@@ -105,13 +105,13 @@ AS
     , p_vc_column_name   IN VARCHAR2
    );
 
-   PROCEDURE prc_column_import (
+   PROCEDURE prc_column_import_from_source (
       p_vc_source_code         IN VARCHAR2
     , p_vc_object_name         IN VARCHAR2 DEFAULT 'ALL'
     , p_b_check_dependencies   IN BOOLEAN DEFAULT TRUE
    );
 
-   PROCEDURE prc_column_import_from_stg1 (
+   PROCEDURE prc_column_import_from_stage (
       p_vc_source_code         IN VARCHAR2
     , p_vc_object_name         IN VARCHAR2 DEFAULT 'ALL'
     , p_b_check_dependencies   IN BOOLEAN DEFAULT TRUE

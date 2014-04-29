@@ -1,18 +1,26 @@
 CREATE OR REPLACE PACKAGE BODY stag_meta
 AS
    /**
-
    * $Author: nmarangoni $
-
    * $Date: $
-
    * $Revision: $
-
    * $Id: $
-
    * $HeadURL: $
-
    */
+   TYPE r_column IS RECORD (
+      stag_column_pos       NUMBER
+    , stag_column_name      VARCHAR2 (50)
+    , stag_column_comment   VARCHAR2 (4000)
+    , stag_column_def       VARCHAR2 (4000)
+    , stag_column_nk_pos    NUMBER
+   );
+
+   TYPE t_t_columns IS TABLE OF r_column;
+
+   l_t_columns      t_t_columns := NULL;
+   l_sql_col_def    CLOB := dict.c_sql_col_def;
+   l_n_pk_pos_max   NUMBER;
+
    FUNCTION fct_get_column_list (
       p_vc_object_id     IN NUMBER
     , p_vc_column_type   IN VARCHAR2
@@ -548,29 +556,19 @@ AS
       COMMIT;
    END prc_column_del;
 
-   PROCEDURE prc_column_import (
+   PROCEDURE prc_column_import_from_source (
       p_vc_source_code         IN VARCHAR2
     , p_vc_object_name         IN VARCHAR2 DEFAULT 'ALL'
     , p_b_check_dependencies   IN BOOLEAN DEFAULT TRUE
    )
    IS
-      TYPE r_column IS RECORD (
-         stag_column_pos       NUMBER
-       , stag_column_name      VARCHAR2 (50)
-       , stag_column_comment   VARCHAR2 (4000)
-       , stag_column_def       VARCHAR2 (4000)
-       , stag_column_nk_pos    NUMBER
-      );
-
-      TYPE t_t_columns IS TABLE OF r_column;
-
-      l_t_columns      t_t_columns;
-      cur_columns      SYS_REFCURSOR;
-      l_sql_col_def    CLOB := dict.c_sql_col_def;
-      l_n_pk_pos_max   NUMBER;
+      l_vc_prc_name   TYPE.vc_max_plsql := 'prc_column_import_from_source';
    BEGIN
-      trac.log_info (
-         'Prepare metadata'
+      l_sql_col_def := dict.c_sql_col_def;
+      l_t_columns := NULL;
+      trac.log_sub_info (
+         l_vc_prc_name
+       , 'Prepare metadata'
        , 'Start'
       );
 
@@ -593,6 +591,7 @@ AS
                                AND p_vc_source_code IN (s.stag_source_code, 'ALL')
                                AND p_vc_object_name IN (o.stag_object_name, 'ALL'))
                      WHERE db_rank = 1) LOOP
+         l_n_pk_pos_max := NULL;
          dict.g_vc_src_obj_dblink := r_obj.stag_source_db_link;
          dict.prc_set_text_param (
             l_sql_col_def
@@ -649,52 +648,42 @@ AS
             l_n_pk_pos_max :=
                GREATEST (
                   NVL (l_t_columns (i).stag_column_nk_pos, 0)
-                , l_n_pk_pos_max
+                , NVL (l_n_pk_pos_max, 0)
                );
          END LOOP;
 
          UPDATE stag_object_t
             SET stag_source_nk_flag =
                    CASE
-                      WHEN l_n_pk_pos_max = 0 THEN
-                         0
-                      ELSE
+                      WHEN l_n_pk_pos_max > 0 THEN
                          1
+                      ELSE
+                         0
                    END
           WHERE stag_object_id = r_obj.stag_object_id;
 
          COMMIT;
       END LOOP;
 
-      trac.log_info (
-         'Prepare metadata'
+      trac.log_sub_info (
+         l_vc_prc_name
+       , 'Prepare metadata'
        , 'Finish'
       );
-   END prc_column_import;
+   END prc_column_import_from_source;
 
-   PROCEDURE prc_column_import_from_stg1 (
+   PROCEDURE prc_column_import_from_stage (
       p_vc_source_code         IN VARCHAR2
     , p_vc_object_name         IN VARCHAR2 DEFAULT 'ALL'
     , p_b_check_dependencies   IN BOOLEAN DEFAULT TRUE
    )
    IS
-      TYPE r_column IS RECORD (
-         stag_column_pos       NUMBER
-       , stag_column_name      VARCHAR2 (50)
-       , stag_column_comment   VARCHAR2 (4000)
-       , stag_column_def       VARCHAR2 (4000)
-       , stag_column_nk_pos    NUMBER
-      );
-
-      TYPE t_t_columns IS TABLE OF r_column;
-
-      l_t_columns      t_t_columns;
-      cur_columns      SYS_REFCURSOR;
-      l_sql_col_def    CLOB := dict.c_sql_col_def;
-      l_n_pk_pos_max   NUMBER;
+      l_vc_prc_name   TYPE.vc_max_plsql := 'prc_column_import_from_stage';
    BEGIN
-      trac.log_info (
-         'Prepare metadata'
+      l_sql_col_def := dict.c_sql_col_def;
+      trac.log_sub_info (
+         l_vc_prc_name
+       , 'Prepare metadata'
        , 'Start'
       );
       prc_set_object_properties;
@@ -780,11 +769,12 @@ AS
          COMMIT;
       END LOOP;
 
-      trac.log_info (
-         'Prepare metadata'
+      trac.log_sub_info (
+         l_vc_prc_name
+       , 'Prepare metadata'
        , 'Finish'
       );
-   END prc_column_import_from_stg1;
+   END prc_column_import_from_stage;
 
    PROCEDURE prc_check_column_changes (
       p_vc_source_code         IN VARCHAR2
@@ -792,22 +782,12 @@ AS
     , p_b_check_dependencies   IN BOOLEAN DEFAULT TRUE
    )
    IS
-      TYPE r_column IS RECORD (
-         stag_column_pos       NUMBER
-       , stag_column_name      VARCHAR2 (50)
-       , stag_column_comment   VARCHAR2 (4000)
-       , stag_column_def       VARCHAR2 (4000)
-       , stag_column_nk_pos    NUMBER
-      );
-
-      TYPE t_t_columns IS TABLE OF r_column;
-
-      l_t_columns     t_t_columns;
-      cur_columns     SYS_REFCURSOR;
-      l_sql_col_def   CLOB := dict.c_sql_col_def;
+      l_vc_prc_name   TYPE.vc_max_plsql := 'prc_check_column_changes';
    BEGIN
-      trac.log_info (
-         'Check column changes'
+      l_sql_col_def := dict.c_sql_col_def;
+      trac.log_sub_info (
+         l_vc_prc_name
+       , 'Check column changes'
        , 'Start'
       );
 
@@ -892,8 +872,9 @@ AS
          COMMIT;
       END LOOP;
 
-      trac.log_info (
-         'Check column changes'
+      trac.log_sub_info (
+         l_vc_prc_name
+       , 'Check column changes'
        , 'Finish'
       );
    END;
@@ -993,9 +974,7 @@ AS
       END LOOP;
    END;
 /**
-
  * Package initialization
-
  */
 BEGIN
    c_body_version := '$Id: $';

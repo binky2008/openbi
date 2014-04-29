@@ -33,15 +33,18 @@ AS
    g_vc_source_code             TYPE.vc_obj_plsql;
    g_vc_object_name             TYPE.vc_obj_plsql;
    g_vc_prefix_src              TYPE.vc_obj_plsql;
+   --
    g_vc_dblink                  TYPE.vc_obj_plsql;
    g_vc_owner_src               TYPE.vc_obj_plsql;
-   g_vc_owner_stg               TYPE.vc_obj_plsql;
-   g_vc_table_comment           TYPE.vc_max_plsql;
    g_vc_table_name_source       TYPE.vc_obj_plsql;
+   g_vc_source_identifier       TYPE.vc_obj_plsql;
+   --
+   g_vc_owner_stg               TYPE.vc_obj_plsql;
+   g_vc_table_name_stage        TYPE.vc_obj_plsql;
    g_vc_table_name_diff         TYPE.vc_obj_plsql;
    g_vc_table_name_dupl         TYPE.vc_obj_plsql;
-   g_vc_table_name_stage        TYPE.vc_obj_plsql;
    g_vc_table_name_hist         TYPE.vc_obj_plsql;
+   g_vc_table_comment           TYPE.vc_max_plsql;
    g_vc_nk_name_diff            TYPE.vc_obj_plsql;
    g_vc_nk_name_stage           TYPE.vc_obj_plsql;
    g_vc_nk_name_hist            TYPE.vc_obj_plsql;
@@ -50,7 +53,7 @@ AS
    g_vc_package_main            TYPE.vc_obj_plsql;
    g_vc_filter_clause           TYPE.vc_max_plsql;
    g_vc_dedupl_rank_clause      TYPE.vc_max_plsql;
-   g_vc_partition_clause        TYPE.vc_max_plsql;
+   g_vc_partition_expr        TYPE.vc_max_plsql;
    g_vc_increment_column        TYPE.vc_max_plsql;
    g_vc_increment_coldef        TYPE.vc_max_plsql;
    g_n_increment_buffer         NUMBER;
@@ -69,13 +72,6 @@ AS
    g_vc_col_all                 TYPE.vc_max_plsql;
    g_vc_col_pk_src              TYPE.vc_max_plsql;
    g_vc_col_pk                  TYPE.vc_max_plsql;
-
-   FUNCTION fct_get_identifier (
-      p_vc_dblink         VARCHAR2
-    , p_vc_schema_name    VARCHAR2
-    , p_vc_object_name    VARCHAR2
-   )
-      RETURN VARCHAR2;
 
    PROCEDURE prc_create_stage_table (
       p_b_drop_flag     BOOLEAN DEFAULT FALSE
@@ -104,7 +100,7 @@ AS
    PROCEDURE prc_create_fbda_view (p_b_raise_flag BOOLEAN DEFAULT FALSE);
 
    PROCEDURE prc_create_package_main (
-      p_b_tc_only_flag    BOOLEAN DEFAULT FALSE
+      p_b_hist_only_flag    BOOLEAN DEFAULT FALSE
     , p_b_raise_flag      BOOLEAN DEFAULT FALSE
    );
 END stag_ddl;

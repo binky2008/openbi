@@ -1,6 +1,19 @@
 BEGIN
+   /*sgc_accounts_pkg.prc_load_init;
+   sgc_acl_actions_pkg.prc_load_init;
+   sgc_contacts_pkg.prc_load_init;*/
+   --
    sgc_accounts_pkg.prc_load;
-   --sgc_accounts_pkg.prc_load_stage;
-   --sgc_accounts_pkg.prc_load_diff;
-   --sgc_accounts_pkg.prc_load_hist;
+   sgc_acl_actions_pkg.prc_load;
+   sgc_contacts_pkg.prc_load;
+   --
+   --
+   sgm_accounts_pkg.prc_load_init;
+   sgm_acl_actions_pkg.prc_load_init;
+   --
+   sgm_accounts_pkg.prc_load;
+   sgm_acl_actions_pkg.prc_load;
 END;
+/
+
+ROLLBACK;

@@ -38,8 +38,8 @@ AS
           trac.log_sub_debug (l_vc_prc_name, ''Truncate'', ''Table #tableName# truncated'');';
    --
    -- Truncate token of the staging 1 procedure
-   c_token_truncate_partition     CLOB := 'EXECUTE IMMEDIATE ''ALTER TABLE #tableName# TRUNCATE #tablePartition#'';
-          trac.log_sub_debug (l_vc_prc_name, ''Truncate'', ''Table #tableName# #tablePartition# truncated'');';
+   c_token_truncate_partition     CLOB := 'EXECUTE IMMEDIATE ''ALTER TABLE #tableName# TRUNCATE #partition#'';
+          trac.log_sub_debug (l_vc_prc_name, ''Truncate'', ''Table #tableName# #partition# truncated'');';
    --
    -- Copy the content of a source table into a target table
    c_sql_insert_copy              CLOB := '
@@ -63,11 +63,13 @@ AS
              VALUES (
                 #utlValueList#
                 #sourceColumnList#)
-          ELSE INTO #deduplIdentifier# #partition# (
-                #deduplColumnList#)
+          ELSE INTO #duplIdentifier# #partition# (
+                #utlColumnListForDupl#
+                #targetColumnList#)
              VALUES (
-                #deduplColumnList#)
-         SELECT #deduplColumnList#
+                #utlValueListForDupl#
+                #sourceColumnList#)
+         SELECT #sourceColumnList#
               , ROW_NUMBER () over (PARTITION BY #pkColumnList# #deduplRankClause#) AS row_rank
            FROM #sourceIdentifier#
                 #filterClause#;';
@@ -75,14 +77,14 @@ AS
    -- Store the difference between 2 tables
    c_sql_insert_diff_with_nk      CLOB := '
       INSERT
-        INTO #diffIdentifier# #targetPartition# (
+        INTO #diffIdentifier# #diffPartition# (
             #targetColumnList#
           , #utlColumnList#)
         SELECT
             #targetColumnList#
           , #utlColumnList#
         FROM (SELECT
-                 #nvl2columnList#
+                 #nvl2ColumnList#
                 , CASE
                         WHEN src.rowid IS NOT NULL
                         AND trg.rowid  IS NULL
@@ -113,7 +115,7 @@ AS
    -- Diff token of the staging 2 procedure - nk non-present
    c_sql_insert_diff_without_nk   CLOB := '
       INSERT
-        INTO #diffIdentifier# #targetPartition# (
+        INTO #diffIdentifier# #diffPartition# (
             #targetColumnList#
           , #utlColumnList#)
         SELECT
@@ -143,14 +145,16 @@ AS
                        , COUNT (rowid_src) AS cnt_in_src
                        , COUNT (rowid_dst) AS cnt_in_dst
                     FROM (SELECT #targetColumnList#
-                               , NULL AS #columnTimestamp#
+                               , NULL AS #validFromColumnName#
+                               , NULL AS #validToColumnName#
                                , NULL AS #dmlOpColumnName#
                                , ROWID AS rowid_src
                                , NULL AS rowid_dst
                             FROM #sourceIdentifier# #sourcePartition#
                           UNION ALL
                           SELECT #targetColumnList#
-                               , #columnTimestamp#
+                               , #validFromColumnName#
+                               , #validToColumnName#
                                , #dmlOpColumnName# AS #dmlOpColumnName#
                                , NULL AS rowid_src
                                , ROWID AS rowid_dst
@@ -160,57 +164,58 @@ AS
             #dmlOpColumnName# #operationClause#;';
    --
    --
-   -- Merge token of the staging 2 procedure - 1 single statement
+   -- Merge token of the hist procedure - 1 single statement
    c_sql_reconcile_merge          CLOB := '
       MERGE /*+APPEND*/
          INTO #targetIdentifier# trg
       USING
             (SELECT #dmlOpColumnName#
-                  , #targetColumnList#
-               FROM #tableNameDiff# #tablePartitionStage2#) src
-                 ON (#listOnClause#)
+                  , #diffColumnList#
+               FROM #diffIdentifier# #diffPartition#) src
+                 ON (#joinClause#)
         WHEN MATCHED THEN
              UPDATE
                  SET #matchedClause#
-                      trg.#dmlOpColumnName# = src.#dmlOpColumnName#
-                    , trg.#validFromColumnName# = SYSDATE
+                     trg.#dmlOpColumnName# = src.#dmlOpColumnName#
+                   , trg.#validFromColumnName# = SYSDATE
         WHEN NOT MATCHED THEN
              INSERT (
-                #targetColumnList#
-              , #utlColumnList#)
+                #utlColumnList#
+                #targetColumnList#)
              )
              VALUES (
-                #sourceColumnList#
                 #utlValueList#
+                #diffColumnList#
              );';
    --
    --
-   -- Merge token of the staging 2 procedure - 2 separate statement
+   -- Merge token of the hist procedure - 2 separate statement
    c_sql_reconcile_update         CLOB := '
       MERGE /*+APPEND*/
-         INTO #tableNameStage2# trg
+         INTO #targetIdentifier# trg
       USING
-            (SELECT #columnDmlOperation#
-                  , #listColAll#
-               FROM #tableNameDiff# #tablePartitionStage2#
-              WHERE #columnDmlOperation# IN (''U'', ''R'', ''D'')) src
-                  ON (#listOnClause#)
+            (SELECT #dmlOpColumnName#
+                  , #diffColumnList#
+               FROM #diffIdentifier# #diffPartition#
+              WHERE #dmlOpColumnName# IN (''U'', ''R'', ''D'')) src
+                  ON (#joinClause#)
         WHEN MATCHED THEN
              UPDATE
                  SET #matchedClause#
-                      trg.#columnDmlOperation# = src.#columnDmlOperation#
-                    , trg.#columnTimestamp# = SYSDATE;';
+                     trg.#dmlOpColumnName# = src.#dmlOpColumnName#
+                   , trg.#validFromColumnName# = SYSDATE;';
    --
    --
-   -- Merge token of the staging 2 procedure - 2 separate statement
+   -- Merge token of the hist2 procedure - 2 separate statement
    c_sql_reconcile_insert         CLOB := '
-      INSERT /*+APPEND*/ INTO #tableNameStage2# #tablePartitionStage2# (
-                              #listColTarget#
-                            , #listColUtl#)
-                              SELECT #listColSource#
-                                   , #listValUtl#
-                                FROM #tableNameDiff# #tablePartitionStage2#
-                               WHERE #columnDmlOperation# = ''I'';';
+      INSERT /*+APPEND*/
+        INTO #targetIdentifier# #targetPartition# (
+             #utlColumnList#
+           , #targetColumnList#)
+      SELECT #utlValueList#
+           , #diffColumnList#
+        FROM #diffIdentifier# #diffPartition#
+       WHERE #dmlOpColumnName# = ''I'';';
 
    /**
    * Substitute a parameter (#parameter_name#) with a text
