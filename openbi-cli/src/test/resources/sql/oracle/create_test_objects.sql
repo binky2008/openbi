@@ -62,3 +62,12 @@ BEGIN
    COMMIT;
 END;
 /
+
+DROP TABLE smalltable;
+CREATE TABLE smalltable (
+   col_pk      	 	NUMBER
+ , col_number   	NUMBER
+ , col_text     	VARCHAR2 (4000)
+ , col_othertext   	VARCHAR2 (4000)
+ , CONSTRAINT smalltable_pk PRIMARY KEY (col_pk)
+);

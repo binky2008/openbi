@@ -1,9 +1,10 @@
 BEGIN
+   ROLLBACK;
    stag_meta.prc_source_ins (
       'SGM'
     , 'SGM'
     , 'SugarCRM Multiple'
-    , 'STAGE'
+    , 'DWHSTAGE'
     , 'USERS'
     , 'USERS'
     , 'USERS'
@@ -48,4 +49,5 @@ BEGIN
    );
    --
    dwhadmin.stag_build.prc_build_all ('SGM');
+   ROLLBACK;
 END;

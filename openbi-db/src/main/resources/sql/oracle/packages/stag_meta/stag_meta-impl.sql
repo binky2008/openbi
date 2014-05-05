@@ -8,11 +8,15 @@ AS
    * $HeadURL: $
    */
    TYPE r_column IS RECORD (
-      stag_column_pos       NUMBER
-    , stag_column_name      VARCHAR2 (50)
-    , stag_column_comment   VARCHAR2 (4000)
-    , stag_column_def       VARCHAR2 (4000)
-    , stag_column_nk_pos    NUMBER
+      stag_column_pos         NUMBER
+    , stag_column_name        VARCHAR2 (50)
+    , stag_column_comment     VARCHAR2 (4000)
+    , stag_column_type        VARCHAR2 (4000)
+    , stag_column_length      VARCHAR2 (4000)
+    , stag_column_precision   VARCHAR2 (4000)
+    , stag_column_scale       VARCHAR2 (4000)
+    , stag_column_def         VARCHAR2 (4000)
+    , stag_column_nk_pos      NUMBER
    );
 
    TYPE t_t_columns IS TABLE OF r_column;
@@ -341,9 +345,9 @@ AS
     , p_n_parallel_degree     IN NUMBER DEFAULT NULL
     , p_vc_filter_clause      IN VARCHAR2 DEFAULT NULL
     , p_vc_partition_clause   IN VARCHAR2 DEFAULT NULL
-    , p_vc_fbda_flag          IN NUMBER DEFAULT NULL
+    , p_vc_hist_flag          IN NUMBER DEFAULT 1
+    , p_vc_fbda_flag          IN NUMBER DEFAULT 0
     , p_vc_increment_buffer   IN NUMBER DEFAULT NULL
-    , p_vc_std_load_modus     IN VARCHAR2 DEFAULT NULL
    )
    IS
       l_vc_table_comment   TYPE.vc_max_plsql;
@@ -355,6 +359,7 @@ AS
                        , p_n_parallel_degree AS parallel_degree
                        , p_vc_filter_clause AS filter_clause
                        , p_vc_partition_clause AS partition_clause
+                       , p_vc_hist_flag AS hist_flag
                        , p_vc_fbda_flag AS fbda_flag
                        , p_vc_increment_buffer AS increment_buffer
                     FROM stag_source_t
@@ -365,6 +370,7 @@ AS
          UPDATE SET trg.stag_parallel_degree = parallel_degree
                   , trg.stag_filter_clause = filter_clause
                   , trg.stag_partition_clause = partition_clause
+                  , trg.stag_hist_flag = src.hist_flag
                   , trg.stag_fbda_flag = src.fbda_flag
                   , trg.stag_increment_buffer = src.increment_buffer
       WHEN NOT MATCHED THEN
@@ -374,6 +380,7 @@ AS
                      , trg.stag_parallel_degree
                      , trg.stag_filter_clause
                      , trg.stag_partition_clause
+                     , trg.stag_hist_flag
                      , trg.stag_fbda_flag
                      , trg.stag_increment_buffer
                     )
@@ -383,6 +390,7 @@ AS
                      , src.parallel_degree
                      , src.filter_clause
                      , src.partition_clause
+                     , src.hist_flag
                      , src.fbda_flag
                      , src.increment_buffer
                     );
@@ -408,15 +416,19 @@ AS
                                  AND p_vc_object_name IN (o.stag_object_name, 'ALL'))
                        WHERE source_db_order = 1
                     ORDER BY stag_object_id) LOOP
+         l_vc_table_comment :=
+            dict.fct_get_table_comment (
+               r_obj.stag_source_db_link
+             , r_obj.stag_source_owner
+             , r_obj.stag_object_name
+            );
+
          UPDATE stag_object_t
-            SET stag_object_comment =
-                   dict.fct_get_table_comment (
-                      r_obj.stag_source_db_link
-                    , r_obj.stag_source_owner
-                    , r_obj.stag_object_name
-                   )
+            SET stag_object_comment = l_vc_table_comment
           WHERE stag_object_id = r_obj.stag_object_id;
       END LOOP;
+
+      COMMIT;
    END prc_object_ins;
 
    PROCEDURE prc_object_del (
@@ -574,11 +586,13 @@ AS
 
       FOR r_obj IN (SELECT stag_object_id
                          , stag_object_name
+                         , stag_hist_flag
                          , stag_owner
                          , stag_source_owner
                          , stag_source_db_link
                       FROM (SELECT o.stag_object_id
                                  , o.stag_object_name
+                                 , o.stag_hist_flag
                                  , s.stag_owner
                                  , d.stag_source_owner
                                  , d.stag_source_db_link
@@ -615,6 +629,10 @@ AS
                  USING (SELECT l_t_columns (i).stag_column_name AS stag_column_name
                              , l_t_columns (i).stag_column_comment AS stag_column_comment
                              , l_t_columns (i).stag_column_pos AS stag_column_pos
+                             , l_t_columns (i).stag_column_type AS stag_column_type
+                             , l_t_columns (i).stag_column_length AS stag_column_length
+                             , l_t_columns (i).stag_column_precision AS stag_column_precision
+                             , l_t_columns (i).stag_column_scale AS stag_column_scale
                              , l_t_columns (i).stag_column_def AS stag_column_def
                              , l_t_columns (i).stag_column_nk_pos AS stag_column_nk_pos
                           FROM DUAL) src
@@ -622,6 +640,10 @@ AS
                     AND trg.stag_object_id = r_obj.stag_object_id)
             WHEN MATCHED THEN
                UPDATE SET trg.stag_column_pos = src.stag_column_pos
+                        , trg.stag_column_type = src.stag_column_type
+                        , trg.stag_column_length = src.stag_column_length
+                        , trg.stag_column_precision = src.stag_column_precision
+                        , trg.stag_column_scale = src.stag_column_scale
                         , trg.stag_column_def = src.stag_column_def
                         , trg.stag_column_comment = src.stag_column_comment
                         , trg.stag_column_nk_pos = src.stag_column_nk_pos
@@ -631,17 +653,27 @@ AS
                            , trg.stag_column_pos
                            , trg.stag_column_name
                            , trg.stag_column_comment
+                           , trg.stag_column_type
+                           , trg.stag_column_length
+                           , trg.stag_column_precision
+                           , trg.stag_column_scale
                            , trg.stag_column_def
                            , trg.stag_column_nk_pos
                            , trg.stag_column_edwh_flag
+                           , trg.stag_column_hist_flag
                           )
                    VALUES (
                              r_obj.stag_object_id
                            , src.stag_column_pos
                            , src.stag_column_name
                            , src.stag_column_comment
+                           , src.stag_column_type
+                           , src.stag_column_length
+                           , src.stag_column_precision
+                           , src.stag_column_scale
                            , src.stag_column_def
                            , src.stag_column_nk_pos
+                           , 1
                            , 1
                           );
 
@@ -692,6 +724,7 @@ AS
                          , stag_object_id
                          , stag_object_name
                          , stag_stage_table_name
+                         , stag_hist_flag
                       FROM stag_object_t o
                          , stag_source_t s
                      WHERE o.stag_source_id = s.stag_source_id
@@ -738,6 +771,7 @@ AS
                            , trg.stag_column_def
                            , trg.stag_column_nk_pos
                            , trg.stag_column_edwh_flag
+                           , trg.stag_column_hist_flag
                           )
                    VALUES (
                              r_obj.stag_object_id
@@ -746,6 +780,7 @@ AS
                            , src.stag_column_comment
                            , src.stag_column_def
                            , src.stag_column_nk_pos
+                           , 1
                            , 1
                           );
 

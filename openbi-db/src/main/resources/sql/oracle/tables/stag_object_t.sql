@@ -20,6 +20,7 @@ BEGIN
        stag_filter_clause VARCHAR2(4000),
        stag_increment_buffer NUMBER,
        stag_partition_clause VARCHAR2(4000),
+       stag_hist_flag NUMBER DEFAULT 1,
        stag_fbda_flag NUMBER DEFAULT 0'
     , 'DROP'
     , TRUE

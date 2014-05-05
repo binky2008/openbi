@@ -6,6 +6,7 @@ BEGIN
 	   stag_column_name VARCHAR2 (100),
 	   stag_column_name_map VARCHAR2 (100),
 	   stag_column_comment VARCHAR2 (4000),
+       stag_column_type VARCHAR2 (100),
        stag_column_length NUMBER,
        stag_column_precision NUMBER,
        stag_column_scale NUMBER,

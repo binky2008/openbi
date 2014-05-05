@@ -24,9 +24,9 @@ AS
       l_vc_col_all            TYPE.vc_max_plsql;
       l_vc_col_pk             TYPE.vc_max_plsql;
       l_vc_col_comm           TYPE.vc_max_plsql;
-      l_n_di_gui              NUMBER;
-      l_n_step_no             NUMBER;
-      l_n_result              NUMBER;
+      --
+      l_vc_col_hst            TYPE.vc_max_plsql;
+      l_vc_col_upd            TYPE.vc_max_plsql;
    BEGIN
       --trac.set_console_logging (FALSE);
       trac.log_sub_info (
@@ -76,6 +76,7 @@ AS
                            , o.stag_package_name
                            , o.stag_filter_clause
                            , o.stag_partition_clause
+                           , o.stag_hist_flag
                            , o.stag_fbda_flag
                            , o.stag_increment_buffer
                            , c.stag_increment_column
@@ -122,6 +123,8 @@ AS
          l_vc_col_def := '';
          l_vc_col_all := '';
          l_vc_col_pk := '';
+         l_vc_col_hst := '';
+         l_vc_col_upd := '';
 
          -- Build list of values for objects with multiple sources
          FOR r_db IN (SELECT stag_source_db_link
@@ -163,6 +166,7 @@ AS
          FOR r_col IN (  SELECT NVL (stag_column_name_map, stag_column_name) AS stag_column_name
                               , stag_column_def
                               , stag_column_nk_pos
+                              , stag_column_hist_flag
                            FROM stag_column_t
                           WHERE stag_object_id = r_obj.stag_object_id
                             AND stag_column_edwh_flag = 1
@@ -187,6 +191,19 @@ AS
                   || r_col.stag_column_name
                   || ',';
             END IF;
+
+            IF r_col.stag_column_hist_flag = 1
+           AND r_obj.stag_hist_flag = 1 THEN
+               l_vc_col_hst :=
+                     l_vc_col_hst
+                  || r_col.stag_column_name
+                  || ',';
+            ELSE
+               l_vc_col_upd :=
+                     l_vc_col_upd
+                  || r_col.stag_column_name
+                  || ',';
+            END IF;
          END LOOP;
 
          l_vc_col_def :=
@@ -204,6 +221,42 @@ AS
                l_vc_col_pk
              , ','
             );
+         l_vc_col_hst :=
+            RTRIM (
+               l_vc_col_hst
+             , ','
+            );
+         l_vc_col_upd :=
+            RTRIM (
+               l_vc_col_upd
+             , ','
+            );
+         --
+         trac.log_sub_debug (
+            l_vc_prc_name
+          , 'List of column definitions'
+          , l_vc_col_def
+         );
+         trac.log_sub_debug (
+            l_vc_prc_name
+          , 'List of columns'
+          , l_vc_col_all
+         );
+         trac.log_sub_debug (
+            l_vc_prc_name
+          , 'List of pk columns'
+          , l_vc_col_pk
+         );
+         trac.log_sub_debug (
+            l_vc_prc_name
+          , 'List of columns to historicize'
+          , l_vc_col_hst
+         );
+         trac.log_sub_debug (
+            l_vc_prc_name
+          , 'List of columns to update'
+          , l_vc_col_upd
+         );
          -- Set main properties for the given object
          stag_ddl.g_n_object_id := r_obj.stag_object_id;
          stag_ddl.g_n_parallel_degree := r_obj.stag_parallel_degree;
@@ -273,6 +326,9 @@ AS
          stag_ddl.g_vc_col_def := l_vc_col_def;
          stag_ddl.g_vc_col_all := l_vc_col_all;
          stag_ddl.g_vc_col_pk_src := l_vc_col_pk;
+         --
+         stag_ddl.g_vc_col_hist := l_vc_col_hst;
+         stag_ddl.g_vc_col_update := l_vc_col_upd;
          --
          stag_ddl.g_vc_tablespace_stage_data := r_obj.stag_ts_stage_data;
          stag_ddl.g_vc_tablespace_stage_indx := r_obj.stag_ts_stage_indx;
@@ -373,13 +429,14 @@ AS
       l_vc_stage_db_list      TYPE.vc_max_plsql;
       l_vc_stage_owner_list   TYPE.vc_max_plsql;
       l_vc_distr_code_list    TYPE.vc_max_plsql;
+      --
       l_vc_col_def            TYPE.vc_max_plsql;
       l_vc_col_all            TYPE.vc_max_plsql;
       l_vc_col_pk             TYPE.vc_max_plsql;
       l_vc_col_comm           TYPE.vc_max_plsql;
-      l_n_di_gui              NUMBER;
-      l_n_step_no             NUMBER;
-      l_n_result              NUMBER;
+      --
+      l_vc_col_hst            TYPE.vc_max_plsql;
+      l_vc_col_upd            TYPE.vc_max_plsql;
    BEGIN
       --trac.set_console_logging (FALSE);
       trac.log_sub_info (
@@ -461,6 +518,7 @@ AS
          FOR r_col IN (  SELECT NVL (stag_column_name_map, stag_column_name) AS stag_column_name
                               , stag_column_def
                               , stag_column_nk_pos
+                              , stag_column_hist_flag
                            FROM stag_column_t
                           WHERE stag_object_id = r_obj.stag_object_id
                             AND stag_column_edwh_flag = 1
@@ -485,6 +543,18 @@ AS
                   || r_col.stag_column_name
                   || ',';
             END IF;
+
+            IF r_col.stag_column_hist_flag = 1 THEN
+               l_vc_col_hst :=
+                     l_vc_col_hst
+                  || r_col.stag_column_name
+                  || ',';
+            ELSE
+               l_vc_col_upd :=
+                     l_vc_col_upd
+                  || r_col.stag_column_name
+                  || ',';
+            END IF;
          END LOOP;
 
          l_vc_col_def :=
@@ -500,6 +570,16 @@ AS
          l_vc_col_pk :=
             RTRIM (
                l_vc_col_pk
+             , ','
+            );
+         l_vc_col_hst :=
+            RTRIM (
+               l_vc_col_hst
+             , ','
+            );
+         l_vc_col_upd :=
+            RTRIM (
+               l_vc_col_upd
              , ','
             );
          -- Set main properties for the given object
@@ -604,9 +684,10 @@ AS
       l_vc_col_def           TYPE.vc_max_plsql;
       l_vc_col_pk            TYPE.vc_max_plsql;
       l_vc_table_name_bkp    TYPE.vc_obj_plsql;
-      l_n_di_gui             NUMBER;
-      l_n_step_no            NUMBER;
-      l_n_result             NUMBER;
+      --
+      l_vc_sql_statement     TYPE.vc_obj_plsql;
+      --
+      l_n_cnt                NUMBER;
    BEGIN
       --trac.set_console_logging (FALSE);
       trac.log_sub_info (
@@ -625,11 +706,17 @@ AS
        , 'Build objects'
        , 'Start building db objects'
       );
+      stag_ddl.g_vc_owner_stg :=
+         SYS_CONTEXT (
+            'USERENV'
+          , 'CURRENT_USER'
+         );
 
+      --
       -- Select all objects
       FOR r_obj IN (  SELECT s.stag_source_id
                            , s.stag_source_code
-                           , s.stag_owner
+                           --, s.stag_owner
                            , d.stag_source_db_link
                            , s.stag_ts_hist_data
                            , s.stag_ts_hist_indx
@@ -658,10 +745,34 @@ AS
                     ORDER BY stag_object_id) LOOP
          trac.log_sub_debug (
             l_vc_prc_name
-          ,    'Object '
-            || r_obj.stag_object_name
+          ,    'Table:'
+            || stag_ddl.g_vc_owner_stg
+            || '.'
+            || r_obj.stag_hist_table_name
           , 'Start building objects'
          );
+         -- Set name of the backup table
+         l_vc_table_name_bkp :=
+            SUBSTR (
+                  r_obj.stag_hist_table_name
+               || '_BKP'
+             , 1
+             , 30
+            );
+
+         SELECT COUNT (0)
+           INTO l_n_cnt
+           FROM all_tables
+          WHERE owner = stag_ddl.g_vc_owner_stg
+            AND table_name = l_vc_table_name_bkp;
+
+         IF l_n_cnt > 0 THEN
+            raise_application_error (
+               -20000
+             , 'Backup table already present'
+            );
+         END IF;
+
          -- Reset list strings
          l_vc_stage_db_list := '';
          l_vc_distr_code_list := '';
@@ -732,12 +843,6 @@ AS
             );
          -- Set main properties for the given object
          stag_ddl.g_n_parallel_degree := r_obj.stag_parallel_degree;
-         stag_ddl.g_vc_owner_stg :=
-            SYS_CONTEXT (
-               'USERENV'
-             , 'CURRENT_USER'
-            );
-         --
          stag_ddl.g_vc_partition_expr := r_obj.stag_partition_clause;
          stag_ddl.g_vc_table_name_hist := r_obj.stag_hist_table_name;
          stag_ddl.g_vc_view_name_hist := r_obj.stag_hist_view_name;
@@ -770,35 +875,49 @@ AS
          -- Drop PK and indexes
          FOR r_cst IN (SELECT constraint_name
                          FROM all_constraints
-                        WHERE owner = r_obj.stag_owner
+                        WHERE owner = stag_ddl.g_vc_owner_stg
                           AND table_name = r_obj.stag_hist_table_name) LOOP
-            EXECUTE IMMEDIATE
+            --
+            l_vc_sql_statement :=
                   'ALTER TABLE '
-               || r_obj.stag_owner
+               || stag_ddl.g_vc_owner_stg
                || '.'
                || r_obj.stag_hist_table_name
                || ' DROP CONSTRAINT '
                || r_cst.constraint_name;
+            --
+            trac.log_sub_debug (
+               l_vc_prc_name
+             , 'Drop constraint'
+             , l_vc_sql_statement
+            );
+
+            --
+            EXECUTE IMMEDIATE l_vc_sql_statement;
+         --
          END LOOP;
 
          FOR r_idx IN (SELECT index_name
                          FROM all_indexes
-                        WHERE owner = r_obj.stag_owner
+                        WHERE owner = stag_ddl.g_vc_owner_stg
                           AND table_name = r_obj.stag_hist_table_name) LOOP
-            EXECUTE IMMEDIATE
+            --
+            l_vc_sql_statement :=
                   'DROP INDEX '
-               || r_obj.stag_owner
+               || stag_ddl.g_vc_owner_stg
                || '.'
                || r_idx.index_name;
-         END LOOP;
-
-         l_vc_table_name_bkp :=
-            SUBSTR (
-                  r_obj.stag_hist_table_name
-               || '_BKP'
-             , 1
-             , 30
+            --
+            trac.log_sub_debug (
+               l_vc_prc_name
+             , 'Drop index'
+             , l_vc_sql_statement
             );
+
+            --
+            EXECUTE IMMEDIATE l_vc_sql_statement;
+         --
+         END LOOP;
 
          EXECUTE IMMEDIATE
                'RENAME '

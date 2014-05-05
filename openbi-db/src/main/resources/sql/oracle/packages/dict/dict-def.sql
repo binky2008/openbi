@@ -111,6 +111,10 @@ AS
    c_sql_col_def             TYPE.vc_max_plsql := 'SELECT tc.column_id
 	   , tc.column_name
 	   , cm.comments
+       , tc.data_type
+       , tc.data_length
+       , tc.data_precision
+       , tc.data_scale
        , tc.data_type ||
          CASE
             WHEN tc.data_type IN (''NUMBER'')

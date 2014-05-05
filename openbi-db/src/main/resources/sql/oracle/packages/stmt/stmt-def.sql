@@ -99,6 +99,10 @@ AS
                         THEN ''R'' -- row was deleted and now reappeared
                         WHEN src.rowid IS NOT NULL
                         AND trg.rowid  IS NOT NULL
+                        AND (#historyClause#)
+                        THEN ''H''
+                        WHEN src.rowid IS NOT NULL
+                        AND trg.rowid  IS NOT NULL
                         AND (#updateClause#)
                         THEN ''U''
                         ELSE NULL -- nothing to be done
@@ -106,10 +110,12 @@ AS
                   , trg.#validFromColumnName#
                   , trg.#validToColumnName#
                 FROM #sourceIdentifier# #sourcePartition# src
-                #joinType# OUTER JOIN #targetIdentifier# #targetPartition# trg
+                #joinType# OUTER JOIN 
+                (SELECT *
+                   FROM #targetIdentifier# #targetPartition#
+                  WHERE #validToColumnName# > SYSDATE) trg
                 ON    #joinClause#)
-        WHERE
-            #dmlOpColumnName# IS NOT NULL;';
+        WHERE #dmlOpColumnName# IS NOT NULL;';
    --
    --
    -- Diff token of the staging 2 procedure - nk non-present
@@ -158,35 +164,28 @@ AS
                                , #dmlOpColumnName# AS #dmlOpColumnName#
                                , NULL AS rowid_src
                                , ROWID AS rowid_dst
-                            FROM #targetIdentifier# #targetPartition#)
+                            FROM #targetIdentifier# #targetPartition#
+                           WHERE #validToColumnName# > SYSDATE)
                 GROUP BY #targetColumnList#))
         WHERE
-            #dmlOpColumnName# #operationClause#;';
+            #dmlOpColumnName# IS NOT NULL;';
    --
    --
-   -- Merge token of the hist procedure - 1 single statement
-   c_sql_reconcile_merge          CLOB := '
+   -- Merge token of the hist procedure - 2 separate statement
+   c_sql_reconcile_close         CLOB := '
       MERGE /*+APPEND*/
          INTO #targetIdentifier# trg
       USING
             (SELECT #dmlOpColumnName#
                   , #diffColumnList#
-               FROM #diffIdentifier# #diffPartition#) src
-                 ON (#joinClause#)
+               FROM #diffIdentifier# #diffPartition#
+              WHERE #dmlOpColumnName# IN (''D'',''H'')) src
+                  ON (#joinClause#)
         WHEN MATCHED THEN
              UPDATE
-                 SET #matchedClause#
-                     trg.#dmlOpColumnName# = src.#dmlOpColumnName#
-                   , trg.#validFromColumnName# = SYSDATE
-        WHEN NOT MATCHED THEN
-             INSERT (
-                #utlColumnList#
-                #targetColumnList#)
-             )
-             VALUES (
-                #utlValueList#
-                #diffColumnList#
-             );';
+                 SET trg.#dmlOpColumnName# = src.#dmlOpColumnName# 
+                   , trg.#validToColumnName# = SYSDATE
+               WHERE trg.#validToColumnName# > SYSDATE;';
    --
    --
    -- Merge token of the hist procedure - 2 separate statement
@@ -197,13 +196,13 @@ AS
             (SELECT #dmlOpColumnName#
                   , #diffColumnList#
                FROM #diffIdentifier# #diffPartition#
-              WHERE #dmlOpColumnName# IN (''U'', ''R'', ''D'')) src
-                  ON (#joinClause#)
+              WHERE #dmlOpColumnName# = ''U'') src
+                  ON (#joinClause#
+                  AND trg.#validToColumnName# > SYSDATE)
         WHEN MATCHED THEN
              UPDATE
                  SET #matchedClause#
-                     trg.#dmlOpColumnName# = src.#dmlOpColumnName#
-                   , trg.#validFromColumnName# = SYSDATE;';
+                     trg.#dmlOpColumnName# = src.#dmlOpColumnName#;';
    --
    --
    -- Merge token of the hist2 procedure - 2 separate statement
@@ -215,7 +214,7 @@ AS
       SELECT #utlValueList#
            , #diffColumnList#
         FROM #diffIdentifier# #diffPartition#
-       WHERE #dmlOpColumnName# = ''I'';';
+       WHERE #dmlOpColumnName# IN (''H'', ''I'', ''R'');';
 
    /**
    * Substitute a parameter (#parameter_name#) with a text

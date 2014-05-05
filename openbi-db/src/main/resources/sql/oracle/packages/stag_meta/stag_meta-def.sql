@@ -75,9 +75,9 @@ AS
     , p_n_parallel_degree     IN NUMBER DEFAULT NULL
     , p_vc_filter_clause      IN VARCHAR2 DEFAULT NULL
     , p_vc_partition_clause   IN VARCHAR2 DEFAULT NULL
-    , p_vc_fbda_flag          IN NUMBER DEFAULT NULL
+    , p_vc_hist_flag          IN NUMBER DEFAULT 1
+    , p_vc_fbda_flag          IN NUMBER DEFAULT 0
     , p_vc_increment_buffer   IN NUMBER DEFAULT NULL
-    , p_vc_std_load_modus     IN VARCHAR2 DEFAULT NULL
    );
 
    PROCEDURE prc_object_del (

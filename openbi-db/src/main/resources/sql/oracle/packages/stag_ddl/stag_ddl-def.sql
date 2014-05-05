@@ -53,7 +53,7 @@ AS
    g_vc_package_main            TYPE.vc_obj_plsql;
    g_vc_filter_clause           TYPE.vc_max_plsql;
    g_vc_dedupl_rank_clause      TYPE.vc_max_plsql;
-   g_vc_partition_expr        TYPE.vc_max_plsql;
+   g_vc_partition_expr          TYPE.vc_max_plsql;
    g_vc_increment_column        TYPE.vc_max_plsql;
    g_vc_increment_coldef        TYPE.vc_max_plsql;
    g_n_increment_buffer         NUMBER;
@@ -72,6 +72,9 @@ AS
    g_vc_col_all                 TYPE.vc_max_plsql;
    g_vc_col_pk_src              TYPE.vc_max_plsql;
    g_vc_col_pk                  TYPE.vc_max_plsql;
+   --
+   g_vc_col_hist                TYPE.vc_max_plsql;
+   g_vc_col_update              TYPE.vc_max_plsql;
 
    PROCEDURE prc_create_stage_table (
       p_b_drop_flag     BOOLEAN DEFAULT FALSE
@@ -101,6 +104,6 @@ AS
 
    PROCEDURE prc_create_package_main (
       p_b_hist_only_flag    BOOLEAN DEFAULT FALSE
-    , p_b_raise_flag      BOOLEAN DEFAULT FALSE
+    , p_b_raise_flag        BOOLEAN DEFAULT FALSE
    );
 END stag_ddl;

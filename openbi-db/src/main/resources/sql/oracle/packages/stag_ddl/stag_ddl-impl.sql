@@ -25,6 +25,7 @@ AS
                                         || ')
     (  
 	  PARTITION PI VALUES (''I'') NOLOGGING NOCOMPRESS
+    , PARTITION PH VALUES (''H'') NOLOGGING NOCOMPRESS
     , PARTITION PU VALUES (''U'') NOLOGGING NOCOMPRESS
     , PARTITION PD VALUES (''D'') NOLOGGING NOCOMPRESS
     , PARTITION PR VALUES (''R'') NOLOGGING NOCOMPRESS
@@ -37,6 +38,7 @@ AS
     SUBPARTITION TEMPLATE 
     (  
         SUBPARTITION PI VALUES (''I''),
+        SUBPARTITION PH VALUES (''H''),
         SUBPARTITION PU VALUES (''U''),
         SUBPARTITION PD VALUES (''D''),
         SUBPARTITION PR VALUES (''R'')
@@ -101,7 +103,7 @@ AS
 
         stag_stat.prc_stat_end(l_n_stat_id, 0);
 
-          trac.log_sub_debug (l_vc_prc_name, ''STAT END'', ''#tableName# : Statistics gathered'');
+        trac.log_sub_debug (l_vc_prc_name, ''STAT END'', ''#tableName# : Statistics gathered'');
         ';
    -- Check token of the init procedure
    c_token_check_table_isempty    CLOB := '
@@ -146,7 +148,7 @@ AS
         trac.log_sub_debug (l_vc_prc_name, ''INSERT END'', ''#targetIdentifier# #partition# : '' || l_n_result || '' rows inserted'', NULL, l_n_result);
 		';
    -- Check token of the historicizing procedure
-   c_token_check_nk_equal         CLOB := '
+   c_token_diff_check             CLOB := '
         l_b_ok := dict.fct_check_pk (
 			NULL, ''#stgOwner#'', ''#stageTableName#'', ''#stgOwner#'', ''#histTableName#''
 		);
@@ -160,7 +162,7 @@ AS
         
         IF l_n_result = 0 THEN
             trac.log_sub_error (l_vc_prc_name, ''CHECK'', ''Table #stageTableName# is empty'');
-            raise_application_error (-20000, ''Stage1 table is empty.'');        
+            raise_application_error (-20000, ''Stage table is empty.'');        
         END IF;
         
         EXECUTE IMMEDIATE ''ALTER SESSION ENABLE PARALLEL DML'';
@@ -190,9 +192,24 @@ AS
    c_token_hist_reconcile         CLOB := '
         #enableParallelDML#
 		
-		-- Update Stage2 table
+        -- Close old and deleted records in hist table
+        
+        trac.log_sub_debug (l_vc_prc_name, ''HIST CLOSE'', ''Update #targetIdentifier#'');
+        l_n_stat_id := stag_stat.prc_stat_begin(''#sourceCode#'', ''#objectName#'', #partitionId#, ''HSCL'');
+
+        #closeStatement#
+
+        l_n_result := SQL%ROWCOUNT;
+
+        stag_stat.prc_stat_end(l_n_stat_id, l_n_result);
+
+        COMMIT;
+        
+        trac.log_sub_debug (l_vc_prc_name, ''HIST CLOSED'', ''#targetIdentifier# : '' || l_n_result || '' rows updated'');
+        
+    	-- Update Hist table
 		
-		trac.log_sub_debug (l_vc_prc_name, ''HIST UPDATE'', ''Update #histTableName#'');
+		trac.log_sub_debug (l_vc_prc_name, ''HIST UPDATE'', ''Update #targetIdentifier#'');
 		l_n_stat_id := stag_stat.prc_stat_begin(''#sourceCode#'', ''#objectName#'', #partitionId#, ''HSUP'');
 
         #updateStatement#
@@ -203,11 +220,11 @@ AS
 
         COMMIT;
 		
-        trac.log_sub_debug (l_vc_prc_name, ''HIST UPDATED'', ''#histTableName# : '' || l_n_result || '' rows updated'');
+        trac.log_sub_debug (l_vc_prc_name, ''HIST UPDATED'', ''#targetIdentifier# : '' || l_n_result || '' rows updated'');
 		
-		-- Insert into Stage2 table
+		-- Insert into Hist table
 		
-        trac.log_sub_debug (l_vc_prc_name, ''HIST INSERT'', ''#histTableName# : Insert'');
+        trac.log_sub_debug (l_vc_prc_name, ''HIST INSERT'', ''#targetIdentifier# : Insert'');
 
 	    l_n_stat_id := stag_stat.prc_stat_begin(''#sourceCode#'', ''#objectName#'', #partitionId#, ''HSIN'');
         
@@ -219,7 +236,7 @@ AS
 
 	    COMMIT;
 
-        trac.log_sub_debug (l_vc_prc_name, ''HIST END'', ''#histTableName# : '' || l_n_result || '' rows inserted'');';
+        trac.log_sub_debug (l_vc_prc_name, ''HIST END'', ''#targetIdentifier# : '' || l_n_result || '' rows inserted'');';
    -- Buffers
    l_buffer_pkg_head              CLOB;
    l_buffer_pkg_body              CLOB;
@@ -581,7 +598,7 @@ AS
    IS
       l_vc_prc_name    TYPE.vc_max_plsql := 'prc_create_stage_table';
       l_vc_message     VARCHAR2 (32000)
-                          :=    'Stage Table'
+                          :=    'Stage Table '
                              || g_vc_table_name_stage;
       l_sql_create     CLOB;
       l_list_utl_col   VARCHAR2 (32000);
@@ -750,18 +767,18 @@ AS
                     );
 
       BEGIN
-           trac.log_info (l_vc_message, 'Creating NK...');
+           trac.log_sub_debug (l_vc_message, 'Creating NK...');
          ddls.prc_create_object ('CONSTRAINT'
                                       , g_vc_nk_name_stage
                                       , l_sql_create
                                       , p_b_drop_flag
                                       , TRUE
                                        );
-           trac.log_info (l_vc_message, 'NK created');
+           trac.log_sub_debug (l_vc_message, 'NK created');
       EXCEPTION
          WHEN OTHERS
          THEN
-              trac.log_info (SQLERRM
+              trac.log_sub_debug (SQLERRM
                            , 'NK not created'
                            , param.gc_log_warn
                             );
@@ -852,9 +869,10 @@ AS
       l_sql_create     CLOB;
       l_list_utl_col   VARCHAR2 (32000);
    BEGIN
-      trac.log_info (
-         l_vc_message
-       , 'Duplicates Table: Begin'
+      trac.log_sub_debug (
+         l_vc_prc_name
+       , l_vc_message
+       , 'Begin'
       );
       l_list_utl_col :=
          CASE
@@ -940,9 +958,10 @@ AS
          );
       EXCEPTION
          WHEN OTHERS THEN
-            trac.log_error (
-               'Duplicates Table: Warning'
-             , SQLERRM
+            trac.log_sub_error (
+               l_vc_prc_name
+             , l_vc_message
+             , 'Duplicates Table: Warning'
             );
             RAISE;
       END;
@@ -956,15 +975,17 @@ AS
          ddls.prc_execute (l_sql_create);
       END IF;
 
-      trac.log_info (
-         l_vc_message
+      trac.log_sub_debug (
+         l_vc_prc_name
+       , l_vc_message
        , 'Duplicates Table: End'
       );
    EXCEPTION
       WHEN OTHERS THEN
-         trac.log_info (
-            SQLERRM
-          , 'Duplicates Table: Error'
+         trac.log_sub_error (
+            l_vc_prc_name
+          , l_vc_message
+          , 'Stage Table: Error'
          );
 
          IF p_b_raise_flag THEN
@@ -985,8 +1006,9 @@ AS
       l_sql_subpart_template   VARCHAR2 (32000);
       l_list_utl_col           VARCHAR2 (32000);
    BEGIN
-      trac.log_info (
-         l_vc_message
+      trac.log_sub_debug (
+         l_vc_prc_name
+       , l_vc_message
        , 'Difference table: Begin'
       );
       l_list_utl_col :=
@@ -1049,9 +1071,10 @@ AS
          );
       EXCEPTION
          WHEN OTHERS THEN
-            trac.log_error (
-               'Difference Table: Warning'
-             , SQLERRM
+            trac.log_sub_error (
+               l_vc_prc_name
+             , l_vc_message
+             , 'Difference Table: Error'
             );
             RAISE;
       END;
@@ -1098,9 +1121,10 @@ AS
          );
       EXCEPTION
          WHEN OTHERS THEN
-            trac.log_error (
-               'Difference table: Warning'
-             , SQLERRM
+            trac.log_sub_error (
+               l_vc_prc_name
+             , l_vc_message
+             , 'Difference table: Warning'
             );
             RAISE;
       END;
@@ -1114,14 +1138,16 @@ AS
          ddls.prc_execute (l_sql_create);
       END IF;
 
-      trac.log_info (
-         l_vc_message
+      trac.log_sub_debug (
+         l_vc_prc_name
+       , l_vc_message
        , 'Difference table: End'
       );
    EXCEPTION
       WHEN OTHERS THEN
-         trac.log_info (
-            SQLERRM
+         trac.log_sub_error (
+            l_vc_prc_name
+          , l_vc_message
           , 'Difference table: Error'
          );
 
@@ -1143,8 +1169,9 @@ AS
       l_list_utl_col    TYPE.vc_max_plsql;
       l_l_utl_columns   DBMS_SQL.varchar2s;
    BEGIN
-      trac.log_info (
-         l_vc_message
+      trac.log_sub_debug (
+         l_vc_prc_name
+       , l_vc_message
        , 'Diff Table: Begin'
       );
       -- Set anonymizad column lists
@@ -1217,14 +1244,15 @@ AS
          );
       EXCEPTION
          WHEN OTHERS THEN
-            trac.log_error (
-               'History Table Create: Warning'
-             , SQLERRM
+            trac.log_sub_error (
+               l_vc_prc_name
+             , l_vc_message
+             , 'History Table Create: Warning'
             );
 
             IF l_vc_def_anonymized IS NOT NULL THEN
                BEGIN
-                  trac.log_info (
+                  trac.log_sub_debug (
                      'Add new anonymized columns'
                    , 'History Table Add Anonymized'
                   );
@@ -1241,8 +1269,9 @@ AS
                      || ')';
                EXCEPTION
                   WHEN OTHERS THEN
-                     trac.log_warn (
-                        SQLERRM
+                     trac.log_sub_warn (
+                        l_vc_prc_name
+                      , l_vc_message
                       , 'History Table Add Anonymized: Warning'
                      );
 
@@ -1254,9 +1283,10 @@ AS
 
             IF l_vc_ini_anonymized IS NOT NULL THEN
                BEGIN
-                  trac.log_info (
-                     'Fill new anonymized columns'
-                   , 'History Table Upd Anonymized'
+                  trac.log_sub_debug (
+                     l_vc_prc_name
+                   , l_vc_message
+                   , 'Fill new anonymized columns - History Table Upd Anonymized'
                   );
 
                   -- Try to fill newly added anonymized columns
@@ -1272,8 +1302,9 @@ AS
                   COMMIT;
                EXCEPTION
                   WHEN OTHERS THEN
-                     trac.log_warn (
-                        SQLERRM
+                     trac.log_sub_warn (
+                        l_vc_prc_name
+                      , l_vc_message
                       , 'History Table Upd Anonymized: Warning'
                      );
 
@@ -1307,8 +1338,9 @@ AS
                || g_vc_fb_archive;
          EXCEPTION
             WHEN OTHERS THEN
-               trac.log_info (
-                  SQLERRM
+               trac.log_sub_debug (
+                  l_vc_prc_name
+                , l_vc_message
                 , 'History Table: FLASHBACK'
                );
          END;
@@ -1321,10 +1353,10 @@ AS
             || ' COMPRESS FOR QUERY LOW';
       EXCEPTION
          WHEN OTHERS THEN
-            trac.log_info (
-                  SQLERRM
-               || ' - FOR QUERY LOW option not available'
-             , 'History Table: COMPRESS'
+            trac.log_sub_warn (
+               l_vc_prc_name
+             , l_vc_message
+             , 'FOR QUERY LOW option not available'
             );
       END;
 
@@ -1343,7 +1375,9 @@ AS
       ddls.prc_set_text_param (
          l_sql_create
        , 'listColPk'
-       , g_vc_col_pk
+       ,    stag_param.c_vc_column_valid_to
+         || ','
+         || g_vc_col_pk
       );
       ddls.prc_set_text_param (
          l_sql_create
@@ -1381,9 +1415,10 @@ AS
          );
       EXCEPTION
          WHEN OTHERS THEN
-            trac.log_warn (
-               SQLERRM
-             , 'Stage 2 Natural Key: Warning'
+            trac.log_sub_warn (
+               l_vc_prc_name
+             , l_vc_message
+             , 'Hist table Natural Key: Warning'
             );
 
             IF p_b_raise_flag THEN
@@ -1448,7 +1483,7 @@ AS
             WHEN OTHERS THEN
                trac.log_warn (
                   SQLERRM
-                , 'Stage 2 Natural Key: Warning'
+                , 'Hist Natural Key: Warning'
                );
 
                IF p_b_raise_flag THEN
@@ -1457,21 +1492,22 @@ AS
          END;
       END LOOP;
 
-      EXECUTE IMMEDIATE
+      /*EXECUTE IMMEDIATE
             'GRANT SELECT ON '
          || g_vc_table_name_hist
          || ' TO '
-         || stag_param.c_vc_list_grantee;
-
-      trac.log_info (
-         l_vc_message
+         || stag_param.c_vc_list_grantee;*/
+      trac.log_sub_debug (
+         l_vc_prc_name
+       , l_vc_message
        , 'History Table: End'
       );
    EXCEPTION
       WHEN OTHERS THEN
-         trac.log_info (
-            SQLERRM
-          , 'History Table: Error'
+         trac.log_sub_warn (
+            l_vc_prc_name
+          , l_vc_message
+          , 'History Table: Warning'
          );
 
          IF p_b_raise_flag THEN
@@ -1483,13 +1519,14 @@ AS
    IS
       l_vc_prc_name   TYPE.vc_max_plsql := 'prc_create_hist_view';
       l_vc_message    VARCHAR2 (32000)
-                         :=    'View stage 2 '
+                         :=    'View Hist '
                             || g_vc_view_name_hist;
       l_sql_create    TYPE.vc_max_plsql;
    BEGIN
-      trac.log_info (
-         l_vc_message
-       , 'Stage 2 View: Begin'
+      trac.log_sub_debug (
+         l_vc_prc_name
+       , l_vc_message
+       , 'Hist View: Begin'
       );
       l_vc_viw_anonymized := '';
       -- ANONYMIZATION prc_set_anonymized_viewcols;
@@ -1521,15 +1558,17 @@ AS
          || ' TO '
          || stag_param.c_vc_list_grantee;
 
-      trac.log_info (
-         l_vc_message
-       , 'Stage 2 View: End'
+      trac.log_sub_debug (
+         l_vc_prc_name
+       , l_vc_message
+       , 'Hist View: End'
       );
    EXCEPTION
       WHEN OTHERS THEN
-         trac.log_info (
-            SQLERRM
-          , 'Stage 2 View: Error'
+         trac.log_sub_debug (
+            l_vc_prc_name
+          , l_vc_message
+          , 'Hist View: Error'
          );
 
          IF p_b_raise_flag THEN
@@ -1543,13 +1582,14 @@ AS
    IS
       l_vc_prc_name   TYPE.vc_max_plsql := 'prc_create_hist_synonym';
       l_vc_message    VARCHAR2 (32000)
-                         :=    'Synonym stage 2 '
+                         :=    'Synonym Hist '
                             || g_vc_view_name_hist;
       l_sql_create    TYPE.vc_max_plsql;
    BEGIN
-      trac.log_info (
-         l_vc_message
-       , 'Stage 2 Synonym: Begin'
+      trac.log_sub_debug (
+         l_vc_prc_name
+       , l_vc_message
+       , 'Hist Synonym: Begin'
       );
       l_vc_viw_anonymized := '';
       -- ANONYMIZATION prc_set_anonymized_viewcols;
@@ -1573,15 +1613,17 @@ AS
          || ' TO '
          || stag_param.c_vc_list_grantee;
 
-      trac.log_info (
-         l_vc_message
-       , 'Stage 2 Synonym: End'
+      trac.log_sub_debug (
+         l_vc_prc_name
+       , l_vc_message
+       , 'Hist Synonym: End'
       );
    EXCEPTION
       WHEN OTHERS THEN
-         trac.log_info (
-            SQLERRM
-          , 'Stage 2 Synonym: Error'
+         trac.log_sub_warn (
+            l_vc_prc_name
+          , l_vc_message
+          , 'Hist Synonym: Error'
          );
 
          IF p_b_raise_flag THEN
@@ -1595,13 +1637,14 @@ AS
    IS
       l_vc_prc_name   TYPE.vc_max_plsql := 'prc_create_fbda_view';
       l_vc_message    VARCHAR2 (32000)
-                         :=    'View stage 2 '
+                         :=    'View Hist '
                             || g_vc_view_name_hist;
       l_sql_create    TYPE.vc_max_plsql;
    BEGIN
-      trac.log_info (
-         l_vc_message
-       , 'Stage 2 View: Begin'
+      trac.log_sub_debug (
+         l_vc_prc_name
+       , l_vc_message
+       , 'Hist View: Begin'
       );
       l_vc_viw_anonymized := '';
       -- ANONYMIZATION prc_set_anonymized_viewcols;
@@ -1634,15 +1677,17 @@ AS
          || ' TO '
          || stag_param.c_vc_list_grantee;
 
-      trac.log_info (
-         l_vc_message
-       , 'Stage 2 View: End'
+      trac.log_sub_debug (
+         l_vc_prc_name
+       , l_vc_message
+       , 'Hist View: End'
       );
    EXCEPTION
       WHEN OTHERS THEN
-         trac.log_info (
-            SQLERRM
-          , 'Stage 2 View: Error'
+         trac.log_sub_warn (
+            l_vc_prc_name
+          , l_vc_message
+          , 'Hist View: Error'
          );
 
          IF p_b_raise_flag THEN
@@ -1656,14 +1701,15 @@ AS
    IS
       l_vc_prc_name      TYPE.vc_max_plsql := 'prc_create_prc_trunc_stage';
       l_vc_message       VARCHAR2 (32000)
-                            :=    'Procedure Trunc Stage table'
+                            :=    'Procedure trunc stage '
                                || g_vc_package_main;
       l_sql_prc          CLOB;
       l_sql_prc_token    CLOB;
       l_sql_prc_buffer   CLOB;
    BEGIN
-      trac.log_info (
-         l_vc_message
+      trac.log_sub_debug (
+         l_vc_prc_name
+       , l_vc_message
        , 'Begin'
       );
       --
@@ -1750,8 +1796,9 @@ AS
             l_buffer_pkg_body
          || CHR (10)
          || l_sql_prc;
-      trac.log_info (
-         l_vc_message
+      trac.log_sub_debug (
+         l_vc_prc_name
+       , l_vc_message
        , 'End'
       );
    END prc_create_prc_trunc_stage;
@@ -1760,14 +1807,15 @@ AS
    IS
       l_vc_prc_name      TYPE.vc_max_plsql := 'prc_create_prc_trunc_diff';
       l_vc_message       VARCHAR2 (32000)
-                            :=    'Procedure Trunc diff table'
+                            :=    'Procedure trunc diff '
                                || g_vc_package_main;
       l_sql_prc          CLOB;
       l_sql_prc_token    CLOB;
       l_sql_prc_buffer   CLOB;
    BEGIN
-      trac.log_info (
-         l_vc_message
+      trac.log_sub_debug (
+         l_vc_prc_name
+       , l_vc_message
        , 'Begin'
       );
       --
@@ -1838,8 +1886,9 @@ AS
             l_buffer_pkg_body
          || CHR (10)
          || l_sql_prc;
-      trac.log_info (
-         l_vc_message
+      trac.log_sub_debug (
+         l_vc_prc_name
+       , l_vc_message
        , 'End'
       );
    END prc_create_prc_trunc_diff;
@@ -1848,7 +1897,7 @@ AS
    IS
       l_vc_prc_name         TYPE.vc_max_plsql := 'prc_create_prc_init';
       l_vc_message          VARCHAR2 (32000)
-                               :=    'Procedure load init'
+                               :=    'Procedure load init '
                                   || g_vc_package_main;
       l_sql_prc             CLOB;
       l_sql_prc_token       CLOB;
@@ -1860,13 +1909,14 @@ AS
       l_list_utl_col_dupl   TYPE.vc_max_plsql;
       l_list_utl_val_dupl   TYPE.vc_max_plsql;
    BEGIN
+      trac.log_sub_debug (
+         l_vc_prc_name
+       , l_vc_message
+       , 'Begin'
+      );
       l_vc_col_anonymized := '';
       l_vc_fct_anonymized := '';
       -- ANONYMIZATION prc_set_anonymized_columns;
-      trac.log_info (
-         l_vc_message
-       , 'Begin'
-      );
       --
       -- Set utl columns strings
       l_list_utl_col_dupl :=
@@ -2037,12 +2087,12 @@ AS
          ddls.prc_set_text_param (
             l_sql_prc_token
           , 'sourceColumnList'
-          , g_vc_col_all
+          , l_vc_col_all
          );
          ddls.prc_set_text_param (
             l_sql_prc_token
           , 'targetColumnList'
-          , g_vc_col_all
+          , l_vc_col_all
          );
          ddls.prc_set_text_param (
             l_sql_prc_token
@@ -2068,14 +2118,7 @@ AS
          ddls.prc_set_text_param (
             l_sql_prc_token
           , 'partition'
-          , CASE
-               WHEN g_l_distr_code.COUNT > 1 THEN
-                     'PARTITION ('
-                  || stag_param.c_vc_prefix_partition
-                  || '_'
-                  || g_l_distr_code (i)
-                  || ')'
-            END
+          , NULL
          );
          ddls.prc_set_text_param (
             l_sql_prc_token
@@ -2205,8 +2248,9 @@ AS
             l_buffer_pkg_body
          || CHR (10)
          || l_sql_prc;
-      trac.log_info (
-         l_vc_message
+      trac.log_sub_debug (
+         l_vc_prc_name
+       , l_vc_message
        , 'End'
       );
    END prc_create_prc_init;
@@ -2215,7 +2259,7 @@ AS
    IS
       l_vc_prc_name      TYPE.vc_max_plsql := 'prc_create_prc_load_stage';
       l_vc_message       VARCHAR2 (32000)
-                            :=    'Procedure load stage1 '
+                            :=    'Procedure load stage '
                                || g_vc_package_main;
       l_sql_prc          CLOB;
       l_sql_prc_token    CLOB;
@@ -2223,8 +2267,9 @@ AS
       l_list_utl_col     TYPE.vc_max_plsql;
       l_list_utl_val     TYPE.vc_max_plsql;
    BEGIN
-      trac.log_info (
-         l_vc_message
+      trac.log_sub_debug (
+         l_vc_prc_name
+       , l_vc_message
        , 'Begin'
       );
       --
@@ -2523,8 +2568,9 @@ AS
             l_buffer_pkg_body
          || CHR (10)
          || l_sql_prc;
-      trac.log_info (
-         l_vc_message
+      trac.log_sub_debug (
+         l_vc_prc_name
+       , l_vc_message
        , 'End'
       );
    END prc_create_prc_load_stage;
@@ -2533,7 +2579,7 @@ AS
    IS
       l_vc_prc_name      TYPE.vc_max_plsql := 'prc_create_prc_load_stage_p';
       l_vc_message       VARCHAR2 (32000)
-                            :=    'Procedure load stage1 partition '
+                            :=    'Procedure load stage partition '
                                || g_vc_package_main;
       l_sql_prc          CLOB;
       l_sql_prc_token    CLOB;
@@ -2543,8 +2589,9 @@ AS
       l_list_utl_col     TYPE.vc_max_plsql;
       l_list_utl_val     TYPE.vc_max_plsql;
    BEGIN
-      trac.log_info (
-         l_vc_message
+      trac.log_sub_debug (
+         l_vc_prc_name
+       , l_vc_message
        , 'Begin'
       );
       --
@@ -2937,8 +2984,9 @@ AS
             || l_sql_prc;
       END LOOP;
 
-      trac.log_info (
-         l_vc_message
+      trac.log_sub_debug (
+         l_vc_prc_name
+       , l_vc_message
        , 'End'
       );
    END prc_create_prc_load_stage_p;
@@ -2947,7 +2995,7 @@ AS
    IS
       l_vc_prc_name         TYPE.vc_max_plsql := 'prc_create_prc_load_diff';
       l_vc_message          VARCHAR2 (32000)
-                               :=    'Procedure load hist'
+                               :=    'Procedure load diff '
                                   || g_vc_package_main;
       l_sql_prc             CLOB;
       l_sql_prc_token       CLOB;
@@ -2956,24 +3004,31 @@ AS
       l_n_iter_begin        NUMBER;
       l_n_iter_end          NUMBER;
       -- List of columns
-      l_vc_col_all          TYPE.vc_max_plsql;
+      l_vc_col_list         TYPE.vc_max_plsql;
       l_vc_col_pk_hist      TYPE.vc_max_plsql;
       l_vc_clause_on        TYPE.vc_max_plsql;
       l_vc_upd_clause_set   TYPE.vc_max_plsql;
+      l_vc_clause_history   TYPE.vc_max_plsql;
       l_vc_clause_update    TYPE.vc_max_plsql;
       l_vc_col_nvl2         TYPE.vc_max_plsql;
       -- Utl columns
       l_list_utl_col        TYPE.vc_max_plsql;
       l_list_utl_val        TYPE.vc_max_plsql;
    BEGIN
-      trac.log_info (
-         l_vc_message
+      trac.log_sub_debug (
+         l_vc_prc_name
+       , l_vc_message
        , 'Begin'
       );
       --
       -- Set utl columns strings
       l_list_utl_col := c_token_utl_column_hist;
       -- Get list of pk columns of the History Table
+      trac.log_sub_trace (
+         l_vc_prc_name
+       , l_vc_message
+       , 'Get list of pk columns of the History Table'
+      );
       l_vc_col_pk_hist :=
          dict.fct_get_column_list (
             NULL
@@ -2981,7 +3036,13 @@ AS
           , g_vc_table_name_hist
           , 'PK'
           , 'LIST_SIMPLE'
+          , p_vc_exclude_list   => stag_param.c_vc_column_valid_to
          );
+      trac.log_sub_trace (
+         l_vc_prc_name
+       , l_vc_message
+       , 'Got columns'
+      );
       --
       -- HEAD
       --
@@ -3020,7 +3081,12 @@ AS
       -- BODY
       --
       -- Get list of all columns
-      l_vc_col_all :=
+      trac.log_sub_trace (
+         l_vc_prc_name
+       , l_vc_message
+       , 'Get list of all columns in common within stage and hist tables'
+      );
+      l_vc_col_list :=
          dict.fct_get_column_subset (
             NULL
           , g_vc_owner_stg
@@ -3029,27 +3095,34 @@ AS
           , g_vc_table_name_hist
           , 'COMMON_ALL'
           , 'LIST_SIMPLE'
-         );                                                                                                                                                                -- In case the pk of stage 1 and History Tables is not the same, write a warning log
+         );
+      trac.log_sub_trace (
+         l_vc_prc_name
+       , l_vc_message
+       , 'Got columns'
+      );                                                                                                                                                                   -- In case the pk of stage 1 and History Tables is not the same, write a warning log
 
       IF g_vc_col_pk = l_vc_col_pk_hist
       OR (g_vc_col_pk IS NULL
       AND l_vc_col_pk_hist IS NULL) THEN
-         trac.log_info (
-               'Source '
+         trac.log_sub_debug (
+            l_vc_prc_name
+          , l_vc_message
+          ,    'Source '
             || g_vc_source_code
             || ', Object '
             || g_vc_table_name_source
             || ' : Stage and hist table have the same Natural Keys'
-          , 'CHECK NK'
          );
       ELSE
-         trac.log_info (
-               'Source '
+         trac.log_sub_debug (
+            l_vc_prc_name
+          , l_vc_message
+          ,    'Source '
             || g_vc_source_code
             || ', Object '
             || g_vc_table_name_source
             || ' : Stage and hist table have different Natural Keys'
-          , 'CHECK NK'
          );
       END IF;
 
@@ -3111,7 +3184,7 @@ AS
       l_sql_prc_buffer :=
             l_sql_prc_buffer
          || CHR (10)
-         || c_token_check_nk_equal;
+         || c_token_diff_check;
       ddls.prc_set_text_param (
          l_sql_prc_buffer
        , 'stgOwner'
@@ -3125,12 +3198,12 @@ AS
       ddls.prc_set_text_param (
          l_sql_prc_buffer
        , 'diffTableName'
-       , g_vc_table_name_stage
+       , g_vc_table_name_diff
       );
       ddls.prc_set_text_param (
          l_sql_prc_buffer
        , 'histTableName'
-       , g_vc_table_name_stage
+       , g_vc_table_name_hist
       );
 
       IF g_n_source_nk_flag = 0
@@ -3161,6 +3234,7 @@ AS
              , 'AND_ALIAS'
              , 'trg'
              , 'src'
+             , p_vc_exclude_list   => stag_param.c_vc_column_valid_to
             );
          l_vc_col_nvl2 :=
             dict.fct_get_column_subset (
@@ -3174,6 +3248,19 @@ AS
              , 'src'
              , 'trg'
             );
+         l_vc_clause_history :=
+            dict.fct_get_column_subset (
+               NULL
+             , g_vc_owner_stg
+             , g_vc_table_name_stage
+             , g_vc_owner_stg
+             , g_vc_table_name_hist
+             , 'COMMON_NPK'
+             , 'OR_DECODE'
+             , 'trg'
+             , 'src'
+             , p_vc_exclude_list   => g_vc_col_update
+            );
          l_vc_clause_update :=
             dict.fct_get_column_subset (
                NULL
@@ -3185,6 +3272,7 @@ AS
              , 'OR_DECODE'
              , 'trg'
              , 'src'
+             , p_vc_exclude_list   => g_vc_col_hist
             );
       END IF;
 
@@ -3300,7 +3388,7 @@ AS
       ddls.prc_set_text_param (
          l_sql_prc_buffer
        , 'targetColumnList'
-       , l_vc_col_all
+       , l_vc_col_list
       );
       ddls.prc_set_text_param (
          l_sql_prc_buffer
@@ -3310,8 +3398,13 @@ AS
       -- Set clauses
       ddls.prc_set_text_param (
          l_sql_prc_buffer
+       , 'historyClause'
+       , NVL (l_vc_clause_history, '1=0')
+      );
+      ddls.prc_set_text_param (
+         l_sql_prc_buffer
        , 'updateClause'
-       , l_vc_clause_update
+       , NVL (l_vc_clause_update, '1=0')
       );
       ddls.prc_set_text_param (
          l_sql_prc_buffer
@@ -3401,11 +3494,6 @@ AS
       );
       ddls.prc_set_text_param (
          l_sql_prc
-       , 'operationClause'
-       , ' IS NOT NULL'
-      );
-      ddls.prc_set_text_param (
-         l_sql_prc
        , 'prcName'
        , stag_param.c_vc_procedure_load_diff
       );
@@ -3414,7 +3502,7 @@ AS
          || CHR (10)
          || l_sql_prc;
       --
-      -- Load stage 2 without deletes
+      -- Load Hist without deletes
       --
       -- Put body in the generic prc template
       l_sql_prc := ddls.c_template_prc_body;
@@ -3455,11 +3543,6 @@ AS
       );
       ddls.prc_set_text_param (
          l_sql_prc
-       , 'operationClause'
-       , ' <> ''D'''
-      );
-      ddls.prc_set_text_param (
-         l_sql_prc
        , 'prcName'
        , stag_param.c_vc_procedure_load_diff_incr
       );
@@ -3467,8 +3550,9 @@ AS
             l_buffer_pkg_body
          || CHR (10)
          || l_sql_prc;
-      trac.log_info (
-         l_vc_message
+      trac.log_sub_debug (
+         l_vc_prc_name
+       , l_vc_message
        , 'End'
       );
    END prc_create_prc_load_diff;
@@ -3477,7 +3561,7 @@ AS
    IS
       l_vc_prc_name         TYPE.vc_max_plsql := 'prc_create_prc_load_hist';
       l_vc_message          VARCHAR2 (32000)
-                               :=    'Procedure load diff-to-stage2 '
+                               :=    'Procedure load hist '
                                   || g_vc_package_main;
       l_sql_prc             CLOB;
       l_sql_prc_token       CLOB;
@@ -3490,8 +3574,9 @@ AS
       l_vc_clause_on        TYPE.vc_max_plsql;
       l_vc_upd_clause_set   TYPE.vc_max_plsql;
    BEGIN
-      trac.log_info (
-         l_vc_message
+      trac.log_sub_debug (
+         l_vc_prc_name
+       , l_vc_message
        , 'Begin'
       );
       -- Set anonymizad column lists
@@ -3533,17 +3618,6 @@ AS
           , 'LIST_SIMPLE'
          );
 
-      /*l_vc_ins_col_target :=
-         dict.fct_get_column_subset (
-            NULL
-          , g_vc_owner_stg
-          , g_vc_table_name_stage
-          , g_vc_owner_stg
-          , g_vc_table_name_hist
-          , 'COMMON_ALL'
-          , 'LIST_ALIAS'
-          , 'trg'
-         );*/
       IF g_n_source_nk_flag = 0
      AND g_vc_col_pk_src IS NULL THEN
          -- If there is no natural key (tecnical PK) then use the alternate difference method
@@ -3572,6 +3646,7 @@ AS
              , 'AND_ALIAS'
              , 'trg'
              , 'src'
+             , p_vc_exclude_list   => stag_param.c_vc_column_valid_to
             );
          l_vc_upd_clause_set :=
             dict.fct_get_column_subset (
@@ -3599,6 +3674,11 @@ AS
 
       FOR i IN l_n_iter_begin .. l_n_iter_end LOOP
          l_sql_prc_token := c_token_hist_reconcile;
+         ddls.prc_set_text_param (
+            l_sql_prc_token
+          , 'closeStatement'
+          , stmt.c_sql_reconcile_close
+         );
          ddls.prc_set_text_param (
             l_sql_prc_token
           , 'updateStatement'
@@ -3704,20 +3784,6 @@ AS
        , 'utlValueList'
        , c_token_utl_colval_hist
       );
-      /* ddls.prc_set_text_param (
-          l_sql_prc_token
-        , 'listColSource'
-        ,    l_vc_ins_col_source
-          || CHR (10)
-          || l_vc_ins_anonymized
-       );
-       ddls.prc_set_text_param (
-          l_sql_prc_token
-        , 'listColTarget'
-        ,    l_vc_ins_col_target
-          || CHR (10)
-          || l_vc_col_anonymized
-       );*/
       -- Set clauses
       ddls.prc_set_text_param (
          l_sql_prc_buffer
@@ -3769,7 +3835,7 @@ AS
        , g_vc_object_name
       );
       --
-      -- Load stage 2 with table comparison
+      -- Load Hist with table comparison
       --
       -- Put body in the generic prc template
       l_sql_prc := ddls.c_template_prc_body;
@@ -3812,8 +3878,9 @@ AS
             l_buffer_pkg_body
          || CHR (10)
          || l_sql_prc;
-      trac.log_info (
-         l_vc_message
+      trac.log_sub_debug (
+         l_vc_prc_name
+       , l_vc_message
        , 'End'
       );
    END prc_create_prc_load_hist;
@@ -3831,8 +3898,9 @@ AS
       l_sql_prc_token    CLOB;
       l_sql_prc_buffer   CLOB;
    BEGIN
-      trac.log_info (
-         l_vc_message
+      trac.log_sub_debug (
+         l_vc_prc_name
+       , l_vc_message
        , 'Begin'
       );
       --
@@ -4051,8 +4119,9 @@ AS
             l_buffer_pkg_body
          || CHR (10)
          || l_sql_prc;
-      trac.log_info (
-         l_vc_message
+      trac.log_sub_debug (
+         l_vc_prc_name
+       , l_vc_message
        , 'End'
       );
    END prc_create_prc_wrapper;
@@ -4066,8 +4135,9 @@ AS
       l_sql_create    CLOB;
    BEGIN
       -- Package head
-      trac.log_info (
-         l_vc_message
+      trac.log_sub_debug (
+         l_vc_prc_name
+       , l_vc_message
        , 'Package head: Begin'
       );
       l_sql_create := ddls.c_template_pkg_head;
@@ -4099,13 +4169,15 @@ AS
        , FALSE
        , p_b_raise_flag
       );
-      trac.log_info (
-         l_vc_message
+      trac.log_sub_debug (
+         l_vc_prc_name
+       , l_vc_message
        , 'Package head: End'
       );
       -- Package body
-      trac.log_info (
-         l_vc_message
+      trac.log_sub_debug (
+         l_vc_prc_name
+       , l_vc_message
        , 'Package body: Begin'
       );
       l_sql_create := ddls.c_template_pkg_body;
@@ -4137,8 +4209,9 @@ AS
        , FALSE
        , p_b_raise_flag
       );
-      trac.log_info (
-         l_vc_message
+      trac.log_sub_debug (
+         l_vc_prc_name
+       , l_vc_message
        , 'Package body: End'
       );
    END prc_compile_package_main;
@@ -4154,8 +4227,9 @@ AS
                             || g_vc_package_main;
       l_sql_create    CLOB;
    BEGIN
-      trac.log_info (
-         l_vc_message
+      trac.log_sub_debug (
+         l_vc_prc_name
+       , l_vc_message
        , 'Begin'
       );
       l_buffer_pkg_head := '';
@@ -4209,7 +4283,7 @@ AS
       END IF;
 
       --
-      -- Stage 2 load
+      -- Hist load
       prc_create_prc_load_diff (p_b_raise_flag);
       prc_create_prc_load_hist (p_b_raise_flag);
       --
@@ -4221,8 +4295,9 @@ AS
       --
       -- Compile package
       prc_compile_package_main (p_b_raise_flag);
-      trac.log_info (
-         l_vc_message
+      trac.log_sub_debug (
+         l_vc_prc_name
+       , l_vc_message
        , 'End'
       );
    END prc_create_package_main;

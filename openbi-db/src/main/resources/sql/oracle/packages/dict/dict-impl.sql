@@ -7,6 +7,30 @@ AS
    * $Id: $
    * $HeadURL: $
    */
+   FUNCTION fct_column_in_list (
+      p_vc_column_name    VARCHAR2
+    , p_vc_column_list    VARCHAR2
+   )
+      RETURN BOOLEAN
+   IS
+      l_l_column_list   DBMS_SQL.varchar2s;
+      l_b_is_in_list    BOOLEAN := FALSE;
+   BEGIN
+      l_l_column_list :=
+         TYPE.fct_string_to_list (
+            p_vc_column_list
+          , ','
+         );
+
+      FOR i IN l_l_column_list.FIRST .. l_l_column_list.LAST LOOP
+         IF p_vc_column_name = l_l_column_list (i) THEN
+            l_b_is_in_list := TRUE;
+         END IF;
+      END LOOP;
+
+      RETURN l_b_is_in_list;
+   END;
+
    PROCEDURE prc_set_text_param (
       p_vc_code_string   IN OUT CLOB
     , p_vc_param_name    IN     TYPE.vc_obj_plsql
@@ -181,6 +205,7 @@ AS
          USING p_vc_owner
              , p_vc_object_name;
 
+      ROLLBACK;
       RETURN l_vc_tab_comm;
    END fct_get_table_comment;
 
@@ -251,12 +276,12 @@ AS
       LOOP
          FETCH l_cur_ref INTO l_vc_buffer;
 
-         IF p_vc_exclude_list IS NULL
-         OR INSTR (
-               p_vc_exclude_list
-             , l_vc_buffer
-            ) = 0 THEN
-            EXIT WHEN l_cur_ref%NOTFOUND;
+         EXIT WHEN l_cur_ref%NOTFOUND;
+
+         IF NOT fct_column_in_list (
+                   l_vc_buffer
+                 , p_vc_exclude_list
+                ) THEN
             l_vc_list :=
                   l_vc_list
                || CHR (10)
@@ -347,6 +372,7 @@ AS
             );
       END IF;
 
+      ROLLBACK;
       RETURN l_vc_list;
    END fct_get_column_list;
 
@@ -426,11 +452,10 @@ AS
 
          EXIT WHEN l_cur_ref%NOTFOUND;
 
-         IF p_vc_exclude_list IS NULL
-         OR INSTR (
-               p_vc_exclude_list
-             , l_vc_buffer
-            ) = 0 THEN
+         IF NOT fct_column_in_list (
+                   l_vc_buffer
+                 , p_vc_exclude_list
+                ) THEN
             l_vc_list :=
                   l_vc_list
                || CHR (10)
@@ -515,6 +540,7 @@ AS
             );
       END IF;
 
+      ROLLBACK;
       RETURN l_vc_list;
    END fct_get_column_subset;
 
@@ -535,6 +561,8 @@ AS
          INTO l_n_cnt_part
          USING p_vc_owner
              , p_vc_object_name;
+
+      ROLLBACK;
 
       IF l_n_cnt_part = 0 THEN
          RETURN FALSE;
@@ -586,6 +614,7 @@ AS
           , 'PK'
           , 'LIST_SIMPLE'
          );
+      ROLLBACK;
 
       IF l_vc_col_pk_1 = l_vc_col_pk_2
       OR (l_vc_col_pk_1 IS NULL
