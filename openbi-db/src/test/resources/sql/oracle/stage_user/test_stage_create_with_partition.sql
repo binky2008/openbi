@@ -25,7 +25,7 @@ BEGIN
    stag_meta.prc_object_ins (
       'TST'
     , 'SMALLTABLE'
-    , p_vc_hist_flag   => 0
+    , p_vc_hist_flag   => 1
    );
    --
    stag_meta.prc_column_ins (
