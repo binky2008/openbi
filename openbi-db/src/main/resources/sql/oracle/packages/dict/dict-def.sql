@@ -27,37 +27,45 @@ AS
    * Package body repository URL.
    */
    c_body_url                VARCHAR2 (1024);
+
    /**
-   *
+   * Object name type
    */
-   g_vc_src_obj_owner        TYPE.vc_obj_plsql;
-   g_vc_src_obj_dblink       TYPE.vc_obj_plsql;
+   SUBTYPE t_object_name IS VARCHAR2 (50);
+
+   /**
+   * String type
+   */
+   SUBTYPE t_string IS VARCHAR2 (32767);
+
+   g_vc_src_obj_owner        t_object_name;
+   g_vc_src_obj_dblink       t_object_name;
    /**
    * Generic metadata retrieval statements
    */
    -- PL/SQL block to store metadata in a tmp table.
-   c_sql_import_metadata     TYPE.vc_max_plsql := 'BEGIN
+   c_sql_import_metadata     t_string := 'BEGIN
 		DELETE #targetObject#;
 			
 		INSERT INTO #targetObject# #targetColumns#
 					#sourceSelect#;
 		COMMIT;
 	END;';
-   c_sql_tab_part            TYPE.vc_max_plsql := 'SELECT COUNT (*)
+   c_sql_tab_part            t_string := 'SELECT COUNT (*)
   FROM all_tab_partitions#dblink#
  WHERE table_owner = :ow
    AND table_name = :tb';
    -- Code token to retrieve all columns of an object and their position inside the pk.
    -- If the object is a view, try to detect PK information from an underlying table.
    -- Works for both remote and local tables.
-   c_sql_obj_col_all         TYPE.vc_max_plsql := 'SELECT column_name
+   c_sql_obj_col_all         t_string := 'SELECT column_name
     FROM all_tab_columns#dblink#
    WHERE owner = TRIM(UPPER(:p))
      AND table_name = TRIM(UPPER(:p))';
    -- Code token to retrieve pk columns of an object and their position inside the pk.
    -- If the object is a view, try to detect PK information from an underlying table.
    -- Works for both remote and local tables.
-   c_sql_obj_col_pk          TYPE.vc_max_plsql := 'SELECT tb.object_owner
+   c_sql_obj_col_pk          t_string := 'SELECT tb.object_owner
 					 , tb.object_name
 					 , cc.column_name
 					 , cc.position
@@ -96,7 +104,7 @@ AS
    -- Code token to retrieve pk columns of an object and their position inside the pk.
    -- If the object is a view, it doesn't try to detect PK from dependencies.
    -- Works for both remote and local tables.
-   c_sql_obj_col_pk_nodep    TYPE.vc_max_plsql := 'SELECT co.owner AS object_owner
+   c_sql_obj_col_pk_nodep    t_string := 'SELECT co.owner AS object_owner
                        , co.table_name AS object_name
                        , cc.column_name
                        , cc.position
@@ -108,7 +116,7 @@ AS
                      AND co.constraint_type = ''P''';
    -- Get column properties for an object.
    -- Works for both remote and local tables.
-   c_sql_col_def             TYPE.vc_max_plsql := 'SELECT tc.column_id
+   c_sql_col_def             t_string := 'SELECT tc.column_id
 	   , tc.column_name
 	   , cm.comments
        , tc.data_type
@@ -139,7 +147,7 @@ AS
 ORDER BY tc.column_id';
    -- Get all columns for a given obejct.
    -- Works for both remote and local tables.
-   c_sql_col_all             TYPE.vc_max_plsql := 'SELECT column_name
+   c_sql_col_all             t_string := 'SELECT column_name
     FROM all_tab_columns#dblink#
    WHERE owner = TRIM(UPPER(:ow))
      AND table_name = TRIM(UPPER(:tb))
@@ -147,7 +155,7 @@ ORDER BY column_id';
    -- Get all pk columns for a given obejct.
    -- If the object is a view, try to detect PK information from an underlying table.
    -- Works for both remote and local tables.
-   c_sql_col_pk              TYPE.vc_max_plsql := 'SELECT column_name
+   c_sql_col_pk              t_string := 'SELECT column_name
     FROM (#sql_obj_pk#)
 	WHERE object_owner = TRIM(UPPER(:ow))
      AND object_name = TRIM(UPPER(:tb))
@@ -155,7 +163,7 @@ ORDER BY position';
    -- Get all non pk columns for a given obejct.
    -- If the object is a view, try to detect PK information from an underlying table.
    -- Works for both remote and local tables.
-   c_sql_col_npk             TYPE.vc_max_plsql := 'SELECT column_name
+   c_sql_col_npk             t_string := 'SELECT column_name
     FROM all_tab_columns#dblink#
    WHERE owner = TRIM(UPPER(:ow))
      AND table_name = TRIM(UPPER(:tb))
@@ -165,7 +173,7 @@ ORDER BY position';
 	WHERE object_owner = TRIM(UPPER(:ow))
      AND object_name = TRIM(UPPER(:tb))';
    -- Get all columns 2 given obejcts have in common.
-   c_sql_col_common_all      TYPE.vc_max_plsql := 'SELECT column_name
+   c_sql_col_common_all      t_string := 'SELECT column_name
     FROM all_tab_columns#dblink#
    WHERE owner = TRIM(UPPER(:p))
      AND table_name = TRIM(UPPER(:p))
@@ -175,7 +183,7 @@ ORDER BY position';
    WHERE owner = TRIM(UPPER(:ow))
      AND table_name = TRIM(UPPER(:tb))';
    -- Get all non-pk columns 2 given obejcts have in common.
-   c_sql_col_common_npk      TYPE.vc_max_plsql := '(SELECT column_name
+   c_sql_col_common_npk      t_string := '(SELECT column_name
     FROM all_tab_columns#dblink#
    WHERE owner = TRIM(UPPER(:ow1))
      AND table_name = TRIM(UPPER(:tb1))
@@ -205,7 +213,7 @@ ORDER BY position';
    WHERE owner = TRIM(UPPER(:ow2))
      AND name = TRIM(UPPER(:tb2)))';
    -- Get table comments
-   c_sql_tab_comm            TYPE.vc_max_plsql := 'SELECT comments
+   c_sql_tab_comm            t_string := 'SELECT comments
   FROM all_tab_comments#dblink#
  WHERE owner = TRIM(UPPER(:ow))
    AND table_name = TRIM(UPPER(:tb))';
@@ -219,7 +227,7 @@ ORDER BY position';
    */
    PROCEDURE prc_set_text_param (
       p_vc_code_string   IN OUT CLOB
-    , p_vc_param_name    IN     TYPE.vc_obj_plsql
+    , p_vc_param_name    IN     VARCHAR2
     , p_vc_param_value   IN     CLOB
    );
 

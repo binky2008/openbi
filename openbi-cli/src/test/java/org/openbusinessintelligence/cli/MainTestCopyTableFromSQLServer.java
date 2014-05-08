@@ -84,7 +84,7 @@ public class MainTestCopyTableFromSQLServer {
 		
 		initSource();
 		//
-		targetArgs[0] = "localhost_db2_sample_test";
+		targetArgs[0] = "localhost_db2_dwhdev_test";
 		targetArgs[1] = "";
 		targetArgs[2] = "test";
 		targetArgs[3] = "stg_mss_tab_test";

@@ -13,53 +13,19 @@ AS
    /**
    * Package spec version string.
    */
-   c_spec_version   CONSTANT VARCHAR2 (1024) := '$Id: $';
+   c_spec_version         CONSTANT VARCHAR2 (1024) := '$Id: $';
    /**
    * Package spec repository URL.
    */
-   c_spec_url       CONSTANT VARCHAR2 (1024) := '$HeadURL: $';
+   c_spec_url             CONSTANT VARCHAR2 (1024) := '$HeadURL: $';
    /**
    * Package body version string.
    */
-   c_body_version            VARCHAR2 (1024);
+   c_body_version                  VARCHAR2 (1024);
    /**
    * Package body repository URL.
    */
-   c_body_url                VARCHAR2 (1024);
-   /**
-   * Max length of a pl/sql code block
-   */
-   c_i_max_plsql_length   CONSTANT INTEGER := 32000;
-   /**
-   * Length of a varchar2s row
-   */
-   c_i_max_vc2s_length    CONSTANT INTEGER := 255;
-
-   /**
-   * String type for object names
-   */
-   SUBTYPE vc_obj_plsql IS VARCHAR2 (100);
-
-   /**
-   * String type for object names
-   */
-   SUBTYPE vc_max_line IS VARCHAR2 (255);
-
-   /**
-   * String type for PL/SQL statements
-   */
-   SUBTYPE vc_max_plsql IS VARCHAR2 (32000);
-
-   /**
-   * String type for table columns
-   */
-   SUBTYPE vc_max_db IS VARCHAR2 (4000);
-
-   /**
-   * List of program lines
-   */
-   TYPE l_line_array IS TABLE OF vc_max_db
-      INDEX BY PLS_INTEGER;
+   c_body_url                      VARCHAR2 (1024);
 
    /**
    * Dummy test procedure to fix package state issue
@@ -110,7 +76,7 @@ AS
    */
    FUNCTION fct_list_to_clob (
       p_str_list      DBMS_SQL.varchar2s
-    , p_vc_separer    VARCHAR2 DEFAULT CHR (10)
+    , p_vc_separer    VARCHAR2 DEFAULT ','
    )
       RETURN CLOB;
 
@@ -123,7 +89,7 @@ AS
    */
    FUNCTION fct_clob_to_list (
       p_cclob         CLOB
-    , p_vc_separer    VARCHAR2 DEFAULT CHR (10)
+    , p_vc_separer    VARCHAR2 DEFAULT ','
    )
       RETURN DBMS_SQL.varchar2s;
 
@@ -136,7 +102,7 @@ AS
    */
    FUNCTION fct_string_to_list (
       p_vcstring      VARCHAR2
-    , p_vc_separer    VARCHAR2 DEFAULT CHR (10)
+    , p_vc_separer    VARCHAR2 DEFAULT ','
    )
       RETURN DBMS_SQL.varchar2s;
 
@@ -149,7 +115,7 @@ AS
    */
    FUNCTION fct_list_to_string (
       p_vc2string     DBMS_SQL.varchar2s
-    , p_vc_separer    VARCHAR2 DEFAULT CHR (10)
+    , p_vc_separer    VARCHAR2 DEFAULT ','
    )
       RETURN VARCHAR2;
 

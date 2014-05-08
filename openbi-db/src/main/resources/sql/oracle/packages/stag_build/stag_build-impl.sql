@@ -7,6 +7,16 @@ AS
    * $Id: $
    * $HeadURL: $
    */
+   /**
+   * Object name type
+   */
+   SUBTYPE t_object_name IS VARCHAR2 (50);
+
+   /**
+   * String type
+   */
+   SUBTYPE t_string IS VARCHAR2 (32767);
+
    PROCEDURE prc_build_all (
       p_vc_source_code       VARCHAR2 DEFAULT 'ALL'
     , p_vc_object_name       VARCHAR2 DEFAULT 'ALL'
@@ -16,17 +26,17 @@ AS
     , p_b_raise_flag         BOOLEAN DEFAULT FALSE
    )
    IS
-      l_vc_prc_name           TYPE.vc_obj_plsql := 'prc_build_all';
-      l_vc_stage_db_list      TYPE.vc_max_plsql;
-      l_vc_stage_owner_list   TYPE.vc_max_plsql;
-      l_vc_distr_code_list    TYPE.vc_max_plsql;
-      l_vc_col_def            TYPE.vc_max_plsql;
-      l_vc_col_all            TYPE.vc_max_plsql;
-      l_vc_col_pk             TYPE.vc_max_plsql;
-      l_vc_col_comm           TYPE.vc_max_plsql;
+      l_vc_prc_name           t_object_name := 'prc_build_all';
+      l_vc_stage_db_list      t_string;
+      l_vc_stage_owner_list   t_string;
+      l_vc_distr_code_list    t_string;
+      l_vc_col_def            t_string;
+      l_vc_col_all            t_string;
+      l_vc_col_pk             t_string;
+      l_vc_col_comm           t_string;
       --
-      l_vc_col_hst            TYPE.vc_max_plsql;
-      l_vc_col_upd            TYPE.vc_max_plsql;
+      l_vc_col_hst            t_string;
+      l_vc_col_upd            t_string;
    BEGIN
       --trac.set_console_logging (FALSE);
       trac.log_sub_info (
@@ -425,18 +435,18 @@ AS
     , p_b_raise_flag      BOOLEAN DEFAULT FALSE
    )
    IS
-      l_vc_prc_name           TYPE.vc_obj_plsql := 'prc_build_hist';
-      l_vc_stage_db_list      TYPE.vc_max_plsql;
-      l_vc_stage_owner_list   TYPE.vc_max_plsql;
-      l_vc_distr_code_list    TYPE.vc_max_plsql;
+      l_vc_prc_name           t_object_name := 'prc_build_hist';
+      l_vc_stage_db_list      t_string;
+      l_vc_stage_owner_list   t_string;
+      l_vc_distr_code_list    t_string;
       --
-      l_vc_col_def            TYPE.vc_max_plsql;
-      l_vc_col_all            TYPE.vc_max_plsql;
-      l_vc_col_pk             TYPE.vc_max_plsql;
-      l_vc_col_comm           TYPE.vc_max_plsql;
+      l_vc_col_def            t_string;
+      l_vc_col_all            t_string;
+      l_vc_col_pk             t_string;
+      l_vc_col_comm           t_string;
       --
-      l_vc_col_hst            TYPE.vc_max_plsql;
-      l_vc_col_upd            TYPE.vc_max_plsql;
+      l_vc_col_hst            t_string;
+      l_vc_col_upd            t_string;
    BEGIN
       --trac.set_console_logging (FALSE);
       trac.log_sub_info (
@@ -678,14 +688,14 @@ AS
     , p_vc_object_name    VARCHAR2
    )
    IS
-      l_vc_prc_name          TYPE.vc_obj_plsql := 'prc_upgrade_hist';
-      l_vc_stage_db_list     TYPE.vc_max_plsql;
-      l_vc_distr_code_list   TYPE.vc_max_plsql;
-      l_vc_col_def           TYPE.vc_max_plsql;
-      l_vc_col_pk            TYPE.vc_max_plsql;
-      l_vc_table_name_bkp    TYPE.vc_obj_plsql;
+      l_vc_prc_name          t_object_name := 'prc_upgrade_hist';
+      l_vc_stage_db_list     t_string;
+      l_vc_distr_code_list   t_string;
+      l_vc_col_def           t_string;
+      l_vc_col_pk            t_string;
+      l_vc_table_name_bkp    t_object_name;
       --
-      l_vc_sql_statement     TYPE.vc_obj_plsql;
+      l_vc_sql_statement     t_string;
       --
       l_n_cnt                NUMBER;
    BEGIN

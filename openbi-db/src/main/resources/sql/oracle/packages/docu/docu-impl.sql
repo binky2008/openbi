@@ -7,13 +7,16 @@ IS
    * $Id: $
    * $HeadURL: $
    */
+   TYPE l_line_array IS TABLE OF VARCHAR2 (4000)
+      INDEX BY PLS_INTEGER;
+
    PROCEDURE prc_set_text_param (
       p_vc_code_string   IN OUT CLOB
-    , p_vc_param_name    IN     TYPE.vc_obj_plsql
+    , p_vc_param_name    IN     VARCHAR2
     , p_vc_param_value   IN     CLOB
    )
    IS
-      l_vc_prc_name        TYPE.vc_obj_plsql := 'PRC_SET_CODE_PARAM';
+      l_vc_prc_name        VARCHAR2(50) := 'PRC_SET_CODE_PARAM';
       l_vc_buffer_in       CLOB;
       l_vc_buffer_out      CLOB;
       l_vc_token           CLOB;
@@ -148,7 +151,7 @@ IS
              || '</data>';
    END fct_get_data;
 
-   FUNCTION fct_get_data (p_l_content TYPE.l_line_array)
+   FUNCTION fct_get_data (p_l_content l_line_array)
       RETURN CLOB
    IS
       l_vc_content   CLOB;
@@ -250,7 +253,7 @@ IS
       RETURN CLOB
    IS
       l_l_columns        DBMS_SQL.varchar2s;
-      l_l_records        TYPE.l_line_array;
+      l_l_records        l_line_array;
       l_vc_column_list   VARCHAR2 (32000);
       l_vc_sql           VARCHAR2 (32000);
       l_xml_meta         CLOB;

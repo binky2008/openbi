@@ -76,14 +76,6 @@ AS
       RETURN CLOB;
 
    /**
-   * Generate data part of the data set
-   *
-   * p_vc_content       Content to be transformed
-   */
-   FUNCTION fct_get_data (p_l_content TYPE.l_line_array)
-      RETURN CLOB;
-
-   /**
    * Generate complete dataset
    *
    * p_vc_content       Content to be transformed

@@ -9,11 +9,11 @@ AS
    */
    PROCEDURE prc_set_text_param (
       p_vc_code_string   IN OUT CLOB
-    , p_vc_param_name    IN     TYPE.vc_obj_plsql
+    , p_vc_param_name    IN     VARCHAR2
     , p_vc_param_value   IN     CLOB
    )
    IS
-      l_vc_prc_name        TYPE.vc_obj_plsql := 'PRC_SET_TEXT_PARAM';
+      l_vc_prc_name        t_object_name := 'PRC_SET_TEXT_PARAM';
       l_vc_buffer_in       CLOB;
       l_vc_buffer_out      CLOB;
       l_vc_token           CLOB;
@@ -120,7 +120,11 @@ AS
       l_vcs_code      DBMS_SQL.varchar2s;
       l_i_cursor_id   INTEGER;
    BEGIN
-      l_vcs_code := TYPE.fct_clob_to_list (p_sql_code);
+      l_vcs_code :=
+         TYPE.fct_clob_to_list (
+            p_sql_code
+          , CHR (10)
+         );
       l_i_cursor_id := DBMS_SQL.open_cursor;
       DBMS_SQL.parse (
          l_i_cursor_id
@@ -188,7 +192,7 @@ AS
     , p_b_raise_flag      BOOLEAN DEFAULT FALSE
    )
    IS
-      l_vc_prc_name   VARCHAR2 (50) := 'PRC_DROP_OBJECT';
+      l_vc_prc_name   t_object_name := 'PRC_DROP_OBJECT';
       l_ddl_drop      VARCHAR2 (32000);
    BEGIN
       l_ddl_drop :=
@@ -213,7 +217,7 @@ AS
     , p_b_raise_flag       BOOLEAN DEFAULT FALSE
    )
    IS
-      l_vc_object_type   TYPE.vc_obj_plsql;
+      l_vc_object_type   t_object_name;
    BEGIN
       l_vc_object_type :=
             CASE

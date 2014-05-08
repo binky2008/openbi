@@ -81,7 +81,7 @@ public class MainTestCopySchemaFromOracle {
 		
 		initSource();
 		//
-		targetArgs[0] = "localhost_db2_sample_dwhstage";
+		targetArgs[0] = "localhost_db2_dwhdev_dwhstage";
 		targetArgs[1] = "";
 		targetArgs[2] = "dwhstage";
 		//

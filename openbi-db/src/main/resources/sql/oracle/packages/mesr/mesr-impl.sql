@@ -7,6 +7,14 @@ AS
    * $Id: $
    * $HeadURL: $
    */
+   /**
+   * Object name type
+   */
+   SUBTYPE t_object_name IS VARCHAR2 (50);
+
+   /**
+   * Key value type
+   */
    TYPE r_keyvalue IS RECORD (
       keyfigure     VARCHAR2 (100)
     , resultvalue   NUMBER
@@ -21,7 +29,7 @@ AS
    )
       RETURN BOOLEAN
    IS
-      l_vc_prc_name         TYPE.vc_obj_plsql := 'FCT_EXEC_VERIFY';
+      l_vc_prc_name         t_object_name := 'FCT_EXEC_VERIFY';
       l_n_keyfigure_id      NUMBER;
       l_vc_threshold_type   CHAR (1);
       l_n_threshold_min     NUMBER;
@@ -153,7 +161,7 @@ AS
     , p_vc_taxonomy_code   IN VARCHAR2
    )
    IS
-      l_vc_prc_name   TYPE.vc_obj_plsql := 'PRC_mesr_TAXONOMY_INS';
+      l_vc_prc_name   t_object_name := 'PRC_mesr_TAXONOMY_INS';
    BEGIN
       trac.log_sub_info (
          l_vc_prc_name
@@ -192,7 +200,7 @@ AS
     , p_vc_taxonomy_code   IN VARCHAR2
    )
    IS
-      l_vc_prc_name   TYPE.vc_obj_plsql := 'PRC_CASE_TAXONOMY_DEL';
+      l_vc_prc_name   t_object_name := 'PRC_CASE_TAXONOMY_DEL';
    BEGIN
       trac.log_sub_info (
          'Deleting in mesr_case_taxonomy_t'
@@ -221,7 +229,7 @@ AS
     , p_vc_query_sql    IN CLOB
    )
    IS
-      l_vc_prc_name   TYPE.vc_obj_plsql := 'PRC_query_INS';
+      l_vc_prc_name   t_object_name := 'PRC_query_INS';
    BEGIN
       MERGE INTO mesr_query_t trg
            USING (SELECT p_vc_query_code AS query_code
@@ -257,7 +265,7 @@ AS
     , p_b_cascade       IN BOOLEAN DEFAULT FALSE
    )
    IS
-      l_vc_prc_name   TYPE.vc_obj_plsql := 'PRC_query_DEL';
+      l_vc_prc_name   t_object_name := 'PRC_query_DEL';
       l_n_query_id    NUMBER;
       l_n_cnt         NUMBER;
    BEGIN
@@ -308,7 +316,7 @@ AS
     , p_vc_keyfigure_name   IN VARCHAR2
    )
    IS
-      l_vc_prc_name   TYPE.vc_obj_plsql := 'PRC_KEYFIGURE_INS';
+      l_vc_prc_name   t_object_name := 'PRC_KEYFIGURE_INS';
    BEGIN
       MERGE INTO mesr_keyfigure_t trg
            USING (SELECT s.mesr_query_id
@@ -346,7 +354,7 @@ AS
     , p_b_cascade           IN BOOLEAN DEFAULT FALSE
    )
    IS
-      l_vc_prc_name      TYPE.vc_obj_plsql := 'PRC_KEYFIGURE_DEL';
+      l_vc_prc_name      t_object_name := 'PRC_KEYFIGURE_DEL';
       l_n_keyfigure_id   NUMBER;
       l_n_cnt            NUMBER;
    BEGIN
@@ -418,7 +426,7 @@ AS
                                             )
    )
    IS
-      l_vc_prc_name        TYPE.vc_obj_plsql := 'PRC_THRESHOLD_INS';
+      l_vc_prc_name        t_object_name := 'PRC_THRESHOLD_INS';
       l_d_threshold_from   DATE
                               := NVL (
                                     p_d_threshold_from
@@ -568,7 +576,7 @@ AS
     , p_vc_result_report    IN CLOB
    )
    IS
-      l_vc_prc_name   TYPE.vc_obj_plsql := 'PRC_EXEC_INS';
+      l_vc_prc_name   t_object_name := 'PRC_EXEC_INS';
    BEGIN
       INSERT INTO mesr_exec_t (
                      mesr_keyfigure_id
@@ -598,7 +606,7 @@ AS
     , p_vc_storage_type        IN VARCHAR2 DEFAULT 'VALUE'
    )
    IS
-      l_vc_prc_name       TYPE.vc_obj_plsql := 'PRC_EXEC';
+      l_vc_prc_name       t_object_name := 'PRC_EXEC';
       l_keyfigure         t_keyvalue;
       l_vc_query_table    VARCHAR2 (100);
       l_vc_stmt           VARCHAR2 (32000);
@@ -800,7 +808,7 @@ AS
     , p_vc_storage_type        IN VARCHAR2 DEFAULT 'VALUE'
    )
    IS
-      l_vc_prc_name   TYPE.vc_obj_plsql := 'PRC_EXEC_TAXONOMY';
+      l_vc_prc_name   t_object_name := 'PRC_EXEC_TAXONOMY';
    BEGIN
       trac.log_sub_info (
             'Executing all cases belonging to taxonomy '

@@ -33,11 +33,11 @@ AS
 
    PROCEDURE prc_set_text_param (
       p_vc_code_string   IN OUT CLOB
-    , p_vc_param_name    IN     TYPE.vc_obj_plsql
+    , p_vc_param_name    IN     VARCHAR2
     , p_vc_param_value   IN     CLOB
    )
    IS
-      l_vc_prc_name        TYPE.vc_obj_plsql := 'PRC_SET_TEXT_PARAM';
+      l_vc_prc_name        t_object_name := 'PRC_SET_TEXT_PARAM';
       l_vc_buffer_in       CLOB;
       l_vc_buffer_out      CLOB;
       l_vc_token           CLOB;
@@ -113,7 +113,7 @@ AS
 
    PROCEDURE prc_set_src_param (p_vc_code_string IN OUT CLOB)
    IS
-      l_vc_prc_name   TYPE.vc_max_plsql := 'PRC_SET_SRC_PARAM';
+      l_vc_prc_name   t_string := 'PRC_SET_SRC_PARAM';
    BEGIN
       prc_set_text_param (
          p_vc_code_string
@@ -144,8 +144,8 @@ AS
     , p_b_check_dependencies    BOOLEAN DEFAULT TRUE
    )
    IS
-      l_sql_col_def           TYPE.vc_max_plsql := c_sql_col_def;
-      l_sql_import_metadata   TYPE.vc_max_plsql := c_sql_import_metadata;
+      l_sql_col_def           t_string := c_sql_col_def;
+      l_sql_import_metadata   t_string := c_sql_import_metadata;
    BEGIN
       g_vc_src_obj_dblink := p_vc_dblink;
       prc_set_text_param (
@@ -194,8 +194,8 @@ AS
    )
       RETURN VARCHAR2
    IS
-      l_sql_tab_comm   TYPE.vc_max_plsql := c_sql_tab_comm;
-      l_vc_tab_comm    TYPE.vc_max_plsql;
+      l_sql_tab_comm   t_string := c_sql_tab_comm;
+      l_vc_tab_comm    t_string;
    BEGIN
       g_vc_src_obj_dblink := p_vc_dblink;
       prc_set_src_param (l_sql_tab_comm);
@@ -224,12 +224,12 @@ AS
       TYPE t_cur_ref IS REF CURSOR;
 
       l_cur_ref       t_cur_ref;
-      l_sql_col_all   TYPE.vc_max_plsql := c_sql_col_all;
-      l_sql_col_npk   TYPE.vc_max_plsql := c_sql_col_npk;
-      l_sql_col_pk    TYPE.vc_max_plsql := c_sql_col_pk;
-      l_vc_buffer     TYPE.vc_max_plsql;
-      l_vc_list       TYPE.vc_max_plsql;
-      l_vc_owner      TYPE.vc_obj_plsql;
+      l_sql_col_all   t_string := c_sql_col_all;
+      l_sql_col_npk   t_string := c_sql_col_npk;
+      l_sql_col_pk    t_string := c_sql_col_pk;
+      l_vc_buffer     t_string;
+      l_vc_list       t_string;
+      l_vc_owner      t_object_name;
    BEGIN
       g_vc_src_obj_dblink := p_vc_dblink;
       l_vc_owner :=
@@ -393,12 +393,13 @@ AS
       TYPE t_cur_ref IS REF CURSOR;
 
       l_cur_ref              t_cur_ref;
-      l_sql_col_common_all   TYPE.vc_max_plsql := c_sql_col_common_all;
-      l_sql_col_common_npk   TYPE.vc_max_plsql := c_sql_col_common_npk;
-      l_vc_buffer            TYPE.vc_max_plsql;
-      l_vc_list              TYPE.vc_max_plsql;
-      l_vc_owner1            TYPE.vc_obj_plsql;
-      l_vc_owner2            TYPE.vc_obj_plsql;
+      l_sql_col_common_all   t_string := c_sql_col_common_all;
+      l_sql_col_common_npk   t_string := c_sql_col_common_npk;
+      l_vc_buffer            t_string;
+      l_vc_list              t_string;
+      --
+      l_vc_owner1            t_object_name;
+      l_vc_owner2            t_object_name;
    BEGIN
       g_vc_src_obj_dblink := p_vc_dblink1;
       l_vc_owner1 :=
@@ -552,7 +553,7 @@ AS
       RETURN BOOLEAN
    IS
       l_n_cnt_part     NUMBER;
-      l_sql_tab_part   TYPE.vc_max_plsql := c_sql_tab_part;
+      l_sql_tab_part   t_string := c_sql_tab_part;
    BEGIN
       g_vc_src_obj_dblink := p_vc_dblink;
       prc_set_src_param (l_sql_tab_part);
@@ -580,8 +581,8 @@ AS
    )
       RETURN BOOLEAN
    IS
-      l_vc_col_all_1   TYPE.vc_max_plsql;
-      l_vc_col_all_2   TYPE.vc_max_plsql;
+      l_vc_col_all_1   t_string;
+      l_vc_col_all_2   t_string;
    BEGIN
       NULL;
    END fct_check_col;
@@ -595,8 +596,8 @@ AS
    )
       RETURN BOOLEAN
    IS
-      l_vc_col_pk_1   TYPE.vc_max_plsql;
-      l_vc_col_pk_2   TYPE.vc_max_plsql;
+      l_vc_col_pk_1   t_string;
+      l_vc_col_pk_2   t_string;
    BEGIN
       l_vc_col_pk_1 :=
          fct_get_column_list (

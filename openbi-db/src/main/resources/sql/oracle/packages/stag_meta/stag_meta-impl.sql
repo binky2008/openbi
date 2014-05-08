@@ -7,9 +7,22 @@ AS
    * $Id: $
    * $HeadURL: $
    */
+   /**
+   * Object name type
+   */
+   SUBTYPE t_object_name IS VARCHAR2 (50);
+
+   /**
+   * String type
+   */
+   SUBTYPE t_string IS VARCHAR2 (32767);
+
+   /**
+   * Table containing dictionary values
+   */
    TYPE r_column IS RECORD (
       stag_column_pos         NUMBER
-    , stag_column_name        VARCHAR2 (50)
+    , stag_column_name        VARCHAR2 (4000)
     , stag_column_comment     VARCHAR2 (4000)
     , stag_column_type        VARCHAR2 (4000)
     , stag_column_length      VARCHAR2 (4000)
@@ -22,6 +35,9 @@ AS
    TYPE t_t_columns IS TABLE OF r_column;
 
    l_t_columns      t_t_columns := NULL;
+   /**
+   * Other types
+   */
    l_sql_col_def    CLOB := dict.c_sql_col_def;
    l_n_pk_pos_max   NUMBER;
 
@@ -34,7 +50,7 @@ AS
    )
       RETURN VARCHAR2
    IS
-      l_vc_list   TYPE.vc_max_plsql;
+      l_vc_list   t_string;
    BEGIN
       -- Build list of columns
       FOR r_col IN (  SELECT stag_column_name
@@ -350,7 +366,7 @@ AS
     , p_vc_increment_buffer   IN NUMBER DEFAULT NULL
    )
    IS
-      l_vc_table_comment   TYPE.vc_max_plsql;
+      l_vc_table_comment   t_string;
    BEGIN
       -- Set object
       MERGE INTO stag_object_t trg
@@ -574,7 +590,7 @@ AS
     , p_b_check_dependencies   IN BOOLEAN DEFAULT TRUE
    )
    IS
-      l_vc_prc_name   TYPE.vc_max_plsql := 'prc_column_import_from_source';
+      l_vc_prc_name   t_string := 'prc_column_import_from_source';
    BEGIN
       l_sql_col_def := dict.c_sql_col_def;
       l_t_columns := NULL;
@@ -710,7 +726,7 @@ AS
     , p_b_check_dependencies   IN BOOLEAN DEFAULT TRUE
    )
    IS
-      l_vc_prc_name   TYPE.vc_max_plsql := 'prc_column_import_from_stage';
+      l_vc_prc_name   t_string := 'prc_column_import_from_stage';
    BEGIN
       l_sql_col_def := dict.c_sql_col_def;
       trac.log_sub_info (
@@ -817,7 +833,7 @@ AS
     , p_b_check_dependencies   IN BOOLEAN DEFAULT TRUE
    )
    IS
-      l_vc_prc_name   TYPE.vc_max_plsql := 'prc_check_column_changes';
+      l_vc_prc_name   t_string := 'prc_check_column_changes';
    BEGIN
       l_sql_col_def := dict.c_sql_col_def;
       trac.log_sub_info (

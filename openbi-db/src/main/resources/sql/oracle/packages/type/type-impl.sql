@@ -7,6 +7,20 @@ AS
    * $Id: $
    * $HeadURL: $
    */
+   /**
+   * Max length of a pl/sql code block
+   */
+   c_i_max_plsql_length   CONSTANT INTEGER := 32000;
+   /**
+   * Length of a varchar2s row
+   */
+   c_i_max_vc2s_length    CONSTANT INTEGER := 255;
+
+   /**
+   * String type for PL/SQL statements
+   */
+   SUBTYPE t_string IS VARCHAR2 (32767);
+
    PROCEDURE prc_check_state
    IS
    BEGIN
@@ -83,13 +97,11 @@ AS
 
    FUNCTION fct_list_to_clob (
       p_str_list      DBMS_SQL.varchar2s
-    , p_vc_separer    VARCHAR2 DEFAULT CHR (10)
+    , p_vc_separer    VARCHAR2 DEFAULT ','
    )
       RETURN CLOB
    IS
-      l_vc_prc_name   vc_obj_plsql := 'FCT_LIST_TO_CLOB';
-      v_err_msg       vc_max_db;
-      v_out_clob      CLOB;
+      v_out_clob   CLOB;
    BEGIN
       IF p_str_list.COUNT > 0 THEN
          FOR i IN p_str_list.FIRST .. p_str_list.LAST LOOP
@@ -110,16 +122,14 @@ AS
 
    FUNCTION fct_clob_to_list (
       p_cclob         CLOB
-    , p_vc_separer    VARCHAR2 DEFAULT CHR (10)
+    , p_vc_separer    VARCHAR2 DEFAULT ','
    )
       RETURN DBMS_SQL.varchar2s
    IS
-      l_vc_prc_name   vc_obj_plsql := 'FCT_CLOB_TO_LIST';
-      v_cclob         CLOB;
-      v_vcline        vc_max_plsql;
-      v_ilf           INTEGER;
-      v_err_msg       vc_max_db;
-      v_out_list      DBMS_SQL.varchar2s;
+      v_cclob      CLOB;
+      v_vcline     t_string;
+      v_ilf        INTEGER;
+      v_out_list   DBMS_SQL.varchar2s;
    BEGIN
       -- eliminate CHAR(13) chars, keep only CHAR(10)
       v_cclob :=
@@ -171,16 +181,14 @@ AS
 
    FUNCTION fct_string_to_list (
       p_vcstring      VARCHAR2
-    , p_vc_separer    VARCHAR2 DEFAULT CHR (10)
+    , p_vc_separer    VARCHAR2 DEFAULT ','
    )
       RETURN DBMS_SQL.varchar2s
    IS
-      l_vc_prc_name   vc_obj_plsql := 'FCT_STRING_TO_LIST';
-      v_vcstring      vc_max_plsql;
-      v_vcline        vc_max_plsql;
-      v_ilf           INTEGER;
-      v_err_msg       vc_max_db;
-      v_out_list      DBMS_SQL.varchar2s;
+      v_vcstring   t_string;
+      v_vcline     t_string;
+      v_ilf        INTEGER;
+      v_out_list   DBMS_SQL.varchar2s;
    BEGIN
       -- eliminate CHAR(13) chars, keep only CHAR(10)
       v_vcstring :=
@@ -231,13 +239,12 @@ AS
 
    FUNCTION fct_list_to_string (
       p_vc2string     DBMS_SQL.varchar2s
-    , p_vc_separer    VARCHAR2 DEFAULT CHR (10)
+    , p_vc_separer    VARCHAR2 DEFAULT ','
    )
       RETURN VARCHAR2
    IS
-      v_max_cnt       INTEGER := 0;
-      v_str           vc_max_plsql;
-      l_vc_prc_name   vc_obj_plsql := 'FCT_LIST_TO_STRING';
+      v_max_cnt   INTEGER := 0;
+      v_str       t_string;
    BEGIN
       v_max_cnt :=
          FLOOR (  c_i_max_plsql_length
@@ -261,9 +268,8 @@ AS
    FUNCTION fct_format_str_array (p_str_array DBMS_SQL.varchar2s)
       RETURN VARCHAR2
    IS
-      v_max_cnt       INTEGER := 0;
-      v_str           vc_max_plsql;
-      l_vc_prc_name   vc_obj_plsql := 'FCT_FORMAT_STR_ARRAY';
+      v_max_cnt   INTEGER := 0;
+      v_str       t_string;
    BEGIN
       v_max_cnt :=
          FLOOR (  c_i_max_plsql_length
@@ -284,11 +290,9 @@ AS
    FUNCTION fct_get_max_line_length (p_vcstring VARCHAR2)
       RETURN INTEGER
    IS
-      v_prc_name   vc_obj_plsql := 'FCT_GET_MAX_LINE_LENGTH';
-      v_vcstring   vc_max_plsql;
-      v_vcline     vc_max_plsql;
+      v_vcstring   t_string;
+      v_vcline     t_string;
       v_ilf        INTEGER;
-      v_err_msg    vc_max_db;
       v_imaxlen    INTEGER := 0;
    BEGIN
       -- eliminate CHAR(13) chars, keep only CHAR(10)

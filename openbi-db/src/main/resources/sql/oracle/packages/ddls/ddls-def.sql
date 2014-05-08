@@ -14,29 +14,35 @@ AS
    /**
    * Package spec version string.
    */
-   c_spec_version   CONSTANT VARCHAR2 (1024) := '$Id: $';
+   c_spec_version     CONSTANT VARCHAR2 (1024) := '$Id: $';
    /**
    * Package spec repository URL.
    */
-   c_spec_url       CONSTANT VARCHAR2 (1024) := '$HeadURL: $';
+   c_spec_url         CONSTANT VARCHAR2 (1024) := '$HeadURL: $';
    /**
    * Package body version string.
    */
-   c_body_version            VARCHAR2 (1024);
+   c_body_version              VARCHAR2 (1024);
    /**
    * Package body repository URL.
    */
-   c_body_url                VARCHAR2 (1024);
+   c_body_url                  VARCHAR2 (1024);
+
+   /**
+   * Object name type
+   */
+   SUBTYPE t_object_name IS VARCHAR2 (50);
+
    /**
    * Templates for entity objects
    */
-   c_name_entity_tab           TYPE.vc_obj_plsql := '#entityName#_T';
-   c_name_entity_cdc           TYPE.vc_obj_plsql := '#entityName#_CDC';
-   c_name_entity_bkp           TYPE.vc_obj_plsql := '#entityName#_BKP';
-   c_name_entity_cbk           TYPE.vc_obj_plsql := '#entityName#_CBK';
-   c_name_entity_seq           TYPE.vc_obj_plsql := '#entityName#_SEQ';
-   c_name_entity_id            TYPE.vc_obj_plsql := '#entityName#_ID';
-   c_name_entity_pk            TYPE.vc_obj_plsql := '#entityName#_PK';
+   c_name_entity_tab           t_object_name := '#entityName#_T';
+   c_name_entity_cdc           t_object_name := '#entityName#_CDC';
+   c_name_entity_bkp           t_object_name := '#entityName#_BKP';
+   c_name_entity_cbk           t_object_name := '#entityName#_CBK';
+   c_name_entity_seq           t_object_name := '#entityName#_SEQ';
+   c_name_entity_id            t_object_name := '#entityName#_ID';
+   c_name_entity_pk            t_object_name := '#entityName#_PK';
    -- Template to create a standard entity table.
    c_template_entity_tab       CLOB := 'CREATE TABLE #entityTable# (
 		 #entityId# number
@@ -159,7 +165,7 @@ END #pkgName#;';
    c_template_prc_body         CLOB := '
    PROCEDURE #prcName# (
       #prcParameters#) IS
-      l_vc_prc_name    type.vc_obj_plsql := ''#prcName#'';
+      l_vc_prc_name    VARCHAR2(50) := ''#prcName#'';
       l_d_start        DATE                       := SYSDATE;
       l_n_result       NUMBER;
       l_n_stat_id      NUMBER;
@@ -196,7 +202,7 @@ END #pkgName#;';
    FUNCTION #prcName# (
       #prcParameters#)
    RETURN #returnType# IS
-      l_vc_prc_name     type.vc_obj_plsql := ''#prcName#'';
+      l_vc_prc_name     VARCHAR2(50) := ''#prcName#'';
       #varList#
    BEGIN
       #prcInitialize#
@@ -213,13 +219,13 @@ END #pkgName#;';
          #exceptionHandling#
          RAISE;
    END #prcName#;';
-
    -- Create table template
-   c_template_create_table           CLOB := 'CREATE TABLE #tableName# (#listColUtl##listColumns#) #storageClause#';
+   c_template_create_table     CLOB := 'CREATE TABLE #tableName# (#listColUtl##listColumns#) #storageClause#';
    -- Template to add a primary key
-   c_template_create_pk              CLOB := 'ALTER TABLE #tableName# ADD (CONSTRAINT #pkName# PRIMARY KEY (#listColPk#) USING INDEX #storageClause#)';
+   c_template_create_pk        CLOB := 'ALTER TABLE #tableName# ADD (CONSTRAINT #pkName# PRIMARY KEY (#listColPk#) USING INDEX #storageClause#)';
    -- Template to add a primary key
-   c_template_create_notnull         CLOB := 'ALTER TABLE #tableName# MODIFY (#columnName# NOT NULL)';
+   c_template_create_notnull   CLOB := 'ALTER TABLE #tableName# MODIFY (#columnName# NOT NULL)';
+
    /**
    * Substitute a parameter (#parameter_name#) with a text
    *
@@ -229,7 +235,7 @@ END #pkgName#;';
    */
    PROCEDURE prc_set_text_param (
       p_vc_code_string   IN OUT CLOB
-    , p_vc_param_name    IN     TYPE.vc_obj_plsql
+    , p_vc_param_name    IN     VARCHAR2
     , p_vc_param_value   IN     CLOB
    );
 

@@ -11,13 +11,13 @@ AS
    * Templates for standard code tokens
    **/
    --
-   c_token_utl_column_hist        VARCHAR2 (100) := '#validFromColumnName#, #validToColumnName#, #dmlOpColumnName#';
-   c_token_utl_coldef_hist        VARCHAR2 (100) := '#validFromColumnName# DATE, #validToColumnName# DATE, #dmlOpColumnName# VARCHAR2(10)';
-   c_token_utl_colval_hist        VARCHAR2 (100) := 'SYSDATE, TO_DATE(''99991231'',''yyyymmdd''), ''I''';
-   c_token_utl_column_source_db   VARCHAR2 (100) := '#sourceDbColumnName#';
-   c_token_utl_coldef_source_db   VARCHAR2 (100) := '#sourceDbColumnName# VARCHAR(100)';
-   c_token_utl_column_partition   VARCHAR2 (100) := '#partitionColumnName#';
-   c_token_utl_coldef_partition   VARCHAR2 (100) := '#partitionColumnName# NUMBER(1)';
+   c_token_utl_column_hist        t_string := '#validFromColumnName#, #validToColumnName#, #dmlOpColumnName#';
+   c_token_utl_coldef_hist        t_string := '#validFromColumnName# DATE, #validToColumnName# DATE, #dmlOpColumnName# VARCHAR2(10)';
+   c_token_utl_colval_hist        t_string := 'SYSDATE, TO_DATE(''99991231'',''yyyymmdd''), ''I''';
+   c_token_utl_column_source_db   t_string := '#sourceDbColumnName#';
+   c_token_utl_coldef_source_db   t_string := '#sourceDbColumnName# VARCHAR(100)';
+   c_token_utl_column_partition   t_string := '#partitionColumnName#';
+   c_token_utl_coldef_partition   t_string := '#partitionColumnName# NUMBER(1)';
    --
    c_token_diff_partition         CLOB
                                      :=    'PARTITION BY LIST ('
@@ -240,17 +240,17 @@ AS
    -- Buffers
    l_buffer_pkg_head              CLOB;
    l_buffer_pkg_body              CLOB;
-   l_vc_col_src                   TYPE.vc_max_plsql;
-   l_vc_col_dupl                  TYPE.vc_max_plsql;
-   l_vc_col_pk_notnull            TYPE.vc_max_plsql;
+   l_vc_col_src                   t_string;
+   l_vc_col_dupl                  t_string;
+   l_vc_col_pk_notnull            t_string;
    -- Anonymization
-   l_vc_def_anonymized            TYPE.vc_max_plsql;
-   l_vc_col_anonymized            TYPE.vc_max_plsql;
-   l_vc_set_anonymized            TYPE.vc_max_plsql;
-   l_vc_ins_anonymized            TYPE.vc_max_plsql;
-   l_vc_fct_anonymized            TYPE.vc_max_plsql;
-   l_vc_ini_anonymized            TYPE.vc_max_plsql;
-   l_vc_viw_anonymized            TYPE.vc_max_plsql;
+   l_vc_def_anonymized            t_string;
+   l_vc_col_anonymized            t_string;
+   l_vc_set_anonymized            t_string;
+   l_vc_ins_anonymized            t_string;
+   l_vc_fct_anonymized            t_string;
+   l_vc_ini_anonymized            t_string;
+   l_vc_viw_anonymized            t_string;
 
    FUNCTION fct_get_partition_db (p_vc_db_identifier VARCHAR2)
       RETURN VARCHAR2
@@ -279,7 +279,7 @@ AS
 
    PROCEDURE prc_set_utl_columns (p_vc_code_string IN OUT CLOB)
    IS
-      l_vc_prc_name   TYPE.vc_max_plsql := 'prc_set_utl_columns';
+      l_vc_prc_name   t_object_name := 'prc_set_utl_columns';
    BEGIN
       ddls.prc_set_text_param (
          p_vc_code_string
@@ -565,7 +565,7 @@ AS
     , p_vc_object_ddl     CLOB
    )
    IS
-      l_vc_prc_name   TYPE.vc_max_plsql := 'prc_store_ddl';
+      l_vc_prc_name   t_object_name := 'prc_store_ddl';
    BEGIN
       MERGE INTO stag_ddl_t trg
            USING (SELECT UPPER (p_vc_object_type) AS object_type
@@ -596,12 +596,12 @@ AS
     , p_b_raise_flag    BOOLEAN DEFAULT FALSE
    )
    IS
-      l_vc_prc_name    TYPE.vc_max_plsql := 'prc_create_stage_table';
-      l_vc_message     VARCHAR2 (32000)
+      l_vc_prc_name    t_object_name := 'prc_create_stage_table';
+      l_vc_message     t_string
                           :=    'Stage Table '
                              || g_vc_table_name_stage;
       l_sql_create     CLOB;
-      l_list_utl_col   VARCHAR2 (32000);
+      l_list_utl_col   t_string;
    BEGIN
       trac.log_sub_debug (
          l_vc_prc_name
@@ -862,12 +862,12 @@ AS
     , p_b_raise_flag    BOOLEAN DEFAULT FALSE
    )
    IS
-      l_vc_prc_name    TYPE.vc_max_plsql := 'prc_create_duplicate_table';
-      l_vc_message     VARCHAR2 (32000)
+      l_vc_prc_name    t_object_name := 'prc_create_duplicate_table';
+      l_vc_message     t_string
                           :=    'Table duplicates '
                              || g_vc_table_name_dupl;
       l_sql_create     CLOB;
-      l_list_utl_col   VARCHAR2 (32000);
+      l_list_utl_col   t_string;
    BEGIN
       trac.log_sub_debug (
          l_vc_prc_name
@@ -998,13 +998,13 @@ AS
     , p_b_raise_flag    BOOLEAN DEFAULT FALSE
    )
    IS
-      l_vc_prc_name            TYPE.vc_max_plsql := 'prc_create_diff_table';
-      l_vc_message             VARCHAR2 (32000)
+      l_vc_prc_name            t_object_name := 'prc_create_diff_table';
+      l_vc_message             t_string
                                   :=    'Table difference '
                                      || g_vc_table_name_diff;
       l_sql_create             CLOB;
-      l_sql_subpart_template   VARCHAR2 (32000);
-      l_list_utl_col           VARCHAR2 (32000);
+      l_sql_subpart_template   t_string;
+      l_list_utl_col           t_string;
    BEGIN
       trac.log_sub_debug (
          l_vc_prc_name
@@ -1161,12 +1161,12 @@ AS
     , p_b_raise_flag    BOOLEAN DEFAULT FALSE
    )
    IS
-      l_vc_prc_name     TYPE.vc_max_plsql := 'prc_create_hist_table';
-      l_vc_message      VARCHAR2 (32000)
+      l_vc_prc_name     t_object_name := 'prc_create_hist_table';
+      l_vc_message      t_string
                            :=    'History Table '
                               || g_vc_table_name_hist;
-      l_sql_create      TYPE.vc_max_plsql;
-      l_list_utl_col    TYPE.vc_max_plsql;
+      l_sql_create      t_string;
+      l_list_utl_col    t_string;
       l_l_utl_columns   DBMS_SQL.varchar2s;
    BEGIN
       trac.log_sub_debug (
@@ -1517,11 +1517,11 @@ AS
 
    PROCEDURE prc_create_hist_view (p_b_raise_flag BOOLEAN DEFAULT FALSE)
    IS
-      l_vc_prc_name   TYPE.vc_max_plsql := 'prc_create_hist_view';
-      l_vc_message    VARCHAR2 (32000)
+      l_vc_prc_name   t_object_name := 'prc_create_hist_view';
+      l_vc_message    t_string
                          :=    'View Hist '
                             || g_vc_view_name_hist;
-      l_sql_create    TYPE.vc_max_plsql;
+      l_sql_create    t_string;
    BEGIN
       trac.log_sub_debug (
          l_vc_prc_name
@@ -1580,11 +1580,11 @@ AS
 
    PROCEDURE prc_create_hist_synonym (p_b_raise_flag BOOLEAN DEFAULT FALSE)
    IS
-      l_vc_prc_name   TYPE.vc_max_plsql := 'prc_create_hist_synonym';
-      l_vc_message    VARCHAR2 (32000)
+      l_vc_prc_name   t_object_name := 'prc_create_hist_synonym';
+      l_vc_message    t_string
                          :=    'Synonym Hist '
                             || g_vc_view_name_hist;
-      l_sql_create    TYPE.vc_max_plsql;
+      l_sql_create    t_string;
    BEGIN
       trac.log_sub_debug (
          l_vc_prc_name
@@ -1635,11 +1635,11 @@ AS
 
    PROCEDURE prc_create_fbda_view (p_b_raise_flag BOOLEAN DEFAULT FALSE)
    IS
-      l_vc_prc_name   TYPE.vc_max_plsql := 'prc_create_fbda_view';
-      l_vc_message    VARCHAR2 (32000)
+      l_vc_prc_name   t_object_name := 'prc_create_fbda_view';
+      l_vc_message    t_string
                          :=    'View Hist '
                             || g_vc_view_name_hist;
-      l_sql_create    TYPE.vc_max_plsql;
+      l_sql_create    t_string;
    BEGIN
       trac.log_sub_debug (
          l_vc_prc_name
@@ -1699,8 +1699,8 @@ AS
 
    PROCEDURE prc_create_prc_trunc_stage (p_b_raise_flag BOOLEAN DEFAULT FALSE)
    IS
-      l_vc_prc_name      TYPE.vc_max_plsql := 'prc_create_prc_trunc_stage';
-      l_vc_message       VARCHAR2 (32000)
+      l_vc_prc_name      t_object_name := 'prc_create_prc_trunc_stage';
+      l_vc_message       t_string
                             :=    'Procedure trunc stage '
                                || g_vc_package_main;
       l_sql_prc          CLOB;
@@ -1805,8 +1805,8 @@ AS
 
    PROCEDURE prc_create_prc_trunc_diff (p_b_raise_flag BOOLEAN DEFAULT FALSE)
    IS
-      l_vc_prc_name      TYPE.vc_max_plsql := 'prc_create_prc_trunc_diff';
-      l_vc_message       VARCHAR2 (32000)
+      l_vc_prc_name      t_object_name := 'prc_create_prc_trunc_diff';
+      l_vc_message       t_string
                             :=    'Procedure trunc diff '
                                || g_vc_package_main;
       l_sql_prc          CLOB;
@@ -1895,19 +1895,19 @@ AS
 
    PROCEDURE prc_create_prc_init (p_b_raise_flag BOOLEAN DEFAULT FALSE)
    IS
-      l_vc_prc_name         TYPE.vc_max_plsql := 'prc_create_prc_init';
-      l_vc_message          VARCHAR2 (32000)
+      l_vc_prc_name         t_object_name := 'prc_create_prc_init';
+      l_vc_message          t_string
                                :=    'Procedure load init '
                                   || g_vc_package_main;
       l_sql_prc             CLOB;
       l_sql_prc_token       CLOB;
       l_sql_prc_buffer      CLOB;
       -- List of columns
-      l_vc_col_all          TYPE.vc_max_plsql;
-      l_list_utl_col        TYPE.vc_max_plsql;
-      l_list_utl_val        TYPE.vc_max_plsql;
-      l_list_utl_col_dupl   TYPE.vc_max_plsql;
-      l_list_utl_val_dupl   TYPE.vc_max_plsql;
+      l_vc_col_all          t_string;
+      l_list_utl_col        t_string;
+      l_list_utl_val        t_string;
+      l_list_utl_col_dupl   t_string;
+      l_list_utl_val_dupl   t_string;
    BEGIN
       trac.log_sub_debug (
          l_vc_prc_name
@@ -2257,15 +2257,15 @@ AS
 
    PROCEDURE prc_create_prc_load_stage (p_b_raise_flag BOOLEAN DEFAULT FALSE)
    IS
-      l_vc_prc_name      TYPE.vc_max_plsql := 'prc_create_prc_load_stage';
-      l_vc_message       VARCHAR2 (32000)
+      l_vc_prc_name      t_object_name := 'prc_create_prc_load_stage';
+      l_vc_message       t_string
                             :=    'Procedure load stage '
                                || g_vc_package_main;
       l_sql_prc          CLOB;
       l_sql_prc_token    CLOB;
       l_sql_prc_buffer   CLOB;
-      l_list_utl_col     TYPE.vc_max_plsql;
-      l_list_utl_val     TYPE.vc_max_plsql;
+      l_list_utl_col     t_string;
+      l_list_utl_val     t_string;
    BEGIN
       trac.log_sub_debug (
          l_vc_prc_name
@@ -2577,8 +2577,8 @@ AS
 
    PROCEDURE prc_create_prc_load_stage_p (p_b_raise_flag BOOLEAN DEFAULT FALSE)
    IS
-      l_vc_prc_name      TYPE.vc_max_plsql := 'prc_create_prc_load_stage_p';
-      l_vc_message       VARCHAR2 (32000)
+      l_vc_prc_name      t_object_name := 'prc_create_prc_load_stage_p';
+      l_vc_message       t_string
                             :=    'Procedure load stage partition '
                                || g_vc_package_main;
       l_sql_prc          CLOB;
@@ -2586,8 +2586,8 @@ AS
       l_sql_prc_buffer   CLOB;
       l_n_iter_begin     NUMBER;
       l_n_iter_end       NUMBER;
-      l_list_utl_col     TYPE.vc_max_plsql;
-      l_list_utl_val     TYPE.vc_max_plsql;
+      l_list_utl_col     t_string;
+      l_list_utl_val     t_string;
    BEGIN
       trac.log_sub_debug (
          l_vc_prc_name
@@ -2993,8 +2993,8 @@ AS
 
    PROCEDURE prc_create_prc_load_diff (p_b_raise_flag BOOLEAN DEFAULT FALSE)
    IS
-      l_vc_prc_name         TYPE.vc_max_plsql := 'prc_create_prc_load_diff';
-      l_vc_message          VARCHAR2 (32000)
+      l_vc_prc_name         t_object_name := 'prc_create_prc_load_diff';
+      l_vc_message          t_string
                                :=    'Procedure load diff '
                                   || g_vc_package_main;
       l_sql_prc             CLOB;
@@ -3004,16 +3004,16 @@ AS
       l_n_iter_begin        NUMBER;
       l_n_iter_end          NUMBER;
       -- List of columns
-      l_vc_col_list         TYPE.vc_max_plsql;
-      l_vc_col_pk_hist      TYPE.vc_max_plsql;
-      l_vc_clause_on        TYPE.vc_max_plsql;
-      l_vc_upd_clause_set   TYPE.vc_max_plsql;
-      l_vc_clause_history   TYPE.vc_max_plsql;
-      l_vc_clause_update    TYPE.vc_max_plsql;
-      l_vc_col_nvl2         TYPE.vc_max_plsql;
+      l_vc_col_list         t_string;
+      l_vc_col_pk_hist      t_string;
+      l_vc_clause_on        t_string;
+      l_vc_upd_clause_set   t_string;
+      l_vc_clause_history   t_string;
+      l_vc_clause_update    t_string;
+      l_vc_col_nvl2         t_string;
       -- Utl columns
-      l_list_utl_col        TYPE.vc_max_plsql;
-      l_list_utl_val        TYPE.vc_max_plsql;
+      l_list_utl_col        t_string;
+      l_list_utl_val        t_string;
    BEGIN
       trac.log_sub_debug (
          l_vc_prc_name
@@ -3559,8 +3559,8 @@ AS
 
    PROCEDURE prc_create_prc_load_hist (p_b_raise_flag BOOLEAN DEFAULT FALSE)
    IS
-      l_vc_prc_name         TYPE.vc_max_plsql := 'prc_create_prc_load_hist';
-      l_vc_message          VARCHAR2 (32000)
+      l_vc_prc_name         t_object_name := 'prc_create_prc_load_hist';
+      l_vc_message          t_string
                                :=    'Procedure load hist '
                                   || g_vc_package_main;
       l_sql_prc             CLOB;
@@ -3570,9 +3570,9 @@ AS
       l_n_iter_begin        NUMBER;
       l_n_iter_end          NUMBER;
       -- List of columns
-      l_vc_col_simple       TYPE.vc_max_plsql;
-      l_vc_clause_on        TYPE.vc_max_plsql;
-      l_vc_upd_clause_set   TYPE.vc_max_plsql;
+      l_vc_col_simple       t_string;
+      l_vc_clause_on        t_string;
+      l_vc_upd_clause_set   t_string;
    BEGIN
       trac.log_sub_debug (
          l_vc_prc_name
@@ -3890,8 +3890,8 @@ AS
     , p_b_raise_flag      BOOLEAN DEFAULT FALSE
    )
    IS
-      l_vc_prc_name      TYPE.vc_max_plsql := 'prc_create_prc_wrapper';
-      l_vc_message       VARCHAR2 (32000)
+      l_vc_prc_name      t_object_name := 'prc_create_prc_wrapper';
+      l_vc_message       t_string
                             :=    'Procedure wrapper '
                                || g_vc_package_main;
       l_sql_prc          CLOB;
@@ -4128,8 +4128,8 @@ AS
 
    PROCEDURE prc_compile_package_main (p_b_raise_flag BOOLEAN DEFAULT FALSE)
    IS
-      l_vc_prc_name   TYPE.vc_max_plsql := 'prc_compile_package_main';
-      l_vc_message    VARCHAR2 (32000)
+      l_vc_prc_name   t_object_name := 'prc_compile_package_main';
+      l_vc_message    t_string
                          :=    'Package compile '
                             || g_vc_package_main;
       l_sql_create    CLOB;
@@ -4221,8 +4221,8 @@ AS
     , p_b_raise_flag        BOOLEAN DEFAULT FALSE
    )
    IS
-      l_vc_prc_name   TYPE.vc_max_plsql := 'prc_create_package_main';
-      l_vc_message    VARCHAR2 (32000)
+      l_vc_prc_name   t_object_name := 'prc_create_package_main';
+      l_vc_message    t_string
                          :=    'Package create '
                             || g_vc_package_main;
       l_sql_create    CLOB;

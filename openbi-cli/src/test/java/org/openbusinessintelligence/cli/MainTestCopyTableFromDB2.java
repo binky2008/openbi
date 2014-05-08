@@ -10,7 +10,7 @@ public class MainTestCopyTableFromDB2 {
 	private String[] targetArgs = new String[4];
 	
 	private void initSource() {
-		sourceArgs[0] = "localhost_db2_sample_test";
+		sourceArgs[0] = "localhost_db2_dwhdev_test";
 		sourceArgs[1] = "";
 		sourceArgs[2] = "test.tab_test";
 	}
@@ -83,7 +83,7 @@ public class MainTestCopyTableFromDB2 {
 		
 		initSource();
 		//
-		targetArgs[0] = "localhost_db2_sample_test";
+		targetArgs[0] = "localhost_db2_dwhdev_test";
 		targetArgs[1] = "";
 		targetArgs[2] = "test";
 		targetArgs[3] = "stg_db2_tab_test";

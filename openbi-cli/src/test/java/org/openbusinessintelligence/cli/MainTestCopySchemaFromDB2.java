@@ -11,7 +11,7 @@ public class MainTestCopySchemaFromDB2 {
 	private String[] targetArgs = new String[3];
 	
 	private void initSource() {
-		sourceArgs[0] = "localhost_db2_sample_sugarcrm";
+		sourceArgs[0] = "localhost_db2_dwhdev_sugarcrm";
 		sourceArgs[1] = "";
 		sourceArgs[2] = "sugarcrm";
 	}
@@ -81,7 +81,7 @@ public class MainTestCopySchemaFromDB2 {
 		
 		initSource();
 		//
-		targetArgs[0] = "localhost_db2_sample_dwhstage";
+		targetArgs[0] = "localhost_db2_dwhdev_dwhstage";
 		targetArgs[1] = "";
 		targetArgs[2] = "dwhstage";
 		//

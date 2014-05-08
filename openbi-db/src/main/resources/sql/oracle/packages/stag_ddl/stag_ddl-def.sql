@@ -25,56 +25,67 @@ AS
    * Package body repository URL.
    */
    c_body_url                   VARCHAR2 (1024);
+
+   /**
+   * Object name type
+   */
+   SUBTYPE t_object_name IS VARCHAR2 (50);
+
+   /**
+   * String type
+   */
+   SUBTYPE t_string IS VARCHAR2 (32767);
+
    -- Object related identifiers
    g_n_object_id                NUMBER;
    g_n_source_nk_flag           NUMBER;
    g_n_fbda_flag                NUMBER;
    g_n_parallel_degree          NUMBER;
-   g_vc_source_code             TYPE.vc_obj_plsql;
-   g_vc_object_name             TYPE.vc_obj_plsql;
-   g_vc_prefix_src              TYPE.vc_obj_plsql;
+   g_vc_source_code             t_object_name;
+   g_vc_object_name             t_object_name;
+   g_vc_prefix_src              t_object_name;
    --
-   g_vc_dblink                  TYPE.vc_obj_plsql;
-   g_vc_owner_src               TYPE.vc_obj_plsql;
-   g_vc_table_name_source       TYPE.vc_obj_plsql;
-   g_vc_source_identifier       TYPE.vc_obj_plsql;
+   g_vc_dblink                  t_object_name;
+   g_vc_owner_src               t_object_name;
+   g_vc_table_name_source       t_object_name;
+   g_vc_source_identifier       t_object_name;
    --
-   g_vc_owner_stg               TYPE.vc_obj_plsql;
-   g_vc_table_name_stage        TYPE.vc_obj_plsql;
-   g_vc_table_name_diff         TYPE.vc_obj_plsql;
-   g_vc_table_name_dupl         TYPE.vc_obj_plsql;
-   g_vc_table_name_hist         TYPE.vc_obj_plsql;
-   g_vc_table_comment           TYPE.vc_max_plsql;
-   g_vc_nk_name_diff            TYPE.vc_obj_plsql;
-   g_vc_nk_name_stage           TYPE.vc_obj_plsql;
-   g_vc_nk_name_hist            TYPE.vc_obj_plsql;
-   g_vc_view_name_hist          TYPE.vc_obj_plsql;
-   g_vc_view_name_fbda          TYPE.vc_obj_plsql;
-   g_vc_package_main            TYPE.vc_obj_plsql;
-   g_vc_filter_clause           TYPE.vc_max_plsql;
-   g_vc_dedupl_rank_clause      TYPE.vc_max_plsql;
-   g_vc_partition_expr          TYPE.vc_max_plsql;
-   g_vc_increment_column        TYPE.vc_max_plsql;
-   g_vc_increment_coldef        TYPE.vc_max_plsql;
+   g_vc_owner_stg               t_object_name;
+   g_vc_table_name_stage        t_object_name;
+   g_vc_table_name_diff         t_object_name;
+   g_vc_table_name_dupl         t_object_name;
+   g_vc_table_name_hist         t_object_name;
+   g_vc_table_comment           t_string;
+   g_vc_nk_name_diff            t_object_name;
+   g_vc_nk_name_stage           t_object_name;
+   g_vc_nk_name_hist            t_object_name;
+   g_vc_view_name_hist          t_object_name;
+   g_vc_view_name_fbda          t_object_name;
+   g_vc_package_main            t_object_name;
+   g_vc_filter_clause           t_string;
+   g_vc_dedupl_rank_clause      t_string;
+   g_vc_partition_expr          t_string;
+   g_vc_increment_column        t_string;
+   g_vc_increment_coldef        t_string;
    g_n_increment_buffer         NUMBER;
    --
-   g_vc_tablespace_stage_data   TYPE.vc_obj_plsql;
-   g_vc_tablespace_stage_indx   TYPE.vc_obj_plsql;
-   g_vc_tablespace_hist_data    TYPE.vc_obj_plsql;
-   g_vc_tablespace_hist_indx    TYPE.vc_obj_plsql;
-   g_vc_fb_archive              TYPE.vc_obj_plsql;
+   g_vc_tablespace_stage_data   t_object_name;
+   g_vc_tablespace_stage_indx   t_object_name;
+   g_vc_tablespace_hist_data    t_object_name;
+   g_vc_tablespace_hist_indx    t_object_name;
+   g_vc_fb_archive              t_object_name;
    -- List of source related identifiers
    g_l_dblink                   DBMS_SQL.varchar2s;
    g_l_owner_src                DBMS_SQL.varchar2s;
    g_l_distr_code               DBMS_SQL.varchar2s;
    -- List of columns
-   g_vc_col_def                 TYPE.vc_max_plsql;
-   g_vc_col_all                 TYPE.vc_max_plsql;
-   g_vc_col_pk_src              TYPE.vc_max_plsql;
-   g_vc_col_pk                  TYPE.vc_max_plsql;
+   g_vc_col_def                 t_string;
+   g_vc_col_all                 t_string;
+   g_vc_col_pk_src              t_string;
+   g_vc_col_pk                  t_string;
    --
-   g_vc_col_hist                TYPE.vc_max_plsql;
-   g_vc_col_update              TYPE.vc_max_plsql;
+   g_vc_col_hist                t_string;
+   g_vc_col_update              t_string;
 
    PROCEDURE prc_create_stage_table (
       p_b_drop_flag     BOOLEAN DEFAULT FALSE

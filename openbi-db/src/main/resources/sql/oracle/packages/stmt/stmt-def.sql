@@ -172,7 +172,7 @@ AS
    --
    --
    -- Merge token of the hist procedure - 2 separate statement
-   c_sql_reconcile_close         CLOB := '
+   c_sql_reconcile_close          CLOB := '
       MERGE /*+APPEND*/
          INTO #targetIdentifier# trg
       USING
@@ -225,13 +225,12 @@ AS
    */
    PROCEDURE prc_set_text_param (
       p_vc_code_string   IN OUT CLOB
-    , p_vc_param_name    IN     TYPE.vc_obj_plsql
+    , p_vc_param_name    IN     VARCHAR2
     , p_vc_param_value   IN     CLOB
    );
-
-   /*PROCEDURE prc_get_identifier (
-      p_vc_dblink         VARCHAR2
-    , p_vc_schema_name    VARCHAR2
-    , p_vc_object_name    VARCHAR2
-   );*/
+/*PROCEDURE prc_get_identifier (
+   p_vc_dblink         VARCHAR2
+ , p_vc_schema_name    VARCHAR2
+ , p_vc_object_name    VARCHAR2
+);*/
 END stmt;

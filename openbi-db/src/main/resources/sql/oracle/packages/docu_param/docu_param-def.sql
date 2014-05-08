@@ -26,10 +26,16 @@ AS
    * Package body repository URL.
    */
    c_body_url                  VARCHAR2 (1024);
+
+   /**
+   * String type
+   */
+   SUBTYPE t_string IS VARCHAR2 (32767);
+
    /**
    * Javascript for dynamic effects
    */
-   c_js_default                TYPE.vc_max_plsql
+   c_js_default                t_string
                                   :=    '<script type="text/javascript">
 function changeRowDisplay(nodeIdPath) {
 
@@ -62,7 +68,7 @@ function changeRowDisplay(nodeIdPath) {
    /**
     * CSS
     */
-   c_css_default               TYPE.vc_max_plsql := '<style>
+   c_css_default               t_string := '<style>
 body {
   background-color: rgb(239, 239, 239);
 }
@@ -153,7 +159,7 @@ a.control {
    /**
     * HTML Table stylesheet
     */
-   c_xsl_html_table_default    TYPE.vc_max_plsql := '<?xml version="1.0" encoding="UTF-8"?>
+   c_xsl_html_table_default    t_string := '<?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:data="http://java.sun.com/xml/ns/jdbc">
 <xsl:param name="sort_column" />
 <xsl:param name="sort_order" />
@@ -197,7 +203,7 @@ a.control {
    /**
     * Excel Table stylesheet
     */
-   c_xsl_excel_table_default   TYPE.vc_max_plsql := '<xsl:stylesheet version="1.0"
+   c_xsl_excel_table_default   t_string := '<xsl:stylesheet version="1.0"
 	xmlns="urn:schemas-microsoft-com:office:spreadsheet"
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
 	xmlns:msxsl="urn:schemas-microsoft-com:xslt"

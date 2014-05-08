@@ -13,7 +13,7 @@ AS
    )
       RETURN VARCHAR2
    IS
-      l_vc_emails   TYPE.vc_max_plsql;
+      l_vc_emails   VARCHAR2 (32767);
    BEGIN
       FOR r_email IN (SELECT us.user_email
                         FROM taxn_user_t ut
@@ -102,9 +102,9 @@ AS
     , p_vc_taxonomy_code   IN VARCHAR2
    )
    IS
-      l_vc_prc_name   TYPE.vc_obj_plsql := 'PRC_USER_TAXONOMY_INS';
+      l_vc_prc_name   t_object_name := 'PRC_USER_TAXONOMY_INS';
    BEGIN
-       trac.log_sub_info (
+      trac.log_sub_info (
          l_vc_prc_name
        , 'Inserting in sys_user_taxonomy_t'
       );
@@ -128,7 +128,7 @@ AS
                      , src.taxn_id
                     );
 
-       trac.log_sub_info (
+      trac.log_sub_info (
          l_vc_prc_name
        ,    SQL%ROWCOUNT
          || ' rows merged'
@@ -141,9 +141,9 @@ AS
     , p_vc_taxonomy_code   IN VARCHAR2
    )
    IS
-      l_vc_prc_name   TYPE.vc_obj_plsql := 'PRC_USER_TAXONOMY_DEL';
+      l_vc_prc_name   t_object_name := 'PRC_USER_TAXONOMY_DEL';
    BEGIN
-       trac.log_sub_info (
+      trac.log_sub_info (
          l_vc_prc_name
        , 'Deleting in sys_user_taxonomy_t'
       );
@@ -153,10 +153,10 @@ AS
                           FROM user_t
                          WHERE user_code = p_vc_user_code)
          AND taxn_id = (SELECT taxn_id
-                         FROM taxn_t
-                        WHERE taxn_code = p_vc_taxonomy_code);
+                          FROM taxn_t
+                         WHERE taxn_code = p_vc_taxonomy_code);
 
-       trac.log_sub_info (
+      trac.log_sub_info (
          l_vc_prc_name
        ,    SQL%ROWCOUNT
          || ' rows deleted'

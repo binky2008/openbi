@@ -2,11 +2,10 @@ CREATE OR REPLACE PACKAGE BODY stmt
 AS
    PROCEDURE prc_set_text_param (
       p_vc_code_string   IN OUT CLOB
-    , p_vc_param_name    IN     TYPE.vc_obj_plsql
+    , p_vc_param_name    IN     VARCHAR2
     , p_vc_param_value   IN     CLOB
    )
    IS
-      l_vc_prc_name        TYPE.vc_obj_plsql := 'PRC_SET_TEXT_PARAM';
       l_vc_buffer_in       CLOB;
       l_vc_buffer_out      CLOB;
       l_vc_token           CLOB;

@@ -60,7 +60,7 @@ public class PrepareSchemaFromMySQL {
 		
 		initSource();
 		//
-		targetArgs[0] = "localhost_db2_sample_sugarcrm";
+		targetArgs[0] = "localhost_db2_dwhdev_sugarcrm";
 		targetArgs[1] = "";
 		targetArgs[2] = "sugarcrm";
 		//

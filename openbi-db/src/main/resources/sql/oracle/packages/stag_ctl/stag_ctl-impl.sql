@@ -7,6 +7,11 @@ AS
    * $Id: $
    * $HeadURL: $
    */
+   /**
+   * Object name type
+   */
+   SUBTYPE t_object_name IS VARCHAR2 (50);
+
    PROCEDURE prc_queue_ins (
       p_vc_queue_code    VARCHAR2
     , p_vc_queue_name    VARCHAR2
@@ -196,12 +201,12 @@ AS
 
    PROCEDURE prc_execute_step (p_n_queue_id NUMBER)
    IS
-      l_vc_prc_name         TYPE.vc_obj_plsql;
+      l_vc_prc_name         t_object_name := 'prc_execute_step';
       l_n_object_id         NUMBER;
-      l_vc_owner            TYPE.vc_obj_plsql;
-      l_vc_object           TYPE.vc_obj_plsql;
-      l_vc_package          TYPE.vc_obj_plsql;
-      l_vc_std_load_modus   TYPE.vc_obj_plsql;
+      l_vc_owner            t_object_name;
+      l_vc_object           t_object_name;
+      l_vc_package          t_object_name;
+      l_vc_std_load_modus   t_object_name;
    BEGIN
       trac.log_info (
             'Queue '
