@@ -278,11 +278,7 @@ AS
          stag_ddl.g_vc_prefix_src := r_obj.stag_source_prefix;
          stag_ddl.g_vc_dblink := r_obj.stag_source_db_link;
          stag_ddl.g_vc_owner_src := r_obj.stag_source_owner;
-         stag_ddl.g_vc_owner_stg :=
-            SYS_CONTEXT (
-               'USERENV'
-             , 'CURRENT_USER'
-            );
+         stag_ddl.g_vc_owner_stg := USER;
          stag_ddl.g_vc_table_name_source :=
             CASE
                WHEN r_obj.stag_source_db_link IS NULL
@@ -600,11 +596,7 @@ AS
          stag_ddl.g_vc_table_comment := r_obj.stag_object_comment;
          stag_ddl.g_vc_source_code := r_obj.stag_source_code;
          stag_ddl.g_vc_prefix_src := r_obj.stag_source_prefix;
-         stag_ddl.g_vc_owner_stg :=
-            SYS_CONTEXT (
-               'USERENV'
-             , 'CURRENT_USER'
-            );
+         stag_ddl.g_vc_owner_stg := USER;
          stag_ddl.g_vc_filter_clause := r_obj.stag_filter_clause;
          stag_ddl.g_vc_partition_expr := r_obj.stag_partition_clause;
          stag_ddl.g_vc_table_name_diff := r_obj.stag_diff_table_name;
@@ -716,11 +708,7 @@ AS
        , 'Build objects'
        , 'Start building db objects'
       );
-      stag_ddl.g_vc_owner_stg :=
-         SYS_CONTEXT (
-            'USERENV'
-          , 'CURRENT_USER'
-         );
+      stag_ddl.g_vc_owner_stg := USER;
 
       --
       -- Select all objects

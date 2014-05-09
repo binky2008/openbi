@@ -731,10 +731,7 @@ AS
                );
                l_vc_report :=
                   docu.fct_get_table_dataset (
-                     SYS_CONTEXT (
-                        'USERENV'
-                      , 'SESSION_USER'
-                     )
+                     USER
                    , l_vc_query_table
                   );
                prc_keyfigure_ins (

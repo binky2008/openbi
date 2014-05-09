@@ -47,7 +47,7 @@ AS
    c_template_entity_tab       CLOB := 'CREATE TABLE #entityTable# (
 		 #entityId# number
 	 , #columnDefinitionList#
-	 , session_user VARCHAR2(100) DEFAULT SYS_CONTEXT (''USERENV'', ''SESSION_USER'')
+	 , session_user VARCHAR2(100) DEFAULT USER
 	 , os_user VARCHAR2(100) DEFAULT SYS_CONTEXT (''USERENV'', ''OS_USER'')
 	 , create_date DATE DEFAULT SYSDATE
 	 , update_date DATE DEFAULT SYSDATE
@@ -57,7 +57,7 @@ AS
    c_template_entity_cdc       CLOB := 'CREATE TABLE #entityCDC# (
 		#entityId# NUMBER
 	 , #columnDefinitionList#
-	 , session_user VARCHAR2(100) DEFAULT SYS_CONTEXT (''USERENV'', ''SESSION_USER'')
+	 , session_user VARCHAR2(100) DEFAULT USER
 	 , os_user VARCHAR2(100) DEFAULT SYS_CONTEXT (''USERENV'', ''OS_USER'')
 	 , create_date DATE DEFAULT SYSDATE
 	 , update_date DATE DEFAULT SYSDATE

@@ -232,14 +232,7 @@ AS
       l_vc_owner      t_object_name;
    BEGIN
       g_vc_src_obj_dblink := p_vc_dblink;
-      l_vc_owner :=
-         NVL (
-            p_vc_owner
-          , SYS_CONTEXT (
-               'USERENV'
-             , 'CURRENT_USER'
-            )
-         );
+      l_vc_owner := NVL (p_vc_owner, USER);
 
       IF p_vc_column_type = 'ALL' THEN
          prc_set_src_param (l_sql_col_all);
@@ -402,22 +395,8 @@ AS
       l_vc_owner2            t_object_name;
    BEGIN
       g_vc_src_obj_dblink := p_vc_dblink1;
-      l_vc_owner1 :=
-         NVL (
-            p_vc_owner1
-          , SYS_CONTEXT (
-               'USERENV'
-             , 'CURRENT_USER'
-            )
-         );
-      l_vc_owner2 :=
-         NVL (
-            p_vc_owner2
-          , SYS_CONTEXT (
-               'USERENV'
-             , 'CURRENT_USER'
-            )
-         );
+      l_vc_owner1 := NVL (p_vc_owner1, USER);
+      l_vc_owner2 := NVL (p_vc_owner2, USER);
 
       IF p_vc_column_type = 'COMMON_ALL' THEN
          prc_set_src_param (l_sql_col_common_all);
