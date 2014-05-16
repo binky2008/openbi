@@ -183,7 +183,7 @@ public class Main {
 
 	    if (feature.equalsIgnoreCase("installframework")) {
 			logger.info("Install framework");
-			org.openbusinessintelligence.install.InstallFramework installer = new org.openbusinessintelligence.install.InstallFramework();
+			org.openbusinessintelligence.install.FrameworkInstaller installer = new org.openbusinessintelligence.install.FrameworkInstaller();
 			
     		org.openbusinessintelligence.core.db.ConnectionBean connectionBean = new org.openbusinessintelligence.core.db.ConnectionBean();
     		connectionBean.setPropertyFile(getOption("dbconnpropertyfile"));
@@ -205,6 +205,19 @@ public class Main {
 			installer.setSourceConnection(connectionBean);
 			installer.setDatabaseType(getOption("dbtype"));
 			installer.setModule(getOption("module"));
+			
+			String parameterNames = getOption("parameternames");
+			String parameterValues = getOption("parametervalues");
+			if (
+				!(parameterNames==null) &&
+				!(parameterValues==null) &&
+				!parameterNames.equals("") &&
+				!parameterValues.equals("")
+			) {
+				installer.setParameterNames(parameterNames.split(","));
+				installer.setParameterValues(parameterValues.split(","));
+			}
+			
 			installer.install();
 			
 			connectionBean.closeConnection();
@@ -229,7 +242,7 @@ public class Main {
 			}
 			catch (Exception e) {
 				logger.error("UNEXPECTED EXCEPTION");
-				logger.error(e.getMessage());
+	   			e.printStackTrace();
 			    throw e;
 			}
 	    }
@@ -252,7 +265,7 @@ public class Main {
 			}
 			catch (Exception e) {
 				logger.error("UNEXPECTED EXCEPTION");
-				logger.error(e.getMessage());
+	   			e.printStackTrace();
 			    throw e;
 			}
 			connectionBean.closeConnection();
@@ -799,7 +812,7 @@ public class Main {
 				optionValue = properties.getProperty(optionName);
 			}
 			catch(NullPointerException npe) {
-				logger.debug("No such option");
+				logger.debug(optionName + ": No such option");
 			}
 		}
 		else {

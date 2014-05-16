@@ -12,10 +12,22 @@
 		<description>Function to execute</description>
 		<argName>function</argName>
 	</option>
+	
+	<!-- DB framework options -->
 	<option>
 		<name>module</name>
 		<description>Module</description>
 		<argName>module</argName>
+	</option>
+	<option>
+		<name>parameternames</name>
+		<description>Comma separed parameter Names</description>
+		<argName>parameter names</argName>
+	</option>
+	<option>
+		<name>parametervalues</name>
+		<description>Comma separed parameter values</description>
+		<argName>parameter values</argName>
 	</option>
 	
 	<!-- Wrapper script options -->

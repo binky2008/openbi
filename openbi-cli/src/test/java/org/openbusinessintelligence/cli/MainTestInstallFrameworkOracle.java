@@ -3,7 +3,7 @@ package org.openbusinessintelligence.cli;
 import static org.junit.Assert.fail;
 
 import org.junit.Test;
-import org.openbusinessintelligence.cli.helper.MainTestCopySchemaHelper;
+import org.openbusinessintelligence.cli.copy.schema.MainTestCopySchemaHelper;
 
 public class MainTestInstallFrameworkOracle {
 	
@@ -14,6 +14,10 @@ public class MainTestInstallFrameworkOracle {
 		arguments[1] = "-dbconnpropertyfile";
 		arguments[3] = "-dbtype";
 		arguments[5] = "-module";
+		/*arguments[7] = "-parameternames";
+		arguments[8] = "p#frm#";
+		arguments[9] = "-parametervalues";
+		arguments[10] = "FRM_";*/
 	}
 
 	@Test
@@ -22,7 +26,7 @@ public class MainTestInstallFrameworkOracle {
 		initArguments();
 		
 		arguments[2] = "localhost_oracle_dwhadmin";
-		arguments[4] = "oracle";
+		arguments[4] = "oracle/adminusr";
 		// Perform test
 		try {
 			arguments[6] = "tool";

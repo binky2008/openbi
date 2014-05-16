@@ -1,7 +1,7 @@
 BEGIN
-   auth.prc_revoke_tool ('DWHSTAGE');
-   auth.prc_revoke_trac ('DWHSTAGE');
-   auth.prc_revoke_mesr ('DWHSTAGE');
-   auth.prc_revoke_stag ('DWHSTAGE');
+   p#frm#auth.prc_revoke_tool ('DWHSTAGE');
+   p#frm#auth.prc_revoke_trac ('DWHSTAGE');
+   p#frm#auth.prc_revoke_mesr ('DWHSTAGE');
+   p#frm#auth.prc_revoke_stag ('DWHSTAGE');
 END;
 /

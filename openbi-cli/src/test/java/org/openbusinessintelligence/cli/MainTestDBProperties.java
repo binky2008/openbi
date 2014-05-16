@@ -19,7 +19,7 @@ public class MainTestDBProperties {
 		
 	}
 
-	@Test
+	/*@Test
 	public void testMySQL() {
 		
 		initArguments();
@@ -170,6 +170,70 @@ public class MainTestDBProperties {
 		initArguments();
 		//
 		arguments[2] = "localhost_teradata_test";
+		arguments[4] = "";
+		// Perform test
+		try {
+			Main.main(arguments);
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
+
+	@Test
+	public void testVertica() {
+		
+		initArguments();
+		//
+		arguments[2] = "localhost_vertica_dwhdev";
+		arguments[4] = "";
+		// Perform test
+		try {
+			Main.main(arguments);
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
+
+	@Test
+	public void testNetezza() {
+		
+		initArguments();
+		//
+		arguments[2] = "localhost_netezza_test";
+		arguments[4] = "";
+		// Perform test
+		try {
+			Main.main(arguments);
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}*/
+
+	@Test
+	public void testH2() {
+		
+		initArguments();
+		//
+		arguments[2] = "localhost_h2_test";
+		arguments[4] = "";
+		// Perform test
+		try {
+			Main.main(arguments);
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
+
+	@Test
+	public void testHsqldb() {
+		
+		initArguments();
+		//
+		arguments[2] = "localhost_hsqldb";
 		arguments[4] = "";
 		// Perform test
 		try {

@@ -1,7 +1,7 @@
 BEGIN
    ROLLBACK;
    --
-   stag_build.prc_upgrade_hist (
+   p#frm#stag_build.prc_upgrade_hist (
       'TST'
     , 'SMALLTABLE'
    );

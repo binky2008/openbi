@@ -1,7 +1,7 @@
 BEGIN
-   dwhadmin.enbl.prc_disable_tool;
-   dwhadmin.enbl.prc_disable_trac;
-   dwhadmin.enbl.prc_disable_mesr;
-   dwhadmin.enbl.prc_disable_stag;
+   dwhadmin.p#frm#enbl.prc_disable_tool;
+   dwhadmin.p#frm#enbl.prc_disable_trac;
+   dwhadmin.p#frm#enbl.prc_disable_mesr;
+   dwhadmin.p#frm#enbl.prc_disable_stag;
 END;
 /
