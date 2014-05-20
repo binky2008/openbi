@@ -10,7 +10,7 @@ AS
    PROCEDURE purge (p_n_months IN NUMBER DEFAULT 12)
    IS
    BEGIN
-      DELETE trac_t
+      DELETE p#frm#trac_t
        WHERE create_date < ADD_MONTHS (
                               TRUNC (SYSDATE)
                             , -p_n_months
@@ -203,7 +203,7 @@ AS
          END IF;
 
          IF p#frm#trac_param.g_b_log_table THEN
-            INSERT INTO trac_t (
+            INSERT INTO p#frm#trac_t (
                            trac_severity
                          , trac_message_short
                          , trac_message_long

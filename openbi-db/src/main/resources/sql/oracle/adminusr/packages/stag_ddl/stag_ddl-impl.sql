@@ -567,7 +567,7 @@ AS
    IS
       l_vc_prc_name   t_object_name := 'prc_store_ddl';
    BEGIN
-      MERGE INTO stag_ddl_t trg
+      MERGE INTO p#frm#stag_ddl_t trg
            USING (SELECT UPPER (p_vc_object_type) AS object_type
                        , UPPER (p_vc_object_name) AS object_name
                        , p_vc_object_ddl AS object_ddl
@@ -820,8 +820,8 @@ AS
 
       FOR r_comm IN (SELECT c.stag_column_name
                           , c.stag_column_comment
-                       FROM stag_object_t o
-                          , stag_column_t c
+                       FROM p#frm#stag_object_t o
+                          , p#frm#stag_column_t c
                       WHERE o.stag_object_id = c.stag_object_id
                         AND o.stag_object_id = g_n_object_id) LOOP
          EXECUTE IMMEDIATE

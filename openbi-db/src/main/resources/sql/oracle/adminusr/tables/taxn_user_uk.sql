@@ -1,1 +1,1 @@
-ALTER TABLE taxn_user_t ADD (CONSTRAINT taxn_user_uk UNIQUE (user_id,taxn_id));
+ALTER TABLE p#frm#taxn_user_t ADD (CONSTRAINT p#frm#taxn_user_uk UNIQUE (user_id,taxn_id));

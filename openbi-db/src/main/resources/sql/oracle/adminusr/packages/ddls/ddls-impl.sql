@@ -280,7 +280,8 @@ AS
    END;
 
    PROCEDURE prc_create_entity (
-      p_vc_entity_name      VARCHAR2
+      p_vc_entity_prefix    VARCHAR2
+    , p_vc_entity_name      VARCHAR2
     , p_vc_entity_fields    VARCHAR2
     , p_vc_create_mode      VARCHAR2 DEFAULT 'DEFAULT'
     , p_b_public_flag       BOOLEAN DEFAULT FALSE
@@ -306,28 +307,57 @@ AS
       l_name_entity_tab := c_name_entity_tab;
       prc_set_text_param (
          l_name_entity_tab
+       , 'entityPrefix'
+       , p_vc_entity_prefix
+      );
+      prc_set_text_param (
+         l_name_entity_tab
        , 'entityName'
        , p_vc_entity_name
       );
+      --
       l_name_entity_cdc := c_name_entity_cdc;
+      prc_set_text_param (
+         l_name_entity_cdc
+       , 'entityPrefix'
+       , p_vc_entity_prefix
+      );
       prc_set_text_param (
          l_name_entity_cdc
        , 'entityName'
        , p_vc_entity_name
       );
+      --
       l_name_entity_seq := c_name_entity_seq;
+      prc_set_text_param (
+         l_name_entity_seq
+       , 'entityPrefix'
+       , p_vc_entity_prefix
+      );
       prc_set_text_param (
          l_name_entity_seq
        , 'entityName'
        , p_vc_entity_name
       );
+      --
       l_name_entity_id := c_name_entity_id;
+      prc_set_text_param (
+         l_name_entity_id
+       , 'entityPrefix'
+       , p_vc_entity_prefix
+      );
       prc_set_text_param (
          l_name_entity_id
        , 'entityName'
        , p_vc_entity_name
       );
+      --
       l_name_entity_pk := c_name_entity_pk;
+      prc_set_text_param (
+         l_name_entity_pk
+       , 'entityPrefix'
+       , p_vc_entity_prefix
+      );
       prc_set_text_param (
          l_name_entity_pk
        , 'entityName'
@@ -342,6 +372,11 @@ AS
 
          IF l_n_cnt_tab > 0 THEN
             l_name_entity_bkp := c_name_entity_bkp;
+            prc_set_text_param (
+               l_name_entity_bkp
+             , 'entityPrefix'
+             , p_vc_entity_prefix
+            );
             prc_set_text_param (
                l_name_entity_bkp
              , 'entityName'
@@ -363,6 +398,11 @@ AS
 
          IF l_n_cnt_hst > 0 THEN
             l_name_entity_cbk := c_name_entity_cbk;
+            prc_set_text_param (
+               l_name_entity_cbk
+             , 'entityPrefix'
+             , p_vc_entity_prefix
+            );
             prc_set_text_param (
                l_name_entity_cbk
              , 'entityName'
@@ -465,11 +505,6 @@ AS
       l_sql_create := c_template_entity_trg_ins;
       prc_set_text_param (
          l_sql_create
-       , 'entityName'
-       , p_vc_entity_name
-      );
-      prc_set_text_param (
-         l_sql_create
        , 'entityTable'
        , l_name_entity_tab
       );
@@ -485,11 +520,6 @@ AS
       );
       prc_execute (l_sql_create);
       l_sql_create := c_template_entity_trg_upd;
-      prc_set_text_param (
-         l_sql_create
-       , 'entityName'
-       , p_vc_entity_name
-      );
       prc_set_text_param (
          l_sql_create
        , 'entityTable'
@@ -552,11 +582,6 @@ AS
              , ':NEW'
             );
          l_sql_create := c_template_entity_trg_cdc;
-         prc_set_text_param (
-            l_sql_create
-          , 'entityName'
-          , p_vc_entity_name
-         );
          prc_set_text_param (
             l_sql_create
           , 'entityTable'

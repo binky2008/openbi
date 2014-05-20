@@ -1,6 +1,7 @@
 BEGIN
    p#frm#ddls.prc_create_entity (
-      'trac'
+      'p#frm#'
+    , 'trac'
     , 'trac_severity NUMBER,
        trac_message_short VARCHAR2(500 CHAR),
        trac_message_long VARCHAR2(4000 CHAR),

@@ -54,7 +54,7 @@ AS
    BEGIN
       -- Build list of columns
       FOR r_col IN (  SELECT stag_column_name
-                        FROM stag_column_t
+                        FROM p#frm#stag_column_t
                        WHERE stag_object_id = p_vc_object_id
                          AND stag_column_edwh_flag = 1
                          AND (p_vc_column_type = 'ALL'
@@ -158,7 +158,7 @@ AS
    )
    IS
    BEGIN
-      MERGE INTO stag_stat_type_t trg
+      MERGE INTO p#frm#stag_stat_type_t trg
            USING (SELECT p_vc_type_code AS type_code
                        , p_vc_type_name AS type_name
                        , p_vc_type_desc AS type_desc
@@ -197,7 +197,7 @@ AS
    )
    IS
    BEGIN
-      MERGE INTO stag_source_t trg
+      MERGE INTO p#frm#stag_source_t trg
            USING (SELECT p_vc_source_code AS source_code
                        , p_vc_source_prefix AS source_prefix
                        , p_vc_source_name AS source_name
@@ -263,20 +263,20 @@ AS
    BEGIN
       SELECT COUNT (*)
         INTO l_n_cnt
-        FROM stag_source_t
+        FROM p#frm#stag_source_t
        WHERE stag_source_code = p_vc_source_code;
 
       IF l_n_cnt > 0 THEN
          -- Get the key object id
          SELECT stag_source_id
            INTO l_n_source_id
-           FROM stag_source_t
+           FROM p#frm#stag_source_t
           WHERE stag_source_code = p_vc_source_code;
 
          IF NOT p_b_cascade THEN
             SELECT COUNT (*)
               INTO l_n_cnt
-              FROM stag_object_t
+              FROM p#frm#stag_object_t
              WHERE stag_source_id = l_n_source_id;
 
             IF l_n_cnt > 0 THEN
@@ -289,7 +289,7 @@ AS
 
          -- Delete children objects
          FOR r_obj IN (SELECT stag_object_name
-                         FROM stag_object_t
+                         FROM p#frm#stag_object_t
                         WHERE stag_source_id = l_n_source_id) LOOP
             prc_object_del (
                p_vc_source_code
@@ -298,10 +298,10 @@ AS
             );
          END LOOP;
 
-         DELETE stag_source_db_t
+         DELETE p#frm#stag_source_db_t
           WHERE stag_source_id = l_n_source_id;
 
-         DELETE stag_source_t
+         DELETE p#frm#stag_source_t
           WHERE stag_source_code = p_vc_source_code;
 
          COMMIT;
@@ -318,14 +318,14 @@ AS
    )
    IS
    BEGIN
-      MERGE INTO stag_source_db_t trg
+      MERGE INTO p#frm#stag_source_db_t trg
            USING (SELECT stag_source_id
                        , p_vc_distribution_code AS distribution_code
                        , p_vc_source_db_link AS source_db_link
                        , p_vc_source_db_jdbcname AS source_db_jdbcname
                        , p_vc_source_owner AS source_owner
                        , p_vc_source_bodi_ds AS source_bodi_ds
-                    FROM stag_source_t
+                    FROM p#frm#stag_source_t
                    WHERE stag_source_code = p_vc_source_code) src
               ON (trg.stag_source_id = src.stag_source_id
               AND trg.stag_distribution_code = src.distribution_code)
@@ -369,7 +369,7 @@ AS
       l_vc_table_comment   t_string;
    BEGIN
       -- Set object
-      MERGE INTO stag_object_t trg
+      MERGE INTO p#frm#stag_object_t trg
            USING (SELECT stag_source_id
                        , p_vc_object_name AS object_name
                        , p_n_parallel_degree AS parallel_degree
@@ -378,7 +378,7 @@ AS
                        , p_vc_hist_flag AS hist_flag
                        , p_vc_fbda_flag AS fbda_flag
                        , p_vc_increment_buffer AS increment_buffer
-                    FROM stag_source_t
+                    FROM p#frm#stag_source_t
                    WHERE stag_source_code = p_vc_source_code) src
               ON (trg.stag_source_id = src.stag_source_id
               AND trg.stag_object_name = src.object_name)
@@ -423,9 +423,9 @@ AS
                                    , o.stag_object_id
                                    , o.stag_object_name
                                    , ROW_NUMBER () OVER (PARTITION BY o.stag_object_id ORDER BY d.stag_source_db_id) AS source_db_order
-                                FROM stag_source_t s
-                                   , stag_source_db_t d
-                                   , stag_object_t o
+                                FROM p#frm#stag_source_t s
+                                   , p#frm#stag_source_db_t d
+                                   , p#frm#stag_object_t o
                                WHERE s.stag_source_id = d.stag_source_id
                                  AND s.stag_source_id = o.stag_source_id
                                  AND p_vc_source_code IN (s.stag_source_code, 'ALL')
@@ -439,7 +439,7 @@ AS
              , r_obj.stag_object_name
             );
 
-         UPDATE stag_object_t
+         UPDATE p#frm#stag_object_t
             SET stag_object_comment = l_vc_table_comment
           WHERE stag_object_id = r_obj.stag_object_id;
       END LOOP;
@@ -458,8 +458,8 @@ AS
    BEGIN
       SELECT COUNT (*)
         INTO l_n_cnt
-        FROM stag_source_t s
-           , stag_object_t o
+        FROM p#frm#stag_source_t s
+           , p#frm#stag_object_t o
        WHERE s.stag_source_id = o.stag_source_id
          AND s.stag_source_code = p_vc_source_code
          AND o.stag_object_name = p_vc_object_name;
@@ -468,8 +468,8 @@ AS
          -- Get the key object id
          SELECT o.stag_object_id
            INTO l_n_object_id
-           FROM stag_source_t s
-              , stag_object_t o
+           FROM p#frm#stag_source_t s
+              , p#frm#stag_object_t o
           WHERE s.stag_source_id = o.stag_source_id
             AND s.stag_source_code = p_vc_source_code
             AND o.stag_object_name = p_vc_object_name;
@@ -477,7 +477,7 @@ AS
          IF NOT p_b_cascade THEN
             SELECT COUNT (*)
               INTO l_n_cnt
-              FROM stag_column_t
+              FROM p#frm#stag_column_t
              WHERE stag_object_id = l_n_object_id;
 
             IF l_n_cnt > 0 THEN
@@ -488,10 +488,10 @@ AS
             END IF;
          END IF;
 
-         DELETE stag_column_t
+         DELETE p#frm#stag_column_t
           WHERE stag_object_id = l_n_object_id;
 
-         DELETE stag_object_t
+         DELETE p#frm#stag_object_t
           WHERE stag_object_id = l_n_object_id;
 
          COMMIT;
@@ -512,7 +512,7 @@ AS
    )
    IS
    BEGIN
-      MERGE INTO stag_column_t trg
+      MERGE INTO p#frm#stag_column_t trg
            USING (SELECT o.stag_object_id
                        , p_vc_object_name AS object_name
                        , p_vc_column_name AS column_name
@@ -523,8 +523,8 @@ AS
                        , p_n_column_incr_flag AS column_incr_flag
                        , p_n_column_hist_flag AS column_hist_flag
                        , p_n_column_edwh_flag AS column_edwh_flag
-                    FROM stag_source_t s
-                       , stag_object_t o
+                    FROM p#frm#stag_source_t s
+                       , p#frm#stag_object_t o
                    WHERE s.stag_source_id = o.stag_source_id
                      AND s.stag_source_code = p_vc_source_code
                      AND o.stag_object_name = p_vc_object_name) src
@@ -572,10 +572,10 @@ AS
    )
    IS
    BEGIN
-      DELETE stag_column_t
+      DELETE p#frm#stag_column_t
        WHERE stag_object_id = (SELECT o.stag_object_id
-                                 FROM stag_source_t s
-                                    , stag_object_t o
+                                 FROM p#frm#stag_source_t s
+                                    , p#frm#stag_object_t o
                                 WHERE s.stag_source_id = o.stag_source_id
                                   AND s.stag_source_code = p_vc_source_code
                                   AND o.stag_object_name = p_vc_object_name)
@@ -613,9 +613,9 @@ AS
                                  , d.stag_source_owner
                                  , d.stag_source_db_link
                                  , ROW_NUMBER () OVER (PARTITION BY o.stag_object_id ORDER BY d.stag_source_db_id) AS db_rank
-                              FROM stag_object_t o
-                                 , stag_source_t s
-                                 , stag_source_db_t d
+                              FROM p#frm#stag_object_t o
+                                 , p#frm#stag_source_t s
+                                 , p#frm#stag_source_db_t d
                              WHERE o.stag_source_id = s.stag_source_id
                                AND s.stag_source_id = d.stag_source_id
                                AND p_vc_source_code IN (s.stag_source_code, 'ALL')
@@ -641,7 +641,7 @@ AS
                 , r_obj.stag_object_name;
 
          FOR i IN l_t_columns.FIRST .. l_t_columns.LAST LOOP
-            MERGE INTO stag_column_t trg
+            MERGE INTO p#frm#stag_column_t trg
                  USING (SELECT l_t_columns (i).stag_column_name AS stag_column_name
                              , l_t_columns (i).stag_column_comment AS stag_column_comment
                              , l_t_columns (i).stag_column_pos AS stag_column_pos
@@ -700,7 +700,7 @@ AS
                );
          END LOOP;
 
-         UPDATE stag_object_t
+         UPDATE p#frm#stag_object_t
             SET stag_source_nk_flag =
                    CASE
                       WHEN l_n_pk_pos_max > 0 THEN
@@ -741,8 +741,8 @@ AS
                          , stag_object_name
                          , stag_stage_table_name
                          , stag_hist_flag
-                      FROM stag_object_t o
-                         , stag_source_t s
+                      FROM p#frm#stag_object_t o
+                         , p#frm#stag_source_t s
                      WHERE o.stag_source_id = s.stag_source_id
                        AND p_vc_source_code IN (s.stag_source_code, 'ALL')
                        AND p_vc_object_name IN (o.stag_object_name, 'ALL')) LOOP
@@ -764,7 +764,7 @@ AS
                 , r_obj.stag_object_name;
 
          FOR i IN l_t_columns.FIRST .. l_t_columns.LAST LOOP
-            MERGE INTO stag_column_t trg
+            MERGE INTO p#frm#stag_column_t trg
                  USING (SELECT l_t_columns (i).stag_column_name AS stag_column_name
                              , l_t_columns (i).stag_column_comment AS stag_column_comment
                              , l_t_columns (i).stag_column_pos AS stag_column_pos
@@ -807,7 +807,7 @@ AS
                );
          END LOOP;
 
-         UPDATE stag_object_t
+         UPDATE p#frm#stag_object_t
             SET stag_source_nk_flag =
                    CASE
                       WHEN l_n_pk_pos_max = 0 THEN
@@ -859,9 +859,9 @@ AS
                                    , o.stag_object_name
                                    , o.stag_stage_table_name
                                    , ROW_NUMBER () OVER (PARTITION BY o.stag_object_id ORDER BY d.stag_source_db_id) AS source_db_order
-                                FROM stag_source_t s
-                                   , stag_source_db_t d
-                                   , stag_object_t o
+                                FROM p#frm#stag_source_t s
+                                   , p#frm#stag_source_db_t d
+                                   , p#frm#stag_object_t o
                                WHERE s.stag_source_id = d.stag_source_id
                                  AND s.stag_source_id = o.stag_source_id
                                  AND p_vc_source_code IN (s.stag_source_code, 'ALL')
@@ -886,11 +886,11 @@ AS
             USING r_obj.stag_source_owner
                 , r_obj.stag_object_name;
 
-         DELETE stag_column_check_t
+         DELETE p#frm#stag_column_check_t
           WHERE stag_object_id = r_obj.stag_object_id;
 
          FOR i IN l_t_columns.FIRST .. l_t_columns.LAST LOOP
-            MERGE INTO stag_column_check_t trg
+            MERGE INTO p#frm#stag_column_check_t trg
                  USING (SELECT l_t_columns (i).stag_column_name AS stag_column_name
                              , l_t_columns (i).stag_column_comment AS stag_column_comment
                              , l_t_columns (i).stag_column_pos AS stag_column_pos
@@ -976,11 +976,11 @@ AS
                                               , 26
                                              )
                                                 AS stag_object_root
-                                        FROM stag_source_t s
-                                           , stag_object_t o
+                                        FROM p#frm#stag_source_t s
+                                           , p#frm#stag_object_t o
                                        WHERE s.stag_source_id = o.stag_source_id) t)
                     ORDER BY stag_object_id) LOOP
-         UPDATE stag_object_t
+         UPDATE p#frm#stag_object_t
             SET stag_object_root = r_obj.stag_object_root
               , stag_src_table_name =
                       r_obj.stag_object_root

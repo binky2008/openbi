@@ -1,6 +1,7 @@
 BEGIN
    p#frm#ddls.prc_create_entity (
-      'mesr_threshold'
+      'p#frm#'
+    , 'mesr_threshold'
     , 'mesr_keyfigure_id NUMBER,
        mesr_threshold_type CHAR(1) DEFAULT ''A'' CHECK (mesr_threshold_type IN (''A'',''I'')),
        mesr_threshold_from DATE,

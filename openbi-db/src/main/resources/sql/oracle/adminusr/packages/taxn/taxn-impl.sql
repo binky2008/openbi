@@ -21,9 +21,9 @@ AS
       l_vc_emails   VARCHAR2 (32767);
    BEGIN
       FOR r_email IN (SELECT us.user_email
-                        FROM taxn_user_t ut
-                           , user_t us
-                           , taxn_t ta
+                        FROM p#frm#taxn_user_t ut
+                           , p#frm#user_t us
+                           , p#frm#taxn_t ta
                        WHERE ut.user_id = us.user_id
                          AND ut.taxn_id = ta.taxn_id
                          AND ta.taxn_code = p_vc_taxonomy_code) LOOP
@@ -46,11 +46,11 @@ AS
    )
    IS
    BEGIN
-      MERGE INTO taxn_t trg
+      MERGE INTO p#frm#taxn_t trg
            USING (SELECT p_vc_taxonomy_code AS taxonomy_code
                        , p_vc_taxonomy_name AS taxonomy_name
                        , taxn_id AS taxonomy_parent_id
-                    FROM taxn_t
+                    FROM p#frm#taxn_t
                    WHERE taxn_code = p_vc_taxonomy_parent_code) src
               ON (trg.taxn_code = src.taxonomy_code)
       WHEN MATCHED THEN
@@ -78,7 +78,7 @@ AS
    )
    IS
    BEGIN
-      MERGE INTO user_t trg
+      MERGE INTO p#frm#user_t trg
            USING (SELECT p_vc_user_code AS user_code
                        , p_vc_user_name AS user_name
                        , p_vc_user_email AS user_email
@@ -114,11 +114,11 @@ AS
        , 'Inserting in sys_user_taxonomy_t'
       );
 
-      MERGE INTO taxn_user_t trg
+      MERGE INTO p#frm#taxn_user_t trg
            USING (SELECT user_id
                        , taxn_id
-                    FROM user_t c
-                       , taxn_t t
+                    FROM p#frm#user_t c
+                       , p#frm#taxn_t t
                    WHERE c.user_code = p_vc_user_code
                      AND t.taxn_code = p_vc_taxonomy_code) src
               ON (trg.user_id = src.user_id
@@ -153,12 +153,12 @@ AS
        , 'Deleting in sys_user_taxonomy_t'
       );
 
-      DELETE taxn_user_t
+      DELETE p#frm#taxn_user_t
        WHERE user_id = (SELECT user_id
-                          FROM user_t
+                          FROM p#frm#user_t
                          WHERE user_code = p_vc_user_code)
          AND taxn_id = (SELECT taxn_id
-                          FROM taxn_t
+                          FROM p#frm#taxn_t
                          WHERE taxn_code = p_vc_taxonomy_code);
 
       p#frm#trac.log_sub_info (

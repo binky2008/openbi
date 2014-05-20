@@ -360,11 +360,11 @@ IS
    )
    IS
    BEGIN
-      DELETE docu_t
+      DELETE p#frm#docu_t
        WHERE docu_code = p_vc_docu_code
          AND docu_type = p_vc_docu_type;
 
-      INSERT INTO docu_t (
+      INSERT INTO p#frm#docu_t (
                      docu_code
                    , docu_type
                    , docu_content

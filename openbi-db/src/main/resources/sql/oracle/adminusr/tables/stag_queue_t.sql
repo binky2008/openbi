@@ -1,6 +1,7 @@
 BEGIN
    p#frm#ddls.prc_create_entity (
-      'stag_queue'
+      'p#frm#'
+    , 'stag_queue'
     , 'stag_queue_code VARCHAR2(10),
        stag_queue_name VARCHAR2(100)'
     , 'DROP'

@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW stag_stat_last_v
+CREATE OR REPLACE VIEW p#frm#stag_stat_last_v
 AS
      SELECT stage_source
           , stage_object
@@ -100,10 +100,10 @@ AS
                     , MIN (st.create_date) AS first_date
                  FROM (SELECT s.*
                             , ROW_NUMBER () OVER (PARTITION BY stag_object_id, stag_partition, stag_stat_type_id, stag_id ORDER BY create_date DESC) AS stat_rank
-                         FROM stag_stat_t s) st
-                    , stag_stat_type_t ty
-                    , stag_object_t ob
-                    , stag_source_t sc
+                         FROM p#frm#stag_stat_t s) st
+                    , p#frm#stag_stat_type_t ty
+                    , p#frm#stag_object_t ob
+                    , p#frm#stag_source_t sc
                 WHERE st.stag_stat_type_id = ty.stag_stat_type_id
                   AND st.stag_object_id = ob.stag_object_id
                   AND ob.stag_source_id = sc.stag_source_id

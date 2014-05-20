@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW stag_column_check_v
+CREATE OR REPLACE VIEW p#frm#stag_column_check_v
 AS
      SELECT sc.stag_source_id
           , sc.stag_source_code
@@ -30,12 +30,12 @@ AS
                   , k.stag_column_def AS stag_column_src_def
                   , k.stag_column_nk_pos AS stag_column_src_nk_pos
                   , c.update_date
-               FROM stag_column_check_t k
-                    FULL OUTER JOIN stag_column_t c
+               FROM p#frm#stag_column_check_t k
+                    FULL OUTER JOIN p#frm#stag_column_t c
                        ON c.stag_object_id = k.stag_object_id
                       AND c.stag_column_name = k.stag_column_name) co
-          , stag_object_t ob
-          , stag_source_t sc
+          , p#frm#stag_object_t ob
+          , p#frm#stag_source_t sc
       WHERE ob.stag_object_id = co.stag_object_id
         AND ob.stag_source_id = sc.stag_source_id
    ORDER BY sc.stag_source_code

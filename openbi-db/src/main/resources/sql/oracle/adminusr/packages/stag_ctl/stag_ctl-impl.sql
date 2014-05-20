@@ -18,7 +18,7 @@ AS
    )
    IS
    BEGIN
-      MERGE INTO stag_queue_t trg
+      MERGE INTO p#frm#stag_queue_t trg
            USING (SELECT p_vc_queue_code AS queue_code
                        , p_vc_queue_name AS queue_name
                     FROM DUAL) src
@@ -45,7 +45,7 @@ AS
    BEGIN
       SELECT MIN (etl_step_status)
         INTO l_n_step_status_min
-        FROM stag_queue_object_t
+        FROM p#frm#stag_queue_object_t
        WHERE stag_queue_id = p_n_queue_id;
 
       IF l_n_step_status_min > 0 THEN
@@ -62,7 +62,7 @@ AS
    BEGIN
       SELECT COUNT (*)
         INTO l_n_step_cnt
-        FROM stag_queue_object_t
+        FROM p#frm#stag_queue_object_t
        WHERE etl_step_status = 0
          AND stag_queue_id = p_n_queue_id;
 
@@ -88,18 +88,18 @@ AS
        , 'Enqueue Begin'
       );
 
-      DELETE stag_queue_object_t
+      DELETE p#frm#stag_queue_object_t
        WHERE stag_queue_id IN (SELECT stag_queue_id
-                                 FROM stag_queue_t
+                                 FROM p#frm#stag_queue_t
                                 WHERE stag_queue_code = p_vc_queue_code)
          AND stag_object_id IN (SELECT o.stag_object_id
-                                  FROM stag_object_t o
-                                     , stag_source_t s
+                                  FROM p#frm#stag_object_t o
+                                     , p#frm#stag_source_t s
                                  WHERE o.stag_source_id = s.stag_source_id
                                    AND p_vc_source_code IN (s.stag_source_code, 'ALL')
                                    AND p_vc_object_name IN (o.stag_object_name, 'ALL'));
 
-      INSERT INTO stag_queue_object_t (
+      INSERT INTO p#frm#stag_queue_object_t (
                      stag_queue_id
                    , stag_object_id
                    , etl_step_status
@@ -107,9 +107,9 @@ AS
          SELECT q.stag_queue_id
               , o.stag_object_id
               , 0
-           FROM stag_object_t o
-              , stag_source_t s
-              , stag_queue_t q
+           FROM p#frm#stag_object_t o
+              , p#frm#stag_source_t s
+              , p#frm#stag_queue_t q
           WHERE o.stag_source_id = s.stag_source_id
             AND q.stag_queue_code = p_vc_queue_code
             AND p_vc_source_code IN (s.stag_source_code, 'ALL')
@@ -143,7 +143,7 @@ AS
               , 0
              )
         INTO l_n_queue_order
-        FROM stag_queue_t
+        FROM p#frm#stag_queue_t
        WHERE stag_queue_code LIKE
                    p_vc_source_code
                 || '%';
@@ -162,7 +162,7 @@ AS
       -- Order objects according to size in rows
       FOR r_obj IN (  SELECT o.stag_object_name
                            , t.num_rows
-                        FROM stag_object_v o
+                        FROM p#frm#stag_object_v o
                            , user_tables t
                        WHERE o.stag_hist_table_name = t.table_name
                          AND stag_source_code = p_vc_source_code
@@ -219,7 +219,7 @@ AS
 
       EXECUTE IMMEDIATE 'LOCK TABLE stag_queue_object_t IN EXCLUSIVE MODE WAIT 10';
 
-         UPDATE stag_queue_object_t
+         UPDATE p#frm#stag_queue_object_t
             SET etl_step_status = 1
               , etl_step_session_id =
                    SYS_CONTEXT (
@@ -228,7 +228,7 @@ AS
                    )
               , etl_step_begin_date = SYSDATE
           WHERE stag_queue_object_id = (SELECT MIN (stag_queue_object_id)
-                                          FROM stag_queue_object_t
+                                          FROM p#frm#stag_queue_object_t
                                          WHERE etl_step_status = 0
                                            AND stag_queue_id = p_n_queue_id)
       RETURNING stag_object_id
@@ -252,8 +252,8 @@ AS
            INTO l_vc_owner
               , l_vc_object
               , l_vc_package
-           FROM stag_source_t s
-              , stag_object_t o
+           FROM p#frm#stag_source_t s
+              , p#frm#stag_object_t o
           WHERE s.stag_source_id = o.stag_source_id
             AND o.stag_object_id = l_n_object_id;
 
@@ -297,7 +297,7 @@ AS
                || ': Step executed'
             );
 
-            UPDATE stag_queue_object_t
+            UPDATE p#frm#stag_queue_object_t
                SET etl_step_status = 2
                  , etl_step_end_date = SYSDATE
              WHERE stag_object_id = l_n_object_id;
@@ -312,7 +312,7 @@ AS
                   || ': Error'
                );
 
-               UPDATE stag_queue_object_t
+               UPDATE p#frm#stag_queue_object_t
                   SET etl_step_status = 3
                     , etl_step_end_date = SYSDATE
                 WHERE stag_object_id = l_n_object_id;
@@ -340,7 +340,7 @@ AS
       --p#frm#stag_stat.prc_set_load_id;
       SELECT MAX (stag_queue_id)
         INTO l_n_queue_id
-        FROM stag_queue_t
+        FROM p#frm#stag_queue_t
        WHERE stag_queue_code = p_vc_queue_code;
 
       IF l_n_queue_id IS NOT NULL THEN
@@ -381,7 +381,7 @@ AS
    IS
    BEGIN
       FOR r_obj IN (SELECT stag_package_name
-                      FROM stag_object_v
+                      FROM p#frm#stag_object_v
                      WHERE stag_source_code = p_vc_source_code) LOOP
          EXECUTE IMMEDIATE
                'BEGIN '
@@ -393,13 +393,13 @@ AS
    PROCEDURE prc_initialize_queue (p_vc_queue_code VARCHAR2)
    IS
    BEGIN
-      UPDATE stag_queue_object_t
+      UPDATE p#frm#stag_queue_object_t
          SET etl_step_status = 0
            , etl_step_session_id = NULL
            , etl_step_begin_date = NULL
            , etl_step_end_date = NULL
        WHERE stag_queue_id IN (SELECT stag_queue_id
-                                 FROM stag_queue_t
+                                 FROM p#frm#stag_queue_t
                                 WHERE stag_queue_code = p_vc_queue_code);
 
       COMMIT;

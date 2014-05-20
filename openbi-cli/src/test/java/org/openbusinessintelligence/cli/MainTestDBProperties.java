@@ -233,7 +233,7 @@ public class MainTestDBProperties {
 		
 		initArguments();
 		//
-		arguments[2] = "localhost_hsqldb";
+		arguments[2] = "localhost_hsqldb_test";
 		arguments[4] = "";
 		// Perform test
 		try {

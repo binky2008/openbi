@@ -1,6 +1,7 @@
 BEGIN
    p#frm#ddls.prc_create_entity (
-      'stag_source_db'
+      'p#frm#'
+    , 'stag_source_db'
     , 'stag_source_id          NUMBER,
        stag_source_db_link     VARCHAR2(100),
        stag_source_db_jdbcname VARCHAR2(100),

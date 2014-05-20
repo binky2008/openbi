@@ -1,6 +1,7 @@
 BEGIN
    p#frm#ddls.prc_create_entity (
-      'stag_column'
+      'p#frm#'
+    , 'stag_column'
     , 'stag_object_id NUMBER,
 	   stag_column_pos NUMBER,
 	   stag_column_name VARCHAR2 (100),

@@ -47,9 +47,9 @@ AS
            , l_vc_threshold_type
            , l_n_threshold_min
            , l_n_threshold_max
-        FROM mesr_query_t s
-           , mesr_keyfigure_t k
-           , mesr_threshold_t t
+        FROM p#frm#mesr_query_t s
+           , p#frm#mesr_keyfigure_t k
+           , p#frm#mesr_threshold_t t
        WHERE s.mesr_query_id = k.mesr_query_id
          AND t.mesr_keyfigure_id = k.mesr_keyfigure_id
          AND s.mesr_query_code = p_vc_query_code
@@ -91,7 +91,7 @@ AS
       ELSIF l_vc_threshold_type = 'I' THEN
          SELECT COUNT (*)
            INTO l_n_cnt
-           FROM mesr_exec_t
+           FROM p#frm#mesr_exec_t
           WHERE mesr_keyfigure_id = l_n_keyfigure_id;
 
          IF l_n_cnt > 0 THEN
@@ -100,7 +100,7 @@ AS
               FROM (SELECT mesr_exec_id
                          , mesr_exec_result_value
                          , MAX (mesr_exec_id) OVER (PARTITION BY mesr_keyfigure_id) AS mesr_exec_last
-                      FROM mesr_exec_t
+                      FROM p#frm#mesr_exec_t
                      WHERE mesr_keyfigure_id = l_n_keyfigure_id)
              WHERE mesr_exec_id = mesr_exec_last;
 
@@ -168,11 +168,11 @@ AS
        , 'Inserting in mesr_case_taxonomy_t'
       );
 
-      MERGE INTO mesr_taxn_t trg
+      MERGE INTO p#frm#mesr_taxn_t trg
            USING (SELECT mesr_query_id
                        , taxn_id
-                    FROM mesr_query_t c
-                       , taxn_t t
+                    FROM p#frm#mesr_query_t c
+                       , p#frm#taxn_t t
                    WHERE c.mesr_query_code = p_vc_query_code
                      AND t.taxn_code = p_vc_taxonomy_code) src
               ON (trg.mesr_query_id = src.mesr_query_id
@@ -207,12 +207,12 @@ AS
        , l_vc_prc_name
       );
 
-      DELETE mesr_taxn_t
+      DELETE p#frm#mesr_taxn_t
        WHERE mesr_query_id = (SELECT mesr_query_id
-                                FROM mesr_query_t
+                                FROM p#frm#mesr_query_t
                                WHERE mesr_query_code = p_vc_query_code)
          AND taxn_id = (SELECT taxn_id
-                          FROM taxn_t
+                          FROM p#frm#taxn_t
                          WHERE taxn_code = p_vc_taxonomy_code);
 
       p#frm#trac.log_sub_info (
@@ -231,7 +231,7 @@ AS
    IS
       l_vc_prc_name   t_object_name := 'PRC_query_INS';
    BEGIN
-      MERGE INTO mesr_query_t trg
+      MERGE INTO p#frm#mesr_query_t trg
            USING (SELECT p_vc_query_code AS query_code
                        , p_vc_query_name AS query_name
                        , p_vc_query_sql AS query_sql
@@ -272,13 +272,13 @@ AS
       -- Get the query id
       SELECT mesr_query_id
         INTO l_n_query_id
-        FROM mesr_query_t
+        FROM p#frm#mesr_query_t
        WHERE mesr_query_code = p_vc_query_code;
 
       IF NOT p_b_cascade THEN
          SELECT COUNT (*)
            INTO l_n_cnt
-           FROM mesr_keyfigure_t
+           FROM p#frm#mesr_keyfigure_t
           WHERE mesr_query_id = l_n_query_id;
 
          IF l_n_cnt > 0 THEN
@@ -290,7 +290,7 @@ AS
       END IF;
 
       FOR r_key IN (SELECT mesr_keyfigure_code
-                      FROM mesr_keyfigure_t
+                      FROM p#frm#mesr_keyfigure_t
                      WHERE mesr_query_id = l_n_query_id) LOOP
          prc_keyfigure_del (
             p_vc_query_code
@@ -299,7 +299,7 @@ AS
          );
       END LOOP;
 
-      DELETE mesr_query_t
+      DELETE p#frm#mesr_query_t
        WHERE mesr_query_id = l_n_query_id;
 
       p#frm#trac.log_sub_info (
@@ -318,11 +318,11 @@ AS
    IS
       l_vc_prc_name   t_object_name := 'PRC_KEYFIGURE_INS';
    BEGIN
-      MERGE INTO mesr_keyfigure_t trg
+      MERGE INTO p#frm#mesr_keyfigure_t trg
            USING (SELECT s.mesr_query_id
                        , p_vc_keyfigure_code AS keyfigure_code
                        , p_vc_keyfigure_name AS keyfigure_name
-                    FROM mesr_query_t s
+                    FROM p#frm#mesr_query_t s
                    WHERE s.mesr_query_code = p_vc_query_code) src
               ON (trg.mesr_query_id = src.mesr_query_id
               AND trg.mesr_keyfigure_code = src.keyfigure_code)
@@ -361,8 +361,8 @@ AS
       -- Get the key figure id
       SELECT k.mesr_keyfigure_id
         INTO l_n_keyfigure_id
-        FROM mesr_query_t s
-           , mesr_keyfigure_t k
+        FROM p#frm#mesr_query_t s
+           , p#frm#mesr_keyfigure_t k
        WHERE s.mesr_query_id = k.mesr_query_id
          AND s.mesr_query_code = p_vc_query_code
          AND k.mesr_keyfigure_code = p_vc_keyfigure_code;
@@ -370,7 +370,7 @@ AS
       IF NOT p_b_cascade THEN
          SELECT COUNT (*)
            INTO l_n_cnt
-           FROM mesr_exec_t
+           FROM p#frm#mesr_exec_t
           WHERE mesr_keyfigure_id = l_n_keyfigure_id;
 
          IF l_n_cnt > 0 THEN
@@ -381,7 +381,7 @@ AS
          END IF;
       END IF;
 
-      DELETE mesr_exec_t
+      DELETE p#frm#mesr_exec_t
        WHERE mesr_keyfigure_id = l_n_keyfigure_id;
 
       p#frm#trac.log_sub_info (
@@ -390,7 +390,7 @@ AS
        , l_vc_prc_name
       );
 
-      DELETE mesr_threshold_t
+      DELETE p#frm#mesr_threshold_t
        WHERE mesr_keyfigure_id = l_n_keyfigure_id;
 
       p#frm#trac.log_sub_info (
@@ -399,7 +399,7 @@ AS
        , l_vc_prc_name
       );
 
-      DELETE mesr_keyfigure_t
+      DELETE p#frm#mesr_keyfigure_t
        WHERE mesr_keyfigure_id = l_n_keyfigure_id;
 
       p#frm#trac.log_sub_info (
@@ -452,15 +452,15 @@ AS
       -- Get the key figure id
       SELECT k.mesr_keyfigure_id
         INTO l_n_keyfigure_id
-        FROM mesr_query_t s
-           , mesr_keyfigure_t k
+        FROM p#frm#mesr_query_t s
+           , p#frm#mesr_keyfigure_t k
        WHERE s.mesr_query_id = k.mesr_query_id
          AND s.mesr_query_code = p_vc_query_code
          AND k.mesr_keyfigure_code = p_vc_keyfigure_code;
 
       IF l_n_keyfigure_id IS NOT NULL THEN
          -- Delete existing time slices if they reside between new boundary
-         DELETE mesr_threshold_t
+         DELETE p#frm#mesr_threshold_t
           WHERE mesr_keyfigure_id = l_n_keyfigure_id
             AND mesr_threshold_from > l_d_threshold_from
             AND mesr_threshold_to < l_d_threshold_to;
@@ -472,7 +472,7 @@ AS
          );
 
          -- If new slice inside existing then split
-         INSERT INTO mesr_threshold_t (
+         INSERT INTO p#frm#mesr_threshold_t (
                         mesr_keyfigure_id
                       , mesr_threshold_type
                       , mesr_threshold_min
@@ -486,7 +486,7 @@ AS
                  , mesr_threshold_max
                  , l_d_threshold_to
                  , mesr_threshold_to
-              FROM mesr_threshold_t
+              FROM p#frm#mesr_threshold_t
              WHERE mesr_keyfigure_id = l_n_keyfigure_id
                AND mesr_threshold_from < l_d_threshold_from
                AND mesr_threshold_to > l_d_threshold_to;
@@ -498,7 +498,7 @@ AS
          );
 
          -- Update existing time slice where upper bound > new lower bound
-         UPDATE mesr_threshold_t
+         UPDATE p#frm#mesr_threshold_t
             SET mesr_threshold_to = l_d_threshold_from
           WHERE mesr_keyfigure_id = l_n_keyfigure_id
             AND mesr_threshold_from < l_d_threshold_from
@@ -511,7 +511,7 @@ AS
          );
 
          -- Update existing time slice where lower bound < new upper bound
-         UPDATE mesr_threshold_t
+         UPDATE p#frm#mesr_threshold_t
             SET mesr_threshold_from = l_d_threshold_to
           WHERE mesr_keyfigure_id = l_n_keyfigure_id
             AND mesr_threshold_to > l_d_threshold_to
@@ -524,7 +524,7 @@ AS
          );
 
             -- Update time slice with same boundary
-            UPDATE mesr_threshold_t
+            UPDATE p#frm#mesr_threshold_t
                SET mesr_threshold_type = p_vc_threshold_type
                  , mesr_threshold_min = p_n_threshold_min
                  , mesr_threshold_max = p_n_threshold_max
@@ -541,7 +541,7 @@ AS
          );
 
          IF l_n_threshold_id IS NULL THEN
-            INSERT INTO mesr_threshold_t (
+            INSERT INTO p#frm#mesr_threshold_t (
                            mesr_keyfigure_id
                          , mesr_threshold_type
                          , mesr_threshold_min
@@ -578,7 +578,7 @@ AS
    IS
       l_vc_prc_name   t_object_name := 'PRC_EXEC_INS';
    BEGIN
-      INSERT INTO mesr_exec_t (
+      INSERT INTO p#frm#mesr_exec_t (
                      mesr_keyfigure_id
                    , mesr_exec_result_value
                    , mesr_exec_result_report
@@ -586,8 +586,8 @@ AS
          SELECT k.mesr_keyfigure_id
               , p_n_result_value
               , p_vc_result_report
-           FROM mesr_query_t s
-              , mesr_keyfigure_t k
+           FROM p#frm#mesr_query_t s
+              , p#frm#mesr_keyfigure_t k
           WHERE s.mesr_query_id = k.mesr_query_id
             AND s.mesr_query_code = p_vc_query_code
             AND k.mesr_keyfigure_code = p_vc_keyfigure_code;
@@ -634,7 +634,7 @@ AS
       FOR r_query IN (  SELECT s.mesr_query_id
                              , s.mesr_query_code
                              , s.mesr_query_sql
-                          FROM mesr_query_t s
+                          FROM p#frm#mesr_query_t s
                          WHERE (p_vc_query_code IN (s.mesr_query_code, 'ALL')
                              OR p_vc_query_code IS NULL)
                       ORDER BY s.mesr_query_code) LOOP
@@ -821,7 +821,7 @@ AS
                                 , '/'
                                )
                                   taxn_path
-                          FROM taxn_t
+                          FROM p#frm#taxn_t
                     START WITH taxn_code = p_vc_taxonomy_code
                     CONNECT BY PRIOR taxn_id = taxn_parent_id) LOOP
          p#frm#trac.log_sub_info (
@@ -831,8 +831,8 @@ AS
          );
 
          FOR r_query IN (SELECT c.mesr_query_code
-                           FROM mesr_taxn_t t
-                              , mesr_query_t c
+                           FROM p#frm#mesr_taxn_t t
+                              , p#frm#mesr_query_t c
                           WHERE t.mesr_query_id = c.mesr_query_id
                             AND t.taxn_id = r_tax.taxn_id) LOOP
             prc_exec (

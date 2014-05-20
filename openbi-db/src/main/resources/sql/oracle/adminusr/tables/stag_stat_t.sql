@@ -1,6 +1,7 @@
 BEGIN
    p#frm#ddls.prc_create_entity (
-      'stag_stat'
+      'p#frm#'
+    , 'stag_stat'
     , 'stag_object_id NUMBER,
 	   stag_partition NUMBER,
 	   stag_load_id NUMBER,

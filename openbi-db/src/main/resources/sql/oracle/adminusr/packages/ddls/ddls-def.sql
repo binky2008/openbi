@@ -36,13 +36,13 @@ AS
    /**
    * Templates for entity objects
    */
-   c_name_entity_tab           t_object_name := '#entityName#_T';
-   c_name_entity_cdc           t_object_name := '#entityName#_CDC';
-   c_name_entity_bkp           t_object_name := '#entityName#_BKP';
-   c_name_entity_cbk           t_object_name := '#entityName#_CBK';
-   c_name_entity_seq           t_object_name := '#entityName#_SEQ';
+   c_name_entity_tab           t_object_name := '#entityPrefix##entityName#_T';
+   c_name_entity_cdc           t_object_name := '#entityPrefix##entityName#_CDC';
+   c_name_entity_bkp           t_object_name := '#entityPrefix##entityName#_BKP';
+   c_name_entity_cbk           t_object_name := '#entityPrefix##entityName#_CBK';
+   c_name_entity_seq           t_object_name := '#entityPrefix##entityName#_SEQ';
    c_name_entity_id            t_object_name := '#entityName#_ID';
-   c_name_entity_pk            t_object_name := '#entityName#_PK';
+   c_name_entity_pk            t_object_name := '#entityPrefix##entityName#_PK';
    -- Template to create a standard entity table.
    c_template_entity_tab       CLOB := 'CREATE TABLE #entityTable# (
 		 #entityId# number
@@ -65,7 +65,7 @@ AS
 	 , dml_date DATE DEFAULT SYSDATE
 	)';
    -- Template to create a cdc trigger for a standard entity table
-   c_template_entity_trg_cdc   CLOB := 'CREATE OR REPLACE TRIGGER #entityName#_tdc
+   c_template_entity_trg_cdc   CLOB := 'CREATE OR REPLACE TRIGGER #entityTable#dc
    AFTER INSERT OR UPDATE OR DELETE
    ON #entityTable#
    FOR EACH ROW
@@ -109,7 +109,7 @@ END;';
    -- Template for the name of a sequence related to a standard entity table.
    c_template_entity_seq       CLOB := 'CREATE SEQUENCE #entitySequence#';
    -- Template for the insert trigger related to a standard entity table.
-   c_template_entity_trg_ins   CLOB := 'CREATE OR REPLACE TRIGGER #entityName#_tbi BEFORE
+   c_template_entity_trg_ins   CLOB := 'CREATE OR REPLACE TRIGGER #entityTable#bi BEFORE
 	INSERT
 		ON #entityTable# FOR EACH ROW
 BEGIN
@@ -123,7 +123,7 @@ BEGIN
 	END IF;
 END;';
    -- Template for the update trigger related to a standard entity table.
-   c_template_entity_trg_upd   CLOB := 'CREATE OR REPLACE TRIGGER #entityName#_tbu BEFORE
+   c_template_entity_trg_upd   CLOB := 'CREATE OR REPLACE TRIGGER #entityTable#bu BEFORE
 	UPDATE
 		ON #entityTable# FOR EACH ROW
 BEGIN
@@ -331,7 +331,8 @@ END #pkgName#;';
    * @param p_b_cdc_flag           Create cdc table and triggers
    */
    PROCEDURE prc_create_entity (
-      p_vc_entity_name      VARCHAR2
+      p_vc_entity_prefix    VARCHAR2
+    , p_vc_entity_name      VARCHAR2
     , p_vc_entity_fields    VARCHAR2
     , p_vc_create_mode      VARCHAR2 DEFAULT 'DEFAULT'
     , p_b_public_flag       BOOLEAN DEFAULT FALSE

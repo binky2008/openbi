@@ -43,18 +43,18 @@ AS
 
       SELECT MIN (stag_object_id)
         INTO l_n_object_id
-        FROM stag_source_t s
-           , stag_object_t o
+        FROM p#frm#stag_source_t s
+           , p#frm#stag_object_t o
        WHERE s.stag_source_id = o.stag_source_id
          AND s.stag_source_code = p_vc_source_code
          AND o.stag_object_name = p_vc_object_name;
 
       SELECT MIN (stag_stat_type_id)
         INTO l_n_stat_type_id
-        FROM stag_stat_type_t
+        FROM p#frm#stag_stat_type_t
        WHERE stag_stat_type_code = p_vc_stat_type_code;
 
-      INSERT INTO stag_stat_t (
+      INSERT INTO p#frm#stag_stat_t (
                      stag_object_id
                    , stag_partition
                    , stag_load_id
@@ -86,7 +86,7 @@ AS
    IS
       PRAGMA AUTONOMOUS_TRANSACTION;
    BEGIN
-      UPDATE stag_stat_t
+      UPDATE p#frm#stag_stat_t
          SET stag_stat_value = p_n_stat_value
            , stag_stat_error = p_n_stat_error
        WHERE stag_stat_id = p_n_stat_id;
@@ -97,7 +97,7 @@ AS
    PROCEDURE prc_stat_purge
    IS
    BEGIN
-      DELETE stag_stat_t
+      DELETE p#frm#stag_stat_t
        WHERE stag_stat_value IS NULL;
 
       COMMIT;
@@ -110,7 +110,7 @@ AS
    )
    IS
    BEGIN
-      INSERT INTO stag_size_t (
+      INSERT INTO p#frm#stag_size_t (
                      stag_object_id
                    , stag_table_name
                    , stag_num_rows
@@ -120,8 +120,8 @@ AS
                 , p_vc_table_name
                 , tb.num_rows
                 , SUM (sg.bytes)
-             FROM stag_object_t ob
-                , stag_source_t sr
+             FROM p#frm#stag_object_t ob
+                , p#frm#stag_source_t sr
                 , user_tables tb
                 , user_segments sg
             WHERE ob.stag_source_id = sr.stag_source_id

@@ -91,7 +91,7 @@ AS
                            , o.stag_increment_buffer
                            , c.stag_increment_column
                            , c.stag_increment_coldef
-                        FROM stag_source_t s
+                        FROM p#frm#stag_source_t s
                            , (SELECT stag_source_id
                                    , stag_source_db_link
                                    , stag_source_owner
@@ -99,9 +99,9 @@ AS
                                            , stag_source_db_link
                                            , stag_source_owner
                                            , ROW_NUMBER () OVER (PARTITION BY stag_source_id ORDER BY stag_source_db_id) AS source_db_order
-                                        FROM stag_source_db_t)
+                                        FROM p#frm#stag_source_db_t)
                                WHERE source_db_order = 1) d
-                           , stag_object_t o
+                           , p#frm#stag_object_t o
                            , (SELECT stag_object_id
                                    , stag_column_name AS stag_increment_column
                                    , stag_column_def AS stag_increment_coldef
@@ -109,7 +109,7 @@ AS
                                            , stag_column_name
                                            , stag_column_def
                                            , ROW_NUMBER () OVER (PARTITION BY stag_object_id ORDER BY stag_column_pos) AS column_order
-                                        FROM stag_column_t
+                                        FROM p#frm#stag_column_t
                                        WHERE stag_column_incr_flag > 0
                                          AND (stag_column_def LIKE 'DATE%'
                                            OR stag_column_def LIKE 'NUMBER%'))
@@ -140,7 +140,7 @@ AS
          FOR r_db IN (SELECT stag_source_db_link
                            , stag_source_owner
                            , stag_distribution_code
-                        FROM stag_source_db_t
+                        FROM p#frm#stag_source_db_t
                        WHERE stag_source_id = r_obj.stag_source_id) LOOP
             l_vc_stage_db_list :=
                   l_vc_stage_db_list
@@ -177,7 +177,7 @@ AS
                               , stag_column_def
                               , stag_column_nk_pos
                               , stag_column_hist_flag
-                           FROM stag_column_t
+                           FROM p#frm#stag_column_t
                           WHERE stag_object_id = r_obj.stag_object_id
                             AND stag_column_edwh_flag = 1
                        ORDER BY stag_column_pos) LOOP
@@ -493,7 +493,7 @@ AS
                            , o.stag_filter_clause
                            , o.stag_partition_clause
                            , o.stag_fbda_flag
-                        FROM stag_source_t s
+                        FROM p#frm#stag_source_t s
                            , (SELECT stag_source_id
                                    , stag_source_db_link
                                    , stag_source_owner
@@ -501,9 +501,9 @@ AS
                                            , stag_source_db_link
                                            , stag_source_owner
                                            , ROW_NUMBER () OVER (PARTITION BY stag_source_id ORDER BY stag_source_db_id) AS source_db_order
-                                        FROM stag_source_db_t)
+                                        FROM p#frm#stag_source_db_t)
                                WHERE source_db_order = 1) d
-                           , stag_object_t o
+                           , p#frm#stag_object_t o
                        WHERE s.stag_source_id = d.stag_source_id(+)
                          AND s.stag_source_id = o.stag_source_id
                          AND p_vc_source_code IN (s.stag_source_code, 'ALL')
@@ -525,7 +525,7 @@ AS
                               , stag_column_def
                               , stag_column_nk_pos
                               , stag_column_hist_flag
-                           FROM stag_column_t
+                           FROM p#frm#stag_column_t
                           WHERE stag_object_id = r_obj.stag_object_id
                             AND stag_column_edwh_flag = 1
                        ORDER BY stag_column_pos) LOOP
@@ -725,7 +725,7 @@ AS
                            , o.stag_hist_view_name
                            , o.stag_hist_nk_name
                            , o.stag_partition_clause
-                        FROM stag_source_t s
+                        FROM p#frm#stag_source_t s
                            , (SELECT stag_source_id
                                    , stag_source_db_link
                                    , stag_source_owner
@@ -733,9 +733,9 @@ AS
                                            , stag_source_db_link
                                            , stag_source_owner
                                            , ROW_NUMBER () OVER (PARTITION BY stag_source_id ORDER BY stag_source_db_id) AS source_db_order
-                                        FROM stag_source_db_t)
+                                        FROM p#frm#stag_source_db_t)
                                WHERE source_db_order = 1) d
-                           , stag_object_t o
+                           , p#frm#stag_object_t o
                        WHERE s.stag_source_id = d.stag_source_id
                          AND s.stag_source_id = o.stag_source_id
                          AND p_vc_source_code IN (s.stag_source_code, 'ALL')
@@ -781,7 +781,7 @@ AS
          FOR r_db IN (SELECT stag_source_db_link
                            , stag_source_owner
                            , stag_distribution_code
-                        FROM stag_source_db_t
+                        FROM p#frm#stag_source_db_t
                        WHERE stag_source_id = r_obj.stag_source_id) LOOP
             l_vc_stage_db_list :=
                   l_vc_stage_db_list
@@ -808,7 +808,7 @@ AS
          FOR r_col IN (  SELECT NVL (stag_column_name_map, stag_column_name) AS stag_column_name
                               , stag_column_def
                               , stag_column_nk_pos
-                           FROM stag_column_t
+                           FROM p#frm#stag_column_t
                           WHERE stag_object_id = r_obj.stag_object_id
                             AND stag_column_edwh_flag = 1
                        ORDER BY stag_column_pos) LOOP

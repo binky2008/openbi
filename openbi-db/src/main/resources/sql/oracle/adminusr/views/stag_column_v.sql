@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW stag_column_v
+CREATE OR REPLACE VIEW p#frm#stag_column_v
 AS
      SELECT sc.stag_source_id
           , sc.stag_source_code
@@ -16,9 +16,9 @@ AS
           , co.stag_column_hist_flag
           , co.stag_column_edwh_flag
           , co.update_date
-       FROM stag_column_t co
-          , stag_object_t ob
-          , stag_source_t sc
+       FROM p#frm#stag_column_t co
+          , p#frm#stag_object_t ob
+          , p#frm#stag_source_t sc
       WHERE ob.stag_object_id = co.stag_object_id
         AND ob.stag_source_id = sc.stag_source_id
    ORDER BY sc.stag_source_code

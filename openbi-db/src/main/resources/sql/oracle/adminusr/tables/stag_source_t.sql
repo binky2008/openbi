@@ -1,6 +1,7 @@
 BEGIN
    p#frm#ddls.prc_create_entity (
-      'stag_source'
+      'p#frm#'
+    , 'stag_source'
     , 'stag_source_code VARCHAR2(10),
 		stag_source_prefix VARCHAR2(10),
 		stag_source_name VARCHAR2(1000),

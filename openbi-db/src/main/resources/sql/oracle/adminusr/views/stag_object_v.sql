@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW stag_object_v
+CREATE OR REPLACE VIEW p#frm#stag_object_v
 AS
      SELECT sc.stag_source_id
           , sc.stag_source_code
@@ -22,8 +22,8 @@ AS
           , ob.stag_filter_clause
           , ob.stag_fbda_flag
           , ob.update_date
-       FROM stag_object_t ob
-          , stag_source_t sc
+       FROM p#frm#stag_object_t ob
+          , p#frm#stag_source_t sc
       WHERE ob.stag_source_id = sc.stag_source_id
    ORDER BY sc.stag_source_code
           , ob.stag_object_name;

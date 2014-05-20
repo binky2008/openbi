@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW stag_source_v
+CREATE OR REPLACE VIEW p#frm#stag_source_v
 AS
    SELECT stag_source_id
         , stag_source_code
@@ -13,4 +13,4 @@ AS
         , stag_bodi_ds
         , stag_source_bodi_ds
         , update_date
-     FROM stag_source_t;
+     FROM p#frm#stag_source_t;

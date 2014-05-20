@@ -2,11 +2,13 @@ BEGIN
    ROLLBACK;
    /*sgc_accounts_pkg.prc_load_init;
    sgc_acl_actions_pkg.prc_load_init;
-   sgc_contacts_pkg.prc_load_init;*/
+   sgc_contacts_pkg.prc_load_init;
+   sgc_email_addresses_pkg.prc_load_init;*/
    --
    sgc_accounts_pkg.prc_load;
    sgc_acl_actions_pkg.prc_load;
    sgc_contacts_pkg.prc_load;
+   sgc_email_addresses_pkg.prc_load;
    --
    --
    /*sgm_accounts_pkg.prc_load_init;
@@ -15,9 +17,9 @@ BEGIN
    sgm_accounts_pkg.prc_load;
    sgm_acl_actions_pkg.prc_load;
    --
-   /*tst_bigtable_pkg.prc_load_init;*/
+   --tst_bigtable_pkg.prc_load_init;
    --
-   --tst_bigtable_pkg.prc_load;
+   tst_bigtable_pkg.prc_load;
    tst_smalltable_pkg.prc_load_stage;
    ROLLBACK;
    tst_smalltable_pkg.prc_load_diff;

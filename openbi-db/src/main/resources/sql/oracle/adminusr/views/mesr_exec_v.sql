@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW mesr_exec_v
+CREATE OR REPLACE VIEW p#frm#mesr_exec_v
 AS
      SELECT q.mesr_query_code
           , q.mesr_query_name
@@ -9,10 +9,10 @@ AS
           , t.mesr_threshold_min
           , t.mesr_threshold_max
           , e.update_date AS execution_date
-       FROM mesr_query_t q
-          , mesr_keyfigure_t k
-          , mesr_threshold_t t
-          , mesr_exec_t e
+       FROM p#frm#mesr_query_t q
+          , p#frm#mesr_keyfigure_t k
+          , p#frm#mesr_threshold_t t
+          , p#frm#mesr_exec_t e
       WHERE q.mesr_query_id = k.mesr_query_id(+)
         AND k.mesr_keyfigure_id = e.mesr_keyfigure_id(+)
         AND e.mesr_keyfigure_id = t.mesr_keyfigure_id(+)

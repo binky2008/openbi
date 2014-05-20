@@ -1,1 +1,1 @@
-ALTER TABLE taxn_t ADD (CONSTRAINT taxn_uk UNIQUE (taxn_code));
+ALTER TABLE p#frm#taxn_t ADD (CONSTRAINT p#frm#taxn_uk UNIQUE (taxn_code));

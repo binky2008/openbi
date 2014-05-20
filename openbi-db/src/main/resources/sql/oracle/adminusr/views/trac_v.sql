@@ -1,5 +1,5 @@
-CREATE OR REPLACE VIEW trac_v
+CREATE OR REPLACE VIEW p#frm#trac_v
 AS
      SELECT *
-       FROM trac_t
+       FROM p#frm#trac_t
    ORDER BY trac_id DESC;
