@@ -146,7 +146,7 @@ public class MainTestCopyTableFromDB2 {
 		
 		initSource();
 		//
-		targetArgs[0] = "msas120i_hana_01_dwh_stage";
+		targetArgs[0] = "localhost_hana_01_dwh_stage";
 		targetArgs[1] = "HDBKeywords";
 		targetArgs[2] = "dwh_stage";
 		targetArgs[3] = "stg_db2_tab_test";

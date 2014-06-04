@@ -246,92 +246,97 @@ public class ConnectionBean {
     public void openConnection() throws Exception  {
     	
     	logger.info("Opening connection...");
-    	
-    	try {
-	        if (dataSourceName == null ||dataSourceName.equals("")) {
-	        	// Get connection using driver
-	        	if (propertyFile == null || propertyFile.equals("")) {
-	            	// Use given username and password
-	            	logger.info("Using username & password");
-		        	Class.forName(databaseDriver).newInstance();
-		        	logger.info("Loaded database driver " + databaseDriver);
-	            	connection = DriverManager.getConnection(connectionURL, userName, passWord);
-	        	}
-	        	else {
-	            	// Use property file
-	            	logger.info("Using property file " + propertyFile);
-	            	Properties connectionProperties = new Properties();
-	            	connectionProperties.load(new FileInputStream("datasources/" + propertyFile + ".properties"));
-	        		if (databaseDriver == null || databaseDriver.equals("")) {
-	        			// Get driver and url from property file
-	        			databaseDriver = connectionProperties.getProperty("driver");
-	        			logger.debug("databaseDriver = " + databaseDriver);
-	        			connectionURL = connectionProperties.getProperty("url");
-	        			logger.debug("connectionURL = " + connectionURL);
-	        		}
-		        	Class.forName(databaseDriver).newInstance();
-		        	logger.debug("driver loaded");
-	        		connection = DriverManager.getConnection(connectionURL, connectionProperties);
-	        	}
-	        	logger.debug("Connected to database " + connectionURL);
+	    if (dataSourceName == null ||dataSourceName.equals("")) {
+	      	// Get connection using driver
+	        if (propertyFile == null || propertyFile.equals("")) {
+	          	// Use given username and password
+	           	logger.info("Using username & password");
+		       	Class.forName(databaseDriver).newInstance();
+		       	logger.info("Loaded database driver " + databaseDriver);
+	           	connection = DriverManager.getConnection(connectionURL, userName, passWord);
 	        }
-	        else {
-	        	// Get connection from application server
-	        	InitialContext ic = new InitialContext();
-	        	DataSource ds = (DataSource)ic.lookup("java:comp/env/jdbc/" + dataSourceName.toLowerCase());
-	        	connection = ds.getConnection();
-	        	logger.debug("Connected to database " + dataSourceName);
-	        }
-	        
-	    	logger.info("Opened connection");
-	
-	    	metadata = connection.getMetaData();
-	    	databaseProductName = metadata.getDatabaseProductName();
-	    	logger.debug("Product: " + databaseProductName);
-	    	
-	    	InputStream keyWordStream;
-	    	java.util.Scanner scanner;
-	    	keyWords = "";
-	    	
-	    	// Get default SQL keywords
-	    	keyWordStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("conf/SQL2003Keywords.txt");
+	       	else {
+	           	// Use property file
+	           	logger.info("Using property file " + propertyFile);
+	           	Properties connectionProperties = new Properties();
+	           	connectionProperties.load(new FileInputStream("datasources/" + propertyFile + ".properties"));
+	       		if (databaseDriver == null || databaseDriver.equals("")) {
+	       			// Get driver and url from property file
+	       			databaseDriver = connectionProperties.getProperty("driver");
+	       			logger.debug("databaseDriver = " + databaseDriver);
+	       			connectionURL = connectionProperties.getProperty("url");
+	       			logger.debug("connectionURL = " + connectionURL);
+	       		}
+		       	Class.forName(databaseDriver).newInstance();
+		       	logger.debug("driver loaded");
+	       		connection = DriverManager.getConnection(connectionURL, connectionProperties);
+	       	}
+	       	logger.debug("Connected to database " + connectionURL);
+	    }
+	    else {
+	       	// Get connection from application server
+	       	InitialContext ic = new InitialContext();
+	       	DataSource ds = (DataSource)ic.lookup("java:comp/env/jdbc/" + dataSourceName.toLowerCase());
+	       	connection = ds.getConnection();
+	       	logger.debug("Connected to database " + dataSourceName);
+	 	}
+	       
+	   	logger.info("Opened connection");
+		metadata = connection.getMetaData();
+	   	databaseProductName = metadata.getDatabaseProductName();
+	   	logger.debug("Product: " + databaseProductName);
+	   	
+	   	InputStream keyWordStream;
+	   	java.util.Scanner scanner;
+	   	keyWords = "";
+	   	
+	   	// Get default SQL keywords
+	   	keyWordStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("conf/SQL2003Keywords.txt");
+	   	scanner = new java.util.Scanner(keyWordStream).useDelimiter("\\A");
+	   	keyWords += scanner.next().replace("\n", ",");
+	   	scanner.close();
+	   	keyWordStream.close();
+	   	
+	   	// Load specific reserved keywords from a file
+	   	if (keyWordFile != null && !(keyWordFile.equals(""))) {
+	    	keyWordStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("conf/" + keyWordFile + ".txt");
 	    	scanner = new java.util.Scanner(keyWordStream).useDelimiter("\\A");
 	    	keyWords += scanner.next().replace("\n", ",");
 	    	scanner.close();
 	    	keyWordStream.close();
-	    	
-	    	// Get product keywords
-	    	if (keyWordFile != null && !(keyWordFile.equals(""))) {
-		    	keyWordStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("conf/" + keyWordFile + ".txt");
-		    	scanner = new java.util.Scanner(keyWordStream).useDelimiter("\\A");
-		    	keyWords += scanner.next().replace("\n", ",");
-		    	scanner.close();
-		    	keyWordStream.close();
-	    	}	    	
-	    	
-	    	keyWords += metadata.getSQLKeywords();
-	    	logger.debug("Keywords: " + keyWords);
-	    	quoteString = metadata.getIdentifierQuoteString();
-	    	logger.debug("Quote String: " + quoteString);
-	
-	    	logger.info("########################################");
-	    	logger.info("Found catalogs:");
-	    	ResultSet dbCatalogs = metadata.getCatalogs();    	
-	    	while (dbCatalogs.next()) {
-	    		logger.info(dbCatalogs.getString("TABLE_CAT"));
-	    	}
-	
-	    	logger.info("########################################");
-	    	logger.info("Found schemas:");
-	    	ResultSet dbSchemas = metadata.getSchemas();
-	    	while (dbSchemas.next()) {
-	    		logger.info(dbSchemas.getString("TABLE_SCHEM"));
-	    	}
-    	}
-    	catch (Exception e) {
-			logger.error(e.getMessage());
-		    throw e;
-    	}
+	   	}
+	   	
+	   	// Get reserved keywords throw jdbc
+	   	try {
+		   	logger.debug("Getting keywords...");
+		   	keyWords += metadata.getSQLKeywords();
+		   	logger.debug("Keywords: " + keyWords);
+	   	}
+	   	catch (Exception e) {
+	   		logger.error(e.getMessage());
+	   	}
+	   	try {
+		   	logger.debug("Getting quote string...");
+		   	quoteString = metadata.getIdentifierQuoteString();
+		   	logger.debug("Quote string: " + quoteString);
+	   	}
+	   	catch (Exception e) {
+	   		logger.error(e.getMessage());
+	   	}
+	   	
+	   	// Get catalogues and schemas
+		logger.info("########################################");
+	   	logger.info("Found catalogs:");
+	   	ResultSet dbCatalogs = metadata.getCatalogs();    	
+	   	while (dbCatalogs.next()) {
+	   		logger.info(dbCatalogs.getString("TABLE_CAT"));
+	   	}
+		    	logger.info("########################################");
+	   	logger.info("Found schemas:");
+	   	ResultSet dbSchemas = metadata.getSchemas();
+	   	while (dbSchemas.next()) {
+	   		logger.info(dbSchemas.getString("TABLE_SCHEM"));
+	   	}
     }
     
     public void closeConnection() throws Exception {
