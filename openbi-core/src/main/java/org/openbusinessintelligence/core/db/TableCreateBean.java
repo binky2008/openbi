@@ -112,8 +112,12 @@ public class TableCreateBean {
 		    	
 		        logger.info("Create table");
 	    	
-	    		// create table    	
-		       	sqlText = "CREATE TABLE " + targetSchema + "." + targetTable + "(";
+	    		// create table
+		        sqlText = "CREATE ";
+		        if (targetCon.getDatabaseProductName().toUpperCase().contains("TERADATA")) {
+			        sqlText += "MULTISET ";
+		        }
+		       	sqlText += "TABLE " + targetSchema + "." + targetTable + "(";
 		       	for (int i = 0; i < targetColumnDefinitions.length; i++) {
 			    	if (i > 0) {
 			    		sqlText += ",";

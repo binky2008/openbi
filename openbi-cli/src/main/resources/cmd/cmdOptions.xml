@@ -86,6 +86,13 @@
 		<argName>dwso install file</argName>
 	</option>
 	
+	<!-- Data generation option -->
+	<option>
+		<name>numberofrows</name>
+		<description>Number of rows</description>
+		<argName>number of rows</argName>
+	</option>
+	
 	<!-- Import File Options -->
 	<option>
 		<name>infilefolder</name>

@@ -564,9 +564,7 @@ public class TypeConversionBean {
        		}
        	}
    		// XML type
-       	else if (
-   				sourceColumnType.contains("XML")
-       		) {
+       	else if (sourceColumnType.contains("XML")) {
        		if (targetProductName.toUpperCase().contains("MYSQL")) {
         		targetColumnType = "LONGTEXT";
     		}
@@ -657,7 +655,6 @@ public class TypeConversionBean {
        			sourceColumnType.contains("NUMERIC") ||
        			sourceColumnType.contains("SERIAL") ||
        			sourceColumnType.contains("DEC") ||
-       			//sourceColumnType.contains("BIN") ||
        			sourceColumnType.contains("INT") ||
        			sourceColumnType.contains("FLO") ||
        			sourceColumnType.contains("IDENT")

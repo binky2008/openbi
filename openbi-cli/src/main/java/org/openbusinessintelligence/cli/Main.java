@@ -180,7 +180,6 @@ public class Main {
     	/*
    		* Install back-end side framework components
    		*/
-
 	    if (feature.equalsIgnoreCase("installframework")) {
 			logger.info("Install framework");
 			org.openbusinessintelligence.install.FrameworkInstaller installer = new org.openbusinessintelligence.install.FrameworkInstaller();
@@ -223,10 +222,10 @@ public class Main {
 			connectionBean.closeConnection();
 			logger.info("Framework installed"); 
     	}
+    	/*
+		* Execute a store procedure
+		*/
 	    if (feature.equalsIgnoreCase("executeprocedure")) {
-	    	/*
-    		* Execute a store procedure
-    		*/
 			org.openbusinessintelligence.core.db.ProcedureBean procedure = new org.openbusinessintelligence.core.db.ProcedureBean();
 			
 			procedure.setPropertyFile(getOption("dbconnpropertyfile"));
@@ -246,10 +245,10 @@ public class Main {
 			    throw e;
 			}
 	    }
+    	/*
+		* Get database properties
+		*/
 	    if (feature.equalsIgnoreCase("dbproperties")) {
-	    	/*
-    		* Get database properties
-    		*/
 			logger.info("Get database properties");
 			
 	    	org.openbusinessintelligence.core.db.ConnectionBean connectionBean = new org.openbusinessintelligence.core.db.ConnectionBean();
@@ -271,10 +270,10 @@ public class Main {
 			connectionBean.closeConnection();
 			logger.info("Properties retrieved");
 	    }
+    	/*
+		* Copy tables between 2 databases
+		*/
 	    if (feature.equalsIgnoreCase("tablecopy")) {
-	    	/*
-    		* Copy tables between 2 databases
-    		*/
 	    	boolean copySchema = false;
 	    	
 			logger.info("Copy an entire schema, a single table or the result of a query from a database to another");
@@ -445,10 +444,10 @@ public class Main {
 			    throw e;
 			}
 	    }
+    	/*
+		* Generate random data
+		*/
 	    if (feature.equalsIgnoreCase("generaterandomdata")) {
-	    	/*
-    		* Generate random data
-    		*/
 			logger.info("Generate random data in database tables");
    		
 	    	org.openbusinessintelligence.core.db.ConnectionBean targetConnectionBean = new org.openbusinessintelligence.core.db.ConnectionBean();
@@ -492,7 +491,9 @@ public class Main {
 					generator.setTargetSchema(targetSchema);
 					generator.setTargetTable(targetTableList[i]);
 					generator.setPreserveDataOption(Boolean.parseBoolean(getOption("trgpreservedata")));
-					
+					if (getOption("numberofrows") != null) {
+						generator.setNumberOfRows(Integer.parseInt(getOption("numberofrows")));
+					}
 					if (getOption("commitfrequency") != null) {
 						generator.setCommitFrequency(Integer.parseInt(getOption("commitfrequency")));
 					}
@@ -513,10 +514,10 @@ public class Main {
 			    throw e;
 			}
     	}
+    	/*
+		* Import a series of csv files
+		*/
 	    if (feature.equalsIgnoreCase("importcsvseries")) {
-	    	/*
-    		* Import a series of csv files
-    		*/
 	    	String sourceZipFile = getOption("sourcezipfile");
 	    	if (!(sourceZipFile == null || sourceZipFile.equals(""))) {
 		    	org.openbusinessintelligence.core.db.ConnectionBean sourceConnectionBean = new org.openbusinessintelligence.core.db.ConnectionBean();
@@ -563,10 +564,10 @@ public class Main {
 				}
 	        }
 	    }
+    	/*
+		* Merge similar files
+		*/
 	    if (feature.equalsIgnoreCase("mergefiles")) {
-	    	/*
-    		* Merge similar files
-    		*/
 			org.openbusinessintelligence.core.file.FileMergeBean fileMerge = new org.openbusinessintelligence.core.file.FileMergeBean();
 			fileMerge.setInputZipFile(getOption("sourcezipfile"));
 			fileMerge.setInputDirectory(getOption("sourcedirectory"));
@@ -584,10 +585,10 @@ public class Main {
 			    throw e;
 			}
 	    }
+    	/*
+		* Create XML definitions for common ETL software
+		*/
 	    if (feature.equalsIgnoreCase("createetlxml")) {
-	    	/*
-    		* Create XML definitions for common ETL software
-    		*/
 			logger.info("Create ETL XML");
 
 			String bodiAbapDataFlowPrefix = getOption("bodiabapdataflowprefix");

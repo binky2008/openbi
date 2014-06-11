@@ -25,6 +25,7 @@ public class TableDictionaryBean {
     //
     private String[] columnNames = null;
     private String[] columnType = null;
+    private String[] columnTypeAttribute = null;
     private int[] columnLength = null;
     private int[] columnPrecision = null;
     private int[] columnScale = null;
@@ -70,6 +71,10 @@ public class TableDictionaryBean {
     	return columnType;
     }
     
+    public String[] getColumnTypeAttribute() {
+    	return columnTypeAttribute;
+    }
+    
     public int[] getColumnLength() {
     	return columnLength;
     }
@@ -95,7 +100,7 @@ public class TableDictionaryBean {
     	
     	logger.debug("Getting columns for source...");
 
-    	String sourceProductName;
+    	String productName;
     	String sourcePrefix = "";
     	if (!(sourceCon.getSchemaName() == null || sourceCon.getSchemaName().equals(""))) {
     		sourcePrefix = sourceCon.getSchemaName() + ".";
@@ -113,8 +118,8 @@ public class TableDictionaryBean {
        	logger.info("SQL: " + sqlText + ": getting columns...");
         
        	//openSourceConnection();
-       	sourceProductName = sourceCon.getDatabaseProductName();
-        logger.info("Source RDBMS product: " + sourceProductName);
+       	productName = sourceCon.getDatabaseProductName();
+        logger.info("Source RDBMS product: " + productName);
         PreparedStatement columnStmt = sourceCon.getConnection().prepareStatement(sqlText);
         ResultSet rs = columnStmt.executeQuery();
         ResultSetMetaData rsmd = rs.getMetaData();
@@ -122,6 +127,7 @@ public class TableDictionaryBean {
         columnCount = rsmd.getColumnCount();
         columnNames = new String[columnCount];
         columnType = new String[columnCount];
+        columnTypeAttribute = new String[columnCount];
         columnLength = new int[columnCount];
         columnPrecision = new int[columnCount];
         columnScale = new int[columnCount];
@@ -129,7 +135,6 @@ public class TableDictionaryBean {
         //
         columnPkPositions = new int[columnCount];
         
-        String columnTypeAttribute = "";
        	for (int i = 1; i <= columnCount; i++) {
         	columnNames[i - 1] = rsmd.getColumnName(i).toUpperCase();
 
@@ -142,12 +147,22 @@ public class TableDictionaryBean {
         	
         	logger.debug("Column " + (i) + "  Name: " + columnNames[i - 1] + " Type: " + columnType[i - 1] + "  Length: " + columnLength[i - 1] + " Precision: " + columnPrecision[i - 1] + " Scale: " +columnScale[i - 1]);
         	
-        	columnTypeAttribute = "";
+        	columnTypeAttribute[i - 1] = "";
         	columnDefinition[i - 1] = columnType[i - 1];
         	
-        	// Search for type attribute(s)    	
-        	if (columnType[i - 1].split(" ").length > 1) {
-        		columnTypeAttribute = columnType[i - 1].split(" ",2)[1];
+        	// Search for type attribute(s)
+        	if (
+        		productName.toUpperCase().contains("DERBY") &&
+        		columnType[i - 1].toUpperCase().contains("LONG")
+        	) {
+        		if (columnType[i - 1].split(" ").length > 2) {
+            		columnTypeAttribute[i - 1] = columnType[i - 1].split(" ",3)[2];
+            		columnType[i - 1] = columnType[i - 1].split(" ",3)[0] + " " + columnType[i - 1].split(" ",3)[1];
+        		}
+        	}
+        	else if (columnType[i - 1].split(" ").length > 1) {
+        		logger.debug(columnType[i - 1].split(" ",2)[1]);
+        		columnTypeAttribute[i - 1] = columnType[i - 1].split(" ",2)[1];
         		columnType[i - 1] = columnType[i - 1].split(" ",2)[0];
         	}
         	
@@ -158,7 +173,7 @@ public class TableDictionaryBean {
         	else if (columnLength[i - 1] > 0) {
         		columnDefinition[i - 1] += "(" + columnLength[i - 1] + ")";
         	}
-        	columnDefinition[i - 1] += " " + columnTypeAttribute;
+        	columnDefinition[i - 1] += " " + columnTypeAttribute[i - 1];
         	
        	}
         rs.close();

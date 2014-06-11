@@ -1,6 +1,6 @@
-DROP TABLE if exists tab_test;
+DROP TABLE if exists test.tab_test;
 
-CREATE TABLE tab_test (
+CREATE TABLE test.tab_test (
 	col_bool	bool
 ,	col_bit	bit(10)
 ,	col_varbit	varbit(10)

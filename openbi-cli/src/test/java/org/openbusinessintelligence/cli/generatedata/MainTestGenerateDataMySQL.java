@@ -1,8 +1,9 @@
-package org.openbusinessintelligence.cli;
+package org.openbusinessintelligence.cli.generatedata;
 
 import static org.junit.Assert.*;
 
 import org.junit.Test;
+import org.openbusinessintelligence.cli.Main;
 
 public class MainTestGenerateDataMySQL {
 	
@@ -18,10 +19,10 @@ public class MainTestGenerateDataMySQL {
 		arguments[5] = "-targetschema";
 		arguments[7] = "-targettable";
 		//
-		arguments[9] = "-rowcount";
+		arguments[9] = "-numberofrows";
 	}
 	
-	public void initSourceMySQL() {
+	public void initSource() {
 		// Target properties
 		arguments[2] = "localhost_mysql_test";
 		arguments[4] = "";
@@ -34,7 +35,7 @@ public class MainTestGenerateDataMySQL {
 	public void testMySQL() {
 		
 		initArguments();
-		initSourceMySQL();
+		initSource();
 		// Perform test
 		try {
 			Main.main(arguments);

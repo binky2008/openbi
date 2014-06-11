@@ -50,9 +50,10 @@ public class DataCopyBean {
 	TableDictionaryBean sourceDictionaryBean;
 	TableDictionaryBean targetDictionaryBean;
     private String[] commonColumnNames = null;
-    private String[] commonColumnTypes = null;
+    private String[] sourceCommonColumnTypes = null;
+    private String[] targetCommonColumnTypes = null;
     private ResultSet sourceRS = null;
-    private PreparedStatement sourceStmt= null;
+    private PreparedStatement sourceStmt= null;    
     
     // Constructor
     public DataCopyBean() {
@@ -158,20 +159,24 @@ public class DataCopyBean {
        	targetColumnType = targetDictionaryBean.getColumnTypes();
     	
     	List<String> listName = new ArrayList<String>();
-    	List<String> listType = new ArrayList<String>();
+    	List<String> listSourceType = new ArrayList<String>();
+    	List<String> listTargetType = new ArrayList<String>();
         for (int s = 0; s < sourceColumnNames.length; s++) {
             for (int t = 0; t < targetColumnNames.length; t++) {
             	if (sourceColumnNames[s].equalsIgnoreCase(targetColumnNames[t])) {
             		listName.add(targetColumnNames[t]);
-            		listType.add(targetColumnType[t]);
+            		listSourceType.add(sourceColumnType[t]);
+            		listTargetType.add(targetColumnType[t]);
             	}
             }
         }
         
         commonColumnNames = new String[listName.size()];
-        commonColumnTypes = new String[listType.size()];
+        sourceCommonColumnTypes = new String[listSourceType.size()];
+        targetCommonColumnTypes = new String[listTargetType.size()];
         listName.toArray(commonColumnNames);
-        listType.toArray(commonColumnTypes);
+        listSourceType.toArray(sourceCommonColumnTypes);
+        listTargetType.toArray(targetCommonColumnTypes);
         
         logger.info("COLUMN LIST RETRIEVED");
         logger.info("########################################");
@@ -317,7 +322,15 @@ public class DataCopyBean {
 	    	if (i > 0) {
 	    		insertText = insertText + ",";
 	    	}
-	    	insertText = insertText + "?";
+	    	if (
+              	targetCon.getDatabaseProductName().toUpperCase().contains("MICROSOFT") &&
+              	targetCommonColumnTypes[i].toUpperCase().contains("BINARY")
+            ) {
+		    	insertText = insertText + "CONVERT(VARBINARY,?)";
+	    	}
+	    	else {
+		    	insertText = insertText + "?";
+	    	}
 	    }
 	    
 	    if (targetMapColumns!=null) {
@@ -343,6 +356,8 @@ public class DataCopyBean {
     	targetStmt = targetCon.getConnection().prepareStatement(insertText);
     	targetStmt.setFetchSize(commitFrequency);
     	//List<Object> bufferLine = null;
+    	Object object = null;
+    	String className = "";
 	    while (sourceRS.next()) {
 	    	try {
 	    		int position = 0;
@@ -350,18 +365,74 @@ public class DataCopyBean {
 	    		for (int i = 0; i < commonColumnNames.length; i++) {
 	    			position++;
 	    			try {
-	    				if (
-	    					commonColumnTypes[i].equalsIgnoreCase("CLOB") &&
-	    					targetCon.getDatabaseProductName().toUpperCase().contains("TERADATA")
-	    				) {
-			    			targetStmt.setClob(position, sourceRS.getClob(commonColumnNames[i]));
+	    				object = sourceRS.getObject(commonColumnNames[i]);
+	    				if (object == null) {
+		              		if (targetCon.getDatabaseProductName().toUpperCase().contains("MICROSOFT")) {
+		              			if (targetCommonColumnTypes[i].toUpperCase().contains("FLOAT")) {
+		              				targetStmt.setNull(position, Types.FLOAT);
+		              			}
+		              			else if (targetCommonColumnTypes[i].toUpperCase().contains("REAL")) {
+		              				targetStmt.setNull(position, Types.REAL);
+		              			}
+		              			else if (targetCommonColumnTypes[i].toUpperCase().contains("TEXT")) {
+		              				targetStmt.setNull(position, Types.CHAR);
+		              			}
+		              			else if (targetCommonColumnTypes[i].toUpperCase().contains("DATE")) {
+		              				targetStmt.setNull(position, Types.DATE);
+		              			}
+		              			else if (targetCommonColumnTypes[i].toUpperCase().contains("TIME")) {
+		              				targetStmt.setNull(position, Types.TIME);
+		              			}
+				              	else {
+			    					targetStmt.setNull(position, Types.NULL);
+				              	}
+		              		}
+	    					else {
+		    					targetStmt.setNull(position, Types.NULL);
+	    					}
 	    				}
 	    				else {
-			    			targetStmt.setObject(position, sourceRS.getObject(commonColumnNames[i]));
-			    		}
+	    					className = object.getClass().getName();
+	    					if (className.contains("BigInteger")) {
+	    						targetStmt.setBigDecimal(position, sourceRS.getBigDecimal(commonColumnNames[i]));
+	    					}
+	    					else if (
+			    				sourceCommonColumnTypes[i].toUpperCase().contains("CLOB") &&
+			    				sourceCon.getDatabaseProductName().toUpperCase().contains("DB2") &&
+			    				(
+			    					targetCon.getDatabaseProductName().toUpperCase().contains("ORACLE") ||
+			    					targetCon.getDatabaseProductName().toUpperCase().contains("INFORMIX")
+			    				)
+			    			) {
+					    		targetStmt.setString(position, sourceRS.getString(commonColumnNames[i]));
+			    			}
+	    					else if (
+			    				targetCommonColumnTypes[i].equalsIgnoreCase("TEXT") &&
+			    				targetCon.getDatabaseProductName().toUpperCase().contains("MICROSOFT")
+			    			) {
+					    		targetStmt.setString(position, sourceRS.getString(commonColumnNames[i]));
+			    			}
+	    					else if (
+		    					targetCommonColumnTypes[i].equalsIgnoreCase("CLOB") &&
+		    					targetCon.getDatabaseProductName().toUpperCase().contains("TERADATA")
+		    				) {
+				    			targetStmt.setString(position, sourceRS.getString(commonColumnNames[i]));
+		    				}
+		    				else {
+				    			targetStmt.setObject(position, sourceRS.getObject(commonColumnNames[i]));
+				    		}
+	    				}
 	    			}
 	    			catch (Exception e){
-	              		if (targetCon.getDatabaseProductName().toUpperCase().contains("TERADATA")) {
+	    				logger.error(commonColumnNames[i] + ": " + sourceCommonColumnTypes[i] + " => " + targetCommonColumnTypes[i] + " = " + object + "\n" + e.getMessage());
+	    				logger.error(className);
+	              		if (
+	              			targetCon.getDatabaseProductName().toUpperCase().contains("TERADATA") ||
+	              			(
+	    	              		targetCon.getDatabaseProductName().toUpperCase().contains("MICROSOFT") &&
+	    	              		targetCommonColumnTypes[i].equalsIgnoreCase("VARBINARY")
+	              			)
+	              		) {
 	              			targetStmt.setNull(position, Types.NULL);
 		              	}
 		              	else {
@@ -400,10 +471,10 @@ public class DataCopyBean {
 	        	logger.error("Unexpected exception, list of column values:");
 	        	for (int i = 0; i < commonColumnNames.length; i++) {
 	        		try {
-	        			logger.error("########################################\n" + commonColumnNames[i] + " ==> " + sourceRS.getObject(commonColumnNames[i]).toString());
+	        			logger.error(commonColumnNames[i] + ": " + sourceCommonColumnTypes[i] + " => " + targetCommonColumnTypes[i] + " = " + sourceRS.getObject(commonColumnNames[i]).toString());
 				    }
 	        		catch(NullPointerException npe) {
-	        			logger.error("########################################\n" + commonColumnNames[i]);
+	        			logger.error(commonColumnNames[i] + ": " + sourceCommonColumnTypes[i] + " => " + targetCommonColumnTypes[i]);
 			        }
 	            }
 	            logger.error(e.getMessage());
@@ -427,5 +498,20 @@ public class DataCopyBean {
 	    logger.info(rowCount + " rows totally inserted");
 	    logger.info("INSERT COMPLETED");
 	    logger.info("########################################");
+    }
+    
+    public static String getString(Clob clb) throws IOException, SQLException {
+    	if (clb == null) {
+    		return  "";
+    	}
+    	else {
+    		StringBuffer stringBuffer = new StringBuffer();
+    		String strng;
+    		BufferedReader bufferReader = new BufferedReader(clb.getCharacterStream());
+    		while ((strng=bufferReader .readLine())!=null) {
+    			stringBuffer.append(strng);
+    		}
+    		return stringBuffer.toString();
+    	}        
     }
 }

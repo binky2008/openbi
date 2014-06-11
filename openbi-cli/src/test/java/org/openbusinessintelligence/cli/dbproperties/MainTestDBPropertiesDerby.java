@@ -25,7 +25,7 @@ public class MainTestDBPropertiesDerby {
 		
 		initArguments();
 		//
-		arguments[2] = "localhost_derby_sample";
+		arguments[2] = "localhost_derby_dwhdev";
 		arguments[4] = "";
 		// Perform test
 		try {

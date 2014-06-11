@@ -1,3 +1,4 @@
+
 package org.openbusinessintelligence.cli.copy.table;
 
 import static org.junit.Assert.*;

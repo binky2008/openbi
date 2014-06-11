@@ -1,5 +1,5 @@
 -- User SUGARCRM
-DROP SCHEMA IF EXISTS sugarcrm;
+DROP SCHEMA IF EXISTS sugarcrm CASCADE;
 
 DROP ROLE IF EXISTS sugarcrm;
 
@@ -11,7 +11,7 @@ commit;
 
 
 -- User DWHSTAGE
-DROP SCHEMA IF EXISTS dwhstage;
+DROP SCHEMA IF EXISTS dwhstage CASCADE;
 
 DROP ROLE IF EXISTS dwhstage;
 
@@ -23,7 +23,7 @@ commit;
 
 
 -- User TEST
-DROP SCHEMA IF EXISTS test;
+DROP SCHEMA IF EXISTS test CASCADE;
 
 DROP ROLE IF EXISTS test;
 
