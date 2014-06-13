@@ -25,7 +25,7 @@ public class MainTestDBPropertiesSybase {
 		
 		initArguments();
 		//
-		arguments[2] = "localhost_sybase_demo";
+		arguments[2] = "localhost_sybase_test";
 		arguments[4] = "";
 		// Perform test
 		try {

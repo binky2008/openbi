@@ -5,7 +5,7 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 import org.openbusinessintelligence.cli.Main;
 
-public class MainTestGenerateDataInformix {
+public class MainTestGenerateDataH2 {
 	
 	private String[] arguments = new String[11];
 	
@@ -24,7 +24,7 @@ public class MainTestGenerateDataInformix {
 	
 	public void initSource() {
 		// Target properties
-		arguments[2] = "localhost_informix_test";
+		arguments[2] = "localhost_h2_test";
 		arguments[4] = "";
 		arguments[6] = "test";
 		arguments[8] = "tab_test";
@@ -32,7 +32,7 @@ public class MainTestGenerateDataInformix {
 	}
 
 	@Test
-	public void testInformix() {
+	public void testDerby() {
 		
 		initArguments();
 		initSource();

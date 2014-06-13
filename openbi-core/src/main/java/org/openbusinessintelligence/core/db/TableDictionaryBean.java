@@ -152,7 +152,10 @@ public class TableDictionaryBean {
         	
         	// Search for type attribute(s)
         	if (
-        		productName.toUpperCase().contains("DERBY") &&
+        		(
+        			productName.toUpperCase().contains("DERBY") ||
+        			productName.toUpperCase().contains("ANYWHERE")
+        		) &&
         		columnType[i - 1].toUpperCase().contains("LONG")
         	) {
         		if (columnType[i - 1].split(" ").length > 2) {

@@ -2,6 +2,7 @@ package org.openbusinessintelligence.core.data;
 
 import java.sql.PreparedStatement;
 import java.sql.Types;
+import java.io.*;
 
 import org.openbusinessintelligence.core.db.*;
 import org.slf4j.LoggerFactory;
@@ -85,16 +86,23 @@ public class RandomDataGeneratorBean {
        	connection.getConnection().setAutoCommit(false);
         PreparedStatement targetStmt;
         logger.info("Preserve target data = " + preserveDataOption);
+        String schemaPrefix = "";
         
         // Empty target table if required
         if (!preserveDataOption) {
             logger.info("Truncate table");
             String truncateText = "";
+            if (!(targetSchema == null || targetSchema.equals(""))) {
+            	schemaPrefix = targetSchema + ".";
+            }
             if (connection.getDatabaseProductName().toUpperCase().contains("TERADATA")) {
-            	truncateText = "DELETE " + targetSchema + "." + targetTable + " ALL";
+            	truncateText = "DELETE " + schemaPrefix + targetTable + " ALL";
+            }
+            else if (connection.getDatabaseProductName().toUpperCase().contains("FIREBIRD")) {
+            	truncateText = "DELETE FROM " + schemaPrefix + targetTable;
             }
             else {
-	            truncateText = "TRUNCATE TABLE " + targetSchema + "." + targetTable;
+	            truncateText = "TRUNCATE TABLE " + schemaPrefix + targetTable;
 	           	if (connection.getDatabaseProductName().toUpperCase().contains("DB2")) {
 	           		connection.closeConnection();
 	           		connection.openConnection();
@@ -113,7 +121,7 @@ public class RandomDataGeneratorBean {
         
         // Build insert string
 	    logger.debug("Building insert string...");
-        String insertText = "INSERT /*+APPEND*/ INTO " + targetSchema + "." + targetTable + " (";
+        String insertText = "INSERT /*+APPEND*/ INTO " + schemaPrefix + targetTable + " (";
 		position = 0;
         for (int i = 0; i < columnNames.length; i++) {
         	if (getColumnUsable (columnTypes[i])) {
@@ -159,6 +167,7 @@ public class RandomDataGeneratorBean {
     	
     	String randomString = "";
     	int randomNumber = 0;
+		InputStream binaryData = null; 
     	
     	// Loop for each row
     	for (int r = 0; r < numberOfRows; r++) {
@@ -174,7 +183,8 @@ public class RandomDataGeneratorBean {
 			    			if (
 			    				(
 			    					columnTypes[i].toUpperCase().contains("CLOB") ||
-			    					columnTypes[i].toUpperCase().contains("CHAR")
+			    					columnTypes[i].toUpperCase().contains("CHAR") ||
+			    					columnTypes[i].toUpperCase().contains("TEXT")
 			    				) &&
 			    				!columnTypeAttribute[i].toUpperCase().contains("BIT")
 			    			) {
@@ -188,16 +198,41 @@ public class RandomDataGeneratorBean {
 			    				columnTypes[i].toUpperCase().contains("DEC") ||
 			    				columnTypes[i].toUpperCase().contains("INT") ||
 			    				columnTypes[i].toUpperCase().contains("REAL") ||
-			    				columnTypes[i].toUpperCase().contains("FLO")
+			    				columnTypes[i].toUpperCase().contains("FLO") ||
+			    				columnTypes[i].toUpperCase().contains("MONEY")
 					    	) {
 					    		targetStmt.setObject(position, 0);
 					    	}
+			    			else if (
+				    			(
+				    				columnTypes[i].toUpperCase().contains("BIN") ||
+				    				columnTypes[i].toUpperCase().contains("BLOB") ||
+				    				columnTypes[i].toUpperCase().contains("IMAGE")
+				    			) &&
+				    			!(
+				              		connection.getDatabaseProductName().toUpperCase().contains("FIREBIRD") ||
+				              		connection.getDatabaseProductName().toUpperCase().contains("HSQL") ||
+				              		connection.getDatabaseProductName().toUpperCase().contains("INFORMIX")
+				    			)
+						    ) {
+						    	targetStmt.setBinaryStream(position, binaryData);
+						    }
 			    			else {
-			              		if (connection.getDatabaseProductName().toUpperCase().contains("TERADATA")) {
-			              			targetStmt.setNull(position, Types.NULL);
-				              	}
-			              		else if (connection.getDatabaseProductName().toUpperCase().contains("MICROSOFT")) {
-			              			if (columnTypes[i].toUpperCase().contains("FLOAT")) {
+			    				if (
+			              			connection.getDatabaseProductName().toUpperCase().contains("MICROSOFT") ||
+			              			connection.getDatabaseProductName().toUpperCase().contains("ANYWHERE") ||
+			              			connection.getDatabaseProductName().toUpperCase().contains("DERBY")
+			              		) {
+				              		if (columnTypeAttribute[i].toUpperCase().contains("BIT")) {
+			              				targetStmt.setNull(position, Types.BINARY);
+			              			}
+				              		else if (columnTypes[i].toUpperCase().equals("UNIQUEIDENTIFIER")) {
+			              				targetStmt.setNull(position, Types.BINARY);
+			              			}
+				              		else if (columnTypes[i].toUpperCase().contains("BLOB")) {
+			              				targetStmt.setNull(position, Types.BLOB);
+			              			}
+			              			else if (columnTypes[i].toUpperCase().contains("FLOAT")) {
 			              				targetStmt.setNull(position, Types.FLOAT);
 			              			}
 			              			else if (columnTypes[i].toUpperCase().contains("REAL")) {
@@ -205,6 +240,9 @@ public class RandomDataGeneratorBean {
 			              			}
 			              			else if (columnTypes[i].toUpperCase().contains("TEXT")) {
 			              				targetStmt.setNull(position, Types.CHAR);
+			              			}
+				              		else if (columnTypes[i].toUpperCase().contains("TIMESTAMP")) {
+			              				targetStmt.setNull(position, Types.TIMESTAMP);
 			              			}
 			              			else if (columnTypes[i].toUpperCase().contains("DATE")) {
 			              				targetStmt.setNull(position, Types.DATE);
@@ -216,7 +254,7 @@ public class RandomDataGeneratorBean {
 				    					targetStmt.setNull(position, Types.NULL);
 					              	}
 			              		}
-				              	else if (connection.getDatabaseProductName().toUpperCase().contains("DERBY")) {
+				              	/*else if (connection.getDatabaseProductName().toUpperCase().contains("DERBY")) {
 				              		if (columnTypeAttribute[i].toUpperCase().contains("BIT")) {
 			              				targetStmt.setNull(position, Types.BINARY);
 			              			}
@@ -235,7 +273,7 @@ public class RandomDataGeneratorBean {
 					              	else {
 				    					targetStmt.setNull(position, Types.NULL);
 					              	}
-				              	}
+				              	}*/
 				              	else {
 			    					targetStmt.setNull(position, Types.NULL);
 				              	}

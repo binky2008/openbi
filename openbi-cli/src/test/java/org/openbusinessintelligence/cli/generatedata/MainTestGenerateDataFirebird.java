@@ -5,7 +5,7 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 import org.openbusinessintelligence.cli.Main;
 
-public class MainTestGenerateDataInformix {
+public class MainTestGenerateDataFirebird {
 	
 	private String[] arguments = new String[11];
 	
@@ -24,15 +24,15 @@ public class MainTestGenerateDataInformix {
 	
 	public void initSource() {
 		// Target properties
-		arguments[2] = "localhost_informix_test";
+		arguments[2] = "localhost_firebird_test";
 		arguments[4] = "";
-		arguments[6] = "test";
+		arguments[6] = "";
 		arguments[8] = "tab_test";
 		arguments[10] = "1000";
 	}
 
 	@Test
-	public void testInformix() {
+	public void testDerby() {
 		
 		initArguments();
 		initSource();
