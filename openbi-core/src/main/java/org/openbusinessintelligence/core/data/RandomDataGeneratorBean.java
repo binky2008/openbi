@@ -89,7 +89,7 @@ public class RandomDataGeneratorBean {
         String schemaPrefix = "";
         
         // Empty target table if required
-        if (!preserveDataOption) {
+        if (!preserveDataOption && !connection.getDatabaseProductName().toUpperCase().contains("IMPALA")) {
             logger.info("Truncate table");
             String truncateText = "";
             if (!(targetSchema == null || targetSchema.equals(""))) {
@@ -113,7 +113,9 @@ public class RandomDataGeneratorBean {
            	targetStmt = connection.getConnection().prepareStatement(truncateText);
             targetStmt.executeUpdate();
             targetStmt.close();
-            connection.getConnection().commit();
+            if (!connection.getDatabaseProductName().toUpperCase().contains("HIVE")) {
+                connection.getConnection().commit();
+            }
             logger.info("Table truncated");
         }
         
@@ -121,7 +123,19 @@ public class RandomDataGeneratorBean {
         
         // Build insert string
 	    logger.debug("Building insert string...");
-        String insertText = "INSERT /*+APPEND*/ INTO " + schemaPrefix + targetTable + " (";
+	    
+        String insertText = "INSERT ";
+        if (connection.getDatabaseProductName().toUpperCase().contains("ORACLE")) {
+        	insertText += "/*+APPEND*/ ";
+        }
+        
+        insertText += "INTO ";
+
+        if (connection.getDatabaseProductName().toUpperCase().contains("HIVE")) {
+        	insertText += "TABLE ";
+        }
+        insertText += schemaPrefix + targetTable + " (";
+        
 		position = 0;
         for (int i = 0; i < columnNames.length; i++) {
         	if (getColumnUsable (columnTypes[i])) {
@@ -155,19 +169,32 @@ public class RandomDataGeneratorBean {
 	    }
 	    
 	    insertText = insertText + ")";
-	    
+
 	    logger.debug(insertText);
 	    logger.debug("Insert string built");
-	    
+
 	    int rowCount = 0;
 	    int rowSinceCommit = 0;
 	    logger.info("Commit every " + commitFrequency + " rows");
     	targetStmt = connection.getConnection().prepareStatement(insertText);
     	targetStmt.setFetchSize(commitFrequency);
-    	
+
     	String randomString = "";
     	int randomNumber = 0;
-		InputStream binaryData = null; 
+    	
+    	// Build input stream for binary data
+    	byte[] bytes = new byte[1];
+    	bytes[0] = 0;
+		InputStream binaryData = new ByteArrayInputStream(bytes);
+		//
+		java.sql.Date date;
+		date = java.sql.Date.valueOf("2014-10-26");
+		//
+		java.sql.Time time;
+		time = java.sql.Time.valueOf("12:00:00");
+		//
+		java.sql.Timestamp timestamp;
+		timestamp = java.sql.Timestamp.valueOf("2014-10-26 12:00:00");
     	
     	// Loop for each row
     	for (int r = 0; r < numberOfRows; r++) {
@@ -180,15 +207,31 @@ public class RandomDataGeneratorBean {
 	            	if (getColumnUsable (columnTypes[i])) {
 		    			position++;
 		    			try {
-			    			if (
+		              		if (columnTypes[i].toUpperCase().contains("BOOLEAN")) {
+	              				targetStmt.setBoolean(position, false);
+	              			}
+			    			else if (
+			    				columnTypes[i].toUpperCase().contains("DATETIME") ||
+			    				columnTypes[i].toUpperCase().contains("TIMESTAMP")
+			    			) {
+						    	targetStmt.setTimestamp(position, timestamp);
+						    }
+			    			else if (columnTypes[i].toUpperCase().contains("DATE")) {
+						    	targetStmt.setDate(position, date);
+						    }
+			    			else if (columnTypes[i].toUpperCase().contains("TIME")) {
+						    	targetStmt.setTime(position, time);
+						    }
+		              		else if (
 			    				(
 			    					columnTypes[i].toUpperCase().contains("CLOB") ||
 			    					columnTypes[i].toUpperCase().contains("CHAR") ||
-			    					columnTypes[i].toUpperCase().contains("TEXT")
+			    					columnTypes[i].toUpperCase().contains("TEXT") ||
+			    					columnTypes[i].toUpperCase().contains("STRING")
 			    				) &&
 			    				!columnTypeAttribute[i].toUpperCase().contains("BIT")
 			    			) {
-					    		targetStmt.setObject(position, "a");
+					    		targetStmt.setString(position, "a");
 			    			}
 			    			else if (
 			    				columnTypes[i].toUpperCase().contains("NUMBER") ||
@@ -201,7 +244,7 @@ public class RandomDataGeneratorBean {
 			    				columnTypes[i].toUpperCase().contains("FLO") ||
 			    				columnTypes[i].toUpperCase().contains("MONEY")
 					    	) {
-					    		targetStmt.setObject(position, 0);
+					    		targetStmt.setInt(position, 0);
 					    	}
 			    			else if (
 				    			(
@@ -212,9 +255,11 @@ public class RandomDataGeneratorBean {
 				    			!(
 				              		connection.getDatabaseProductName().toUpperCase().contains("FIREBIRD") ||
 				              		connection.getDatabaseProductName().toUpperCase().contains("HSQL") ||
-				              		connection.getDatabaseProductName().toUpperCase().contains("INFORMIX")
+				              		connection.getDatabaseProductName().toUpperCase().contains("INFORMIX") ||
+				              		connection.getDatabaseProductName().toUpperCase().contains("TERADATA")
 				    			)
 						    ) {
+			    				logger.error(columnNames[i] + ": " + columnTypes[i] + " - IT'S A BINARY");
 						    	targetStmt.setBinaryStream(position, binaryData);
 						    }
 			    			else {
@@ -254,39 +299,14 @@ public class RandomDataGeneratorBean {
 				    					targetStmt.setNull(position, Types.NULL);
 					              	}
 			              		}
-				              	/*else if (connection.getDatabaseProductName().toUpperCase().contains("DERBY")) {
-				              		if (columnTypeAttribute[i].toUpperCase().contains("BIT")) {
-			              				targetStmt.setNull(position, Types.BINARY);
-			              			}
-				              		else if (columnTypes[i].toUpperCase().contains("BLOB")) {
-			              				targetStmt.setNull(position, Types.BLOB);
-			              			}
-				              		else if (columnTypes[i].toUpperCase().contains("TIMESTAMP")) {
-			              				targetStmt.setNull(position, Types.TIMESTAMP);
-			              			}
-				              		else if (columnTypes[i].toUpperCase().contains("DATE")) {
-			              				targetStmt.setNull(position, Types.DATE);
-			              			}
-				              		else if (columnTypes[i].toUpperCase().contains("TIME")) {
-			              				targetStmt.setNull(position, Types.TIME);
-			              			}
-					              	else {
-				    					targetStmt.setNull(position, Types.NULL);
-					              	}
-				              	}*/
 				              	else {
 			    					targetStmt.setNull(position, Types.NULL);
 				              	}
 			    			}
 		    			}
 		    			catch (Exception e){
-		    				logger.error(columnNames[i] + ": " + columnTypes[i] + "\n" + e.getMessage());
-		              		if (connection.getDatabaseProductName().toUpperCase().contains("TERADATA")) {
-		              			targetStmt.setNull(position, Types.NULL);
-			              	}
-			              	else {
-		    					targetStmt.setNull(position, Types.NULL);
-			              	}
+		    				logger.error(columnNames[i] + ": " + columnTypes[i] + " - Error: " + e.getMessage());
+		    				throw e;
 		    			}
 	            	}
 	    		}
@@ -294,7 +314,7 @@ public class RandomDataGeneratorBean {
 		    	targetStmt.clearParameters();
 	        }
 	        catch(Exception e) {
-	        	logger.error("Unexpected exception, list of column values:");
+	        	logger.error("Unexpected exception, list of columns:");
 	        	for (int i = 0; i < columnNames.length; i++) {
 	        		try {
 	        			logger.error(columnNames[i] + ": " + columnTypes[i]);
@@ -310,13 +330,17 @@ public class RandomDataGeneratorBean {
 	    	rowCount++;
 	    	rowSinceCommit++;
 	    	if (rowSinceCommit==commitFrequency) {
-	    		connection.getConnection().commit();
+	            if (!connection.getDatabaseProductName().toUpperCase().contains("IMPALA")) {
+	                connection.getConnection().commit();
+	            }
 	    		rowSinceCommit = 0;
 	    		logger.info(rowCount + " rows inserted");
 	    	}
     	}
     	targetStmt.close();
-        connection.getConnection().commit();
+        if (!connection.getDatabaseProductName().toUpperCase().contains("IMPALA")) {
+            connection.getConnection().commit();
+        }
 
 	    logger.info(rowCount + " rows totally inserted");
 	    logger.info("GENERATION COMPLETED");

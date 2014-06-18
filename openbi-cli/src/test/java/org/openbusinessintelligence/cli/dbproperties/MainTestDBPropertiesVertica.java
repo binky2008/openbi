@@ -25,7 +25,7 @@ public class MainTestDBPropertiesVertica {
 		
 		initArguments();
 		//
-		arguments[2] = "localhost_vertica_dwhdev";
+		arguments[2] = "localhost_vertica_dwhdev_test";
 		arguments[4] = "";
 		// Perform test
 		try {

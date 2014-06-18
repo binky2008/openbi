@@ -1,0 +1,23 @@
+DROP TABLE tab_test;
+
+CREATE TABLE tab_test (
+	COL_BOOLEAN Boolean,
+	--
+	COL_BINARY Binary,
+	--
+	COL_CHAR Char(255),
+	COL_VARCHAR Varchar(65355),
+	COL_STRING string,
+	--
+	COL_DATE Date,
+	COL_TIMESTAMP Timestamp,
+	--
+	COL_DOUBLE double,
+	COL_FLOAT Float,
+	--
+	COL_TINYINT TINYINT,
+	COL_SMALLINT SMALLINT,
+	COL_INT INT,
+	COL_BIGINT BIGINT,
+	COL_DECIMAL DECIMAL(38,20)
+);

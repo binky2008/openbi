@@ -25,7 +25,7 @@ public class MainTestDBPropertiesImpala {
 		
 		initArguments();
 		//
-		arguments[2] = "localhost_impala";
+		arguments[2] = "localhost_impala_test";
 		arguments[4] = "";
 		// Perform test
 		try {

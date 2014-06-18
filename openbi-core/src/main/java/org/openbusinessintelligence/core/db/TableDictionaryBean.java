@@ -152,6 +152,17 @@ public class TableDictionaryBean {
         	
         	// Search for type attribute(s)
         	if (
+        		productName.toUpperCase().contains("TERADATA") &&
+            	columnType[i - 1].toUpperCase().contains("PERIOD")
+            ) {
+        		logger.debug("Teradata PERIOD type");
+            	if (columnType[i - 1].contains("(")) {
+            		logger.debug("Separating attribute...");
+            		columnTypeAttribute[i - 1] = columnType[i - 1].substring(columnType[i - 1].indexOf("("));
+            		columnType[i - 1] = columnType[i - 1].split("\\(",2)[0];
+            	}
+            }
+        	else if (
         		(
         			productName.toUpperCase().contains("DERBY") ||
         			productName.toUpperCase().contains("ANYWHERE")
@@ -164,9 +175,13 @@ public class TableDictionaryBean {
         		}
         	}
         	else if (columnType[i - 1].split(" ").length > 1) {
-        		logger.debug(columnType[i - 1].split(" ",2)[1]);
         		columnTypeAttribute[i - 1] = columnType[i - 1].split(" ",2)[1];
         		columnType[i - 1] = columnType[i - 1].split(" ",2)[0];
+        	}
+        	
+        	//Print type splitted among type nama and attribute
+        	if (!(columnTypeAttribute[i - 1] == null || columnTypeAttribute[i - 1].equals(""))) {
+            	logger.debug("Column " + (i) + "  Name: " + columnNames[i - 1] + " Type: " + columnType[i - 1] + "  Attribute: " + columnTypeAttribute[i - 1]);
         	}
         	
         	// Source definition

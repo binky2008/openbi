@@ -25,7 +25,7 @@ public class MainTestDBPropertiesHive {
 		
 		initArguments();
 		//
-		arguments[2] = "localhost_hive";
+		arguments[2] = "localhost_hive_test";
 		arguments[4] = "";
 		// Perform test
 		try {
