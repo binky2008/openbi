@@ -19,9 +19,9 @@ jar {
 
 repositories {
     mavenCentral()
-    maven {
+    /*maven {
         url "https://repository.cloudera.com/artifactory/cloudera-repos"
-    }
+    }*/
 }
 
 dependencies {
@@ -35,8 +35,6 @@ dependencies {
 	//
     runtime group: 'org.apache.hadoop', name: 'hadoop-common', version: '2.+'
     runtime group: 'org.apache.hive', name: 'hive-jdbc', version: '0.+'
-    //runtime group: 'org.apache.hadoop', name: 'hadoop-common', version: '2.3.0-cdh5.+'
-    //runtime group: 'org.apache.hive', name: 'hive-jdbc', version: '0.12.0-cdh5.+'
 	runtime fileTree(dir: 'C:/Program Files/Java/lib/jdbc')
     testCompile group: 'junit', name: 'junit', version: '4.+'
 }

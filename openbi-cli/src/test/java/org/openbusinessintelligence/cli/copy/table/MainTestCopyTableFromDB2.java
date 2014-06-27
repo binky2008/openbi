@@ -5,17 +5,18 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 
 public class MainTestCopyTableFromDB2 {
-	private String[] sourceArgs = new String[3];
+	private String[] sourceArgs = new String[4];
 	private String[] targetArgs = new String[4];
 	
 	private void initSource() {
 		sourceArgs[0] = "localhost_db2_dwhdev_test";
 		sourceArgs[1] = "";
-		sourceArgs[2] = "test.tab_test";
+		sourceArgs[2] = "test";
+		sourceArgs[3] = "tab_test";
 	}
 
 	@Test
-	public void testDB2ToMySQL() {
+	public void testMySQL() {
 		
 		initSource();
 		//
@@ -36,7 +37,7 @@ public class MainTestCopyTableFromDB2 {
 	}
 
 	@Test
-	public void testDB2ToPostgreSQL() {
+	public void testPostgreSQL() {
 		
 		initSource();
 		//
@@ -57,7 +58,7 @@ public class MainTestCopyTableFromDB2 {
 	}
 
 	@Test
-	public void testDB2ToOracle() {
+	public void testOracle() {
 		
 		initSource();
 		//
@@ -78,7 +79,7 @@ public class MainTestCopyTableFromDB2 {
 	}
 
 	@Test
-	public void testDB2ToDB2() {
+	public void testDB2() {
 		
 		initSource();
 		//
@@ -99,7 +100,7 @@ public class MainTestCopyTableFromDB2 {
 	}
 
 	@Test
-	public void testDB2toInformix() {
+	public void testInformix() {
 		
 		initSource();
 		//
@@ -120,7 +121,7 @@ public class MainTestCopyTableFromDB2 {
 	}
 
 	@Test
-	public void testDB2ToSQLServer() {
+	public void testSQLServer() {
 		
 		initSource();
 		//
@@ -142,7 +143,7 @@ public class MainTestCopyTableFromDB2 {
 	
 	
 	@Test
-	public void testDB2toHANA() {
+	public void testHANA() {
 		
 		initSource();
 		//
@@ -163,7 +164,7 @@ public class MainTestCopyTableFromDB2 {
 	}
 	
 	@Test
-	public void testDB2toTeradata() {
+	public void testTeradata() {
 		
 		initSource();
 		//

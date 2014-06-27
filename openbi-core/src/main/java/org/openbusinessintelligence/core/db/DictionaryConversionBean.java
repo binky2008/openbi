@@ -16,6 +16,7 @@ public class DictionaryConversionBean {
     // Declarations of bean properties
 	// Source properties
     private ConnectionBean sourceCon = null;
+    private String sourceSchema = "";
     private String sourceTable = "";
     private String sourceQuery = "";
 
@@ -53,6 +54,10 @@ public class DictionaryConversionBean {
     }
 
     // Set source properties methods
+    public void setSourceSchema(String property) {
+        sourceSchema = property;
+    }
+    
     public void setSourceTable(String property) {
         sourceTable = property;
     }
@@ -113,6 +118,7 @@ public class DictionaryConversionBean {
     	
     	TableDictionaryBean sourceDictionary = new TableDictionaryBean();
     	sourceDictionary.setSourceConnection(sourceCon);
+    	sourceDictionary.setSourceSchema(sourceSchema);
     	sourceDictionary.setSourceTable(sourceTable);
     	sourceDictionary.setSourceQuery(sourceQuery);
     	//

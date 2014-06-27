@@ -1,6 +1,9 @@
 package org.openbusinessintelligence.core.db;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.slf4j.LoggerFactory;
 
 /**
@@ -14,6 +17,7 @@ public class TableDictionaryBean {
     // Declarations of bean properties
 	// Source properties
     private ConnectionBean sourceCon = null;
+    private String sourceSchema = "";
     private String sourceTable = "";
     private String sourceQuery = "";
 
@@ -37,6 +41,10 @@ public class TableDictionaryBean {
     }
 
     // Set source properties methods
+    public void setSourceSchema(String property) {
+        sourceSchema = property;
+    }
+
     public void setSourceTable(String property) {
         sourceTable = property;
     }
@@ -100,31 +108,94 @@ public class TableDictionaryBean {
     	
     	logger.debug("Getting columns for source...");
 
-    	String productName;
+    	String productName = sourceCon.getDatabaseProductName();
+    	String defaultSchema = sourceCon.getSchemaName();
+        logger.info("Source RDBMS product: " + productName);
+        logger.info("Default schema: " + defaultSchema);
+        logger.info("Table schema: " + sourceSchema);
+
     	String sourcePrefix = "";
-    	if (!(sourceCon.getSchemaName() == null || sourceCon.getSchemaName().equals(""))) {
-    		sourcePrefix = sourceCon.getSchemaName() + ".";
-    		logger.debug("Prefix for source table: " + sourcePrefix);
+    	if (!(sourceSchema == null || sourceSchema.equals(""))) {
+    		sourcePrefix = sourceSchema + ".";
+    		sourceSchema = sourceSchema.toUpperCase();
     	}
+		logger.debug("Prefix for source table: " + sourcePrefix);
     	
-    	String sqlText;
+        List<String> listName = new ArrayList<String>();
+        List<String> listType = new ArrayList<String>();
+        List<Integer> listLength = new ArrayList<Integer>();
+        List<Integer> listPrecision = new ArrayList<Integer>();
+        List<Integer> listScale = new ArrayList<Integer>();
+        
+        if (
+        	(
+        		!(sourceTable == null || sourceTable.equals(""))
+        	) &&
+        	(
+        		productName.toUpperCase().contains("IMPALA") ||
+        		productName.toUpperCase().contains("POSTGRES") ||
+        		productName.toUpperCase().contains("DB2")
+        	)
+        ) {
+        	sourceQuery = "SELECT * FROM " + sourcePrefix + sourceTable;
+        }
+        else if (
+        	productName.toUpperCase().contains("NETEZZA") &&
+        	(sourceSchema == null || sourceSchema.equals(""))
+        ) {
+        	sourceQuery = "SELECT * FROM " + sourcePrefix + sourceTable;
+        }
+        
        	if (sourceQuery == null || sourceQuery.equals("")) {
-       		sqlText = "SELECT * FROM " + sourcePrefix + sourceTable;
+            DatabaseMetaData dbmd = sourceCon.getConnection().getMetaData();
+            ResultSet rscol = dbmd.getColumns(null, sourceSchema, sourceTable.toUpperCase(), null);
+    	    while (rscol.next()) {
+    	    	listName.add(rscol.getString("COLUMN_NAME"));
+    	    	listType.add(rscol.getString("TYPE_NAME"));
+    	    	listLength.add(rscol.getInt("COLUMN_SIZE"));
+	    		listPrecision.add(rscol.getInt("COLUMN_SIZE"));
+	    		listScale.add(rscol.getInt("DECIMAL_DIGITS"));
+    	    	
+    	    	logger.debug(
+    	    		"#NEW METHOD# " + 
+    	    	    rscol.getString("TABLE_SCHEM") + "." +
+    	    	    rscol.getString("TABLE_NAME") + "." +
+    	    		rscol.getString("COLUMN_NAME") + ": " +
+    	    		rscol.getString("ORDINAL_POSITION") + " - " +
+    	    		rscol.getString("TYPE_NAME") + "(" +
+    	    		rscol.getString("COLUMN_SIZE") + "," +
+    	    		rscol.getString("DECIMAL_DIGITS") + ") jdbc=" +
+    	    	    rscol.getString("DATA_TYPE")
+    	    	);
+    	    }
+    	    rscol.close();
+    		
+            columnCount = listName.size();
+            
        	}
        	else {
-       		sqlText = sourceQuery;
+       		PreparedStatement columnStmt = null;
+       		ResultSet rs = null;
+	    	
+       		logger.debug("Source query: " + sourceQuery);
+	        columnStmt = sourceCon.getConnection().prepareStatement(sourceQuery);
+	           
+	        rs = columnStmt.executeQuery();
+	        ResultSetMetaData rsmd = rs.getMetaData();
+	         
+	        columnCount = rsmd.getColumnCount();
+	           
+	        for (int i = 1; i <= columnCount; i++) {
+	         	listName.add(rsmd.getColumnName(i).toUpperCase());
+	         	listType.add(rsmd.getColumnTypeName(i).toUpperCase());
+	         	listLength.add(rsmd.getColumnDisplaySize(i));
+	         	listPrecision.add(rsmd.getPrecision(i));
+	           	listScale.add(rsmd.getScale(i));
+	        }
+	        rs.close();
+	        columnStmt.close();
        	}
-    	
-       	logger.info("SQL: " + sqlText + ": getting columns...");
-        
-       	//openSourceConnection();
-       	productName = sourceCon.getDatabaseProductName();
-        logger.info("Source RDBMS product: " + productName);
-        PreparedStatement columnStmt = sourceCon.getConnection().prepareStatement(sqlText);
-        ResultSet rs = columnStmt.executeQuery();
-        ResultSetMetaData rsmd = rs.getMetaData();
-        
-        columnCount = rsmd.getColumnCount();
+       	
         columnNames = new String[columnCount];
         columnType = new String[columnCount];
         columnTypeAttribute = new String[columnCount];
@@ -132,34 +203,30 @@ public class TableDictionaryBean {
         columnPrecision = new int[columnCount];
         columnScale = new int[columnCount];
         columnDefinition = new String[columnCount];
-        //
-        columnPkPositions = new int[columnCount];
-        
-       	for (int i = 1; i <= columnCount; i++) {
-        	columnNames[i - 1] = rsmd.getColumnName(i).toUpperCase();
 
-        	//*******************************
-        	// set source column properties
-        	columnType[i - 1] = rsmd.getColumnTypeName(i).toUpperCase();
-        	columnLength[i - 1] = rsmd.getColumnDisplaySize(i);
-        	columnPrecision[i - 1] = rsmd.getPrecision(i);
-        	columnScale[i - 1] = rsmd.getScale(i);
+        listName.toArray(columnNames);
+        listType.toArray(columnType);
+        
+       	for (int i = 0; i < columnCount; i++) {
+        	columnLength[i] = listLength.get(i);
+        	columnPrecision[i] = listPrecision.get(i);
+        	columnScale[i] = listScale.get(i);
         	
-        	logger.debug("Column " + (i) + "  Name: " + columnNames[i - 1] + " Type: " + columnType[i - 1] + "  Length: " + columnLength[i - 1] + " Precision: " + columnPrecision[i - 1] + " Scale: " +columnScale[i - 1]);
+        	logger.debug("Column " + (i) + "  Name: " + columnNames[i] + " Type: " + columnType[i] + "  Length: " + columnLength[i] + " Precision: " + columnPrecision[i] + " Scale: " +columnScale[i]);
         	
-        	columnTypeAttribute[i - 1] = "";
-        	columnDefinition[i - 1] = columnType[i - 1];
+        	columnTypeAttribute[i] = "";
+        	columnDefinition[i] = columnType[i];
         	
         	// Search for type attribute(s)
         	if (
         		productName.toUpperCase().contains("TERADATA") &&
-            	columnType[i - 1].toUpperCase().contains("PERIOD")
+            	columnType[i].toUpperCase().contains("PERIOD")
             ) {
         		logger.debug("Teradata PERIOD type");
-            	if (columnType[i - 1].contains("(")) {
+            	if (columnType[i].contains("(")) {
             		logger.debug("Separating attribute...");
-            		columnTypeAttribute[i - 1] = columnType[i - 1].substring(columnType[i - 1].indexOf("("));
-            		columnType[i - 1] = columnType[i - 1].split("\\(",2)[0];
+            		columnTypeAttribute[i] = columnType[i].substring(columnType[i].indexOf("("));
+            		columnType[i] = columnType[i].split("\\(",2)[0];
             	}
             }
         	else if (
@@ -167,35 +234,32 @@ public class TableDictionaryBean {
         			productName.toUpperCase().contains("DERBY") ||
         			productName.toUpperCase().contains("ANYWHERE")
         		) &&
-        		columnType[i - 1].toUpperCase().contains("LONG")
+        		columnType[i].toUpperCase().contains("LONG")
         	) {
-        		if (columnType[i - 1].split(" ").length > 2) {
-            		columnTypeAttribute[i - 1] = columnType[i - 1].split(" ",3)[2];
-            		columnType[i - 1] = columnType[i - 1].split(" ",3)[0] + " " + columnType[i - 1].split(" ",3)[1];
+        		if (columnType[i].split(" ").length > 2) {
+            		columnTypeAttribute[i] = columnType[i].split(" ",3)[2];
+            		columnType[i] = columnType[i].split(" ",3)[0] + " " + columnType[i].split(" ",3)[1];
         		}
         	}
-        	else if (columnType[i - 1].split(" ").length > 1) {
-        		columnTypeAttribute[i - 1] = columnType[i - 1].split(" ",2)[1];
-        		columnType[i - 1] = columnType[i - 1].split(" ",2)[0];
+        	else if (columnType[i].split(" ").length > 1) {
+        		columnTypeAttribute[i] = columnType[i].split(" ",2)[1];
+        		columnType[i] = columnType[i].split(" ",2)[0];
         	}
         	
         	//Print type splitted among type nama and attribute
-        	if (!(columnTypeAttribute[i - 1] == null || columnTypeAttribute[i - 1].equals(""))) {
-            	logger.debug("Column " + (i) + "  Name: " + columnNames[i - 1] + " Type: " + columnType[i - 1] + "  Attribute: " + columnTypeAttribute[i - 1]);
+        	if (!(columnTypeAttribute[i] == null || columnTypeAttribute[i].equals(""))) {
+            	logger.debug("Column " + (i) + "  Name: " + columnNames[i] + " Type: " + columnType[i] + "  Attribute: " + columnTypeAttribute[i]);
         	}
         	
         	// Source definition
-        	if (columnPrecision[i - 1] > 0) {
-        		columnDefinition[i - 1] += "(" + columnPrecision[i - 1] + "," + columnScale[i - 1] + ")";
+        	if (columnPrecision[i] > 0) {
+        		columnDefinition[i] += "(" + columnPrecision[i] + "," + columnScale[i] + ")";
         	}
-        	else if (columnLength[i - 1] > 0) {
-        		columnDefinition[i - 1] += "(" + columnLength[i - 1] + ")";
+        	else if (columnLength[i] > 0) {
+        		columnDefinition[i] += "(" + columnLength[i] + ")";
         	}
-        	columnDefinition[i - 1] += " " + columnTypeAttribute[i - 1];
-        	
+        	columnDefinition[i] += " " + columnTypeAttribute[i];
        	}
-        rs.close();
-        columnStmt.close();
 
         logger.info("got column properties");
 

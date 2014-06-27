@@ -1,5 +1,3 @@
-
-
 use test;
 
 drop table if exists tab_test;

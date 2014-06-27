@@ -4,7 +4,7 @@ import org.openbusinessintelligence.cli.Main;
 
 public class MainTestCopyTableHelper {
 
-	private static String[] arguments = new String[19];
+	private static String[] arguments = new String[21];
 	
 	public static void initArguments() {
 		
@@ -13,16 +13,17 @@ public class MainTestCopyTableHelper {
 		// Source and target properties
 		arguments[1]  = "-srcdbconnpropertyfile";
 		arguments[3]  = "-srcdbconnkeywordfile";
-		arguments[5]  = "-sourcetable";
-		arguments[7]  = "-trgdbconnpropertyfile";
-		arguments[9]  = "-trgdbconnkeywordfile";
-		arguments[11] = "-targetschema";
-		arguments[13] = "-targettable";
+		arguments[5]  = "-sourceschema";
+		arguments[7]  = "-sourcetable";
+		arguments[9]  = "-trgdbconnpropertyfile";
+		arguments[11]  = "-trgdbconnkeywordfile";
+		arguments[13] = "-targetschema";
+		arguments[15] = "-targettable";
 		// Common options
-		arguments[15] = "-trgcreate";
-		arguments[16] = "true";
-		arguments[17] = "-dropifexists";
+		arguments[17] = "-trgcreate";
 		arguments[18] = "true";
+		arguments[19] = "-dropifexists";
+		arguments[20] = "true";
 		
 	}
 	
@@ -37,7 +38,7 @@ public class MainTestCopyTableHelper {
 	public static void initTarget(String[] values) {
 		
 		for (int i = 0; i < values.length; i++) {
-			arguments[8 + i * 2] = values[i];
+			arguments[10 + i * 2] = values[i];
 		}
 		
 	}

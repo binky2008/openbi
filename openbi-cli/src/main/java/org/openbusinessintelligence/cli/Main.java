@@ -369,12 +369,15 @@ public class Main {
 		    		org.openbusinessintelligence.core.db.DictionaryConversionBean dictionaryConversionBean = new org.openbusinessintelligence.core.db.DictionaryConversionBean();
 		    		org.openbusinessintelligence.core.db.TableCreateBean tableCreate = new org.openbusinessintelligence.core.db.TableCreateBean();
 		    		dictionaryConversionBean.setSourceConnection(sourceConnectionBean);
+		    		dictionaryConversionBean.setTargetConnection(targetConnectionBean);
+		    		dictionaryConversionBean.setSourceSchema(sourceSchema);
+		    		tableCreate.setTargetConnection(targetConnectionBean);
+		    		tableCreate.setTargetSchema(targetSchema);
 	    			for (int i = 0; i < sourceTableList.length; i++ ) {
 						logger.info("Creating table: " + targetTableList[i] + " from table " + sourceTableList[i]);
 						dictionaryConversionBean.setSourceTable(sourceTableList[i]);
 			    		dictionaryConversionBean.setSourceQuery(sourceQuery);
 			    		//
-			    		dictionaryConversionBean.setTargetConnection(targetConnectionBean);
 			    		//
 			    		dictionaryConversionBean.retrieveColumns();
 			    		columnNames = dictionaryConversionBean.getTargetColumnNames();
@@ -383,8 +386,6 @@ public class Main {
 			    		if (copySchema) {
 			    			targetTableList[i] = targetConnectionBean.getNormalizedObjectName(sourceTableList[i], tablePrefix, tableSuffix);
 			    		}
-			    		tableCreate.setTargetConnection(targetConnectionBean);
-			    		tableCreate.setTargetSchema(targetSchema);
 			    		tableCreate.setTargetTable(targetTableList[i]);
 			    		tableCreate.setTargetColumns(columnNames);
 			    		tableCreate.setTargetColumnDefinitions(columnDefs);

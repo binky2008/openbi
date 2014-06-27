@@ -22,6 +22,7 @@ public class DataCopyBean {
     // Declarations of bean properties
 	// Source properties
     private ConnectionBean sourceCon = null;
+    private String sourceSchema = "";
     private String sourceTable = "";
     private String sourceQuery = "";
     private String[] queryParameters = null;
@@ -66,6 +67,10 @@ public class DataCopyBean {
     public void setSourceConnection(ConnectionBean property) {
     	sourceCon = property;
     	sourceDictionaryBean.setSourceConnection(sourceCon);
+    }
+
+    public void setSourceSchema(String ta) {
+        sourceSchema = ta;
     }
 
     public void setSourceTable(String ta) {
