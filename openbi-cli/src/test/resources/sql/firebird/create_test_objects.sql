@@ -8,7 +8,6 @@ CREATE TABLE tab_test(
             col_NUMERIC NUMERIC(18,10),
             col_decimal DECIMAL(18,10),
             --
-            --col_REAL REAL,
             col_FLOAT FLOAT  (4000),
             col_DOUBLE DOUBLE precision,
             --

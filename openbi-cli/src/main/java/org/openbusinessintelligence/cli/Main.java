@@ -274,6 +274,7 @@ public class Main {
 		* Copy tables between 2 databases
 		*/
 	    if (feature.equalsIgnoreCase("tablecopy")) {
+			
 	    	boolean copySchema = false;
 	    	
 			logger.info("Copy an entire schema, a single table or the result of a query from a database to another");
@@ -401,6 +402,7 @@ public class Main {
 					logger.info("Feeding table: " + sourceTableList[i]);
 					org.openbusinessintelligence.core.db.DataCopyBean dataCopy = new org.openbusinessintelligence.core.db.DataCopyBean();
 					dataCopy.setSourceConnection(sourceConnectionBean);
+					dataCopy.setSourceSchema(sourceSchema);
 					dataCopy.setSourceTable(sourceTableList[i]);
 					dataCopy.setSourceQuery(sourceQuery);
 					

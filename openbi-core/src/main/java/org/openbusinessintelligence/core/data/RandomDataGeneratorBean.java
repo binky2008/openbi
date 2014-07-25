@@ -138,10 +138,13 @@ public class RandomDataGeneratorBean {
         	schemaPrefix = targetSchema + ".";
         }
         insertText += schemaPrefix + targetTable + " (";
+
+        statement = new StatementBean();
+        statement.setProductName(connection.getDatabaseProductName().toUpperCase());
         
 		position = 0;
         for (int i = 0; i < columnNames.length; i++) {
-        	if (getColumnUsable (columnTypes[i])) {
+        	if (statement.getColumnUsable (columnTypes[i])) {
             	if (position > 0) {
             		insertText += ",";
             	}
@@ -154,7 +157,7 @@ public class RandomDataGeneratorBean {
 	    
 		position = 0;
 	    for (int i = 0; i < columnNames.length; i++) {
-        	if (getColumnUsable (columnTypes[i])) {
+        	if (statement.getColumnUsable (columnTypes[i])) {
     	    	if (position > 0) {
     	    		insertText = insertText + ",";
     	    	}
@@ -235,7 +238,7 @@ public class RandomDataGeneratorBean {
 	    		position = 0;
 	    		for (int i = 0; i < columnNames.length; i++) {
 
-	            	if (getColumnUsable (columnTypes[i])) {
+	            	if (statement.getColumnUsable (columnTypes[i])) {
 		    			position++;
 		    			try {
 		              		if (columnTypes[i].toUpperCase().contains("BOOLEAN")) {
@@ -405,24 +408,5 @@ public class RandomDataGeneratorBean {
 	    logger.info(rowCount + " rows totally inserted");
 	    logger.info("GENERATION COMPLETED");
 	    logger.info("########################################");
-    }
-    
-    private boolean getColumnUsable (String dataType) {
-       	if (
-           	(dataType.toUpperCase().contains("SDO")) ||
-       		(dataType.toUpperCase().contains("INTERVAL")) ||
-       		(dataType.toUpperCase().contains("SERIAL")) ||
-       		(dataType.toUpperCase().contains("POINT")) ||
-       		(dataType.toUpperCase().contains("FILE")) ||
-       		(
-       			connection.getDatabaseProductName().toUpperCase().contains("MICROSOFT") &&
-       			dataType.toUpperCase().contains("TIMESTAMP")
-       		)
-        ) {
-        	return false;
-       	}
-       	else {
-        	return true;
-       	}
     }
 }

@@ -6,6 +6,7 @@ import java.util.Properties;
 
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
+
 import org.slf4j.LoggerFactory;
 
 public class TableCreateBean {
@@ -14,7 +15,6 @@ public class TableCreateBean {
 
     // Target properties
     private ConnectionBean targetCon = null;
-    private String targetCatalog = "";
     private String targetSchema = "";
     private String targetTable = "";
     private String[] targetColumns = null;
@@ -26,11 +26,6 @@ public class TableCreateBean {
     // Constructor
     public TableCreateBean() {
         super();
-    }
-    
-    // Set target properties methods
-    public void setTargetCatalog(String property) {
-        targetCatalog = property;
     }
 
     public void setTargetSchema(String property) {
@@ -63,24 +58,26 @@ public class TableCreateBean {
     	logger.info("########################################");
     	logger.info("CREATING TABLE");
     	
-    	String currentCatalog;
-    	String currentSchema;
     	String sqlText;
+    	String searchSchema;
+    	
+    	if (
+    		!(targetSchema == null || targetSchema.equals("")) &&
+    		!targetCon.getDatabaseProductName().toUpperCase().contains("POSTGRES")
+    	) {
+    		searchSchema = targetSchema.toUpperCase();
+    	}
+    	else {
+    		searchSchema = targetSchema;
+    	}
     	
     	boolean tableExistsFlag = false;
     	
     	DatabaseMetaData dbmd = targetCon.getConnection().getMetaData();
     	ResultSet tables;
-    	if (
-    		targetCon.getDatabaseProductName().toUpperCase().contains("ORACLE") ||
-    		targetCon.getDatabaseProductName().toUpperCase().contains("DB2") ||
-    		targetCon.getDatabaseProductName().toUpperCase().contains("HDB")
-    	) {
-    		tables = dbmd.getTables(null, targetSchema.toUpperCase(), targetTable.toUpperCase(), null);
-    	}
-    	else {
-    		tables = dbmd.getTables(null, targetSchema, null, null);
-    	}
+
+   		tables = dbmd.getTables(null, searchSchema, null, null);
+   		
     	while(tables.next()) {
     		logger.debug("Found table: " + tables.getString(3));
     		if (tables.getString(3).toUpperCase().equals(targetTable.toUpperCase())) {
@@ -95,9 +92,15 @@ public class TableCreateBean {
         try {
 	    	if ((dropIfExists == true ) && (tableExistsFlag == true)) {
 	            logger.info("Drop table");
+	            
+		    	if (!(targetSchema == null || targetSchema.equals(""))) {
+			       	sqlText = "DROP TABLE " + targetSchema + "." + targetTable;
+		    	}
+		    	else {
+			       	sqlText = "DROP TABLE " + targetTable;
+		    	}
 	    	
 	    		// Drop existing table
-		       	sqlText = "DROP TABLE " + targetSchema + "." + targetTable;
 		        logger.debug("Drop statement:\n" + sqlText);
 		
 		       	// Execute prepared statement
@@ -117,12 +120,23 @@ public class TableCreateBean {
 		        if (targetCon.getDatabaseProductName().toUpperCase().contains("TERADATA")) {
 			        sqlText += "MULTISET ";
 		        }
-		       	sqlText += "TABLE " + targetSchema + "." + targetTable + "(";
+		        else if (targetCon.getDatabaseProductName().toUpperCase().contains("HDB")) {
+			        sqlText += "COLUMN ";
+		        }
+		    	if (!(targetSchema == null || targetSchema.equals(""))) {
+			       	sqlText += "TABLE " + targetSchema + "." + targetTable + "(";
+		    	}
+		    	else {
+			       	sqlText += "TABLE " + targetTable + "(";
+		    	}
 		       	for (int i = 0; i < targetColumnDefinitions.length; i++) {
 			    	if (i > 0) {
 			    		sqlText += ",";
 			    	}
 		       		sqlText += targetColumns[i] + " " + targetColumnDefinitions[i];
+			        if (targetCon.getDatabaseProductName().toUpperCase().contains("ANYWHERE")) {
+				        sqlText += " NULL";
+			        }
 		       	}
 		       	sqlText += ")";
 		

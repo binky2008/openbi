@@ -26,7 +26,7 @@ create table test.tab_test(
 	COL_NCHAR NCHAR(6000),
 	COL_NVARCHAR NVARCHAR(255),
 	COL_TEXT TEXT,
-	COL_CLOB TEXT,
+	COL_CLOB CLOB,
 	--
 	COL_binary18 binary18,
 	COL_binaryvar binaryvar(255),

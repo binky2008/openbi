@@ -6,6 +6,7 @@ CREATE TABLE tab_test (
 	col_smallint smallint,
 	col_int int,
 	col_bigint bigint,
+	--
 	col_numeric numeric(20,9),
 	col_decimal decimal(30,9),
 	col_smallmoney smallmoney,
@@ -13,16 +14,18 @@ CREATE TABLE tab_test (
 	col_real real,
 	col_float float,
 	--
-	col_binary binary(12),
-	col_varbinary varbinary,
+	col_binary binary(800),
+	col_varbinary varbinary(800),
 	col_varbinarymax varbinary(max),
 	col_image image,
-	col_char char(765),
-	col_varchar varchar(4000),
+	--
+	col_char char(800),
+	col_varchar varchar(800),
 	col_varcharmax varchar(max),
 	col_text text,
-	col_nchar nchar(1432),
-	col_nvarchar nvarchar(4000),
+	--
+	col_nchar nchar(400),
+	col_nvarchar nvarchar(400),
 	col_nvarcharmax nvarchar(max),
 	col_ntext ntext,
 	col_xml xml,

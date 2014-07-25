@@ -32,10 +32,12 @@ public class DictionaryConversionBean {
 
     // Declarations of internally used variables
     private int columnCount = 0;
-    private int[] columnPkPositions = null;
+    private int[] columnPkPosition = null;
+    private int[] columnJdbcType = null;
     //
     private String[] sourceColumnNames = null;
     private String[] sourceColumnType = null;
+    private String[] sourceColumnTypeAttribute = null;
     private int[] sourceColumnLength = null;
     private int[] sourceColumnPrecision = null;
     private int[] sourceColumnScale = null;
@@ -43,6 +45,7 @@ public class DictionaryConversionBean {
     //
     private String[] targetColumnNames = null;
     private String[] targetColumnType = null;
+    private String[] targetColumnTypeAttribute = null;
     private int[] targetColumnLength = null;
     private int[] targetColumnPrecision = null;
     private int[] targetColumnScale = null;
@@ -110,8 +113,12 @@ public class DictionaryConversionBean {
     	return targetColumnDefinition;
     }
     
+    public int[] getColumnJdbcType() {
+    	return columnJdbcType;
+    }
+    
     public int[] getSourceColumnPkPositions() {
-    	return columnPkPositions;
+    	return columnPkPosition;
     }
     
     public void retrieveColumns() throws Exception {
@@ -127,9 +134,11 @@ public class DictionaryConversionBean {
     	columnCount = sourceDictionary.getColumnCount();
     	sourceColumnNames = sourceDictionary.getColumnNames();
         sourceColumnType = sourceDictionary.getColumnTypes();
+        sourceColumnTypeAttribute = sourceDictionary.getColumnTypeAttribute();
         sourceColumnLength = sourceDictionary.getColumnLength();
         sourceColumnPrecision = sourceDictionary.getColumnPrecision();
         sourceColumnScale = sourceDictionary.getColumnScale();
+        columnJdbcType = sourceDictionary.getColumnJdbcType();
         
     	String sourceProductName;
     	String targetProductName;
@@ -143,25 +152,42 @@ public class DictionaryConversionBean {
         
         targetColumnNames = new String[columnCount];
         targetColumnType = new String[columnCount];
+        targetColumnTypeAttribute = new String[columnCount];
         targetColumnLength = new int[columnCount];
         targetColumnPrecision = new int[columnCount];
         targetColumnScale = new int[columnCount];
         targetColumnDefinition = new String[columnCount];
-        columnPkPositions = new int[columnCount];
+        columnPkPosition = new int[columnCount];
+		
+    	// Load type convertion matrix
+		org.w3c.dom.Document convertionMatrix = null;
+
+		try {
+			DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
+			javax.xml.parsers.DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
+			convertionMatrix = docBuilder.parse(Thread.currentThread().getContextClassLoader().getResource("datatypes/convertionMatrix.xml").toString());
+			convertionMatrix.getDocumentElement().normalize();
+		}
+		catch(Exception e) {
+			logger.error("Cannot load option file: " + e.getMessage());
+			e.printStackTrace();
+		    throw e;
+		}
         
         TypeConversionBean typeConverter = new TypeConversionBean();
+        typeConverter.setConvertionMatrix(convertionMatrix);
         
-       	for (int i = 1; i <= columnCount; i++) {
-        	//sourceColumnNames[i - 1] = rsmd.getColumnName(i).toUpperCase();
-        	targetColumnNames[i - 1] = sourceColumnNames[i - 1];
-            targetColumnNames[i - 1] = targetCon.getColumnIdentifier(targetColumnNames[i - 1]);
+       	for (int i = 0; i < columnCount; i++) {
+        	//sourceColumnNames[i] = rsmd.getColumnName(i).toUpperCase();
+        	targetColumnNames[i] = sourceColumnNames[i];
+            targetColumnNames[i] = targetCon.getColumnIdentifier(targetColumnNames[i]);
             
             logger.info("get mapped column...");
         	if (sourceMapColumns != null) {
 	        	for (int mc = 0; mc < sourceMapColumns.length; mc++) {
-	        		if (sourceMapColumns[mc].equalsIgnoreCase(sourceColumnNames[i - 1])) {
-	        			sourceColumnNames[i - 1] = targetMapColumns[mc];
-	        			targetColumnNames[i - 1] = targetMapColumns[mc];
+	        		if (sourceMapColumns[mc].equalsIgnoreCase(sourceColumnNames[i])) {
+	        			sourceColumnNames[i] = targetMapColumns[mc];
+	        			targetColumnNames[i] = targetMapColumns[mc];
 	        		}
 	        	}
         	}
@@ -171,25 +197,27 @@ public class DictionaryConversionBean {
         	// Use type converter
         	typeConverter.setSourceProductName(sourceProductName);
         	typeConverter.setTargetProductName(targetProductName);
-        	typeConverter.setSourceColumnType(sourceColumnType[i - 1]);
-        	typeConverter.setSourceColumnLength(sourceColumnLength[i - 1]);
-        	typeConverter.setSourceColumnPrecision(sourceColumnPrecision[i - 1]);
-        	typeConverter.setSourceColumnScale(sourceColumnScale[i - 1]);
+        	typeConverter.setSourceColumnType(sourceColumnType[i]);
+        	typeConverter.setSourceColumnTypeAttribute(sourceColumnTypeAttribute[i]);
+        	typeConverter.setSourceColumnLength(sourceColumnLength[i]);
+        	typeConverter.setSourceColumnPrecision(sourceColumnPrecision[i]);
+        	typeConverter.setSourceColumnScale(sourceColumnScale[i]);
 
             logger.debug("convert datatype...");
         	typeConverter.convert();
             logger.debug("datatype converted");
             
-            sourceColumnDefinition[i - 1] = typeConverter.getSourceColumnDefinition();
+            sourceColumnDefinition[i] = typeConverter.getSourceColumnDefinition();
         	
-        	targetColumnType[i - 1] = typeConverter.getTargetColumnType();
-        	targetColumnLength[i - 1] = typeConverter.getTargetColumnLength();
-        	targetColumnPrecision[i - 1] = typeConverter.getTargetColumnPrecision();
-        	targetColumnScale[i - 1] = typeConverter.getTargetColumnScale();
-        	targetColumnDefinition[i - 1] = typeConverter.getTargetColumnDefinition();
+        	targetColumnType[i] = typeConverter.getTargetColumnType();
+        	targetColumnTypeAttribute[i] = typeConverter.getTargetColumnTypeAttribute();
+        	targetColumnLength[i] = typeConverter.getTargetColumnLength();
+        	targetColumnPrecision[i] = typeConverter.getTargetColumnPrecision();
+        	targetColumnScale[i] = typeConverter.getTargetColumnScale();
+        	targetColumnDefinition[i] = typeConverter.getTargetColumnDefinition();
         	
-        	logger.debug("Target column " + (i) + "  Name: " + targetColumnNames[i - 1] + " Type: " + targetColumnType[i - 1] + "  Length: " + targetColumnLength[i - 1] + " Precision: " + targetColumnPrecision[i - 1] + " Scale: " +targetColumnScale[i - 1]);       	
-           	logger.debug("Target column " + (i) + "  Name: " + targetColumnNames[i - 1] + "  Definition: " + targetColumnDefinition[i - 1]);
+        	logger.debug("Source column " + (i) + "  Name: " + sourceColumnNames[i] + " Type: " + sourceColumnType[i] + " Attribute: " + sourceColumnTypeAttribute[i] + "  Length: " + sourceColumnLength[i] + " Precision: " + sourceColumnPrecision[i] + " Scale: " +sourceColumnScale[i] + "  Definition: " + sourceColumnDefinition[i]);       	
+        	logger.debug("Target column " + (i) + "  Name: " + targetColumnNames[i] + " Type: " + targetColumnType[i] + " Attribute: " + targetColumnTypeAttribute[i] + "  Length: " + targetColumnLength[i] + " Precision: " + targetColumnPrecision[i] + " Scale: " +targetColumnScale[i] + "  Definition: " + targetColumnDefinition[i]);       	
        	}
     }
     

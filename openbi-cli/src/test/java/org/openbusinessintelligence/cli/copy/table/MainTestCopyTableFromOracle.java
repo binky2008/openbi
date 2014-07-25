@@ -6,88 +6,25 @@ import org.junit.Test;
 
 public class MainTestCopyTableFromOracle {
 	
-	private String[] sourceArgs = new String[3];
+	private String[] sourceArgs = new String[4];
 	private String[] targetArgs = new String[4];
 	
 	private void initSource() {
 		sourceArgs[0] = "localhost_oracle_test";
 		sourceArgs[1] = "";
-		sourceArgs[2] = "tab_test";
+		sourceArgs[2] = "test";
+		sourceArgs[3] = "tab_test";
 	}
 
 	@Test
-	public void testOracleToMySQL() {
-		
-		initSource();
-		//
-		targetArgs[0] = "localhost_mysql_test";
-		targetArgs[1] = "";
-		targetArgs[2] = "test";
-		targetArgs[3] = "stg_ora_tab_test";
-		//
-		MainTestCopyTableHelper.initSource(sourceArgs);
-		MainTestCopyTableHelper.initTarget(targetArgs);
-		// Perform test
-		try {
-			MainTestCopyTableHelper.execute();
-		}
-		catch (Exception e) {
-			fail("Exception: \n" + e);
-		}
-	}
-
-
-	@Test
-	public void testOracleToPostgreSQL() {
-		
-		initSource();
-		//
-		targetArgs[0] = "localhost_postgresql_postgres_test";
-		targetArgs[1] = "";
-		targetArgs[2] = "test";
-		targetArgs[3] = "stg_ora_tab_test";
-		//
-		MainTestCopyTableHelper.initSource(sourceArgs);
-		MainTestCopyTableHelper.initTarget(targetArgs);
-		// Perform test
-		try {
-			MainTestCopyTableHelper.execute();
-		}
-		catch (Exception e) {
-			fail("Exception: \n" + e);
-		}
-	}
-
-	@Test
-	public void testOracleToOracle() {
-		
-		initSource();
-		//
-		targetArgs[0] = "localhost_oracle_test";
-		targetArgs[1] = "";
-		targetArgs[2] = "test";
-		targetArgs[3] = "stg_ora_tab_test";
-		//
-		MainTestCopyTableHelper.initSource(sourceArgs);
-		MainTestCopyTableHelper.initTarget(targetArgs);
-		// Perform test
-		try {
-			MainTestCopyTableHelper.execute();
-		}
-		catch (Exception e) {
-			fail("Exception: \n" + e);
-		}
-	}
-
-	@Test
-	public void testOracleToDB2() {
+	public void testDB2() {
 		
 		initSource();
 		//
 		targetArgs[0] = "localhost_db2_dwhdev_test";
 		targetArgs[1] = "";
 		targetArgs[2] = "test";
-		targetArgs[3] = "stg_ora_tab_test";
+		targetArgs[3] = "stg_oracle_tab_test";
 		//
 		MainTestCopyTableHelper.initSource(sourceArgs);
 		MainTestCopyTableHelper.initTarget(targetArgs);
@@ -101,14 +38,14 @@ public class MainTestCopyTableFromOracle {
 	}
 
 	@Test
-	public void testOracleToInformix() {
+	public void testDerby() {
 		
 		initSource();
 		//
-		targetArgs[0] = "localhost_informix_test";
+		targetArgs[0] = "localhost_derby_dwhdev";
 		targetArgs[1] = "";
 		targetArgs[2] = "test";
-		targetArgs[3] = "stg_ora_tab_test";
+		targetArgs[3] = "stg_oracle_tab_test";
 		//
 		MainTestCopyTableHelper.initSource(sourceArgs);
 		MainTestCopyTableHelper.initTarget(targetArgs);
@@ -122,14 +59,14 @@ public class MainTestCopyTableFromOracle {
 	}
 
 	@Test
-	public void testOracleToSQLServer() {
+	public void testFirebird() {
 		
 		initSource();
 		//
-		targetArgs[0] = "localhost_sqlserver_test";
+		targetArgs[0] = "localhost_firebird_test";
 		targetArgs[1] = "";
-		targetArgs[2] = "dbo";
-		targetArgs[3] = "stg_ora_tab_test";
+		targetArgs[2] = "";
+		targetArgs[3] = "stg_oracle_tab_test";
 		//
 		MainTestCopyTableHelper.initSource(sourceArgs);
 		MainTestCopyTableHelper.initTarget(targetArgs);
@@ -143,14 +80,14 @@ public class MainTestCopyTableFromOracle {
 	}
 
 	@Test
-	public void testOracleToHANA() {
+	public void testH2() {
 		
 		initSource();
 		//
-		targetArgs[0] = "msas120i_hana_01_dwh_stage";
-		targetArgs[1] = "HDBKeywords";
-		targetArgs[2] = "dwh_stage";
-		targetArgs[3] = "stg_ora_tab_test";
+		targetArgs[0] = "localhost_h2_test";
+		targetArgs[1] = "";
+		targetArgs[2] = "test";
+		targetArgs[3] = "stg_oracle_tab_test";
 		//
 		MainTestCopyTableHelper.initSource(sourceArgs);
 		MainTestCopyTableHelper.initTarget(targetArgs);
@@ -164,14 +101,224 @@ public class MainTestCopyTableFromOracle {
 	}
 	
 	@Test
-	public void testOracleToTeradata() {
+	public void testHANA() {
+		
+		initSource();
+		//
+		targetArgs[0] = "localhost_hana_01_dwh_test";
+		targetArgs[1] = "HDBKeywords";
+		targetArgs[2] = "dwh_test";
+		targetArgs[3] = "stg_oracle_tab_test";
+		//
+		MainTestCopyTableHelper.initSource(sourceArgs);
+		MainTestCopyTableHelper.initTarget(targetArgs);
+		// Perform test
+		try {
+			MainTestCopyTableHelper.execute();
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
+	
+	@Test
+	public void testHSQLDB() {
+		
+		initSource();
+		//
+		targetArgs[0] = "localhost_hsqldb_test";
+		targetArgs[1] = "";
+		targetArgs[2] = "test";
+		targetArgs[3] = "stg_oracle_tab_test";
+		//
+		MainTestCopyTableHelper.initSource(sourceArgs);
+		MainTestCopyTableHelper.initTarget(targetArgs);
+		// Perform test
+		try {
+			MainTestCopyTableHelper.execute();
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
+	
+	@Test
+	public void testInformix() {
+		
+		initSource();
+		//
+		targetArgs[0] = "localhost_informix_test";
+		targetArgs[1] = "";
+		targetArgs[2] = "test";
+		targetArgs[3] = "stg_oracle_tab_test";
+		//
+		MainTestCopyTableHelper.initSource(sourceArgs);
+		MainTestCopyTableHelper.initTarget(targetArgs);
+		// Perform test
+		try {
+			MainTestCopyTableHelper.execute();
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
+
+	@Test
+	public void testMySQL() {
+		
+		initSource();
+		//
+		targetArgs[0] = "localhost_mysql_test";
+		targetArgs[1] = "";
+		targetArgs[2] = "test";
+		targetArgs[3] = "stg_oracle_tab_test";
+		//
+		MainTestCopyTableHelper.initSource(sourceArgs);
+		MainTestCopyTableHelper.initTarget(targetArgs);
+		// Perform test
+		try {
+			MainTestCopyTableHelper.execute();
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
+
+	@Test
+	public void testNetezza() {
+		
+		initSource();
+		//
+		targetArgs[0] = "localhost_netezza_test";
+		targetArgs[1] = "";
+		targetArgs[2] = "test";
+		targetArgs[3] = "stg_oracle_tab_test";
+		//
+		MainTestCopyTableHelper.initSource(sourceArgs);
+		MainTestCopyTableHelper.initTarget(targetArgs);
+		// Perform test
+		try {
+			MainTestCopyTableHelper.execute();
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
+
+	@Test
+	public void testOracle() {
+		
+		initSource();
+		//
+		targetArgs[0] = "localhost_oracle_test";
+		targetArgs[1] = "";
+		targetArgs[2] = "test";
+		targetArgs[3] = "stg_oracle_tab_test";
+		//
+		MainTestCopyTableHelper.initSource(sourceArgs);
+		MainTestCopyTableHelper.initTarget(targetArgs);
+		// Perform test
+		try {
+			MainTestCopyTableHelper.execute();
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
+
+	@Test
+	public void testPostgreSQL() {
+		
+		initSource();
+		//
+		targetArgs[0] = "localhost_postgresql_postgres_test";
+		targetArgs[1] = "";
+		targetArgs[2] = "test";
+		targetArgs[3] = "stg_oracle_tab_test";
+		//
+		MainTestCopyTableHelper.initSource(sourceArgs);
+		MainTestCopyTableHelper.initTarget(targetArgs);
+		// Perform test
+		try {
+			MainTestCopyTableHelper.execute();
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
+
+	@Test
+	public void testSQLServer() {
+		
+		initSource();
+		//
+		targetArgs[0] = "localhost_sqlserver_test";
+		targetArgs[1] = "";
+		targetArgs[2] = "dbo";
+		targetArgs[3] = "stg_oracle_tab_test";
+		//
+		MainTestCopyTableHelper.initSource(sourceArgs);
+		MainTestCopyTableHelper.initTarget(targetArgs);
+		// Perform test
+		try {
+			MainTestCopyTableHelper.execute();
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
+
+	@Test
+	public void testSybase() {
+		
+		initSource();
+		//
+		targetArgs[0] = "localhost_sybase_test";
+		targetArgs[1] = "";
+		targetArgs[2] = "";
+		targetArgs[3] = "stg_oracle_tab_test";
+		//
+		MainTestCopyTableHelper.initSource(sourceArgs);
+		MainTestCopyTableHelper.initTarget(targetArgs);
+		// Perform test
+		try {
+			MainTestCopyTableHelper.execute();
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
+	
+	@Test
+	public void testTeradata() {
 		
 		initSource();
 		//
 		targetArgs[0] = "localhost_teradata_test";
 		targetArgs[1] = "TDBKeywords";
 		targetArgs[2] = "test";
-		targetArgs[3] = "stg_ora_tab_test";
+		targetArgs[3] = "stg_oracle_tab_test";
+		//
+		MainTestCopyTableHelper.initSource(sourceArgs);
+		MainTestCopyTableHelper.initTarget(targetArgs);
+		// Perform test
+		try {
+			MainTestCopyTableHelper.execute();
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
+	
+	@Test
+	public void testVertica() {
+		
+		initSource();
+		//
+		targetArgs[0] = "localhost_vertica_dwhdev_test";
+		targetArgs[1] = "";
+		targetArgs[2] = "";
+		targetArgs[3] = "stg_oracle_tab_test";
 		//
 		MainTestCopyTableHelper.initSource(sourceArgs);
 		MainTestCopyTableHelper.initTarget(targetArgs);

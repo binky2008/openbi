@@ -242,6 +242,33 @@ public class ConnectionBean {
     	return tableList;
     }
     
+    public boolean getColumnUsable (String dataType) {
+       	if (
+           	(dataType.toUpperCase().contains("SDO")) ||
+       		(dataType.toUpperCase().contains("INTERVAL")) ||
+       		(dataType.toUpperCase().contains("SERIAL")) ||
+       		(dataType.toUpperCase().contains("POINT")) ||
+       		(dataType.toUpperCase().contains("FILE")) ||
+       		(
+       			databaseProductName.toUpperCase().contains("MICROSOFT") &&
+       			dataType.toUpperCase().contains("TIMESTAMP")
+       		) ||
+       		(
+           		databaseProductName.toUpperCase().contains("DERBY") &&
+           		(
+           			dataType.toUpperCase().contains("LOB") ||
+           			dataType.toUpperCase().contains("XML") ||
+           			dataType.toUpperCase().contains("LONG")
+           		)
+           	)
+        ) {
+        	return false;
+       	}
+       	else {
+        	return true;
+       	}
+    }
+    
     // Execution methods
     public void openConnection() throws Exception  {
     	
@@ -305,6 +332,7 @@ public class ConnectionBean {
 	    	scanner.close();
 	    	keyWordStream.close();
 	   	}
+    	keyWords = keyWords.replace("\r", "");
 	   	
 	   	// Get reserved keywords throw jdbc
 	   	try {

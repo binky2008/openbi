@@ -26,8 +26,8 @@ CREATE TABLE test.tab_test (
 		
 ,	col_interval	interval
 		
-,	col_char	char (548)
-,	col_varchar	varchar (12589)
+,	col_char	char (10485760)
+,	col_varchar	varchar (10485760)
 ,	col_text	text
 		
 ,	col_txid_snapshot	txid_snapshot

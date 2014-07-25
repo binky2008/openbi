@@ -20,6 +20,7 @@ public class DataCopyBean {
 	static final org.slf4j.Logger logger = LoggerFactory.getLogger(DataCopyBean.class);
 
     // Declarations of bean properties
+    private StatementBean statement = null;
 	// Source properties
     private ConnectionBean sourceCon = null;
     private String sourceSchema = "";
@@ -28,6 +29,7 @@ public class DataCopyBean {
     private String[] queryParameters = null;
     private String[] sourceColumnNames = null;
     private String[] sourceColumnType = null;
+    private String[] sourceColumnTypeAttribute = null;
 
     // Target properties
     private ConnectionBean targetCon = null;
@@ -36,6 +38,7 @@ public class DataCopyBean {
     private boolean preserveDataOption = false;
     private String[] targetColumnNames = null;
     private String[] targetColumnType = null;
+    private String[] targetColumnTypeAttribute = null;
     
     // Mapping properties
     private String mappingDefFile = "";
@@ -52,7 +55,9 @@ public class DataCopyBean {
 	TableDictionaryBean targetDictionaryBean;
     private String[] commonColumnNames = null;
     private String[] sourceCommonColumnTypes = null;
+    private String[] sourceCommonColumnTypeAttribute = null;
     private String[] targetCommonColumnTypes = null;
+    private String[] targetCommonColumnTypeAttribute = null;
     private ResultSet sourceRS = null;
     private PreparedStatement sourceStmt= null;    
     
@@ -134,54 +139,64 @@ public class DataCopyBean {
     public void retrieveColumnList() throws Exception {
     	logger.info("########################################");
     	logger.info("RETRIEVING COLUMN LIST...");
+    	logger.debug("Source schema: " + sourceSchema + " - Source table: " + sourceTable);
     	
-    	String sourcePrefix = "";
-    	if (!(sourceCon.getSchemaName() == null || sourceCon.getSchemaName().equals(""))) {
-    		sourcePrefix = sourceCon.getSchemaName() + ".";
-    		logger.debug("Prefix for source table: " + sourcePrefix);
-    	}
-    	
-       	String sql;
        	if (sourceQuery == null || sourceQuery.equals("")) {
-       		sql = "SELECT * FROM " + sourceCon.getObjectIdentifier(sourceTable);
+       		sourceDictionaryBean.setSourceSchema(sourceSchema);
+           	sourceDictionaryBean.setSourceTable(sourceTable);
        	}
        	else {
-       		sql = sourceQuery;
+           	sourceDictionaryBean.setSourceQuery(sourceQuery);
        	}
        	
        	// Get source column dictionary
-       	sourceDictionaryBean.setSourceQuery(sql);
        	sourceDictionaryBean.retrieveColumns();
        	sourceColumnNames = sourceDictionaryBean.getColumnNames();
-       	sourceColumnType = sourceDictionaryBean.getColumnTypes();       	
+       	sourceColumnType = sourceDictionaryBean.getColumnTypes();     
+       	sourceColumnTypeAttribute = sourceDictionaryBean.getColumnTypeAttribute();       	
 
-    	sql = "SELECT * FROM " + targetSchema + "." + targetTable;
 
        	// Get target column dictionary
-       	targetDictionaryBean.setSourceQuery(sql);
+    	logger.debug("Target schema: " + targetSchema + " - Target table: " + targetTable);
+       	targetDictionaryBean.setSourceSchema(targetSchema);
+       	targetDictionaryBean.setSourceTable(targetTable);
        	targetDictionaryBean.retrieveColumns();
        	targetColumnNames = targetDictionaryBean.getColumnNames();
        	targetColumnType = targetDictionaryBean.getColumnTypes();
+       	targetColumnTypeAttribute = targetDictionaryBean.getColumnTypeAttribute();
+
+        statement = new StatementBean();
+        statement.setProductName(targetCon.getDatabaseProductName().toUpperCase());
     	
     	List<String> listName = new ArrayList<String>();
     	List<String> listSourceType = new ArrayList<String>();
+    	List<String> listSourceTypeAttribute = new ArrayList<String>();
     	List<String> listTargetType = new ArrayList<String>();
+    	List<String> listTargetTypeAttribute = new ArrayList<String>();
         for (int s = 0; s < sourceColumnNames.length; s++) {
             for (int t = 0; t < targetColumnNames.length; t++) {
-            	if (sourceColumnNames[s].equalsIgnoreCase(targetColumnNames[t])) {
+            	if (
+            		sourceColumnNames[s].equalsIgnoreCase(targetColumnNames[t]) &&
+            		statement.getColumnUsable(targetColumnType[t])
+            	) {
             		listName.add(targetColumnNames[t]);
             		listSourceType.add(sourceColumnType[t]);
+            		listSourceTypeAttribute.add(sourceColumnTypeAttribute[t]);
             		listTargetType.add(targetColumnType[t]);
+            		listTargetTypeAttribute.add(targetColumnTypeAttribute[t]);
             	}
             }
         }
         
         commonColumnNames = new String[listName.size()];
         sourceCommonColumnTypes = new String[listSourceType.size()];
+        sourceCommonColumnTypeAttribute = new String[listSourceTypeAttribute.size()];
         targetCommonColumnTypes = new String[listTargetType.size()];
+        targetCommonColumnTypeAttribute = new String[listTargetTypeAttribute.size()];
         listName.toArray(commonColumnNames);
         listSourceType.toArray(sourceCommonColumnTypes);
         listTargetType.toArray(targetCommonColumnTypes);
+        listTargetTypeAttribute.toArray(targetCommonColumnTypeAttribute);
         
         logger.info("COLUMN LIST RETRIEVED");
         logger.info("########################################");
@@ -248,7 +263,16 @@ public class DataCopyBean {
 	    		if (i > 0) {
 	    			queryText += ",";
 	    		}
-	    		queryText += sourceCon.getColumnIdentifier(commonColumnNames[i]);
+	    		if (
+	    	    	sourceCon.getDatabaseProductName().toUpperCase().contains("DERBY") &&
+	    	    	sourceCommonColumnTypes[i].toUpperCase().contains("XML")
+	    	    ) {
+		    		queryText += sourceCon.getColumnIdentifier("XMLSERIALIZE(" + commonColumnNames[i] + " AS CLOB) AS " + commonColumnNames[i]);
+	    		}
+	    		else {
+		    		queryText += sourceCon.getColumnIdentifier(commonColumnNames[i]);
+	    			
+	    		}
 	    	}
 	    	if (sourceMapColumns!=null) {
 	    		for (int i = 0; i < sourceMapColumns.length; i++) {
@@ -278,30 +302,41 @@ public class DataCopyBean {
 
     	targetCon.getConnection().setAutoCommit(false);
         PreparedStatement targetStmt;
+        // Build table identifier
+        String tableIdentifier = "";
+    	if (!(targetSchema == null || targetSchema.equals(""))) {
+    		tableIdentifier = targetSchema + "." + targetTable;
+    	}
+    	else {
+    		tableIdentifier = targetTable;
+    	}
+        
+        // Initialize statement string factory
+        statement = new StatementBean();
+        statement.setProductName(targetCon.getDatabaseProductName().toUpperCase());
+        statement.setTargetSchema(targetSchema);
+        statement.setTargetTable(targetTable);
+        String emptyText = statement.getEmptyTable();
+    	
+    	// Empty table if data are not to be preserved
         logger.info("Preserve target data = " + preserveDataOption);
         if (!preserveDataOption) {
             logger.info("Truncate table");
-            String truncateText = "";
-            if (targetCon.getDatabaseProductName().toUpperCase().contains("TERADATA")) {
-            	truncateText = "DELETE " + targetSchema + "." + targetTable + " ALL";
-            }
-            else {
-	            truncateText = "TRUNCATE TABLE " + targetSchema + "." + targetTable;
-	           	if (targetCon.getDatabaseProductName().toUpperCase().contains("DB2")) {
-	           		targetCon.closeConnection();
-	           		targetCon.openConnection();
-	           		truncateText += " IMMEDIATE";
-	           	}
-            }
-            logger.debug(truncateText);
-           	targetStmt = targetCon.getConnection().prepareStatement(truncateText);
+            
+            logger.debug(emptyText);
+           	targetStmt = targetCon.getConnection().prepareStatement(emptyText);
             targetStmt.executeUpdate();
             targetStmt.close();
             targetCon.getConnection().commit();
             logger.info("Table truncated");
         }
         
-        String insertText = "INSERT /*+APPEND*/ INTO " + targetSchema + "." + targetTable + " (";
+        // Build insert statement	    
+        String insertText = "INSERT ";
+        if (targetCon.getDatabaseProductName().toUpperCase().contains("ORACLE")) {
+        	insertText += "/*+APPEND*/ ";
+        }
+         insertText += "INTO " + tableIdentifier + " (";
         for (int i = 0; i < commonColumnNames.length; i++) {
         	if (i > 0) {
         		insertText += ",";
@@ -333,6 +368,12 @@ public class DataCopyBean {
             ) {
 		    	insertText = insertText + "CONVERT(VARBINARY,?)";
 	    	}
+	    	else if (
+	    		targetCon.getDatabaseProductName().toUpperCase().contains("DERBY") &&
+	    		targetCommonColumnTypes[i].toUpperCase().contains("XML")
+    	    ) {
+	    		insertText = insertText + "XMLPARSE (DOCUMENT CAST (? AS CLOB) PRESERVE WHITESPACE)";
+    		}
 	    	else {
 		    	insertText = insertText + "?";
 	    	}
@@ -363,44 +404,42 @@ public class DataCopyBean {
     	//List<Object> bufferLine = null;
     	Object object = null;
     	String className = "";
+    	
+    	DataManipulationBean dataManipulate = new DataManipulationBean();
+    	dataManipulate.setSourceProductName(sourceCon.getDatabaseProductName().toUpperCase());
+    	dataManipulate.setTargetProductName(targetCon.getDatabaseProductName().toUpperCase());
+    	
 	    while (sourceRS.next()) {
 	    	try {
 	    		int position = 0;
 	    		
 	    		for (int i = 0; i < commonColumnNames.length; i++) {
 	    			position++;
+	    			dataManipulate.setPosition(position);
+	    			dataManipulate.setSourceType(sourceCommonColumnTypes[i]);
+	    			dataManipulate.setSourceTypeAttribute(sourceCommonColumnTypeAttribute[i]);
+	    			dataManipulate.setTargetType(targetCommonColumnTypes[i]);
+	    			dataManipulate.setTargetTypeAttribute(targetCommonColumnTypeAttribute[i]);
 	    			try {
 	    				object = sourceRS.getObject(commonColumnNames[i]);
-	    				if (object == null) {
-		              		if (targetCon.getDatabaseProductName().toUpperCase().contains("MICROSOFT")) {
-		              			if (targetCommonColumnTypes[i].toUpperCase().contains("FLOAT")) {
-		              				targetStmt.setNull(position, Types.FLOAT);
-		              			}
-		              			else if (targetCommonColumnTypes[i].toUpperCase().contains("REAL")) {
-		              				targetStmt.setNull(position, Types.REAL);
-		              			}
-		              			else if (targetCommonColumnTypes[i].toUpperCase().contains("TEXT")) {
-		              				targetStmt.setNull(position, Types.CHAR);
-		              			}
-		              			else if (targetCommonColumnTypes[i].toUpperCase().contains("DATE")) {
-		              				targetStmt.setNull(position, Types.DATE);
-		              			}
-		              			else if (targetCommonColumnTypes[i].toUpperCase().contains("TIME")) {
-		              				targetStmt.setNull(position, Types.TIME);
-		              			}
-				              	else {
-			    					targetStmt.setNull(position, Types.NULL);
-				              	}
-		              		}
-	    					else {
-		    					targetStmt.setNull(position, Types.NULL);
-	    					}
+	    				if (targetCommonColumnTypes[i].contains("SDO")) {
+	    					logger.debug("!!!!!!!!!!!!!!! ORACLE SDO TYPE !!!!!!!!!!!!!!!");
+	    					targetStmt.setNull(position, Types.NULL);
 	    				}
+	    				else if (object == null) {
+		    				targetStmt.setNull(position, dataManipulate.getSQLType());
+		    			}
 	    				else {
-	    					className = object.getClass().getName();
+		    				className = object.getClass().getName();
 	    					if (className.contains("BigInteger")) {
 	    						targetStmt.setBigDecimal(position, sourceRS.getBigDecimal(commonColumnNames[i]));
 	    					}
+	    					else if (
+						    	sourceCommonColumnTypes[i].contains("TIMESTAMP") &&
+			    				sourceCon.getDatabaseProductName().toUpperCase().contains("ORACLE")
+						    ) {
+	    						targetStmt.setTimestamp(position, sourceRS.getTimestamp(commonColumnNames[i]));
+						    }
 	    					else if (
 			    				sourceCommonColumnTypes[i].toUpperCase().contains("CLOB") &&
 			    				sourceCon.getDatabaseProductName().toUpperCase().contains("DB2") &&
@@ -412,8 +451,84 @@ public class DataCopyBean {
 					    		targetStmt.setString(position, sourceRS.getString(commonColumnNames[i]));
 			    			}
 	    					else if (
+						    	(
+						    		sourceCommonColumnTypes[i].toUpperCase().contains("LOB") ||
+						    		sourceCommonColumnTypes[i].toUpperCase().contains("XML") ||
+						    		sourceCommonColumnTypes[i].toUpperCase().contains("LONG")
+				    			) &&
+						    	sourceCon.getDatabaseProductName().toUpperCase().contains("DERBY")
+						    ) {
+		    					// Cannot handle LOBs and LONGs in Apache Derby
+		    					targetStmt.setNull(position, dataManipulate.getSQLType());
+						    }
+	    					else if (
+					    		sourceCommonColumnTypes[i].toUpperCase().contains("XML") &&
+				    			(
+					    			targetCon.getDatabaseProductName().toUpperCase().contains("DB2") ||
+					    			targetCon.getDatabaseProductName().toUpperCase().contains("DERBY") ||
+				    				targetCon.getDatabaseProductName().toUpperCase().contains("MYSQL") ||
+				    				targetCon.getDatabaseProductName().toUpperCase().contains("ORACLE") ||
+				    				targetCon.getDatabaseProductName().toUpperCase().contains("POSTGRES") ||
+				    				targetCon.getDatabaseProductName().toUpperCase().contains("MICROSOFT") ||
+				    				targetCon.getDatabaseProductName().toUpperCase().contains("H2") ||
+				    				targetCon.getDatabaseProductName().toUpperCase().contains("HSQL") ||
+				    				targetCon.getDatabaseProductName().toUpperCase().contains("ANYWHERE")
+				    			)
+				    		) {
+						    	targetStmt.setString(position, sourceRS.getString(commonColumnNames[i]));
+				    		}
+	    					else if (
+							    targetCommonColumnTypes[i].equalsIgnoreCase("DECFLOAT") &&
+						    	targetCon.getDatabaseProductName().toUpperCase().contains("DB2")
+						    ) {
+								targetStmt.setFloat(position, sourceRS.getFloat(commonColumnNames[i]));
+						    }
+	    					else if (
+						    	sourceCommonColumnTypes[i].equalsIgnoreCase("BLOB") &&
+					    		targetCommonColumnTypes[i].equalsIgnoreCase("BLOB") &&
+					    		targetCon.getDatabaseProductName().toUpperCase().contains("FIREBIRD")
+					    	) {
+							    targetStmt.setBytes(position, sourceRS.getBytes(commonColumnNames[i]));
+					    	}
+	    					else if (
+				    			targetCommonColumnTypes[i].equalsIgnoreCase("BLOB") &&
+				    			targetCon.getDatabaseProductName().toUpperCase().contains("FIREBIRD")
+				    		) {
+						    	targetStmt.setString(position, sourceRS.getString(commonColumnNames[i]));
+				    		}
+	    					else if (
 			    				targetCommonColumnTypes[i].equalsIgnoreCase("TEXT") &&
 			    				targetCon.getDatabaseProductName().toUpperCase().contains("MICROSOFT")
+			    			) {
+					    		targetStmt.setString(position, sourceRS.getString(commonColumnNames[i]));
+			    			}
+	    					else if (
+				    			targetCommonColumnTypes[i].equalsIgnoreCase("TEXT") &&
+				    			targetCon.getDatabaseProductName().toUpperCase().contains("INFORMIX")
+				    		) {
+						    	targetStmt.setString(position, sourceRS.getString(commonColumnNames[i]));
+				    		}
+	    					else if (
+			    				targetCommonColumnTypes[i].toUpperCase().contains("LONG") &&
+			    				targetCon.getDatabaseProductName().toUpperCase().contains("ANYWHERE")
+			    			) {
+					    		targetStmt.setString(position, sourceRS.getString(commonColumnNames[i]));
+			    			}
+	    					else if (
+				    			targetCommonColumnTypes[i].equalsIgnoreCase("CLOB") &&
+				    			targetCon.getDatabaseProductName().toUpperCase().contains("DB2")
+				    		) {
+						    	targetStmt.setString(position, sourceRS.getString(commonColumnNames[i]));
+				    		}
+	    					else if (
+				    			targetCommonColumnTypes[i].equalsIgnoreCase("CLOB") &&
+				    			targetCon.getDatabaseProductName().toUpperCase().contains("DERBY")
+				    		) {
+						    	targetStmt.setString(position, sourceRS.getString(commonColumnNames[i]));
+				    		}
+	    					else if (
+			    				targetCommonColumnTypes[i].equalsIgnoreCase("CLOB") &&
+			    				targetCon.getDatabaseProductName().toUpperCase().contains("ORACLE")
 			    			) {
 					    		targetStmt.setString(position, sourceRS.getString(commonColumnNames[i]));
 			    			}
@@ -423,14 +538,82 @@ public class DataCopyBean {
 		    				) {
 				    			targetStmt.setString(position, sourceRS.getString(commonColumnNames[i]));
 		    				}
+	    					else if (
+			    				targetCommonColumnTypes[i].equalsIgnoreCase("BYTE") &&
+			    				targetCon.getDatabaseProductName().toUpperCase().contains("INFORMIX")
+			    			) {
+					    		targetStmt.setBinaryStream(position, sourceRS.getBinaryStream(commonColumnNames[i]));
+			    			}
+	    					else if (
+					    		targetCommonColumnTypes[i].equalsIgnoreCase("BLOB") &&
+					    		targetCon.getDatabaseProductName().toUpperCase().contains("DB2")
+					    	) {
+							    targetStmt.setBinaryStream(position, sourceRS.getBinaryStream(commonColumnNames[i]));
+					    	}
+	    					else if (
+				    			targetCommonColumnTypes[i].equalsIgnoreCase("BLOB") &&
+				    			targetCon.getDatabaseProductName().toUpperCase().contains("ORACLE")
+				    		) {
+						    	targetStmt.setBinaryStream(position, sourceRS.getBinaryStream(commonColumnNames[i]));
+				    		}
+	    					else if (
+					    		targetCommonColumnTypes[i].toUpperCase().contains("VARBINARY") &&
+					    		targetCon.getDatabaseProductName().toUpperCase().contains("VERTICA")
+					    	) {
+							    targetStmt.setBinaryStream(position, sourceRS.getBinaryStream(commonColumnNames[i]));
+					    	}
+	    					else if (
+					    		targetCommonColumnTypes[i].equalsIgnoreCase("BLOB") &&
+					    		targetCon.getDatabaseProductName().toUpperCase().contains("TERADATA")
+					    	) {
+							    targetStmt.setBytes(position, sourceRS.getBytes(commonColumnNames[i]));
+					    	}
+	    					else if (
+					    		targetCommonColumnTypes[i].equalsIgnoreCase("BYTEA") &&
+					    		targetCon.getDatabaseProductName().toUpperCase().contains("POSTGRES")
+					    	) {
+							    targetStmt.setBytes(position, sourceRS.getBytes(commonColumnNames[i]));
+					    	}
+	    					else if (
+								sourceCommonColumnTypes[i].contains("BLOB") &&
+								targetCommonColumnTypes[i].contains("VARCHAR") &&
+								targetCon.getDatabaseProductName().toUpperCase().contains("NETEZZA")
+							) {
+	    						targetStmt.setBytes(position, sourceRS.getBytes(commonColumnNames[i]));
+							}
+	    					else if (
+						    	targetCommonColumnTypes[i].contains("VARCHAR") &&
+						    	targetCon.getDatabaseProductName().toUpperCase().contains("NETEZZA")
+						    ) {
+	    							targetStmt.setString(position, sourceRS.getString(commonColumnNames[i]));
+						    }
+	    					else if (
+							    targetCommonColumnTypes[i].toUpperCase().contains("VARCHAR") &&
+							    targetCon.getDatabaseProductName().toUpperCase().contains("VERTICA")
+							) {
+		    					targetStmt.setString(position, sourceRS.getString(commonColumnNames[i]));
+							}
+	    					else if (
+	    						targetCommonColumnTypeAttribute[i].toUpperCase().contains("FOR BIT DATA") &&
+								targetCon.getDatabaseProductName().toUpperCase().contains("DERBY")
+							) {
+			    				targetStmt.setBinaryStream(position, sourceRS.getBinaryStream(commonColumnNames[i]));
+							}
+	    					else if (
+			    				sourceCommonColumnTypes[i].toUpperCase().equalsIgnoreCase("BIT") &&
+								targetCon.getDatabaseProductName().toUpperCase().contains("DERBY")
+							) {
+				    			targetStmt.setInt(position, sourceRS.getInt(commonColumnNames[i]));
+							}
 		    				else {
 				    			targetStmt.setObject(position, sourceRS.getObject(commonColumnNames[i]));
 				    		}
+	    					
 	    				}
 	    			}
 	    			catch (Exception e){
 	    				logger.error(commonColumnNames[i] + ": " + sourceCommonColumnTypes[i] + " => " + targetCommonColumnTypes[i] + " = " + object + "\n" + e.getMessage());
-	    				logger.error(className);
+	    				e.printStackTrace();
 	              		if (
 	              			targetCon.getDatabaseProductName().toUpperCase().contains("TERADATA") ||
 	              			(
@@ -476,9 +659,9 @@ public class DataCopyBean {
 	        	logger.error("Unexpected exception, list of column values:");
 	        	for (int i = 0; i < commonColumnNames.length; i++) {
 	        		try {
-	        			logger.error(commonColumnNames[i] + ": " + sourceCommonColumnTypes[i] + " => " + targetCommonColumnTypes[i] + " = " + sourceRS.getObject(commonColumnNames[i]).toString());
+	        			logger.error(commonColumnNames[i] + ": " + sourceCommonColumnTypes[i] + " => " + targetCommonColumnTypes[i] + " Class: " + className + " = " + sourceRS.getObject(commonColumnNames[i]).toString());
 				    }
-	        		catch(NullPointerException npe) {
+	        		catch(Exception ee) {
 	        			logger.error(commonColumnNames[i] + ": " + sourceCommonColumnTypes[i] + " => " + targetCommonColumnTypes[i]);
 			        }
 	            }

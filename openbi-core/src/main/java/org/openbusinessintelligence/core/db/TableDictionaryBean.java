@@ -34,6 +34,7 @@ public class TableDictionaryBean {
     private int[] columnPrecision = null;
     private int[] columnScale = null;
     private String[] columnDefinition = null;
+    private int[] columnJdbcType = null;
     
     // Constructor
     public TableDictionaryBean() {
@@ -95,6 +96,10 @@ public class TableDictionaryBean {
     	return columnScale;
     }
     
+    public int[] getColumnJdbcType() {
+    	return columnJdbcType;
+    }
+    
     public String[] getColumnDefinition() {
     	return columnDefinition;
     }
@@ -126,6 +131,7 @@ public class TableDictionaryBean {
         List<Integer> listLength = new ArrayList<Integer>();
         List<Integer> listPrecision = new ArrayList<Integer>();
         List<Integer> listScale = new ArrayList<Integer>();
+        List<Integer> listJdbcType = new ArrayList<Integer>();
         
         if (
         	(
@@ -155,18 +161,7 @@ public class TableDictionaryBean {
     	    	listLength.add(rscol.getInt("COLUMN_SIZE"));
 	    		listPrecision.add(rscol.getInt("COLUMN_SIZE"));
 	    		listScale.add(rscol.getInt("DECIMAL_DIGITS"));
-    	    	
-    	    	logger.debug(
-    	    		"#NEW METHOD# " + 
-    	    	    rscol.getString("TABLE_SCHEM") + "." +
-    	    	    rscol.getString("TABLE_NAME") + "." +
-    	    		rscol.getString("COLUMN_NAME") + ": " +
-    	    		rscol.getString("ORDINAL_POSITION") + " - " +
-    	    		rscol.getString("TYPE_NAME") + "(" +
-    	    		rscol.getString("COLUMN_SIZE") + "," +
-    	    		rscol.getString("DECIMAL_DIGITS") + ") jdbc=" +
-    	    	    rscol.getString("DATA_TYPE")
-    	    	);
+	    		listJdbcType.add(rscol.getInt("DATA_TYPE"));
     	    }
     	    rscol.close();
     		
@@ -191,6 +186,7 @@ public class TableDictionaryBean {
 	         	listLength.add(rsmd.getColumnDisplaySize(i));
 	         	listPrecision.add(rsmd.getPrecision(i));
 	           	listScale.add(rsmd.getScale(i));
+	           	listJdbcType.add(rsmd.getColumnType(i));
 	        }
 	        rs.close();
 	        columnStmt.close();
@@ -203,6 +199,7 @@ public class TableDictionaryBean {
         columnPrecision = new int[columnCount];
         columnScale = new int[columnCount];
         columnDefinition = new String[columnCount];
+        columnJdbcType = new int[columnCount];
 
         listName.toArray(columnNames);
         listType.toArray(columnType);
@@ -211,8 +208,17 @@ public class TableDictionaryBean {
         	columnLength[i] = listLength.get(i);
         	columnPrecision[i] = listPrecision.get(i);
         	columnScale[i] = listScale.get(i);
+        	columnJdbcType[i] = listJdbcType.get(i);
         	
-        	logger.debug("Column " + (i) + "  Name: " + columnNames[i] + " Type: " + columnType[i] + "  Length: " + columnLength[i] + " Precision: " + columnPrecision[i] + " Scale: " +columnScale[i]);
+        	logger.debug(
+        		"Column " + (i) +
+        		" Name: " + columnNames[i] +
+        		" Type: " + columnType[i] +
+        		" Length: " + columnLength[i] +
+        		" Precision: " + columnPrecision[i] +
+        		" Scale: " +columnScale[i] + 
+        		" JDBC Type:" + columnJdbcType[i]
+        	);
         	
         	columnTypeAttribute[i] = "";
         	columnDefinition[i] = columnType[i];
@@ -232,7 +238,8 @@ public class TableDictionaryBean {
         	else if (
         		(
         			productName.toUpperCase().contains("DERBY") ||
-        			productName.toUpperCase().contains("ANYWHERE")
+        			productName.toUpperCase().contains("ANYWHERE") ||
+        			productName.toUpperCase().contains("VERTICA")
         		) &&
         		columnType[i].toUpperCase().contains("LONG")
         	) {
@@ -241,6 +248,13 @@ public class TableDictionaryBean {
             		columnType[i] = columnType[i].split(" ",3)[0] + " " + columnType[i].split(" ",3)[1];
         		}
         	}
+        	else if (
+            	productName.toUpperCase().contains("DERBY")&&
+            	columnType[i].toUpperCase().contains("FOR BIT DATA")
+            ) {
+        		columnTypeAttribute[i] = "FOR BIT DATA";
+        		columnType[i] = columnType[i].split(" ",2)[0];
+            }
         	else if (columnType[i].split(" ").length > 1) {
         		columnTypeAttribute[i] = columnType[i].split(" ",2)[1];
         		columnType[i] = columnType[i].split(" ",2)[0];

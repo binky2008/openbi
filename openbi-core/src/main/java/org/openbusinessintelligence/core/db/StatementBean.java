@@ -1,10 +1,14 @@
 package org.openbusinessintelligence.core.db;
 
+import org.slf4j.LoggerFactory;
+
 /**
  * @author marangon
  *
  */
 public final class StatementBean {
+
+	static final org.slf4j.Logger logger = LoggerFactory.getLogger(StatementBean.class);
 	
 	// Connection properties
     //private ConnectionBean connection = null;
@@ -42,6 +46,28 @@ public final class StatementBean {
     
     public void setTargetTable(String property) {
     	targetTable = property;
+    }
+    
+    /**
+     * Get if column type is unusable
+     **/
+    public boolean getColumnUsable (String dataType) {
+       	if (
+           	(dataType.toUpperCase().contains("SDO")) ||
+       		(dataType.toUpperCase().contains("INTERVAL")) ||
+       		(dataType.toUpperCase().contains("SERIAL")) ||
+       		(dataType.toUpperCase().contains("POINT")) ||
+       		(dataType.toUpperCase().contains("FILE")) ||
+       		(
+       			productName.contains("MICROSOFT") &&
+       			dataType.toUpperCase().contains("TIMESTAMP")
+       		)
+        ) {
+        	return false;
+       	}
+       	else {
+        	return true;
+       	}
     }
     
     // Get statement methods
