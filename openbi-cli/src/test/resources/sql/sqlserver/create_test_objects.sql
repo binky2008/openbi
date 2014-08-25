@@ -12,7 +12,7 @@ CREATE TABLE tab_test (
 	col_smallmoney smallmoney,
 	col_money money,
 	col_real real,
-	col_float float,
+	col_float float (45),
 	--
 	col_binary binary(800),
 	col_varbinary varbinary(800),

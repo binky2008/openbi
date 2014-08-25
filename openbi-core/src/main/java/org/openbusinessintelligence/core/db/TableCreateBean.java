@@ -19,9 +19,11 @@ public class TableCreateBean {
     private String targetTable = "";
     private String[] targetColumns = null;
     private String[] targetColumnDefinitions = null;
-    
     // Options
     private boolean dropIfExists = false;
+    
+    // Internally used
+    private int position = 0;
     
     // Constructor
     public TableCreateBean() {
@@ -39,7 +41,7 @@ public class TableCreateBean {
     public void setTargetColumns(String[] property) {
     	targetColumns = property;
     }
-
+    
     public void setTargetColumnDefinitions(String[] property) {
     	targetColumnDefinitions = property;
     }
@@ -111,6 +113,8 @@ public class TableCreateBean {
 	            logger.info("Table dropped");
 	    		
 	    	}
+	    	
+	    	position = 0;
 	    	if ((tableExistsFlag == false) || (dropIfExists == true )) {
 		    	
 		        logger.info("Create table");
@@ -130,13 +134,20 @@ public class TableCreateBean {
 			       	sqlText += "TABLE " + targetTable + "(";
 		    	}
 		       	for (int i = 0; i < targetColumnDefinitions.length; i++) {
-			    	if (i > 0) {
-			    		sqlText += ",";
-			    	}
-		       		sqlText += targetColumns[i] + " " + targetColumnDefinitions[i];
-			        if (targetCon.getDatabaseProductName().toUpperCase().contains("ANYWHERE")) {
-				        sqlText += " NULL";
-			        }
+		       		
+		       		if (targetColumnDefinitions[i].equals("")) {
+		       			logger.debug("Column: " + targetColumns[i] + " type non supported");
+		       		}
+		       		else {
+				    	if (position > 0) {
+				    		sqlText += ",";
+				    	}
+			       		sqlText += targetColumns[i] + " " + targetColumnDefinitions[i];
+				        if (targetCon.getDatabaseProductName().toUpperCase().contains("ANYWHERE")) {
+					        sqlText += " NULL";
+				        }
+				        position++;
+		       		}
 		       	}
 		       	sqlText += ")";
 		

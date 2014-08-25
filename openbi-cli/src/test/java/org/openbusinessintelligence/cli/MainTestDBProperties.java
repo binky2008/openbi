@@ -85,7 +85,7 @@ public class MainTestDBProperties {
 	}
 
 	@Test
-	public void testHANA() {
+	public void testHDB() {
 		
 		initArguments();
 		//
@@ -117,7 +117,7 @@ public class MainTestDBProperties {
 	}
 
 	@Test
-	public void testHSQLDB() {
+	public void testHSQL() {
 		
 		initArguments();
 		//
@@ -229,11 +229,11 @@ public class MainTestDBProperties {
 	}
 
 	@Test
-	public void testSQLServer() {
+	public void testSQLAnywhere() {
 		
 		initArguments();
 		//
-		arguments[2] = "localhost_sqlserver_test";
+		arguments[2] = "localhost_sybase_test";
 		arguments[4] = "";
 		// Perform test
 		try {
@@ -245,11 +245,11 @@ public class MainTestDBProperties {
 	}
 
 	@Test
-	public void testSybase() {
+	public void testSQLServer() {
 		
 		initArguments();
 		//
-		arguments[2] = "localhost_sybase_test";
+		arguments[2] = "localhost_sqlserver_test";
 		arguments[4] = "";
 		// Perform test
 		try {

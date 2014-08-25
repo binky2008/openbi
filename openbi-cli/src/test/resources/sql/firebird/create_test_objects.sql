@@ -14,9 +14,9 @@ CREATE TABLE tab_test(
             col_char CHAR (4000),
             col_VARCHAR VARCHAR (4000),
             --
-            col_BLOB BLOB (32767),
-            --
             col_date DATE,
             col_time TIME,
-            col_TIMESTAMP TIMESTAMP
+            col_TIMESTAMP TIMESTAMP,
+            --
+            col_BLOB BLOB
         );

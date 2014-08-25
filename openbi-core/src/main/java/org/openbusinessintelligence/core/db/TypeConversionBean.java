@@ -9,7 +9,8 @@ public class TypeConversionBean {
 
 	static final org.slf4j.Logger logger = LoggerFactory.getLogger(TypeConversionBean.class);
 
-	org.w3c.dom.Document convertionMatrix = null;
+	org.w3c.dom.Document typeConvertionMatrix = null;
+	org.w3c.dom.Document typeOptionMatrix = null;
 	
     private int columnJdbcType = 0;
 	
@@ -30,32 +31,48 @@ public class TypeConversionBean {
     private String targetColumnDefinition;
     
     // conversion matrix
-    private NodeList nSourceTypeList;
-    private NodeList nSourceSubTypeList;
-    private NodeList nTargetProductList;
-    private NodeList nTargetTypeList;
-    private NodeList nTargetSubTypeList;
-    
+    private NodeList nMatrixSourceTypeList;
+    private NodeList nMatrixSourceSubTypeList;
+    private NodeList nMatrixTargetProductList;
+    private NodeList nMatrixTargetTypeList;
+    private NodeList nMatrixTargetSubTypeList;
     private Node nNode;
-    private Element eSourceTypeElement;
-    private Element eProductElement;
-    private Element eSubTypeElement;
+    private Element eMatrixSourceTypeElement;
+    private Element eMatrixTargetTypeElement;
+    private Element eMatrixProductElement;
+    private Element eMatrixSubTypeElement;
     
-    private String matchedTypeID = "";
-    private String matchedTypeName = "";
+    private String matrixMatchedTypeID = "";
+    private String matrixMatchedTypeName = "";
+
+    private String matrixSourceProductType = "";
+    private String matrixTargetProductType = "";
+    private String matrixTargetTypeAttribute = "";
+    private String matrixTargetOversizedProductType = "";
+    private int matrixTargetDataLength = 0;
+    private int matrixTargetMaxLength = 0;
+    private int matrixTargetMaxScale = 0;
     
-    private String targetProductType = "";
-    private String targetDefaultType = "";
-    private int targetMaxLength = 0;
-    
-    private boolean typeMatch = false;
-    private boolean productTypeMatch = false;
-    private boolean lengthOption = true;
-    private boolean isOversized = true;
+    private boolean matrixSourceTypeMatch = false;
+    private boolean matrixTargetProductTypeMatch = false;
+    private boolean matrixIsOversized = true;
+
+    private String matrixTargetDefaultType = "";
+    private int matrixTargetDefaultDataLength = 0;
+
+    private boolean matrixProductLengthOptionMatch = false;
+    private boolean matrixProductScaleOptionMatch = false;
+    private boolean matrixLengthOption = true;
+    private boolean matrixScaleOption = true;
+    private boolean matrixDefaultLengthOption = true;
+    private boolean matrixDefaultScaleOption = false;
     
     // Setter methods
-    public void setConvertionMatrix(org.w3c.dom.Document property) {
-    	convertionMatrix = property;
+    public void setTypeConvertionMatrix(org.w3c.dom.Document property) {
+    	typeConvertionMatrix = property;
+    }
+    public void setTypeOptionMatrix(org.w3c.dom.Document property) {
+    	typeOptionMatrix = property;
     }
     public void setColumnJdbcType(int property) {
     	columnJdbcType = property;
@@ -108,6 +125,7 @@ public class TypeConversionBean {
     // Conversion method
     public void convert() {
 
+    	targetColumnType = "";
     	targetColumnTypeAttribute = "";
     	sourceColumnDefinition = sourceColumnType;
     	
@@ -153,63 +171,62 @@ public class TypeConversionBean {
            		targetColumnLength = 0;
             }
        		else if (
-       			sourceColumnType.contains("BOOL") ||
-           		sourceColumnType.contains("TINY") ||
-           		sourceColumnType.contains("SMALL") ||
-           		sourceColumnType.contains("MEDIUM") ||
-           		sourceColumnType.contains("BIG") ||
-           		sourceColumnType.contains("LONG") ||
-           		sourceColumnType.contains("SERIAL") ||
-           		sourceColumnType.contains("REAL") ||
-           		sourceColumnType.contains("FLOAT") ||
-           		sourceColumnType.contains("DOUBLE") ||
-           		sourceColumnType.contains("UNSIGNED") ||
-           		sourceColumnType.contains("MONEY") ||
-           		sourceColumnType.contains("TEXT") ||
-           		sourceColumnType.contains("DATE") ||
-           		sourceColumnType.contains("TIME") ||
-           		sourceColumnType.contains("INTERVAL") ||
-           		sourceColumnType.contains("YEAR") ||
-           		sourceColumnType.contains("CLOB") ||
-           		sourceColumnType.contains("BLOB") ||
-           		sourceColumnType.contains("XML") ||
-           		sourceColumnType.contains("JSON") ||
+       			sourceColumnType.toUpperCase().contains("BOOL") ||
+       			sourceColumnType.toUpperCase().contains("TINY") ||
+       			sourceColumnType.toUpperCase().contains("SMALL") ||
+       			sourceColumnType.toUpperCase().contains("MEDIUM") ||
+       			sourceColumnType.toUpperCase().contains("BIG") ||
+       			sourceColumnType.toUpperCase().contains("LONG") ||
+       			sourceColumnType.toUpperCase().contains("SERIAL") ||
+       			sourceColumnType.toUpperCase().contains("REAL") ||
+       			sourceColumnType.toUpperCase().contains("FLOAT") ||
+       			sourceColumnType.toUpperCase().contains("DOUBLE") ||
+       			sourceColumnType.toUpperCase().contains("UNSIGNED") ||
+       			sourceColumnType.toUpperCase().contains("MONEY") ||
+       			sourceColumnType.toUpperCase().contains("TEXT") ||
+       			sourceColumnType.toUpperCase().contains("DATE") ||
+       			sourceColumnType.toUpperCase().contains("TIME") ||
+       			sourceColumnType.toUpperCase().contains("INTERVAL") ||
+       			sourceColumnType.toUpperCase().contains("YEAR") ||
+       			sourceColumnType.toUpperCase().contains("CLOB") ||
+       			sourceColumnType.toUpperCase().contains("BLOB") ||
+       			sourceColumnType.toUpperCase().contains("XML") ||
+       			sourceColumnType.toUpperCase().contains("JSON") ||
            		// PostgreSQL types
-           		sourceColumnType.contains("INT2") ||
-           		sourceColumnType.contains("INT4") ||
-           		sourceColumnType.contains("INT8") ||
-           		sourceColumnType.contains("FLOAT4") ||
-           		sourceColumnType.contains("FLOAT8") ||
-           		sourceColumnType.contains("BYTEA") ||
-           		sourceColumnType.contains("TXID") ||
-           		sourceColumnType.contains("UUID") ||
-           		sourceColumnType.contains("CIDR") ||
-           		sourceColumnType.contains("INET") ||
-           		sourceColumnType.contains("MACADDR") ||
-           		sourceColumnType.contains("TSQUERY") ||
-           		sourceColumnType.contains("TSVECTOR") ||
-           		sourceColumnType.contains("BOX") ||
-           		sourceColumnType.contains("CIRCLE") ||
-           		sourceColumnType.contains("LINE") ||
-           		sourceColumnType.contains("LSEG") ||
-           		sourceColumnType.contains("PATH") ||
-           		sourceColumnType.contains("POINT") ||
-           		sourceColumnType.contains("POLYGON") ||
+       			sourceColumnType.toUpperCase().contains("INT2") ||
+       			sourceColumnType.toUpperCase().contains("INT4") ||
+       			sourceColumnType.toUpperCase().contains("INT8") ||
+       			sourceColumnType.toUpperCase().contains("FLOAT4") ||
+       			sourceColumnType.toUpperCase().contains("FLOAT8") ||
+       			sourceColumnType.toUpperCase().contains("BYTEA") ||
+       			sourceColumnType.toUpperCase().contains("TXID") ||
+       			sourceColumnType.toUpperCase().contains("UUID") ||
+       			sourceColumnType.toUpperCase().contains("CIDR") ||
+       			sourceColumnType.toUpperCase().contains("INET") ||
+       			sourceColumnType.toUpperCase().contains("MACADDR") ||
+       			sourceColumnType.toUpperCase().contains("TSQUERY") ||
+       			sourceColumnType.toUpperCase().contains("TSVECTOR") ||
+       			sourceColumnType.toUpperCase().contains("BOX") ||
+       			sourceColumnType.toUpperCase().contains("CIRCLE") ||
+       			sourceColumnType.toUpperCase().contains("LINE") ||
+           		sourceColumnType.toUpperCase().contains("LSEG") ||
+           		sourceColumnType.toUpperCase().contains("PATH") ||
+           		sourceColumnType.toUpperCase().contains("POINT") ||
+           		sourceColumnType.toUpperCase().contains("POLYGON") ||
     	   		// Oracle specific types
-    	   		sourceColumnType.contains("SDO_GEOMETRY") ||
-    	   		sourceColumnType.contains("SDO_RASTER") ||
-           		sourceColumnType.contains("BFILE") ||
-           		sourceColumnType.contains("ROWID") ||
+           		sourceColumnType.toUpperCase().contains("SDO_GEOMETRY") ||
+           		sourceColumnType.toUpperCase().contains("SDO_RASTER") ||
+           		sourceColumnType.toUpperCase().contains("BFILE") ||
+           		sourceColumnType.toUpperCase().contains("ROWID") ||
            		// SQL Server specific types
-               	sourceColumnType.contains("IMAGE") ||
-               	sourceColumnType.contains("GEOGRAPHY") ||
-               	sourceColumnType.contains("GEOMETRY") ||
-               	sourceColumnType.contains("HIERARCHYID") ||
-               	sourceColumnType.contains("UNIQUEIDENTIFIER") ||
+           		sourceColumnType.toUpperCase().contains("IMAGE") ||
+           		sourceColumnType.toUpperCase().contains("GEOGRAPHY") ||
+           		sourceColumnType.toUpperCase().contains("GEOMETRY") ||
+               	sourceColumnType.toUpperCase().contains("HIERARCHYID") ||
+               	sourceColumnType.toUpperCase().contains("UNIQUEIDENTIFIER") ||
            		// Informix specific types
-               	sourceColumnType.contains("BYTE") ||
-               	sourceColumnType.contains("BINARY18") ||
-               	sourceColumnType.contains("BINARYVAR")
+               	sourceColumnType.toUpperCase().contains("BINARY18") ||
+               	sourceColumnType.toUpperCase().contains("BINARYVAR")
            	) {
        			// For TINY*, SMALL*, BIG* and DATE/TIME no length, precision and scale needed
        			if (targetProductName.toUpperCase().contains("ORACLE"))
@@ -229,27 +246,42 @@ public class TypeConversionBean {
        				}
            		}
        		}
-       		else if (sourceColumnType.contains("OTHER")) {
+       		else if (sourceColumnType.toUpperCase().contains("OTHER")) {
        			targetColumnType = "OTHER";
        		}
        		else if (
-       			sourceColumnType.contains("ALPHANUM") &&
+       			sourceColumnType.toUpperCase().contains("ALPHANUM") &&
            		targetProductName.toUpperCase().contains("HDB")
        		) {
                 targetColumnPrecision = 0;
                 targetColumnScale = 0;
                 targetColumnLength = sourceColumnLength;
        		}
-       		else if (
-                sourceColumnType.contains("BIT") ||
-                sourceColumnType.contains("INT")
-            ) {
+       		else if (sourceColumnType.toUpperCase().contains("BIT")) {
+               	if (
+               		targetProductName.toUpperCase().contains("SQL SERVER") ||
+               		targetProductName.toUpperCase().contains("INFORMIX") ||
+               		targetProductName.toUpperCase().contains("DERBY") ||
+               		targetProductName.toUpperCase().contains("FIREBIRD") ||
+               		targetProductName.toUpperCase().contains("HDB")
+               	) {
+               		targetColumnLength = 0;
+                }
+                else {
+                	targetColumnLength = sourceColumnLength;
+                }
+          	}
+      		else if (sourceColumnType.toUpperCase().contains("INT")) {
             	if (
-            		targetProductName.toUpperCase().contains("MICROSOFT") ||
-            		targetProductName.toUpperCase().contains("INFORMIX") ||
             		targetProductName.toUpperCase().contains("DERBY") ||
             		targetProductName.toUpperCase().contains("FIREBIRD") ||
-            		targetProductName.toUpperCase().contains("HDB")
+            		targetProductName.toUpperCase().contains("HDB") ||
+            		targetProductName.toUpperCase().contains("HSQL") ||
+            		targetProductName.toUpperCase().contains("INFORMIX") ||
+            		targetProductName.toUpperCase().contains("NETEZZA") ||
+            		targetProductName.toUpperCase().contains("SQL SERVER") ||
+            		targetProductName.toUpperCase().contains("TERADATA") ||
+            		targetProductName.toUpperCase().contains("VERTICA")
             	) {
                     targetColumnLength = 0;
                 }
@@ -258,11 +290,11 @@ public class TypeConversionBean {
                 }
            	}
        		else if (
-       			sourceColumnType.contains("CHAR") ||
-               	sourceColumnType.contains("BINAR")
+       			sourceColumnType.toUpperCase().contains("CHAR") ||
+       			sourceColumnType.toUpperCase().contains("BINAR")
             ) {
                 if (
-                    targetProductName.toUpperCase().contains("MICROSOFT") &&
+                    targetProductName.toUpperCase().contains("SQL SERVER") &&
                     sourceColumnLength > 8000
                 ) {
                     targetColumnLength = -1;
@@ -271,7 +303,7 @@ public class TypeConversionBean {
                    	targetColumnLength = sourceColumnLength;
                 }
        		}
-       		else if (sourceColumnType.contains("GRAPHIC")) {
+       		else if (sourceColumnType.toUpperCase().contains("GRAPHIC")) {
        			targetColumnLength = sourceColumnLength;
            	}
        		else if (
@@ -279,8 +311,17 @@ public class TypeConversionBean {
        			sourceColumnType.contains("NUMBER") &&
        			sourceColumnPrecision > 38
        		) {
-       			targetColumnType = "FLOAT";
+       			targetColumnType = "DOUBLE";
        		}
+       		// Informix special types
+       		else if (
+               	sourceColumnType.toUpperCase().contains("BYTE") &&
+                targetProductName.toUpperCase().contains("INFORMIX")
+            ) {
+                targetColumnPrecision = 0;
+                targetColumnScale = 0;
+                targetColumnLength = 0;
+            }
        		// MySQL special types
             else if (
             	sourceColumnType.equalsIgnoreCase("ENUM") ||
@@ -290,6 +331,26 @@ public class TypeConversionBean {
     			targetColumnLength = sourceColumnLength;
     			targetColumnPrecision = 0;
     			targetColumnScale = 0;
+            }
+       		// Teradata special types
+            else if (sourceColumnType.equalsIgnoreCase("PERIOD")) {
+    			targetColumnLength = 0;
+    			targetColumnPrecision = 0;
+    			targetColumnScale = 0;
+            }
+            else if (sourceColumnType.equalsIgnoreCase("N")) {
+            	targetColumnType = "DECIMAL";
+           		targetColumnLength = 38;
+	   			targetColumnPrecision = 38;
+	   			targetColumnScale = sourceColumnScale;
+            }
+            else if (
+            	sourceColumnType.toUpperCase().contains("BYTE") &&
+                targetProductName.toUpperCase().contains("TERADATA")
+            ) {
+           		targetColumnLength = sourceColumnLength;
+	   			targetColumnPrecision = 0;
+	   			targetColumnScale = 0;
             }
        		else {
            		targetColumnLength = sourceColumnLength;
@@ -306,163 +367,192 @@ public class TypeConversionBean {
    		 */
    		else {
    	        
-   			nSourceTypeList = convertionMatrix.getElementsByTagName("jdbcType");
+   			// Get target db type
+   			if (sourceColumnTypeAttribute.equalsIgnoreCase("FOR BIT DATA")) {
+   				matrixSourceProductType = sourceColumnType + " " + sourceColumnTypeAttribute;
+   			}
+   			else {
+   				matrixSourceProductType = sourceColumnType;
+   			}
+   			logger.debug("SOURCE TYPE NAME = " + matrixSourceProductType);
+   			logger.debug("SOURCE JDBC TYPE = " + columnJdbcType);
+   	        matrixMatchedTypeName = "";
+   	        matrixMatchedTypeID = "";
+   	        matrixTargetProductType = "";
+   	        matrixTargetTypeAttribute = "";
+   	        matrixTargetDefaultType = "";
+   	        matrixTargetOversizedProductType = "";
+   	        matrixTargetMaxLength = 0;
+   	        matrixTargetMaxScale = 0;
+   	        matrixTargetDataLength = 0;
+   	        matrixTargetDefaultDataLength = 0;
    	        
-   	        matchedTypeID = "";
-   	        matchedTypeName = "";
-   	        targetProductType = "";
-   	        targetMaxLength = 0;
-   	        isOversized = false;
-   	        lengthOption = true;
+   			nMatrixSourceTypeList = typeConvertionMatrix.getElementsByTagName("jdbcType");
    			
    			// Scroll source types in the matrix
-   	 		for (int t = 0; t < nSourceTypeList.getLength(); t++) {
-   	 			nNode = nSourceTypeList.item(t);
+   	 		for (int t = 0; t < nMatrixSourceTypeList.getLength(); t++) {
+   	 			nNode = nMatrixSourceTypeList.item(t);
    	 			if (nNode.getNodeType() == Node.ELEMENT_NODE) {
-   	 				eSourceTypeElement = (Element) nNode;
+   	 				eMatrixSourceTypeElement = (Element) nNode;
 
    	 				// Match by type name
-   	 				nSourceSubTypeList = eSourceTypeElement.getChildNodes();
-   	 				for (int s = 0; s < nSourceSubTypeList.getLength(); s++) {
+   	 				nMatrixSourceSubTypeList = eMatrixSourceTypeElement.getChildNodes();
+   	 				for (int s = 0; s < nMatrixSourceSubTypeList.getLength(); s++) {
    	     				if (
-   	         				nSourceSubTypeList.item(s).getNodeName().equals("typeName") &&
-   	     					nSourceSubTypeList.item(s).getChildNodes().item(0).getNodeValue().equalsIgnoreCase(String.valueOf(sourceColumnType))
+   	         				nMatrixSourceSubTypeList.item(s).getNodeName().equals("typeName") &&
+   	     					nMatrixSourceSubTypeList.item(s).getChildNodes().item(0).getNodeValue().equalsIgnoreCase(String.valueOf(matrixSourceProductType))
    	     				) {
    	     					// Jdbc type match by name
-   	     					matchedTypeName = nSourceSubTypeList.item(s).getChildNodes().item(0).getNodeValue();
-   	     					logger.debug("SOURCE TYPE NAME = " + matchedTypeName);
+   	     					matrixMatchedTypeName = nMatrixSourceSubTypeList.item(s).getChildNodes().item(0).getNodeValue();
+   	     					logger.debug("MATCHED BY SOURCE TYPE NAME = " + matrixMatchedTypeName);
    	     				}
    	     				else if (
-   	             			nSourceSubTypeList.item(s).getNodeName().equals("typeId") &&
-   	         				nSourceSubTypeList.item(s).getChildNodes().item(0).getNodeValue().equalsIgnoreCase(String.valueOf(columnJdbcType))
+   	             			nMatrixSourceSubTypeList.item(s).getNodeName().equals("typeId") &&
+   	         				nMatrixSourceSubTypeList.item(s).getChildNodes().item(0).getNodeValue().equalsIgnoreCase(String.valueOf(columnJdbcType))
    	         			) {
    	         				// Jdbc type match by id
-   	         				matchedTypeID = nSourceSubTypeList.item(s).getChildNodes().item(0).getNodeValue();
-   	         				logger.debug("JDBC TYPE ID = " + matchedTypeID);
+   	     					matrixMatchedTypeID = nMatrixSourceSubTypeList.item(s).getChildNodes().item(0).getNodeValue();
+   	         				logger.debug("MATCHED BY JDBC TYPE ID = " + matrixMatchedTypeID);
    	     				}
    	 				}
    	 			}
    	 		}
    	 		
-   	 		for (int t = 0; t < nSourceTypeList.getLength(); t++) {
-   	 			typeMatch = false;
-   	 			nNode = nSourceTypeList.item(t);
+   	 		for (int t = 0; t < nMatrixSourceTypeList.getLength(); t++) {
+   	 			matrixSourceTypeMatch = false;
+   	 			nNode = nMatrixSourceTypeList.item(t);
    	 			if (nNode.getNodeType() == Node.ELEMENT_NODE) {
-   	 				eSourceTypeElement = (Element) nNode;
-   	     			nSourceSubTypeList = eSourceTypeElement.getChildNodes();
-   	     			for (int s = 0; s < nSourceSubTypeList.getLength(); s++) {
+   	 				eMatrixSourceTypeElement = (Element) nNode;
+   	     			nMatrixSourceSubTypeList = eMatrixSourceTypeElement.getChildNodes();
+   	     			for (int s = 0; s < nMatrixSourceSubTypeList.getLength(); s++) {
    	         			if (
-   	             			nSourceSubTypeList.item(s).getNodeName().equals("typeName") &&
-   	         				nSourceSubTypeList.item(s).getChildNodes().item(0).getNodeValue().equalsIgnoreCase(String.valueOf(sourceColumnType))
+   	             			nMatrixSourceSubTypeList.item(s).getNodeName().equals("typeName") &&
+   	         				nMatrixSourceSubTypeList.item(s).getChildNodes().item(0).getNodeValue().equalsIgnoreCase(String.valueOf(matrixSourceProductType))
    	         			) {
    	         				// Jdbc type match by name
-   		         			typeMatch = true;
-   	         				logger.debug("SOURCE MATCH BY NAME = " + nSourceSubTypeList.item(s).getChildNodes().item(0).getNodeValue());
+   	         				matrixSourceTypeMatch = true;
+   	         				logger.debug("FINALLY SOURCE MATCH BY NAME = " + nMatrixSourceSubTypeList.item(s).getChildNodes().item(0).getNodeValue());
    	         			}
    	         			else if (
-   	         				matchedTypeName.equals("") &&
-   	                   		nSourceSubTypeList.item(s).getNodeName().equals("typeId") &&
-   	                		nSourceSubTypeList.item(s).getChildNodes().item(0).getNodeValue().equalsIgnoreCase(String.valueOf(columnJdbcType))
+   	         				matrixMatchedTypeName.equals("") &&
+   	                   		nMatrixSourceSubTypeList.item(s).getNodeName().equals("typeId") &&
+   	                		nMatrixSourceSubTypeList.item(s).getChildNodes().item(0).getNodeValue().equalsIgnoreCase(String.valueOf(columnJdbcType))
    	                	) {
    	    	        		// Jdbc type match by id
-   		         			typeMatch = true;
-   	    	        		logger.debug("SOURCE MATCH BY ID = " + nSourceSubTypeList.item(s).getChildNodes().item(0).getNodeValue());
+   	         				matrixSourceTypeMatch = true;
+   	    	        		logger.debug("FINALLY SOURCE MATCH BY ID = " + nMatrixSourceSubTypeList.item(s).getChildNodes().item(0).getNodeValue());
    	             		}
    	     			}
    	 				
-   	 				if (typeMatch) {
+   	 				if (matrixSourceTypeMatch) {
    	   	     			
-   	   	     			logger.debug("SOURCE LENGTH = " + sourceColumnLength);
-   	 					productTypeMatch = false;
-   	 					nTargetProductList = eSourceTypeElement.getElementsByTagName("DBType");
+   	 					matrixTargetProductTypeMatch = false;
+   	 					nMatrixTargetProductList = eMatrixSourceTypeElement.getElementsByTagName("dbType");
    	 					
    	 		    		// Scroll db products in the matrix
-   	 		     		for (int p = 0; p < nTargetProductList.getLength(); p++) {
-   	 		     			nNode = nTargetProductList.item(p);
+   	 		     		for (int p = 0; p < nMatrixTargetProductList.getLength(); p++) {
+   	 		     			nNode = nMatrixTargetProductList.item(p);
    	 		     			if (nNode.getNodeType() == Node.ELEMENT_NODE) {
-   	 		     				eProductElement = (Element) nNode;
-   	 		     				if (targetProductName.toUpperCase().contains(eProductElement.getElementsByTagName("productName").item(0).getChildNodes().item(0).getNodeValue())) {
+   	 		     				eMatrixProductElement = (Element) nNode;
+   	 		     				if (targetProductName.toUpperCase().contains(eMatrixProductElement.getElementsByTagName("productName").item(0).getChildNodes().item(0).getNodeValue())) {
    	 		     					// Product name match
+   	 		     					matrixIsOversized = false;
    	 		     					logger.debug("PRODUCT MATCH");
    	 		     					
    	 		     					// Search for the type name
-   	 		     					nTargetTypeList = eProductElement.getChildNodes();
+   	 		     					nMatrixTargetTypeList = eMatrixProductElement.getChildNodes();
    	 		     					//logger.debug("NO. OF TYPES = " + nTargetTypeList.getLength());
-   	 		        				for (int tt = 0; tt < nTargetTypeList.getLength(); tt++) {
-   	 		     		     			lengthOption = true;
-   	     		     					if (nTargetTypeList.item(tt).getNodeName().equals("typeName")) {
-   	            		     				productTypeMatch = true;
-   	         		     					targetProductType = nTargetTypeList.item(tt).getChildNodes().item(0).getNodeValue();
+   	 		        				for (int tt = 0; tt < nMatrixTargetTypeList.getLength(); tt++) {
+   	     		     					if (nMatrixTargetTypeList.item(tt).getNodeName().equals("typeName")) {
+   	     		     						matrixTargetProductTypeMatch = true;
+   	            		     				matrixTargetProductType = nMatrixTargetTypeList.item(tt).getChildNodes().item(0).getNodeValue();
    	         		     					//logger.debug("PRODUCT TARGET TYPE = " + targetProductType);
    	     		     					}
-   	     		     					else if (nTargetTypeList.item(tt).getNodeName().equals("maxLength")) {
-   	     		     						targetMaxLength = Integer.valueOf(nTargetTypeList.item(tt).getChildNodes().item(0).getNodeValue());
+   	     		     					else if (nMatrixTargetTypeList.item(tt).getNodeName().equals("typeAttribute")) {
+   	     		     						matrixTargetTypeAttribute = nMatrixTargetTypeList.item(tt).getChildNodes().item(0).getNodeValue();
+   	     		     						logger.debug("PRODUCT TARGET TYPE ATTRIBUTE = " + matrixTargetTypeAttribute);
+   	     		     					}
+   	     		     					else if (nMatrixTargetTypeList.item(tt).getNodeName().equals("dataLength")) {
+   	     		     						matrixTargetDataLength = Integer.valueOf(nMatrixTargetTypeList.item(tt).getChildNodes().item(0).getNodeValue());
+   	     		     						//logger.debug("PRODUCT TARGET DATA LENGTH = " + targetMaxLength);
+   	     		     					}
+   	     		     					else if (nMatrixTargetTypeList.item(tt).getNodeName().equals("maxLength")) {
+   	     		     						matrixTargetMaxLength = Integer.valueOf(nMatrixTargetTypeList.item(tt).getChildNodes().item(0).getNodeValue());
    	     		     						//logger.debug("PRODUCT MAX LENGTH = " + targetMaxLength);
-   	   	     		     					if (targetMaxLength > 0 && targetMaxLength < sourceColumnLength) {
-   	   	     		     						isOversized = true;
+   	   	     		     					if (matrixTargetMaxLength > 0 && matrixTargetMaxLength < sourceColumnLength) {
+   	   	     		     						matrixIsOversized = true;
    	   	     		     						//logger.debug("IS OVERSIZED = " + isOversized);
    	   	     		     					}
    	     		     					}
-   	   	     		     				else if (nTargetTypeList.item(tt).getNodeName().equals("lengthOption")) {
-   	   	     		     					lengthOption = Boolean.valueOf(nTargetTypeList.item(tt).getChildNodes().item(0).getNodeValue());
-   	   	         		     				//logger.debug("LENGTH OPTION = " + lengthOption);
-   	   	     		     				}
    	 		        				}
    	 		     					
    	 		     					// Search for sub type
-   	 		     					nTargetSubTypeList = eProductElement.getElementsByTagName("SubType");
+   	 		     					nMatrixTargetSubTypeList = eMatrixProductElement.getElementsByTagName("SubType");
    	 		     					//logger.debug("NO. OF SUBTYPES = " + nTargetSubTypeList.getLength());
-   	 		     		     		for (int st = 0; st < nTargetSubTypeList.getLength(); st++) {
-   	 		     		     			nNode = nTargetSubTypeList.item(st);
+   	 		     		     		for (int st = 0; st < nMatrixTargetSubTypeList.getLength(); st++) {
+   	 		     		     			nNode = nMatrixTargetSubTypeList.item(st);
    	     		     		     		if (nNode.getNodeType() == Node.ELEMENT_NODE) {
-   	     	     		     				eSubTypeElement = (Element) nNode;
+   	     	     		     				eMatrixSubTypeElement = (Element) nNode;
 	             		     				//logger.debug("MAX LENGTH = " + eSubTypeElement.getElementsByTagName("maxLength").item(0).getChildNodes().item(0).getNodeValue());
    	         		     					if (
-   	         		     						!productTypeMatch &&
-   	         		     						Integer.valueOf(eSubTypeElement.getElementsByTagName("maxLength").item(0).getChildNodes().item(0).getNodeValue()) >= sourceColumnLength
+   	         		     						!matrixTargetProductTypeMatch &&
+   	         		     						Integer.valueOf(eMatrixSubTypeElement.getElementsByTagName("maxLength").item(0).getChildNodes().item(0).getNodeValue()) >= sourceColumnLength
    	         		     					) {
-   	             		     					productTypeMatch = true;
-   	             		     					isOversized = false;
-   	    	 		     		     			lengthOption = true;
-   	         		     						nTargetTypeList = eSubTypeElement.getChildNodes();
-	   	         		     					for (int tt = 0; tt < nTargetTypeList.getLength(); tt++) {
-	   	    	     		     					if (nTargetTypeList.item(tt).getNodeName().equals("typeName")) {
-	   	   	             		     					targetProductType = nTargetTypeList.item(tt).getChildNodes().item(0).getNodeValue();
+   	         		     						matrixTargetProductTypeMatch = true;
+   	         		     						matrixIsOversized = false;
+   	         		     						nMatrixTargetTypeList = eMatrixSubTypeElement.getChildNodes();
+	   	         		     					for (int tt = 0; tt < nMatrixTargetTypeList.getLength(); tt++) {
+	   	    	     		     					if (nMatrixTargetTypeList.item(tt).getNodeName().equals("typeName")) {
+	   	    	     		     						matrixTargetProductType = nMatrixTargetTypeList.item(tt).getChildNodes().item(0).getNodeValue();
 	   	   	             		     					//logger.debug("PRODUCT TARGET TYPE = " + targetProductType);
-	   	    	     		     					}
-	   	    	     		     					else if (nTargetTypeList.item(tt).getNodeName().equals("lengthOption")) {
-	   	    	   	     		     					lengthOption = Boolean.valueOf(nTargetTypeList.item(tt).getChildNodes().item(0).getNodeValue());
-	   	    	   	         		     				//logger.debug("LENGTH OPTION = " + lengthOption);
 	   	    	     		     					}
 	   	         		     					}
    	     		     		     			}
-   	         		     					else if (!productTypeMatch){
-   	         		     						isOversized = true;
+   	         		     					else if (!matrixTargetProductTypeMatch){
+   	         		     						matrixIsOversized = true;
    	         		     					}
    	     		     		     		}
    	 		     		     		}
-  	     		     				logger.debug("IS OVERSIZED = " + isOversized);
+  	     		     				logger.debug("IS OVERSIZED = " + matrixIsOversized);
    	 		     		     		
    	 		     		     		// If size bigger than allowed max
-   	 		     		     		if (isOversized) {
-   	 		     		     			lengthOption = false;
+   	 		     		     		if (matrixIsOversized) {
+   	 		     		     			matrixLengthOption = false;
    	   	 		     					// Search for the oversize properties
-   	   	 		        				for (int tt = 0; tt < nTargetTypeList.getLength(); tt++) {
-   	   	     		     					if (nTargetTypeList.item(tt).getNodeName().equals("typeName")) {
-   	   	         		     					targetProductType = eProductElement.getElementsByTagName("oversizeTypeName").item(0).getChildNodes().item(0).getNodeValue();
-   	   	         		     					//logger.debug("OVERSIZE TARGET TYPE = " + targetProductType);
+   	   	 		        				for (int tt = 0; tt < nMatrixTargetTypeList.getLength(); tt++) {
+   	   	     		     					if (nMatrixTargetTypeList.item(tt).getNodeName().equals("oversizeTypeName")) {
+   	   	     		     						matrixTargetOversizedProductType = eMatrixProductElement.getElementsByTagName("oversizeTypeName").item(0).getChildNodes().item(0).getNodeValue();
+   	   	         		     					logger.debug("OVERSIZE TARGET TYPE = " + matrixTargetOversizedProductType);
+   	   	         		     					matrixTargetProductTypeMatch = true;
    	   	     		     					}
-   	   	     		     					else if (nTargetTypeList.item(tt).getNodeName().equals("oversizeLengthOption")) {
-   	   	     		     						lengthOption = Boolean.valueOf(eProductElement.getElementsByTagName("oversizeLengthOption").item(0).getChildNodes().item(0).getNodeValue());
-   	   	         		     					//logger.debug("OVERSIZE LENGTH OPTION = " + lengthOption);
+   	   	     		     					else if (nMatrixTargetTypeList.item(tt).getNodeName().equals("oversizeDataLength")) {
+   	   	     		     						matrixTargetDataLength = Integer.valueOf(eMatrixProductElement.getElementsByTagName("oversizeDataLength").item(0).getChildNodes().item(0).getNodeValue());
+   	   	         		     					logger.debug("OVERSIZE DATA LENGTH = " + matrixTargetDataLength);
    	   	     		     					}
+   	   	 		        				}
+   	   	 		        				if (matrixTargetOversizedProductType.equals("")) {
+   	   	 		        					matrixTargetDataLength = matrixTargetMaxLength;
+   	   	 		        				}
+   	   	 		        				else {
+   	   	 		        					matrixTargetProductType = matrixTargetOversizedProductType;
+   	   	 		        					matrixTargetTypeAttribute = "";
    	   	 		        				}
    	 		     		     		}
    	 		     				}
-   	 		     				else if (eProductElement.getElementsByTagName("productName").item(0).getChildNodes().item(0).getNodeValue().equalsIgnoreCase("DEFAULT")) {
-   	 		     					// Product name match
-   	 		     					targetDefaultType = eProductElement.getElementsByTagName("typeName").item(0).getChildNodes().item(0).getNodeValue();
-   	 		     					logger.debug("DEFAULT TARGET TYPE = " + targetDefaultType);
+   	 		     				else if (eMatrixProductElement.getElementsByTagName("productName").item(0).getChildNodes().item(0).getNodeValue().equalsIgnoreCase("DEFAULT")) {
+   	 		     					// Get defaults
+   	 		     					nMatrixTargetTypeList = eMatrixProductElement.getChildNodes();
+   	 		        				for (int tt = 0; tt < nMatrixTargetTypeList.getLength(); tt++) {
+
+   	     		     					if (nMatrixTargetTypeList.item(tt).getNodeName().equals("typeName")) {
+   	     		     						matrixTargetDefaultType = nMatrixTargetTypeList.item(tt).getChildNodes().item(0).getNodeValue();
+   	   	 		        					logger.debug("DEFAULT TARGET TYPE = " + matrixTargetDefaultType);
+   	     		     					}
+   	     		     					else if (nMatrixTargetTypeList.item(tt).getNodeName().equals("dataLength")) {
+   	     		     						matrixTargetDefaultDataLength = Integer.valueOf(nMatrixTargetTypeList.item(tt).getChildNodes().item(0).getNodeValue());
+   	     		     						logger.debug("DEFAULT TARGET DATA LENGTH = " + matrixTargetMaxLength);
+   	   	 		        				}
+   	     		     				}
    	 		     				}
    	 		     			}
    	 		     		}
@@ -470,12 +560,17 @@ public class TypeConversionBean {
    	 			}
    			}
    	 		
-   	 		if (targetProductType.equals("")) {
-   	 			targetProductType = targetDefaultType;
+   	 		if (matrixTargetProductTypeMatch) {
+   	 			targetColumnType = matrixTargetProductType;
    	 		}
-   	 		logger.debug("TARGET TYPE = " + targetProductType);
-   	 		logger.debug("SIZE OPTION = " + lengthOption);
-	   		
+   	 		else {
+   	 			targetColumnType = matrixTargetDefaultType;
+   	 		}
+   	 		
+   	 		if (!matrixTargetTypeAttribute.equals("")) {
+   	 			targetColumnTypeAttribute = matrixTargetTypeAttribute;
+   	 		}
+   	 		
 	   		// MySQL special types
 	        if (
 	        	sourceColumnType.equalsIgnoreCase("ENUM") ||
@@ -485,11 +580,6 @@ public class TypeConversionBean {
 				targetColumnLength = sourceColumnLength;
 				targetColumnPrecision = 0;
 				targetColumnScale = 0;
-	        }
-	   		// HANA special types
-	        else if (sourceColumnType.contains("ALPHANUM")) {
-	        	targetColumnType = "VARCHAR";
-				targetColumnLength = sourceColumnLength;
 	        }
 	   		// Oracle special types
 	        else if (sourceColumnType.contains("ROWID")) {
@@ -524,21 +614,32 @@ public class TypeConversionBean {
 		   		sourceColumnType.contains("POLYGON")
 	   		) {
 	        	if (
+		        	targetProductName.toUpperCase().contains("DB2") ||
+		        	targetProductName.toUpperCase().contains("DERBY") ||
+		        	targetProductName.toUpperCase().contains("HDB") ||
+		        	targetProductName.toUpperCase().contains("HSQL") ||
 	        		targetProductName.toUpperCase().contains("ORACLE") ||
-	        		targetProductName.toUpperCase().contains("DB2") ||
-	        		targetProductName.toUpperCase().contains("HDB") ||
 	       			targetProductName.toUpperCase().contains("TERADATA")
 	        	) {
 	        		targetColumnType = "CLOB";
 	        	}
+	        	else if (targetProductName.toUpperCase().contains("FIREBIRD")) {
+		        	targetColumnType = "BLOB";
+		        }
+	        	else if (
+	        		targetProductName.toUpperCase().contains("NETEZZA") ||
+		       		targetProductName.toUpperCase().contains("VERTICA")
+		       	) {
+		        	targetColumnType = "VARCHAR";
+		        }
 	        	else {
 	        		targetColumnType = "TEXT";
 	        	}
 	        }
 	   		// SQL Server special types
 	        else if (
-	        	sourceProductName.toUpperCase().contains("MICROSOFT") &&
-		   		sourceColumnType.contains("TIMESTAMP")
+	        	sourceProductName.toUpperCase().contains("SQL SERVER") &&
+		   		sourceColumnType.toUpperCase().contains("TIMESTAMP")
 	   		) {
 	       		if (targetProductName.toUpperCase().contains("POSTGRES")) {
 	        		targetColumnType = "BYTEA";
@@ -546,17 +647,24 @@ public class TypeConversionBean {
 	       		else if (targetProductName.toUpperCase().contains("INFORMIX")) {
 	        		targetColumnType = "BYTE";
 	    		}
-	       		else if (targetProductName.toUpperCase().contains("MICROSOFT")) {
-	        		targetColumnType = "VARBINARY";
-	        		targetColumnLength = -1;
+	       		else if (targetProductName.toUpperCase().contains("SQL ANYWHERE")) {
+	        		targetColumnType = "LONG BINARY";
+	    		}
+	       		else if (targetProductName.toUpperCase().contains("SQL SERVER")) {
+	        		targetColumnType = "ROWVERSION";
+	    		}
+	       		else if (targetProductName.toUpperCase().contains("VERTICA")) {
+	        		targetColumnType = "LONG VARBINARY";
 	    		}
 	       		else {
 	        		targetColumnType = "BLOB";
 	    		}
 	        }
 	        else if (
-		   		sourceColumnType.contains("HIERARCHYID") ||
-		   		sourceColumnType.contains("UNIQUEIDENTIFIER")
+		   		sourceColumnType.toUpperCase().contains("HIERARCHYID") ||
+		   		sourceColumnType.toUpperCase().contains("UNIQUEIDENTIFIER") ||
+		   		sourceColumnType.toUpperCase().contains("GEOGRAPHY") ||
+		   		sourceColumnType.toUpperCase().contains("GEOMETRY")
 	   		) {
 	        	if (targetProductName.toUpperCase().contains("ORACLE")) {
 	        		targetColumnType = "VARCHAR2";
@@ -566,8 +674,183 @@ public class TypeConversionBean {
 	        	}
 				targetColumnLength = 255;
 	        }
+   	 		
+   	 		logger.debug("TARGET TYPE = " + targetColumnType);
+   	        
+   			// Get target length
+   	 		matrixMatchedTypeName = "";
+   	 		matrixTargetProductType = "";
+
+   	 		matrixProductLengthOptionMatch = false;
+   	 		matrixProductScaleOptionMatch = false;
+   	 		matrixLengthOption = true;
+        	matrixScaleOption = false;
+        	matrixDefaultLengthOption = true;
+        	matrixDefaultScaleOption = false;
+	        nMatrixTargetTypeList = typeOptionMatrix.getElementsByTagName("dbType");
+	        //logger.debug("NO. OF TYPES: " + nTargetTypeList.getLength());
+   	 					
+   			// Scroll target types in the matrix
+   	 		for (int t = 0; t < nMatrixTargetTypeList.getLength(); t++) {
+   	 			matrixSourceTypeMatch = false;
+   	 			nNode = nMatrixTargetTypeList.item(t);
+   	 			if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+   	 				eMatrixTargetTypeElement = (Element) nNode;
+   	     			nMatrixTargetSubTypeList = eMatrixTargetTypeElement.getChildNodes();
+   	     			//logger.debug("NO. OF CHILDS: " + nTargetSubTypeList.getLength());
+   	     			for (int s = 0; s < nMatrixTargetSubTypeList.getLength(); s++) {
+   	         			if (
+   	         				nMatrixTargetSubTypeList.item(s).getNodeName().equals("typeName") &&
+   	         				nMatrixTargetSubTypeList.item(s).getChildNodes().item(0).getNodeValue().equalsIgnoreCase(String.valueOf(targetColumnType))
+   	         			) {
+   	         				// Jdbc type match by name
+   	         				matrixSourceTypeMatch = true;
+   	         				logger.debug("SOURCE MATCH BY NAME = " + nMatrixTargetSubTypeList.item(s).getChildNodes().item(0).getNodeValue());
+   	         			}
+   	     			}
+	 				
+   	     			if (matrixSourceTypeMatch) {
+   	   	     			
+   	   	     			logger.debug("SOURCE LENGTH = " + sourceColumnLength);
+   	   	     			matrixTargetProductTypeMatch = false;
+   	 					nMatrixTargetProductList = eMatrixTargetTypeElement.getElementsByTagName("option");
+	   	 				
+			   	 		for (int p = 0; p < nMatrixTargetProductList.getLength(); p++) {
+			   	 			nNode = nMatrixTargetProductList.item(p);
+			   	 			if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+			   	 				eMatrixProductElement = (Element) nNode;
+			   	 		     	if (targetProductName.toUpperCase().contains(eMatrixProductElement.getElementsByTagName("productName").item(0).getChildNodes().item(0).getNodeValue())) {
+			   	 		     		// Product name match
+			   	 		     		logger.debug("PRODUCT MATCH");
+			   	 		     		
+			   	 		     		// Search for the type name
+			   	 		     		nMatrixTargetTypeList = eMatrixProductElement.getChildNodes();
+			   	 		     		//logger.debug("NO. OF TYPES = " + nTargetTypeList.getLength());
+			   	 		        	for (int tt = 0; tt < nMatrixTargetTypeList.getLength(); tt++) {
+			   	     		     		if (nMatrixTargetTypeList.item(tt).getNodeName().equals("lengthOption")) {
+			   	     		     			matrixProductLengthOptionMatch = true;
+			   	     		     			matrixLengthOption = Boolean.valueOf(nMatrixTargetTypeList.item(tt).getChildNodes().item(0).getNodeValue());
+			   	         		     		logger.debug("PRODUCT TYPE LENGTH OPTION = " + matrixLengthOption);
+			   	     		     		}
+			   	     		     		else if (nMatrixTargetTypeList.item(tt).getNodeName().equals("scaleOption")) {
+			   	     		     			matrixProductScaleOptionMatch = true;
+			   	            		    	matrixScaleOption = Boolean.valueOf(nMatrixTargetTypeList.item(tt).getChildNodes().item(0).getNodeValue());
+			   	         		     		logger.debug("PRODUCT TYPE SCALE OPTION = " + matrixScaleOption);
+			   	     		     		}
+			   	     		     		else if (nMatrixTargetTypeList.item(tt).getNodeName().equals("maxDataLength")) {
+			   	     		     			matrixTargetMaxLength = Integer.valueOf(nMatrixTargetTypeList.item(tt).getChildNodes().item(0).getNodeValue());
+			   	         		     		logger.debug("PRODUCT MAX DATA LENGTH = " + matrixTargetMaxLength);
+			   	     		     		}
+			   	     		     		else if (nMatrixTargetTypeList.item(tt).getNodeName().equals("maxDataScale")) {
+			   	     		     			matrixTargetMaxScale = Integer.valueOf(nMatrixTargetTypeList.item(tt).getChildNodes().item(0).getNodeValue());
+			   	         		     		logger.debug("PRODUCT MAX DATA SCALE = " + matrixTargetMaxScale);
+			   	     		     		}
+			   	 		        	}
+			   	 		     	}
+			   	 		     	else if (eMatrixProductElement.getElementsByTagName("productName").item(0).getChildNodes().item(0).getNodeValue().equalsIgnoreCase("DEFAULT")) {
+			   	 		     		// Product name match
+			   	 		     		nMatrixTargetTypeList = eMatrixProductElement.getChildNodes();
+			   	 		     		//logger.debug("NO. OF TYPES = " + nTargetTypeList.getLength());
+			   	 		        	for (int tt = 0; tt < nMatrixTargetTypeList.getLength(); tt++) {
+			   	     		     		if (nMatrixTargetTypeList.item(tt).getNodeName().equals("lengthOption")) {
+			   	     		     			matrixDefaultLengthOption = Boolean.valueOf(nMatrixTargetTypeList.item(tt).getChildNodes().item(0).getNodeValue());
+			   	         		     		logger.debug("DEFAULT TYPE LENGTH OPTION = " + matrixDefaultLengthOption);
+			   	     		     		}
+			   	     		     		else if (nMatrixTargetTypeList.item(tt).getNodeName().equals("scaleOption")) {
+			   	     		     			matrixDefaultScaleOption = Boolean.valueOf(nMatrixTargetTypeList.item(tt).getChildNodes().item(0).getNodeValue());
+			   	         		     		logger.debug("DEFAULT TYPE SCALE OPTION = " + matrixDefaultScaleOption);
+			   	     		     		}
+			   	 		        	}
+			   	 				}
+			   	 		    }
+			   	 		}
+	   	 			}
+		 		}
+   	 		}
+   	 		
+   	 		// Set default options for length and scale if product specific ones are missing
+   	 		if (!matrixProductLengthOptionMatch) {
+   	 			matrixLengthOption = matrixDefaultLengthOption;
+   	 		}
+   	 		
+   	 		if (!matrixProductScaleOptionMatch) {
+   	 			matrixScaleOption = matrixDefaultScaleOption;
+   	 		}
+
+   	 		// Set length and scale
+   	 		if (matrixLengthOption && matrixScaleOption) {
+   	 			if (
+   	   	 			(
+   	   	 				sourceColumnLength == 0 ||
+   	   	 				sourceColumnLength > matrixTargetMaxLength ||
+   	   	 				sourceColumnPrecision > matrixTargetMaxLength ||
+   	   	 				matrixTargetDataLength > matrixTargetMaxLength
+   	   	 			) &&
+   	   	 			matrixTargetMaxLength > 0
+   	   	 		) {
+   	   	 			targetColumnLength = matrixTargetMaxLength;
+   					targetColumnPrecision = matrixTargetMaxLength;
+   					if (sourceColumnScale > targetColumnPrecision) {
+   						targetColumnScale = targetColumnPrecision;
+   					}
+   					else {
+   	   					targetColumnScale = sourceColumnScale;
+   					}
+   	   	 		}
+   	 			else {
+   					targetColumnLength = sourceColumnLength;
+   					targetColumnPrecision = sourceColumnPrecision;
+   					if (sourceColumnScale > targetColumnPrecision) {
+   						targetColumnScale = targetColumnPrecision;
+   					}
+   					else {
+   	   					targetColumnScale = sourceColumnScale;
+   					}
+   	 			}
+   	 			if (
+   	 				matrixTargetMaxScale > 0 &&
+   	 				targetColumnScale > matrixTargetMaxScale
+   	 			) {
+   	 				targetColumnScale = matrixTargetMaxScale;
+   	 			}
+   	 		}
+   	 		else if (matrixLengthOption && !matrixScaleOption) {
+   	 			if (matrixTargetDataLength < 0) {
+   					targetColumnLength = 0;
+   					targetColumnType += "(MAX)";
+   	 			}
+   	 			else if (
+   	   	 			(
+   	   	 				sourceColumnLength == 0 ||
+   	   	 				sourceColumnLength > matrixTargetMaxLength ||
+   	   	 				matrixTargetDataLength > matrixTargetMaxLength
+   	   	 			) &&
+   	   	 			matrixTargetMaxLength > 0
+   	   	 		) {
+   	   	 			targetColumnLength = matrixTargetMaxLength;
+   	   	 		}
+   	 			else if (matrixTargetDataLength > 0) {
+   					targetColumnLength = matrixTargetDataLength;
+   	 			}
+   	 			else if (matrixTargetDefaultDataLength > 0) {
+   					targetColumnLength = matrixTargetDefaultDataLength;
+   	 			}
+   	 			else {
+   					targetColumnLength = sourceColumnLength;
+   	 			}
+				targetColumnPrecision = 0;
+				targetColumnScale = 0;
+   	 		}
+   	 		else {
+				targetColumnLength = 0;
+				targetColumnPrecision = 0;
+				targetColumnScale = 0;
+   	 		}
+   	 		
+   	 		logger.debug("LENGTH OPTION = " + matrixLengthOption);
+   	 		logger.debug("SCALE OPTION = " + matrixScaleOption);
 	        // NCHAR and NVARCHAR types
-	   		else if (sourceColumnType.contains("NCHAR") && sourceColumnLength == 1) {
+	   		/*else if (sourceColumnType.contains("NCHAR") && sourceColumnLength == 1) {
 	            targetColumnType = "NCHAR";
 				targetColumnLength = 0;
 	        }
@@ -1084,8 +1367,10 @@ public class TypeConversionBean {
 	       		}
 	       	}
 	   		// Double types
-	       	else if (sourceColumnType.contains("DOUBLE") ||
-	       			sourceColumnType.contains("REAL")) {
+	       	else if (
+	       		sourceColumnType.contains("DOUBLE") ||
+	       		sourceColumnType.contains("REAL")
+	       	) {
 	   			if (targetProductName.toUpperCase().contains("ORACLE")) {
 	   				targetColumnType = "BINARY_DOUBLE";
 	   			}
@@ -1303,23 +1588,29 @@ public class TypeConversionBean {
 	       		targetColumnLength = sourceColumnLength;
 	   			targetColumnPrecision = sourceColumnPrecision;
 	   			targetColumnScale = sourceColumnScale;
-	       	}
+	       	}*/
 	 		
 		}
    		
     	// Column definition
-    	targetColumnDefinition = targetColumnType;
-    	if (targetColumnPrecision > 0) {
-    		targetColumnDefinition += "(" + targetColumnPrecision + "," +targetColumnScale + ")";
+   		targetColumnDefinition = "";
+    	if (targetColumnType.equals("")) {
+    		logger.debug("Type conhversion not supported");
     	}
-    	else if (targetColumnLength != 0) {
-    		if (targetColumnLength==-1) {
-    			targetColumnDefinition += "(max)";
-    		}
-    		else {
-    			targetColumnDefinition += "(" + targetColumnLength + ")";
-    		}
+    	else {
+        	targetColumnDefinition = targetColumnType;
+        	if (targetColumnPrecision > 0) {
+        		targetColumnDefinition += "(" + targetColumnPrecision + "," +targetColumnScale + ")";
+        	}
+        	else if (targetColumnLength != 0) {
+        		if (targetColumnLength==-1) {
+        			targetColumnDefinition += "(max)";
+        		}
+        		else {
+        			targetColumnDefinition += "(" + targetColumnLength + ")";
+        		}
+        	}
+        	targetColumnDefinition += " " + targetColumnTypeAttribute;
     	}
-    	targetColumnDefinition += " " + targetColumnTypeAttribute;
     }
 }

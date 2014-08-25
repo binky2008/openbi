@@ -6,7 +6,7 @@ CREATE TABLE tab_test (
   , col_decimal decimal(32,7)
   , col_numeric numeric(32,7)
   , col_DOUBLE DOUBLE precision
-  , col_FLOAT FLOAT
+  , col_FLOAT FLOAT (65)
   , col_real real
   , col_BINARY_DOUBLE BINARY_DOUBLE
   , col_BINARY_FLOAT BINARY_FLOAT

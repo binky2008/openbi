@@ -32,6 +32,7 @@ public class ConnectionBean {
     private String keyWords = "";
     private String keyWordFile = "";
     private String quoteString = "";
+    private int maxRowSize = 0;
     //
     private Connection connection = null;
     private DatabaseMetaData metadata = null;
@@ -94,6 +95,10 @@ public class ConnectionBean {
 
     public String getDatabaseProductName() {
     	return databaseProductName;
+    }
+
+    public int getMaxRowSize() {
+    	return maxRowSize;
     }
     
     // Get normalizer obejct name
@@ -196,7 +201,6 @@ public class ConnectionBean {
     
     public String[] getTableList() throws Exception {
     	ResultSet dbTables = null;
-    	int size = 0;
 
     	logger.info("########################################");
     	logger.debug("RDBMS type: " + databaseProductName);
@@ -240,33 +244,6 @@ public class ConnectionBean {
 			throw e;
 		}    	
     	return tableList;
-    }
-    
-    public boolean getColumnUsable (String dataType) {
-       	if (
-           	(dataType.toUpperCase().contains("SDO")) ||
-       		(dataType.toUpperCase().contains("INTERVAL")) ||
-       		(dataType.toUpperCase().contains("SERIAL")) ||
-       		(dataType.toUpperCase().contains("POINT")) ||
-       		(dataType.toUpperCase().contains("FILE")) ||
-       		(
-       			databaseProductName.toUpperCase().contains("MICROSOFT") &&
-       			dataType.toUpperCase().contains("TIMESTAMP")
-       		) ||
-       		(
-           		databaseProductName.toUpperCase().contains("DERBY") &&
-           		(
-           			dataType.toUpperCase().contains("LOB") ||
-           			dataType.toUpperCase().contains("XML") ||
-           			dataType.toUpperCase().contains("LONG")
-           		)
-           	)
-        ) {
-        	return false;
-       	}
-       	else {
-        	return true;
-       	}
     }
     
     // Execution methods
@@ -351,6 +328,14 @@ public class ConnectionBean {
 	   	catch (Exception e) {
 	   		logger.error(e.getMessage());
 	   	}
+	   	try {
+		   	logger.debug("Getting max row size...");
+		   	maxRowSize = metadata.getMaxRowSize();
+		   	logger.info("Max row size: " + maxRowSize);
+	   	}
+	   	catch (Exception e) {
+	   		logger.error(e.getMessage());
+	   	}
 	   	
 	   	// Get catalogues and schemas
 		logger.info("########################################");
@@ -359,11 +344,19 @@ public class ConnectionBean {
 	   	while (dbCatalogs.next()) {
 	   		logger.info(dbCatalogs.getString("TABLE_CAT"));
 	   	}
-		    	logger.info("########################################");
+		logger.info("########################################");
 	   	logger.info("Found schemas:");
 	   	ResultSet dbSchemas = metadata.getSchemas();
 	   	while (dbSchemas.next()) {
 	   		logger.info(dbSchemas.getString("TABLE_SCHEM"));
+	   	}
+	   	
+	   	// Get types
+		logger.info("########################################");
+	   	logger.info("Found types:");
+	   	ResultSet dbTypes = metadata.getTypeInfo();    	
+	   	while (dbTypes.next()) {
+	   		logger.info(dbTypes.getString("TYPE_NAME") + " " + dbTypes.getString("CREATE_PARAMS"));
 	   	}
     }
     

@@ -100,7 +100,7 @@ public class MainTestCopyTableFromH2 {
 	}
 	
 	@Test
-	public void testHANA() {
+	public void testHDB() {
 		
 		initSource();
 		//
@@ -121,11 +121,11 @@ public class MainTestCopyTableFromH2 {
 	}
 	
 	@Test
-	public void testHSQLDB() {
+	public void testHSQL() {
 		
 		initSource();
 		//
-		targetArgs[0] = "localhost_hsqldb_test";
+		targetArgs[0] = "localhost_hsql_test";
 		targetArgs[1] = "";
 		targetArgs[2] = "test";
 		targetArgs[3] = "stg_h2_tab_test";
@@ -247,13 +247,13 @@ public class MainTestCopyTableFromH2 {
 	}
 
 	@Test
-	public void testSQLServer() {
+	public void testSQLAnywhere() {
 		
 		initSource();
 		//
-		targetArgs[0] = "localhost_sqlserver_test";
+		targetArgs[0] = "localhost_sybase_test";
 		targetArgs[1] = "";
-		targetArgs[2] = "dbo";
+		targetArgs[2] = "";
 		targetArgs[3] = "stg_h2_tab_test";
 		//
 		MainTestCopyTableHelper.initSource(sourceArgs);
@@ -268,13 +268,13 @@ public class MainTestCopyTableFromH2 {
 	}
 
 	@Test
-	public void testSybase() {
+	public void testSQLServer() {
 		
 		initSource();
 		//
-		targetArgs[0] = "localhost_sybase_test";
+		targetArgs[0] = "localhost_sqlserver_test";
 		targetArgs[1] = "";
-		targetArgs[2] = "";
+		targetArgs[2] = "dbo";
 		targetArgs[3] = "stg_h2_tab_test";
 		//
 		MainTestCopyTableHelper.initSource(sourceArgs);

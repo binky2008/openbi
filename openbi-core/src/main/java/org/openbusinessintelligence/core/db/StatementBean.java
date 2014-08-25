@@ -61,7 +61,11 @@ public final class StatementBean {
        		(
        			productName.contains("MICROSOFT") &&
        			dataType.toUpperCase().contains("TIMESTAMP")
-       		)
+       		) ||
+       		(
+           		productName.contains("ORACLE") &&
+           		dataType.toUpperCase().contains("LONG")
+           	)
         ) {
         	return false;
        	}

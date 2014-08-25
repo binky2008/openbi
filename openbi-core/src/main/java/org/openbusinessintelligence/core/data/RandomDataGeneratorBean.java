@@ -161,8 +161,14 @@ public class RandomDataGeneratorBean {
     	    	if (position > 0) {
     	    		insertText = insertText + ",";
     	    	}
-    	    	if (
-    	              connection.getDatabaseProductName().toUpperCase().contains("MICROSOFT") &&
+				if (
+					columnTypes[i].toUpperCase().contains("BIT") &&
+					connection.getDatabaseProductName().toUpperCase().contains("POSTGRESQL")
+				) {
+    			    insertText = insertText + "CAST(? AS VARBIT)";
+				}
+				else if (
+    	              connection.getDatabaseProductName().toUpperCase().contains("SQL SERVER") &&
     	              columnTypes[i].toUpperCase().contains("BINARY")
     	        ) {
     			    insertText = insertText + "CONVERT(VARBINARY,?)";
@@ -196,7 +202,7 @@ public class RandomDataGeneratorBean {
     	
     	// Build input stream for binary data
     	byte[] bytes = new byte[1];
-    	bytes[0] = 0;
+    	bytes[0] = 3;
 		InputStream binaryData = new ByteArrayInputStream(bytes);
 		//
 		java.sql.Date date;
@@ -209,26 +215,10 @@ public class RandomDataGeneratorBean {
 		timestamp = java.sql.Timestamp.valueOf("2014-10-26 12:00:00");
 		//
 		String xmlString = "<xml />";
-		java.sql.SQLXML xml = null;
-		if (
-    		!(
-    			connection.getDatabaseProductName().toUpperCase().contains("DERBY") ||
-    	        connection.getDatabaseProductName().toUpperCase().contains("FIREBIRD") ||
-	        	connection.getDatabaseProductName().toUpperCase().contains("H2") ||
-	        	connection.getDatabaseProductName().toUpperCase().contains("HDB") ||
-	        	connection.getDatabaseProductName().toUpperCase().contains("IMPALA") ||
-	        	connection.getDatabaseProductName().toUpperCase().contains("INFORMIX") ||
-	        	connection.getDatabaseProductName().toUpperCase().contains("MYSQL") ||
-	        	connection.getDatabaseProductName().toUpperCase().contains("NETEZZA") ||
-	        	connection.getDatabaseProductName().toUpperCase().contains("ORACLE") ||
-	        	connection.getDatabaseProductName().toUpperCase().contains("ANYWHERE") ||
-	        	connection.getDatabaseProductName().toUpperCase().contains("TERADATA") ||
-	        	connection.getDatabaseProductName().toUpperCase().contains("VERTICA")
-	    	)
-	    ) {
-			xml = connection.getConnection().createSQLXML();
-			xml.setString(xmlString);
-		}
+    	
+    	DataManipulationBean dataManipulate = new DataManipulationBean();
+    	dataManipulate.setTargetProductName(connection.getDatabaseProductName().toUpperCase());
+    	dataManipulate.setStatement(targetStmt);
     	
     	// Loop for each row
     	for (int r = 0; r < numberOfRows; r++) {
@@ -239,49 +229,41 @@ public class RandomDataGeneratorBean {
 	    		for (int i = 0; i < columnNames.length; i++) {
 
 	            	if (statement.getColumnUsable (columnTypes[i])) {
-		    			position++;
+
+	    				/*if (
+	    					columnTypes[i].toUpperCase().contains("BIT") &&
+	    					connection.getDatabaseProductName().toUpperCase().contains("MYSQL")
+	    				) {
+	    					logger.debug("SKIP");
+	    				}
+	    				else {*/
+			    			position++;
+		    			
+		    			dataManipulate.setColumnName(columnNames[i]);
+		    			dataManipulate.setPosition(position);
+		    			dataManipulate.setTargetType(columnTypes[i]);
+		    			dataManipulate.setTargetTypeAttribute(columnTypeAttribute[i]);
 		    			try {
-		              		if (columnTypes[i].toUpperCase().contains("BOOLEAN")) {
-	              				targetStmt.setBoolean(position, false);
+		              		if (columnTypes[i].toUpperCase().contains("BIT")) {
+	    		    			dataManipulate.setObject("1010101010");
+	              			}
+		              		else if (columnTypes[i].toUpperCase().contains("BOOL")) {
+	    		    			dataManipulate.setObject(true);
 	              			}
 			    			else if (
 			    				columnTypes[i].toUpperCase().contains("DATETIME") ||
 			    				columnTypes[i].toUpperCase().contains("TIMESTAMP")
 			    			) {
-				    			if (connection.getDatabaseProductName().toUpperCase().contains("IMPALA")) {
-							    	targetStmt.setString(position, "2014-10-26 12:00:00");
-				    			}
-				    			else {
-							    	targetStmt.setTimestamp(position, timestamp);
-				    			}
+	    		    			dataManipulate.setObject(timestamp);
 						    }
 			    			else if (columnTypes[i].toUpperCase().contains("DATE")) {
-						    	targetStmt.setDate(position, date);
+	    		    			dataManipulate.setObject(date);
 						    }
 			    			else if (columnTypes[i].toUpperCase().contains("TIME")) {
-						    	targetStmt.setTime(position, time);
+	    		    			dataManipulate.setObject(time);
 						    }
 			    			else if (columnTypes[i].toUpperCase().contains("XML")) {
-			    				if (connection.getDatabaseProductName().toUpperCase().contains("DERBY")) {
-						    		targetStmt.setString(position, xmlString);
-			    				}
-			    				else if (connection.getDatabaseProductName().toUpperCase().contains("ORACLE")) {
-						    		targetStmt.setString(position, xmlString);
-			    				}
-			    				else if (connection.getDatabaseProductName().toUpperCase().contains("ANYWHERE")) {
-						    		targetStmt.setString(position, xmlString);
-			    				}
-			    				else if (connection.getDatabaseProductName().toUpperCase().contains("TERADATA")) {
-						    		targetStmt.setString(position, xmlString);
-			    				}
-			    				else if (connection.getDatabaseProductName().toUpperCase().contains("MICROSOFT")) {
-			    					xml = connection.getConnection().createSQLXML();
-			    					xml.setString(xmlString);
-			    					targetStmt.setSQLXML(position, xml);
-			    				}
-			    				else {
-							    	targetStmt.setSQLXML(position, xml);
-			    				}
+	    		    			dataManipulate.setObject(xmlString);
 						    }
 		              		else if (
 			    				(
@@ -293,78 +275,41 @@ public class RandomDataGeneratorBean {
 			    				) &&
 			    				!columnTypeAttribute[i].toUpperCase().contains("BIT")
 			    			) {
-					    		targetStmt.setString(position, "a");
+	    		    			dataManipulate.setObject("a");
 			    			}
+			    			else if (
+				    			columnTypes[i].toUpperCase().contains("DOUBLE")
+						    ) {
+		    		    		dataManipulate.setObject((double) 0);
+						    }
+			    			else if (
+				    			columnTypes[i].toUpperCase().contains("REAL") ||
+				    			columnTypes[i].toUpperCase().contains("FLO")
+						    ) {
+		    		    		dataManipulate.setObject((float) 0);
+						    }
 			    			else if (
 			    				columnTypes[i].toUpperCase().contains("NUMBER") ||
 			    				columnTypes[i].toUpperCase().contains("NUMERIC") ||
 			    				columnTypes[i].toUpperCase().contains("SERIAL") ||
-			    				columnTypes[i].toUpperCase().contains("DOU") ||
 			    				columnTypes[i].toUpperCase().contains("DEC") ||
 			    				columnTypes[i].toUpperCase().contains("INT") ||
-			    				columnTypes[i].toUpperCase().contains("REAL") ||
-			    				columnTypes[i].toUpperCase().contains("FLO") ||
 			    				columnTypes[i].toUpperCase().contains("MONEY")
 					    	) {
-					    		targetStmt.setInt(position, 0);
+	    		    			dataManipulate.setObject(0);
 					    	}
 			    			else if (
-				    			(
-				    				columnTypes[i].toUpperCase().contains("BIN") ||
-				    				columnTypes[i].toUpperCase().contains("BLOB") ||
-				    				columnTypes[i].toUpperCase().contains("IMAGE")
-				    			) &&
-				    			!(
-				              		connection.getDatabaseProductName().toUpperCase().contains("FIREBIRD") ||
-				              		connection.getDatabaseProductName().toUpperCase().contains("HDB") ||
-				              		connection.getDatabaseProductName().toUpperCase().contains("HSQL") ||
-				              		connection.getDatabaseProductName().toUpperCase().contains("INFORMIX") ||
-				              		connection.getDatabaseProductName().toUpperCase().contains("TERADATA") ||
-				              		connection.getDatabaseProductName().toUpperCase().contains("VERTICA")
-				    			)
+				    			columnTypes[i].toUpperCase().contains("BINA") ||
+				    			columnTypes[i].toUpperCase().contains("BYTE") ||
+				    			columnTypes[i].toUpperCase().contains("BLOB") ||
+				    			columnTypes[i].toUpperCase().contains("IMAGE") ||
+				    			columnTypes[i].toUpperCase().contains("RAW") ||
+				    			columnTypeAttribute[i].toUpperCase().contains("BIT")
 						    ) {
-						    	targetStmt.setBinaryStream(position, binaryData);
+			    				dataManipulate.setObject(bytes);
 						    }
 			    			else {
-			    				if (
-			              			connection.getDatabaseProductName().toUpperCase().contains("MICROSOFT") ||
-			              			connection.getDatabaseProductName().toUpperCase().contains("ANYWHERE") ||
-			              			connection.getDatabaseProductName().toUpperCase().contains("DERBY")
-			              		) {
-				              		if (columnTypeAttribute[i].toUpperCase().contains("BIT")) {
-			              				targetStmt.setNull(position, Types.BINARY);
-			              			}
-				              		else if (columnTypes[i].toUpperCase().equals("UNIQUEIDENTIFIER")) {
-			              				targetStmt.setNull(position, Types.BINARY);
-			              			}
-				              		else if (columnTypes[i].toUpperCase().contains("BLOB")) {
-			              				targetStmt.setNull(position, Types.BLOB);
-			              			}
-			              			else if (columnTypes[i].toUpperCase().contains("FLOAT")) {
-			              				targetStmt.setNull(position, Types.FLOAT);
-			              			}
-			              			else if (columnTypes[i].toUpperCase().contains("REAL")) {
-			              				targetStmt.setNull(position, Types.REAL);
-			              			}
-			              			else if (columnTypes[i].toUpperCase().contains("TEXT")) {
-			              				targetStmt.setNull(position, Types.CHAR);
-			              			}
-				              		else if (columnTypes[i].toUpperCase().contains("TIMESTAMP")) {
-			              				targetStmt.setNull(position, Types.TIMESTAMP);
-			              			}
-			              			else if (columnTypes[i].toUpperCase().contains("DATE")) {
-			              				targetStmt.setNull(position, Types.DATE);
-			              			}
-			              			else if (columnTypes[i].toUpperCase().contains("TIME")) {
-			              				targetStmt.setNull(position, Types.TIME);
-			              			}
-					              	else {
-				    					targetStmt.setNull(position, Types.NULL);
-					              	}
-			              		}
-				              	else {
-			    					targetStmt.setNull(position, Types.NULL);
-				              	}
+			    				dataManipulate.setNull();
 			    			}
 		    			}
 		    			catch (Exception e){
@@ -372,6 +317,7 @@ public class RandomDataGeneratorBean {
 		    				throw e;
 		    			}
 	            	}
+    				//}
 	    		}
 		    	targetStmt.executeUpdate();
 		    	targetStmt.clearParameters();

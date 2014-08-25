@@ -31,6 +31,9 @@ public class DictionaryConversionBean {
     private String[] targetDefaultValues = null;
 
     // Declarations of internally used variables
+	org.w3c.dom.Document typeConvertionMatrix = null;
+	org.w3c.dom.Document typeOptionMatrix = null;
+	//
     private int columnCount = 0;
     private int[] columnPkPosition = null;
     private int[] columnJdbcType = null;
@@ -158,15 +161,34 @@ public class DictionaryConversionBean {
         targetColumnScale = new int[columnCount];
         targetColumnDefinition = new String[columnCount];
         columnPkPosition = new int[columnCount];
+        
+		DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
+		javax.xml.parsers.DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
+
 		
     	// Load type convertion matrix
-		org.w3c.dom.Document convertionMatrix = null;
+        typeConvertionMatrix = null;
+        
+		try {
+			docBuilderFactory = DocumentBuilderFactory.newInstance();
+			docBuilder = docBuilderFactory.newDocumentBuilder();
+			typeConvertionMatrix = docBuilder.parse(Thread.currentThread().getContextClassLoader().getResource("datatypes/typeConvertionMatrix.xml").toString());
+			typeConvertionMatrix.getDocumentElement().normalize();
+		}
+		catch(Exception e) {
+			logger.error("Cannot load option file: " + e.getMessage());
+			e.printStackTrace();
+		    throw e;
+		}
+		
+    	// Load type option matrix
+		typeOptionMatrix = null;
 
 		try {
-			DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
-			javax.xml.parsers.DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
-			convertionMatrix = docBuilder.parse(Thread.currentThread().getContextClassLoader().getResource("datatypes/convertionMatrix.xml").toString());
-			convertionMatrix.getDocumentElement().normalize();
+			docBuilderFactory = DocumentBuilderFactory.newInstance();
+			docBuilder = docBuilderFactory.newDocumentBuilder();
+			typeOptionMatrix = docBuilder.parse(Thread.currentThread().getContextClassLoader().getResource("datatypes/typeOptionMatrix.xml").toString());
+			typeOptionMatrix.getDocumentElement().normalize();
 		}
 		catch(Exception e) {
 			logger.error("Cannot load option file: " + e.getMessage());
@@ -175,7 +197,8 @@ public class DictionaryConversionBean {
 		}
         
         TypeConversionBean typeConverter = new TypeConversionBean();
-        typeConverter.setConvertionMatrix(convertionMatrix);
+        typeConverter.setTypeConvertionMatrix(typeConvertionMatrix);
+        typeConverter.setTypeOptionMatrix(typeOptionMatrix);
         
        	for (int i = 0; i < columnCount; i++) {
         	//sourceColumnNames[i] = rsmd.getColumnName(i).toUpperCase();

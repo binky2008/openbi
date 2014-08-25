@@ -6,7 +6,7 @@ create table tab_test (
     col_boolean boolean
   , col_bool bool
   --
-  , col_bit bit
+  , col_bit bit(10)
   , col_tinyint tinyint
   , col_smallint smallint
   , col_mediumint mediumint
@@ -34,7 +34,7 @@ create table tab_test (
   , col_mediumtext mediumtext
   , col_longtext longtext
   --
-  , col_binary binary (255)
+  , col_binary binary (10)
   , col_varbinary varbinary (240)
   , col_tinyblob tinyblob
   , col_blob blob

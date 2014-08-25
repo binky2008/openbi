@@ -210,21 +210,34 @@ public class TableDictionaryBean {
         	columnScale[i] = listScale.get(i);
         	columnJdbcType[i] = listJdbcType.get(i);
         	
-        	logger.debug(
-        		"Column " + (i) +
-        		" Name: " + columnNames[i] +
-        		" Type: " + columnType[i] +
-        		" Length: " + columnLength[i] +
-        		" Precision: " + columnPrecision[i] +
-        		" Scale: " +columnScale[i] + 
-        		" JDBC Type:" + columnJdbcType[i]
-        	);
-        	
         	columnTypeAttribute[i] = "";
         	columnDefinition[i] = columnType[i];
         	
         	// Search for type attribute(s)
         	if (
+                productName.toUpperCase().contains("ORACLE") &&
+                columnType[i].toUpperCase().contains("RAW")
+            ) {
+        		// Leave it as it is
+            }
+        	else if (
+                productName.toUpperCase().contains("HSQL") &&
+                columnType[i].toUpperCase().contains("BIT")
+            ) {
+        		// Leave it as it is
+            }
+        	else if (
+            	productName.toUpperCase().contains("ORACLE") &&
+                (
+                	columnType[i].toUpperCase().contains("INTERVAL") ||
+                	columnType[i].toUpperCase().contains("TIMESTAMP")
+                )
+            ) {
+        		while (columnType[i].indexOf("(")>0) {
+        			columnType[i] = columnType[i].split("\\(",2)[0] + columnType[i].split("\\)",2)[1];
+        		}
+            }
+        	else if (
         		productName.toUpperCase().contains("TERADATA") &&
             	columnType[i].toUpperCase().contains("PERIOD")
             ) {
@@ -255,24 +268,40 @@ public class TableDictionaryBean {
         		columnTypeAttribute[i] = "FOR BIT DATA";
         		columnType[i] = columnType[i].split(" ",2)[0];
             }
+        	else if (
+        		columnType[i].toUpperCase().contains("INTERVAL") ||
+                columnType[i].toUpperCase().contains("TIMESTAMP") ||
+                columnType[i].toUpperCase().contains("TIME")
+            ) {
+        		// Leave it as it is
+            }
         	else if (columnType[i].split(" ").length > 1) {
         		columnTypeAttribute[i] = columnType[i].split(" ",2)[1];
         		columnType[i] = columnType[i].split(" ",2)[0];
         	}
-        	
-        	//Print type splitted among type nama and attribute
-        	if (!(columnTypeAttribute[i] == null || columnTypeAttribute[i].equals(""))) {
-            	logger.debug("Column " + (i) + "  Name: " + columnNames[i] + " Type: " + columnType[i] + "  Attribute: " + columnTypeAttribute[i]);
+        	else {
+        		columnTypeAttribute[i] = "";
         	}
         	
         	// Source definition
-        	if (columnPrecision[i] > 0) {
+        	if (columnScale[i] > 0) {
         		columnDefinition[i] += "(" + columnPrecision[i] + "," + columnScale[i] + ")";
         	}
         	else if (columnLength[i] > 0) {
         		columnDefinition[i] += "(" + columnLength[i] + ")";
         	}
         	columnDefinition[i] += " " + columnTypeAttribute[i];
+        	
+        	logger.debug(
+        		"Column " + (i) +
+        		" Name: " + columnNames[i] +
+        		" Type: " + columnType[i] +
+        		" Length: " + columnLength[i] +
+        		" Precision: " + columnPrecision[i] +
+        		" Scale: " +columnScale[i] + 
+        		" Attribute: " + columnTypeAttribute[i] +
+        		" JDBC Type:" + columnJdbcType[i]
+        	);
        	}
 
         logger.info("got column properties");

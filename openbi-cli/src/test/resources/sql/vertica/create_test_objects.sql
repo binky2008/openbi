@@ -14,11 +14,17 @@ CREATE TABLE tab_test (
 	COL_NUMBER NUMBER(1024,600),
 	COL_MONEY MONEY(1024,500),
 	--
-	COL_BINARY Binary (65000),
+	COL_DOUBLE double precision,
+	COL_FLOAT Float,
+	COL_FLOATN Float (53),
+	COL_FLOAT8 FLOAT8,
+	COL_REAL REAL,
+	--
+	COL_BINARY Binary (1000),
 	COL_VARBINARY Varbinary (65000),
 	COL_LONGVARBINARY long Varbinary (1000000),
 	--
-	COL_CHAR Char(65000),
+	COL_CHAR Char(1000),
 	COL_VARCHAR Varchar(65000),
 	COL_LONGVARCHAR long Varchar(1000000),
 	--
@@ -31,11 +37,5 @@ CREATE TABLE tab_test (
 	COL_TIMESTAMPTZ TimestampTz,
 	--
 	COL_INTERVALDS Interval Day to Second,
-	COL_INTERVALym Interval year to month,
-	--
-	COL_DOUBLE double precision,
-	COL_FLOAT Float,
-	COL_FLOATN Float (53),
-	COL_FLOAT8 FLOAT8,
-	COL_REAL REAL
+	COL_INTERVALym Interval year to month
 );

@@ -107,7 +107,7 @@ public class MainTestGenerateData {
 	}
 
 	@Test
-	public void testHANA() {
+	public void testHDB() {
 		
 		initArguments();
 		
@@ -128,12 +128,12 @@ public class MainTestGenerateData {
 	}
 
 	@Test
-	public void testHSQLDB() {
+	public void testHSQL() {
 		
 		initArguments();
 		
 		// Target properties
-		arguments[2] = "localhost_hsqldb_test";
+		arguments[2] = "localhost_hsql_test";
 		arguments[4] = "";
 		arguments[6] = "test";
 		arguments[8] = "tab_test";
@@ -221,7 +221,7 @@ public class MainTestGenerateData {
 		arguments[4] = "";
 		arguments[6] = "";
 		arguments[8] = "tab_test";
-		arguments[10] = "1000";
+		arguments[10] = "1";
 		
 		// Perform test
 		try {
@@ -275,14 +275,14 @@ public class MainTestGenerateData {
 	}
 
 	@Test
-	public void testSQLServer() {
+	public void testSQLAnywhere() {
 		
 		initArguments();
 		
 		// Target properties
-		arguments[2] = "localhost_sqlserver_test";
+		arguments[2] = "localhost_sybase_test";
 		arguments[4] = "";
-		arguments[6] = "dbo";
+		arguments[6] = "";
 		arguments[8] = "tab_test";
 		arguments[10] = "1000";
 		
@@ -296,14 +296,14 @@ public class MainTestGenerateData {
 	}
 
 	@Test
-	public void testSybase() {
+	public void testSQLServer() {
 		
 		initArguments();
 		
 		// Target properties
-		arguments[2] = "localhost_sybase_test";
+		arguments[2] = "localhost_sqlserver_test";
 		arguments[4] = "";
-		arguments[6] = "";
+		arguments[6] = "dbo";
 		arguments[8] = "tab_test";
 		arguments[10] = "1000";
 		
