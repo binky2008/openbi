@@ -59,13 +59,21 @@ public final class StatementBean {
        		(dataType.toUpperCase().contains("POINT")) ||
        		(dataType.toUpperCase().contains("FILE")) ||
        		(
-       			productName.contains("MICROSOFT") &&
+       			productName.contains("SQL SERVER") &&
        			dataType.toUpperCase().contains("TIMESTAMP")
        		) ||
        		(
            		productName.contains("ORACLE") &&
            		dataType.toUpperCase().contains("LONG")
-           	)
+           	) ||
+	    	(
+	    		productName.contains("DERBY") &&
+			    (
+			    	dataType.toUpperCase().contains("LOB") ||
+			    	dataType.toUpperCase().contains("XML") ||
+			    	dataType.toUpperCase().contains("LONG")
+    			)
+    		)
         ) {
         	return false;
        	}

@@ -223,6 +223,12 @@ public class DataManipulationBean {
       		else if (targetType.toUpperCase().contains("TIME")) {
       			statement.setNull(position, Types.TIME);
       		}
+      		else if (
+      			targetType.toUpperCase().contains("XML") &&
+      			targetProductName.toUpperCase().contains("SQL ANYWHERE")
+      		) {
+      			statement.setNull(position, Types.CHAR);
+      		}
             else {
             	statement.setNull(position, Types.NULL);
             }
@@ -234,219 +240,263 @@ public class DataManipulationBean {
      **/
     public void copyObject() throws Exception {
 		try {
-			object = resultSet.getObject(columnName);
-			/*if (targetType.contains("SDO")) {
-				logger.debug("!!!!!!!!!!!!!!! ORACLE SDO TYPE !!!!!!!!!!!!!!!");
-				statement.setNull(position, Types.NULL);
-			}*/
-			if (object == null) {
-				statement.setNull(position, getSQLType());
+			if (
+				!sourceProductName.toUpperCase().contains("HIVE") &&
+				!sourceProductName.toUpperCase().contains("INFORMIX") &&
+				!(
+					sourceProductName.toUpperCase().contains("HSQL") &&
+					sourceType.equalsIgnoreCase("BIT")
+				)
+			) {
+				object = resultSet.getObject(columnName);
 			}
-			/*else {*/
-				/*className = object.getClass().getName();
-				if (className.contains("BigInteger")) {
-					statement.setBigDecimal(position, resultSet.getBigDecimal(columnName));
-				}*/
+			if (
+				object == null &&
+				!sourceProductName.toUpperCase().contains("HIVE") &&
+				!sourceProductName.toUpperCase().contains("INFORMIX") &&
+				!(
+					sourceProductName.toUpperCase().contains("HSQL") &&
+					sourceType.equalsIgnoreCase("BIT")
+				)
+			) {
+				setNull();
+			}
 			else if (
-			    	(
-			    		sourceType.toUpperCase().contains("LOB") ||
-			    		sourceType.toUpperCase().contains("XML") ||
-			    		sourceType.toUpperCase().contains("LONG")
-	    			) &&
-			    	sourceProductName.toUpperCase().contains("DERBY")
-			    ) {
-					// Cannot handle LOBs and LONGs in Apache Derby
-					statement.setNull(position, getSQLType());
-			    }
-				else if (
-					sourceType.toUpperCase().contains("BOOL") &&
+			   	(
+			   		sourceType.toUpperCase().contains("LOB") ||
+			   		sourceType.toUpperCase().contains("XML") ||
+			   		sourceType.toUpperCase().contains("LONG")
+	    		) &&
+			   	sourceProductName.toUpperCase().contains("DERBY")
+			) {
+				// Cannot handle LOBs and LONGs in Apache Derby
+				setNull();
+			}
+			else if (
+				sourceType.toUpperCase().contains("BOOL") &&
+	    		(
+			    	sourceProductName.toUpperCase().contains("HIVE") ||
+		    		sourceProductName.toUpperCase().contains("INFORMIX") ||
+	    			sourceProductName.toUpperCase().contains("POSTGRE") ||
 	    			sourceProductName.toUpperCase().contains("VERTICA")
-	    		) {
-					statement.setBoolean(position, resultSet.getBoolean(columnName));
-				}
-				else if (targetType.toUpperCase().contains("INT")) {
-					statement.setInt(position, resultSet.getInt(columnName));
-				}
-				else if (targetType.toUpperCase().contains("FLOAT")) {
-					statement.setFloat(position, resultSet.getFloat(columnName));
-				}
-				else if (targetType.toUpperCase().contains("DOUBLE")) {
-					statement.setDouble(position, resultSet.getDouble(columnName));
-				}
-				else if (
-	    			(
-	    				targetType.toUpperCase().contains("NUMERIC") ||
-	    				targetType.toUpperCase().contains("DECIMAL")
-	    			) &&
-					targetProductName.toUpperCase().contains("SQL SERVER")
-				) {
-			    	statement.setDouble(position, Double.parseDouble(resultSet.getString(columnName)));
-				}
-				else if (
-				    targetType.toUpperCase().contains("MONEY") ||
+	    		)
+	    	) {
+				statement.setBoolean(position, resultSet.getBoolean(columnName));
+			}
+			else if (
+				targetType.toUpperCase().contains("INT") &&
+				!targetType.toUpperCase().contains("BINTEXT")
+			) {
+				statement.setInt(position, resultSet.getInt(columnName));
+			}
+			else if (targetType.toUpperCase().contains("FLOAT")) {
+				statement.setFloat(position, resultSet.getFloat(columnName));
+			}
+			else if (targetType.toUpperCase().contains("DOUBLE")) {
+				statement.setDouble(position, resultSet.getDouble(columnName));
+			}
+			else if (
+	    		(
 	    			targetType.toUpperCase().contains("NUMERIC") ||
 	    			targetType.toUpperCase().contains("DECIMAL")
+	    		) &&
+				targetProductName.toUpperCase().contains("SQL SERVER")
+			) {
+			   	statement.setDouble(position, Double.parseDouble(resultSet.getString(columnName)));
+			}
+			else if (
+			    targetType.toUpperCase().contains("MONEY") ||
+	    		targetType.toUpperCase().contains("NUMERIC") ||
+	    		targetType.toUpperCase().contains("DECIMAL")
+			) {
+				statement.setBigDecimal(position, resultSet.getBigDecimal(columnName));
+			}
+			else if (
+			    targetType.equalsIgnoreCase("DECFLOAT") &&
+			   	targetProductName.toUpperCase().contains("DB2")
+			) {
+				statement.setFloat(position, resultSet.getFloat(columnName));
+			}
+			else if (
+    			sourceType.toUpperCase().toUpperCase().contains("BIT") &&
+				(
+					sourceProductName.toUpperCase().contains("HSQL") ||
+					sourceProductName.toUpperCase().contains("MYSQL") ||
+					sourceProductName.toUpperCase().contains("POSTGRES")
+				)
+			) {
+				if (
+					sourceProductName.toUpperCase().contains("MYSQL") &&
+					targetProductName.toUpperCase().contains("INFORMIX")
 				) {
-					statement.setBigDecimal(position, resultSet.getBigDecimal(columnName));
+				    statement.setBytes(position, resultSet.getBytes(columnName));
 				}
-				else if (
-				    targetType.equalsIgnoreCase("DECFLOAT") &&
-				   	targetProductName.toUpperCase().contains("DB2")
-				) {
-					statement.setFloat(position, resultSet.getFloat(columnName));
+				else {
+				    statement.setString(position, resultSet.getString(columnName));
 				}
-				else if (
-    				sourceType.toUpperCase().toUpperCase().contains("BIT") &&
+			}
+			else if (
+				targetType.equalsIgnoreCase("TIME")
+			) {
+				statement.setTime(position, resultSet.getTime(columnName));
+			}
+			else if (
+			    targetType.toUpperCase().contains("TIMESTAMP") ||
+			    targetType.toUpperCase().contains("DATETIME")
+			) {
+				if (
+					sourceProductName.toUpperCase().contains("SQL ANYWHERE") &&
 					(
-						sourceProductName.toUpperCase().contains("HSQL") ||
-						sourceProductName.toUpperCase().contains("MYSQL") ||
-						sourceProductName.toUpperCase().contains("POSTGRES")
+						targetProductName.toUpperCase().contains("DB2") ||
+						targetProductName.toUpperCase().contains("SQL ANYWHERE")
 					)
 				) {
-					if (
-						targetProductName.toUpperCase().contains("HSQL") ||
-						targetProductName.toUpperCase().contains("INFORMIX")
-					) {
-		    			statement.setBytes(position, resultSet.getBytes(columnName));
-					}
-					else {
-		    			statement.setString(position, resultSet.getString(columnName));
-					}
+		    		statement.setObject(position, resultSet.getObject(columnName));
 				}
 				else if (
-					targetType.equalsIgnoreCase("TIME")
+					sourceProductName.toUpperCase().contains("NETEZZA") &&
+					sourceType.equalsIgnoreCase("TIME")
 				) {
 					statement.setTime(position, resultSet.getTime(columnName));
 				}
 				else if (
-				    targetType.toUpperCase().contains("TIMESTAMP") ||
-				    targetType.toUpperCase().contains("DATETIME")
+					sourceProductName.toUpperCase().contains("HIVE") &&
+					sourceType.equalsIgnoreCase("DATE")
 				) {
-					if (
-						sourceProductName.toUpperCase().contains("SQL ANYWHERE") &&
-						targetProductName.toUpperCase().contains("DB2")
-					) {
-		    			statement.setObject(position, resultSet.getObject(columnName));
-					}
-					else if (
-						sourceProductName.toUpperCase().contains("NETEZZA") &&
-						sourceType.equalsIgnoreCase("TIME")
-					) {
-						statement.setTime(position, resultSet.getTime(columnName));
-					}
-					else {
-						statement.setTimestamp(position, resultSet.getTimestamp(columnName));
-					}
+					statement.setDate(position, java.sql.Date.valueOf(resultSet.getString(columnName)));
 				}
 				else if (
-			    	sourceType.toUpperCase().contains("TIMESTAMP") &&
-    				sourceProductName.toUpperCase().contains("ORACLE")
-			    ) {
+					sourceProductName.toUpperCase().contains("HIVE") &&
+					sourceType.equalsIgnoreCase("TIMESTAMP")
+				) {
+					statement.setTimestamp(position, java.sql.Timestamp.valueOf(resultSet.getString(columnName)));
+				}
+				else {
 					statement.setTimestamp(position, resultSet.getTimestamp(columnName));
-			    }
-				/*else if (
-					targetType.toUpperCase().contains("TIMESTAMP") &&
-	    			targetProductName.toUpperCase().contains("ORACLE")
+				}
+			}
+			else if (
+			   	sourceType.toUpperCase().contains("TIMESTAMP") &&
+    			sourceProductName.toUpperCase().contains("ORACLE")
+			) {
+				statement.setTimestamp(position, resultSet.getTimestamp(columnName));
+			}
+			else if (
+			   	targetType.toUpperCase().contains("GRAPHIC") &&
+			   	targetProductName.toUpperCase().contains("DB2")
+			) {
+			statement.setString(position, resultSet.getString(columnName));
+			}
+			else if (
+			   	sourceType.toUpperCase().contains("XML") &&
+		    	(
+			   		targetProductName.toUpperCase().contains("DB2") ||
+			   		targetProductName.toUpperCase().contains("DERBY") ||
+		    		targetProductName.toUpperCase().contains("MYSQL") ||
+		    		targetProductName.toUpperCase().contains("ORACLE") ||
+		    		targetProductName.toUpperCase().contains("MICROSOFT") ||
+		    		targetProductName.toUpperCase().contains("H2") ||
+		    		targetProductName.toUpperCase().contains("HSQL") ||
+		    		targetProductName.toUpperCase().contains("ANYWHERE")
+		    	)
+		    ) {
+			   	statement.setString(position, resultSet.getString(columnName));
+		    }
+			else if (
+			   	targetType.equalsIgnoreCase("XML") &&
+			   	targetProductName.toUpperCase().contains("POSTGRES")
+			) {
+				xml = statement.getConnection().createSQLXML();
+				xml.setString(resultSet.getString(columnName));
+				statement.setSQLXML(position, xml);
+			}
+			else if (
+				targetTypeAttribute.toUpperCase().contains("FOR BIT DATA") ||
+	    		targetType.equalsIgnoreCase("BYTE") ||
+				targetType.toUpperCase().contains("BLOB") ||
+				targetType.toUpperCase().contains("BYTEA") ||
+				targetType.toUpperCase().contains("BINARY") ||
+				targetType.toUpperCase().contains("VARBYTE")
+			) { 
+				if (
+					targetProductName.toUpperCase().contains("FIREBIRD") &&
+					(
+						sourceType.toUpperCase().contains("CLOB") ||
+						sourceType.toUpperCase().contains("TEXT") ||
+						sourceType.toUpperCase().contains("CHAR")
+					)
 				) {
-					statement.setTime(position, resultSet.getTime(columnName));
-				}*/
-				else if (
-			    	targetType.toUpperCase().contains("GRAPHIC") &&
-			    	targetProductName.toUpperCase().contains("DB2")
-			    ) {
 					statement.setString(position, resultSet.getString(columnName));
 			    }
 				else if (
-			    	sourceType.toUpperCase().contains("XML") &&
-		    		(
-			    		targetProductName.toUpperCase().contains("DB2") ||
-			    		targetProductName.toUpperCase().contains("DERBY") ||
-		    			targetProductName.toUpperCase().contains("MYSQL") ||
-		    			targetProductName.toUpperCase().contains("ORACLE") ||
-		    			targetProductName.toUpperCase().contains("MICROSOFT") ||
-		    			targetProductName.toUpperCase().contains("H2") ||
-		    			targetProductName.toUpperCase().contains("HSQL") ||
-		    			targetProductName.toUpperCase().contains("ANYWHERE")
-		    		)
-		    	) {
-				   	statement.setString(position, resultSet.getString(columnName));
-		    	}
-				else if (
-			    	targetType.equalsIgnoreCase("XML") &&
-			    	targetProductName.toUpperCase().contains("POSTGRES")
-			    ) {
-					xml = statement.getConnection().createSQLXML();
-					xml.setString(resultSet.getString(columnName));
-					statement.setSQLXML(position, xml);
-			    }
-				else if (
-				    sourceTypeAttribute.contains("FOR BIT DATA") &&
-					!targetProductName.toUpperCase().contains("NETEZZA")
+					sourceProductName.toUpperCase().contains("HIVE") ||
+					sourceProductName.toUpperCase().contains("SQL ANYWHERE")
 				) {
-					statement.setBytes(position, resultSet.getBytes(columnName));
+					if (resultSet.getString(columnName) != null) {
+						statement.setBytes(position, resultSet.getString(columnName).getBytes());
+					}
+					else {
+						statement.setNull(position, Types.BINARY);
+					}
 				}
 				else if (
-			    	targetType.equalsIgnoreCase("BLOB") &&
-			    	targetProductName.toUpperCase().contains("FIREBIRD") &&
-			    	!(
-						sourceType.contains("BLOB") ||
-						sourceType.contains("BINARY")
-					)
-			    ) {
-				   	statement.setString(position, resultSet.getString(columnName));
-			    }
-				/*else if (
+					sourceProductName.toUpperCase().contains("TERADATA") &&
 					(
-						sourceType.contains("BLOB") ||
-						sourceType.contains("BINARY")
-					) &&
-					targetProductName.toUpperCase().contains("NETEZZA")
+						targetProductName.toUpperCase().contains("FIREBIRD") ||
+						targetProductName.toUpperCase().contains("POSTGRESQL") ||
+						targetProductName.toUpperCase().contains("TERADATA")
+					)
 				) {
+					statement.setBytes(position, IOUtils.toByteArray(resultSet.getBinaryStream(columnName)));
+				}
+				else if (sourceProductName.toUpperCase().contains("TERADATA")) {
+					statement.setBinaryStream(position, resultSet.getBinaryStream(columnName));
+				}
+				else {
 					statement.setBytes(position, resultSet.getBytes(columnName));
-				}*/
-				else if (
-					targetTypeAttribute.toUpperCase().contains("FOR BIT DATA") ||
-	    			targetType.equalsIgnoreCase("BYTE") ||
-					targetType.toUpperCase().contains("BLOB") ||
-					targetType.toUpperCase().contains("BYTEA") ||
-					targetType.toUpperCase().contains("BINARY") ||
-					targetType.toUpperCase().contains("VARBYTE")
-				) { 
-					if (targetProductName.toUpperCase().contains("FIREBIRD")) {
-					   	statement.setString(position, resultSet.getString(columnName));
-				    }
-					else if (
-						sourceProductName.toUpperCase().contains("TERADATA") &&
-						(
-							targetProductName.toUpperCase().contains("POSTGRESQL") ||
-							targetProductName.toUpperCase().contains("TERADATA")
-						)
-					) {
-						statement.setBytes(position, IOUtils.toByteArray(resultSet.getBinaryStream(columnName)));
+				}
+			}
+			else if (
+				targetType.toUpperCase().contains("CLOB") ||
+				targetType.toUpperCase().contains("TEXT") ||
+				targetType.toUpperCase().contains("CHAR")
+			) {
+				if (
+					(
+						sourceType.toUpperCase().contains("BLOB") ||
+						sourceType.toUpperCase().contains("BINARY") ||
+						sourceType.toUpperCase().contains("BYTE")
+					)
+				) {
+					if (sourceProductName.toUpperCase().contains("SQL ANYWHERE")) {
+						statement.setString(position, resultSet.getString(columnName));
 					}
 					else if (sourceProductName.toUpperCase().contains("TERADATA")) {
-						statement.setBinaryStream(position, resultSet.getBinaryStream(columnName));
+						statement.setBytes(position, IOUtils.toByteArray(resultSet.getBinaryStream(columnName)));
 					}
 					else {
 						statement.setBytes(position, resultSet.getBytes(columnName));
 					}
 				}
 				else if (
-					targetType.toUpperCase().contains("CLOB") ||
-					targetType.toUpperCase().contains("TEXT") ||
-					targetType.toUpperCase().contains("CHAR")
+					sourceTypeAttribute.contains("FOR BIT DATA") &&
+					!targetProductName.toUpperCase().contains("NETEZZA")
 				) {
-					statement.setString(position, resultSet.getString(columnName));
+					statement.setBytes(position, resultSet.getBytes(columnName));
 				}
 				else {
-	    			statement.setObject(position, resultSet.getObject(columnName));
-	    		}
-			//}
+					statement.setString(position, resultSet.getString(columnName));
+				}
+			}
+			else {
+	    		statement.setObject(position, resultSet.getObject(columnName));
+	    	}
 		}
 		catch (Exception e){
 			logger.error(columnName + ": " + sourceType + " => " + targetType + "\n" + e.getMessage());
 			e.printStackTrace();
 			setNull();
+			throw e;
 		}
     }
 

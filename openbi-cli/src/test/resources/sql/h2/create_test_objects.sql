@@ -3,7 +3,7 @@ DROP TABLE test.tab_test;
 CREATE TABLE test.tab_test(
             col_boolean BOOLEAN ,
             --
-            col_IDENTITY IDENTITY ,
+            --col_IDENTITY IDENTITY ,
             --
             col_tinyint TINYINT ,
             col_smallint SMALLINT ,
@@ -17,12 +17,12 @@ CREATE TABLE test.tab_test(
             col_FLOAT FLOAT (53),
             col_DOUBLE DOUBLE (53),
             --
-            col_char CHAR (1000),
+            col_char CHAR (255),
             col_VARCHAR VARCHAR (1g),
             col_VARCHARIGNORECASE VARCHAR_IGNORECASE (1g),
             col_CLOB CLOB (1000000000g),
             --
-            col_binary binary (1000000000000000000),
+            col_binary binary (255),
             col_VARbinary VARbinary (1g),
             col_BLOB BLOB (1000000000g),
             --

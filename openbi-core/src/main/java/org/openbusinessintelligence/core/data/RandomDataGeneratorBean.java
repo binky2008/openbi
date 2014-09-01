@@ -244,7 +244,13 @@ public class RandomDataGeneratorBean {
 		    			dataManipulate.setTargetType(columnTypes[i]);
 		    			dataManipulate.setTargetTypeAttribute(columnTypeAttribute[i]);
 		    			try {
-		              		if (columnTypes[i].toUpperCase().contains("BIT")) {
+		              		if (
+		              			columnTypes[i].equalsIgnoreCase("BIT") &&
+		        				connection.getDatabaseProductName().toUpperCase().contains("ANYWHERE")
+		        			) {
+	    		    			dataManipulate.setObject(1);
+	              			}
+		              		else if (columnTypes[i].toUpperCase().contains("BIT")) {
 	    		    			dataManipulate.setObject("1010101010");
 	              			}
 		              		else if (columnTypes[i].toUpperCase().contains("BOOL")) {

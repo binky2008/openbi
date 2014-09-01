@@ -11,7 +11,7 @@ CREATE TABLE tab_test(
             col_FLOAT FLOAT  (4000),
             col_DOUBLE DOUBLE precision,
             --
-            col_char CHAR (4000),
+            col_char CHAR (255),
             col_VARCHAR VARCHAR (4000),
             --
             col_date DATE,

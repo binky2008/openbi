@@ -4,6 +4,7 @@
 	<!-- Boolean -->
 	<jdbcType>
 	    <typeId>16</typeId>
+	    <typeName>BOOL</typeName>
 	    <typeName>BOOLEAN</typeName>
 	    <dbType>
 	    	<productName>DEFAULT</productName>
@@ -48,10 +49,6 @@
 	    	<typeName>VARCHAR</typeName>
 	    </dbType>
 	    <dbType>
-	    	<productName>HSQL</productName>
-	    	<typeName>BIT VARYING</typeName>
-	    </dbType>
-	    <dbType>
 	    	<productName>MYSQL</productName>
 	    	<typeName>VARCHAR</typeName>
 	    	<maxLength>256</maxLength>
@@ -65,6 +62,7 @@
 	<jdbcType>
 	    <typeId>-6</typeId>
 	    <typeName>TINYINT</typeName>
+	    <typeName>BYTEINT</typeName>
 	    <dbType>
 	    	<productName>DEFAULT</productName>
 	    	<typeName>TINYINT</typeName>
@@ -119,6 +117,7 @@
 	<jdbcType>
 	    <typeId>4</typeId>
 	    <typeName>INTEGER</typeName>
+	    <typeName>INT</typeName>
 	    <typeName>SERIAL</typeName>
 	    <dbType>
 	    	<productName>DEFAULT</productName>
@@ -420,6 +419,7 @@
 	    	<productName>DB2</productName>
 	    	<typeName>DATE</typeName>
 	    </dbType>
+	    <!--
 	    <dbType>
 	    	<productName>DERBY</productName>
 	    	<typeName>TIMESTAMP</typeName>
@@ -473,6 +473,7 @@
 	    	<productName>VERTICA</productName>
 	    	<typeName>TIMESTAMPTZ</typeName>
 	    </dbType>
+	     -->
 	</jdbcType>
 	<!-- Intervals -->
 	<jdbcType>
@@ -560,6 +561,8 @@
 	    <typeName>LONGVARCHAR</typeName>
 	    <typeName>LONG VARCHAR</typeName>
 	    <typeName>ALPHANUM</typeName>
+	    <typeName>VARBIT</typeName>
+	    <typeName>LONG VARBIT</typeName>
 	    <dbType>
 	    	<productName>DEFAULT</productName>
 	    	<typeName>VARCHAR</typeName>
@@ -825,6 +828,7 @@
 	    <typeName>BINTEXT</typeName>
 	    <typeName>NCLOB</typeName>
 	    <typeName>DBCLOB</typeName>
+	    <typeName>STRING</typeName>
 	    <dbType>
 	    	<productName>DEFAULT</productName>
 	    	<typeName>NCLOB</typeName>
@@ -938,9 +942,7 @@
 	    </dbType>
 	    <dbType>
 	    	<productName>INFORMIX</productName>
-	    	<typeName>BINARYVAR</typeName>
-	    	<maxLength>255</maxLength>
-	    	<oversizeTypeName>BYTE</oversizeTypeName>
+	    	<typeName>BLOB</typeName>
 	    </dbType>
 	    <dbType>
 	    	<productName>MYSQL</productName>

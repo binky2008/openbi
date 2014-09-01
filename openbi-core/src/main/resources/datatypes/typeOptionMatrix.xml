@@ -274,7 +274,15 @@
 	    	<maxDataLength>5000</maxDataLength>
 	    </option>
 	    <option>
+			<productName>HSQL</productName>
+	    	<maxDataLength>4000</maxDataLength>
+	    </option>
+	    <option>
 			<productName>INFORMIX</productName>
+	    	<maxDataLength>255</maxDataLength>
+	    </option>
+	    <option>
+			<productName>MYSQL</productName>
 	    	<maxDataLength>255</maxDataLength>
 	    </option>
 	    <option>

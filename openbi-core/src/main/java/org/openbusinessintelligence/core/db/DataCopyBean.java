@@ -30,6 +30,7 @@ public class DataCopyBean {
     private String[] sourceColumnNames = null;
     private String[] sourceColumnType = null;
     private String[] sourceColumnTypeAttribute = null;
+    private int[] sourceColumnLength = null;
 
     // Target properties
     private ConnectionBean targetCon = null;
@@ -59,9 +60,11 @@ public class DataCopyBean {
     private String[] sourceCommonColumnTypeAttribute = null;
     private String[] targetCommonColumnTypes = null;
     private String[] targetCommonColumnTypeAttribute = null;
+    private int[] sourceCommonColumnLength = null;
     private int[] targetCommonColumnLength = null;
     private ResultSet sourceRS = null;
-    private PreparedStatement sourceStmt= null;    
+    private PreparedStatement sourceStmt= null;
+    private int lengthMultiplier = 1;
     
     // Constructor
     public DataCopyBean() {
@@ -155,7 +158,8 @@ public class DataCopyBean {
        	sourceDictionaryBean.retrieveColumns();
        	sourceColumnNames = sourceDictionaryBean.getColumnNames();
        	sourceColumnType = sourceDictionaryBean.getColumnTypes();     
-       	sourceColumnTypeAttribute = sourceDictionaryBean.getColumnTypeAttribute();       	
+       	sourceColumnTypeAttribute = sourceDictionaryBean.getColumnTypeAttribute();
+       	sourceColumnLength = sourceDictionaryBean.getColumnLength();
 
 
        	// Get target column dictionary
@@ -174,6 +178,7 @@ public class DataCopyBean {
     	List<String> listName = new ArrayList<String>();
     	List<String> listSourceType = new ArrayList<String>();
     	List<String> listSourceTypeAttribute = new ArrayList<String>();
+    	List<Integer> listSourceLength = new ArrayList<Integer>();
     	List<String> listTargetType = new ArrayList<String>();
     	List<String> listTargetTypeAttribute = new ArrayList<String>();
     	List<Integer> listTargetLength = new ArrayList<Integer>();
@@ -186,6 +191,7 @@ public class DataCopyBean {
             		listName.add(targetColumnNames[t]);
             		listSourceType.add(sourceColumnType[s]);
             		listSourceTypeAttribute.add(sourceColumnTypeAttribute[s]);
+            		listSourceLength.add(sourceColumnLength[s]);
             		listTargetType.add(targetColumnType[t]);
             		listTargetTypeAttribute.add(targetColumnTypeAttribute[t]);
             		listTargetLength.add(targetColumnLength[t]);
@@ -196,16 +202,24 @@ public class DataCopyBean {
         commonColumnNames = new String[listName.size()];
         sourceCommonColumnTypes = new String[listSourceType.size()];
         sourceCommonColumnTypeAttribute = new String[listSourceTypeAttribute.size()];
+        sourceCommonColumnLength = new int[listSourceLength.size()];
         targetCommonColumnTypes = new String[listTargetType.size()];
         targetCommonColumnTypeAttribute = new String[listTargetTypeAttribute.size()];
         targetCommonColumnLength = new int[listTargetLength.size()];
+        Integer[] sourceCommonColumnLengthInteger = new Integer[listSourceLength.size()];
         Integer[] targetCommonColumnLengthInteger = new Integer[listTargetLength.size()];
+        
         listName.toArray(commonColumnNames);
         listSourceType.toArray(sourceCommonColumnTypes);
         listSourceTypeAttribute.toArray(sourceCommonColumnTypeAttribute);
+        listSourceLength.toArray(sourceCommonColumnLengthInteger);
         listTargetType.toArray(targetCommonColumnTypes);
         listTargetTypeAttribute.toArray(targetCommonColumnTypeAttribute);
         listTargetLength.toArray(targetCommonColumnLengthInteger);
+        
+        for (int i = 0; i < sourceCommonColumnLength.length; i++) {
+        	sourceCommonColumnLength[i] = sourceCommonColumnLengthInteger[i];
+        }
         for (int i = 0; i < targetCommonColumnLength.length; i++) {
         	targetCommonColumnLength[i] = targetCommonColumnLengthInteger[i];
         }
@@ -275,21 +289,45 @@ public class DataCopyBean {
 	    		if (i > 0) {
 	    			queryText += ",";
 	    		}
-	    		if (
+		    	if (
+			    	!sourceCommonColumnTypes[i].toUpperCase().contains("VAR") &&
+			    	!sourceCommonColumnTypeAttribute[i].toUpperCase().contains("BIT") &&
+			    	(
+			    		sourceCommonColumnTypes[i].toUpperCase().contains("CHAR") ||
+			    		sourceCommonColumnTypes[i].toUpperCase().contains("GRAPHIC") ||
+			    		(
+			    			sourceCommonColumnTypes[i].toUpperCase().contains("BINARY") &&
+			    			!sourceCon.getDatabaseProductName().toUpperCase().contains("HIVE") &&
+			    			!sourceCon.getDatabaseProductName().toUpperCase().contains("HSQL") &&
+			    			!sourceCon.getDatabaseProductName().toUpperCase().contains("INFORMIX") &&
+			    			!sourceCon.getDatabaseProductName().toUpperCase().contains("VERTICA")
+			    		)
+			    	)
+			    ) {
+		    		if (
+		    			sourceCon.getDatabaseProductName().toUpperCase().contains("FIREBIRD") ||
+		    			sourceCon.getDatabaseProductName().toUpperCase().contains("INFORMIX")
+			    	) {
+			    		queryText += "TRIM(TRAILING FROM " + sourceCon.getColumnIdentifier(commonColumnNames[i]) + ") AS " + sourceCon.getColumnIdentifier(commonColumnNames[i]);
+		    		}
+		    		else {
+			    		queryText += "RTRIM(" + sourceCon.getColumnIdentifier(commonColumnNames[i]) + ") AS " + sourceCon.getColumnIdentifier(commonColumnNames[i]);
+		    		}
+			    }
+		    	else if (
 	    	    	sourceCon.getDatabaseProductName().toUpperCase().contains("DERBY") &&
 	    	    	sourceCommonColumnTypes[i].toUpperCase().contains("XML")
 	    	    ) {
-		    		queryText += sourceCon.getColumnIdentifier("XMLSERIALIZE(" + commonColumnNames[i] + " AS CLOB) AS " + commonColumnNames[i]);
+		    		queryText += "XMLSERIALIZE(" + sourceCon.getColumnIdentifier(commonColumnNames[i]) + " AS CLOB) AS " + sourceCon.getColumnIdentifier(commonColumnNames[i]);
 	    		}
 	    		else if (
 		    	    sourceCon.getDatabaseProductName().toUpperCase().contains("TERADATA") &&
-		    	    sourceCommonColumnTypes[i].toUpperCase().contains("N")
+		    	    sourceCommonColumnTypes[i].equalsIgnoreCase("N")
 		    	) {
-			    	queryText += sourceCon.getColumnIdentifier("CAST(" + commonColumnNames[i] + " AS DECIMAL) AS " + commonColumnNames[i]);
+			    	queryText += "CAST(" + sourceCon.getColumnIdentifier(commonColumnNames[i]) + " AS DECIMAL) AS " + sourceCon.getColumnIdentifier(commonColumnNames[i]);
 		    	}
 	    		else {
 		    		queryText += sourceCon.getColumnIdentifier(commonColumnNames[i]);
-	    			
 	    		}
 	    	}
 	    	if (sourceMapColumns!=null) {
@@ -351,6 +389,7 @@ public class DataCopyBean {
         
         // Build insert statement	    
         String insertText = "INSERT ";
+        String insertParameter = "?";
         if (targetCon.getDatabaseProductName().toUpperCase().contains("ORACLE")) {
         	insertText += "/*+APPEND*/ ";
         }
@@ -377,29 +416,149 @@ public class DataCopyBean {
 	    insertText += ") VALUES (";
 	    
 	    for (int i = 0; i < commonColumnNames.length; i++) {
+	    	insertParameter = "?";
 	    	if (i > 0) {
 	    		insertText = insertText + ",";
 	    	}
+	    	
+	    	// Remove trailing blanks from strings derived from fixed length column types
+	    	if (
+	    		!targetCommonColumnTypes[i].toUpperCase().contains("BLOB") &&
+	    		!targetCommonColumnTypeAttribute[i].toUpperCase().contains("BIT") &&
+	    		!sourceCommonColumnTypes[i].toUpperCase().contains("VAR") &&
+	    		!sourceCommonColumnTypes[i].toUpperCase().contains("FLOAT") &&
+	    		!sourceCommonColumnTypes[i].toUpperCase().contains("DOUBLE") &&
+	    		(
+	    			sourceCommonColumnTypes[i].toUpperCase().contains("CHAR") ||
+	    			sourceCommonColumnTypes[i].toUpperCase().contains("GRAPHIC") ||
+	    			sourceCommonColumnTypes[i].toUpperCase().contains("BINARY") ||
+	    			(
+	    				sourceCon.getDatabaseProductName().toUpperCase().contains("TERADATA") &&
+	    				sourceCommonColumnTypes[i].toUpperCase().contains("BYTE") &&
+	    				!sourceCommonColumnTypes[i].toUpperCase().contains("INT")
+	    			)
+	    		) &&
+	    		!(
+		    		(
+		    			targetCommonColumnTypes[i].toUpperCase().contains("BINARY") &&
+		    			(
+		    				targetCon.getDatabaseProductName().toUpperCase().contains("HSQL") ||
+		    				targetCon.getDatabaseProductName().toUpperCase().contains("INFORMIX") ||
+		    				targetCon.getDatabaseProductName().toUpperCase().contains("VERTICA")
+		    			)
+		    		) ||
+		    		(
+			    		targetCommonColumnTypes[i].toUpperCase().contains("BYTE") &&
+			    		targetCon.getDatabaseProductName().toUpperCase().contains("TERADATA")
+			    	) ||
+		    		(
+				    	(
+				    		sourceCon.getDatabaseProductName().toUpperCase().contains("SQL ANYWHERE") ||
+				    		sourceCon.getDatabaseProductName().toUpperCase().contains("VERTICA")
+				    	) &&
+				    	targetCon.getDatabaseProductName().toUpperCase().contains("TERADATA")
+				    ) ||
+		    		(
+		    			targetCommonColumnTypes[i].toUpperCase().contains("BYTEA") &&
+		    			targetCon.getDatabaseProductName().toUpperCase().contains("POSTGRES")
+		    		) ||
+		    		(
+				    	sourceCommonColumnTypes[i].toUpperCase().contains("BINARY") &&
+				    	sourceCon.getDatabaseProductName().toUpperCase().contains("MYSQL") &&
+				    	targetCon.getDatabaseProductName().toUpperCase().contains("NETEZZA")
+				    ) ||
+		    		(
+					    (
+					    	targetCommonColumnTypes[i].toUpperCase().contains("CLOB") ||
+					    	targetCommonColumnTypes[i].toUpperCase().contains("TEXT")
+					    ) &&
+					    targetCon.getDatabaseProductName().toUpperCase().contains("INFORMIX")
+					)
+		    	)
+	    	) {
+	    		if (
+	    			targetCon.getDatabaseProductName().toUpperCase().contains("FIREBIRD") ||
+	    			targetCon.getDatabaseProductName().toUpperCase().contains("INFORMIX")
+	    		) {
+	    			insertParameter = "TRIM(TRAILING FROM ?)";
+	    		}
+	    		else {
+		    		insertParameter = "RTRIM(?)";
+	    		}
+	    	}
+
+	   	   		
+   	   		// Double column length in case source type is binary and target is Netezza varchar
+   	   		if (
+   	   			sourceCommonColumnTypeAttribute[i].toUpperCase().contains("BIT") ||
+   	   			sourceCommonColumnTypes[i].toUpperCase().contains("BINARY") ||
+		    	sourceCommonColumnTypes[i].toUpperCase().contains("BYTE")
+   	   		) {
+   	   			if (
+   	   				targetCon.getDatabaseProductName().toUpperCase().contains("DERBY")
+   	   			) {
+   	   	   			lengthMultiplier = 2;
+   	   			}
+   	   			else {
+   	   				lengthMultiplier = 4;
+   	   			}
+   	   		}
+   	   		else {
+   	   			lengthMultiplier = 1;
+   	   		}
+	    	
+   	   		// Cut strings to target length
+	    	if (
+	    		targetCommonColumnTypes[i].toUpperCase().contains("CHAR") &&
+	    		!targetCommonColumnTypeAttribute[i].toUpperCase().contains("BIT") &&
+	    		targetCommonColumnLength[i] > 0 &&
+	    		targetCommonColumnLength[i] < sourceCommonColumnLength[i] * lengthMultiplier
+	    	) {
+	    		if (
+				    sourceCommonColumnTypes[i].toUpperCase().contains("BINARY") &&
+				    sourceCon.getDatabaseProductName().toUpperCase().contains("MYSQL") &&
+				    targetCon.getDatabaseProductName().toUpperCase().contains("NETEZZA")
+	    		) {
+	    			
+	    		}
+	    		else if (targetCon.getDatabaseProductName().toUpperCase().contains("FIREBIRD")) {
+		    		insertParameter = "SUBSTRING(" + insertParameter + " FROM 1 FOR " + targetCommonColumnLength[i] + ")";
+	    		}
+	    		else if (
+	    			targetCon.getDatabaseProductName().toUpperCase().contains("DB2") ||
+	    			targetCon.getDatabaseProductName().toUpperCase().contains("DERBY") ||
+	    			targetCon.getDatabaseProductName().toUpperCase().contains("INFORMIX") ||
+	    			targetCon.getDatabaseProductName().toUpperCase().contains("ORACLE") ||
+	    			targetCon.getDatabaseProductName().toUpperCase().contains("TERADATA")
+	    		) {
+		    		insertParameter = "SUBSTR(" + insertParameter + ", 1, " + targetCommonColumnLength[i] + ")";
+	    		}
+	    		else {
+		    		insertParameter = "SUBSTRING(" + insertParameter + ", 1, " + targetCommonColumnLength[i] + ")";
+	    		}
+	    	}
+	    	
+	    	// Special casts and conversions
 	    	if (
               	targetCon.getDatabaseProductName().toUpperCase().contains("MICROSOFT") &&
               	targetCommonColumnTypes[i].toUpperCase().contains("BINARY")
             ) {
-		    	insertText = insertText + "CONVERT(VARBINARY,?)";
+		    	insertText = insertText + "CONVERT(VARBINARY," + insertParameter + ")";
 	    	}
 	    	else if (
 	            targetCon.getDatabaseProductName().toUpperCase().contains("POSTGRESQL") &&
 	            targetCommonColumnTypes[i].toUpperCase().contains("BIT")
 	        ) {
-			    insertText = insertText + "CAST(? AS VARBIT)";
+			    insertText = insertText + "CAST(" + insertParameter + " AS VARBIT)";
 		    }
 	    	else if (
 	    		targetCon.getDatabaseProductName().toUpperCase().contains("DERBY") &&
 	    		targetCommonColumnTypes[i].toUpperCase().contains("XML")
     	    ) {
-	    		insertText = insertText + "XMLPARSE (DOCUMENT CAST (? AS CLOB) PRESERVE WHITESPACE)";
+	    		insertText = insertText + "XMLPARSE (DOCUMENT CAST (" + insertParameter + " AS CLOB) PRESERVE WHITESPACE)";
     		}
 	    	else {
-		    	insertText = insertText + "?";
+		    	insertText = insertText + insertParameter;
 	    	}
 	    }
 	    
@@ -478,7 +637,7 @@ public class DataCopyBean {
 	        	logger.error("Unexpected exception, list of column values:");
 	        	for (int i = 0; i < commonColumnNames.length; i++) {
 	        		try {
-	        			logger.error(commonColumnNames[i] + ": " + sourceCommonColumnTypes[i] + " => " + targetCommonColumnTypes[i] + " = " + sourceRS.getObject(commonColumnNames[i]).toString());
+	        			logger.error(commonColumnNames[i] + ": " + sourceCommonColumnTypes[i] + " => " + targetCommonColumnTypes[i] + " = " + String.valueOf(sourceRS.getObject(commonColumnNames[i])));
 				    }
 	        		catch(Exception ee) {
 	        			logger.error(commonColumnNames[i] + ": " + sourceCommonColumnTypes[i] + " => " + targetCommonColumnTypes[i]);

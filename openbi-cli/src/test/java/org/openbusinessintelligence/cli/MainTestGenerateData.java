@@ -32,7 +32,7 @@ public class MainTestGenerateData {
 		arguments[4] = "";
 		arguments[6] = "test";
 		arguments[8] = "tab_test";
-		arguments[10] = "1000";
+		arguments[10] = "10";
 		
 		// Perform test
 		try {
@@ -53,7 +53,7 @@ public class MainTestGenerateData {
 		arguments[4] = "";
 		arguments[6] = "test";
 		arguments[8] = "tab_test";
-		arguments[10] = "1000";
+		arguments[10] = "10";
 		
 		// Perform test
 		try {
@@ -74,7 +74,7 @@ public class MainTestGenerateData {
 		arguments[4] = "";
 		arguments[6] = "";
 		arguments[8] = "tab_test";
-		arguments[10] = "1000";
+		arguments[10] = "10";
 		
 		// Perform test
 		try {
@@ -95,7 +95,7 @@ public class MainTestGenerateData {
 		arguments[4] = "";
 		arguments[6] = "test";
 		arguments[8] = "tab_test";
-		arguments[10] = "1000";
+		arguments[10] = "10";
 		
 		// Perform test
 		try {
@@ -116,7 +116,7 @@ public class MainTestGenerateData {
 		arguments[4] = "";
 		arguments[6] = "dwh_test";
 		arguments[8] = "tab_test";
-		arguments[10] = "1000";
+		arguments[10] = "10";
 		
 		// Perform test
 		try {
@@ -137,7 +137,7 @@ public class MainTestGenerateData {
 		arguments[4] = "";
 		arguments[6] = "test";
 		arguments[8] = "tab_test";
-		arguments[10] = "1000";
+		arguments[10] = "10";
 		
 		// Perform test
 		try {
@@ -179,7 +179,7 @@ public class MainTestGenerateData {
 		arguments[4] = "";
 		arguments[6] = "test";
 		arguments[8] = "tab_test";
-		arguments[10] = "1000";
+		arguments[10] = "10";
 		
 		// Perform test
 		try {
@@ -200,7 +200,7 @@ public class MainTestGenerateData {
 		arguments[4] = "";
 		arguments[6] = "test";
 		arguments[8] = "tab_test";
-		arguments[10] = "1000";
+		arguments[10] = "10";
 		
 		// Perform test
 		try {
@@ -221,7 +221,7 @@ public class MainTestGenerateData {
 		arguments[4] = "";
 		arguments[6] = "";
 		arguments[8] = "tab_test";
-		arguments[10] = "1";
+		arguments[10] = "10";
 		
 		// Perform test
 		try {
@@ -242,7 +242,7 @@ public class MainTestGenerateData {
 		arguments[4] = "";
 		arguments[6] = "";
 		arguments[8] = "tab_test";
-		arguments[10] = "1000";
+		arguments[10] = "10";
 		
 		// Perform test
 		try {
@@ -263,7 +263,7 @@ public class MainTestGenerateData {
 		arguments[4] = "";
 		arguments[6] = "test";
 		arguments[8] = "tab_test";
-		arguments[10] = "1000";
+		arguments[10] = "10";
 		
 		// Perform test
 		try {
@@ -284,7 +284,7 @@ public class MainTestGenerateData {
 		arguments[4] = "";
 		arguments[6] = "";
 		arguments[8] = "tab_test";
-		arguments[10] = "1000";
+		arguments[10] = "10";
 		
 		// Perform test
 		try {
@@ -305,7 +305,7 @@ public class MainTestGenerateData {
 		arguments[4] = "";
 		arguments[6] = "dbo";
 		arguments[8] = "tab_test";
-		arguments[10] = "1000";
+		arguments[10] = "10";
 		
 		// Perform test
 		try {
@@ -326,7 +326,7 @@ public class MainTestGenerateData {
 		arguments[4] = "";
 		arguments[6] = "test";
 		arguments[8] = "tab_test";
-		arguments[10] = "1000";
+		arguments[10] = "10";
 		
 		// Perform test
 		try {
@@ -347,7 +347,7 @@ public class MainTestGenerateData {
 		arguments[4] = "";
 		arguments[6] = "";
 		arguments[8] = "tab_test";
-		arguments[10] = "1000";
+		arguments[10] = "10";
 		
 		// Perform test
 		try {

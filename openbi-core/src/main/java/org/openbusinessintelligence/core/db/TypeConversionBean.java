@@ -67,6 +67,8 @@ public class TypeConversionBean {
     private boolean matrixDefaultLengthOption = true;
     private boolean matrixDefaultScaleOption = false;
     
+    private int lengthMultiplier = 1;
+    
     // Setter methods
     public void setTypeConvertionMatrix(org.w3c.dom.Document property) {
     	typeConvertionMatrix = property;
@@ -257,13 +259,32 @@ public class TypeConversionBean {
                 targetColumnScale = 0;
                 targetColumnLength = sourceColumnLength;
        		}
+       		else if (
+           		sourceColumnType.equalsIgnoreCase("BIT") &&
+               	sourceProductName.toUpperCase().contains("HSQL") &&
+               	targetProductName.toUpperCase().contains("HSQL")
+           	) {
+       			if (targetProductName.toUpperCase().contains("ORACLE")) {
+           			targetColumnType = "VARCHAR2";
+       			}
+       			else {
+           			targetColumnType = "VARCHAR";
+       			}
+                targetColumnPrecision = 0;
+                targetColumnScale = 0;
+                targetColumnLength = sourceColumnLength;
+           	}
        		else if (sourceColumnType.toUpperCase().contains("BIT")) {
                	if (
-               		targetProductName.toUpperCase().contains("SQL SERVER") ||
-               		targetProductName.toUpperCase().contains("INFORMIX") ||
-               		targetProductName.toUpperCase().contains("DERBY") ||
+                   	targetProductName.toUpperCase().contains("DERBY") ||
                		targetProductName.toUpperCase().contains("FIREBIRD") ||
-               		targetProductName.toUpperCase().contains("HDB")
+               		targetProductName.toUpperCase().contains("HDB") ||
+               		targetProductName.toUpperCase().contains("INFORMIX") ||
+               		targetProductName.toUpperCase().contains("SQL SERVER") ||
+               		(
+               			targetProductName.toUpperCase().contains("SQL ANYWHERE") &&
+               			sourceColumnType.equalsIgnoreCase("BIT")
+               		)
                	) {
                		targetColumnLength = 0;
                 }
@@ -279,6 +300,7 @@ public class TypeConversionBean {
             		targetProductName.toUpperCase().contains("HSQL") ||
             		targetProductName.toUpperCase().contains("INFORMIX") ||
             		targetProductName.toUpperCase().contains("NETEZZA") ||
+            		targetProductName.toUpperCase().contains("SQL ANYWHERE") ||
             		targetProductName.toUpperCase().contains("SQL SERVER") ||
             		targetProductName.toUpperCase().contains("TERADATA") ||
             		targetProductName.toUpperCase().contains("VERTICA")
@@ -291,9 +313,9 @@ public class TypeConversionBean {
            	}
        		else if (
        			sourceColumnType.toUpperCase().contains("CHAR") ||
-       			sourceColumnType.toUpperCase().contains("BINAR")
+       			sourceColumnType.toUpperCase().contains("BINARY")
             ) {
-                if (
+       			if (
                     targetProductName.toUpperCase().contains("SQL SERVER") &&
                     sourceColumnLength > 8000
                 ) {
@@ -647,6 +669,9 @@ public class TypeConversionBean {
 	       		else if (targetProductName.toUpperCase().contains("INFORMIX")) {
 	        		targetColumnType = "BYTE";
 	    		}
+	       		else if (targetProductName.toUpperCase().contains("NETEZZA")) {
+	        		targetColumnType = "VARCHAR";
+	    		}
 	       		else if (targetProductName.toUpperCase().contains("SQL ANYWHERE")) {
 	        		targetColumnType = "LONG BINARY";
 	    		}
@@ -776,6 +801,34 @@ public class TypeConversionBean {
    	 		if (!matrixProductScaleOptionMatch) {
    	 			matrixScaleOption = matrixDefaultScaleOption;
    	 		}
+   	 		   	   		
+   	   		// Double column length in case source type is binary and target is Netezza varchar
+   	   		if (
+   	   	   		!sourceColumnType.toUpperCase().contains("VAR") &&
+   	   			!targetColumnTypeAttribute.toUpperCase().contains("BIT") &&
+   	   			targetColumnType.toUpperCase().contains("CHAR") &&
+   	   			(
+   	    	   		sourceColumnTypeAttribute.toUpperCase().contains("BIT") ||
+   	   				sourceColumnType.toUpperCase().contains("BINARY") ||
+		    		sourceColumnType.toUpperCase().contains("BYTE") ||
+		    		(
+		    			sourceColumnType.toUpperCase().contains("TIMESTAMP") &&
+		    			sourceProductName.toUpperCase().contains("SQL SERVER")
+		    		)
+   	   			)
+   	   		) {
+   	   			if (
+   	   				sourceProductName.toUpperCase().contains("DERBY")
+   	   			) {
+   	   	   			lengthMultiplier = 2;
+   	   			}
+   	   			else {
+   	   				lengthMultiplier = 4;
+   	   			}
+   	   		}
+   	   		else {
+   	   			lengthMultiplier = 1;
+   	   		}
 
    	 		// Set length and scale
    	 		if (matrixLengthOption && matrixScaleOption) {
@@ -822,21 +875,21 @@ public class TypeConversionBean {
    	 			else if (
    	   	 			(
    	   	 				sourceColumnLength == 0 ||
-   	   	 				sourceColumnLength > matrixTargetMaxLength ||
-   	   	 				matrixTargetDataLength > matrixTargetMaxLength
+   	   	 				sourceColumnLength * lengthMultiplier > matrixTargetMaxLength ||
+   	   	 				matrixTargetDataLength * lengthMultiplier > matrixTargetMaxLength
    	   	 			) &&
    	   	 			matrixTargetMaxLength > 0
    	   	 		) {
    	   	 			targetColumnLength = matrixTargetMaxLength;
    	   	 		}
    	 			else if (matrixTargetDataLength > 0) {
-   					targetColumnLength = matrixTargetDataLength;
+   					targetColumnLength = matrixTargetDataLength * lengthMultiplier;
    	 			}
    	 			else if (matrixTargetDefaultDataLength > 0) {
    					targetColumnLength = matrixTargetDefaultDataLength;
    	 			}
    	 			else {
-   					targetColumnLength = sourceColumnLength;
+   					targetColumnLength = sourceColumnLength * lengthMultiplier;
    	 			}
 				targetColumnPrecision = 0;
 				targetColumnScale = 0;
@@ -849,747 +902,6 @@ public class TypeConversionBean {
    	 		
    	 		logger.debug("LENGTH OPTION = " + matrixLengthOption);
    	 		logger.debug("SCALE OPTION = " + matrixScaleOption);
-	        // NCHAR and NVARCHAR types
-	   		/*else if (sourceColumnType.contains("NCHAR") && sourceColumnLength == 1) {
-	            targetColumnType = "NCHAR";
-				targetColumnLength = 0;
-	        }
-	        else if (
-	            (
-	                (sourceColumnType.contains("NCHAR") || sourceColumnType.contains("NVARCHAR")) &&
-	                sourceColumnLength > 1
-	            ) ||
-	            (sourceColumnType.contains("UNIQUE"))
-	        ) {
-	            if (targetProductName.toUpperCase().contains("ORACLE")) {
-	                if (sourceColumnLength > 2000) {
-	                    targetColumnType = "CLOB";
-	        			targetColumnLength = 0;
-	                }
-	                else {
-	                    targetColumnType = "NVARCHAR2";
-	                    targetColumnLength = sourceColumnLength;
-	                }
-	            }
-	            else if (targetProductName.toUpperCase().contains("DB2")) {
-	                if (sourceColumnLength > 32672) {
-	                    targetColumnType = "CLOB";
-	        			targetColumnLength = 0;
-	                }
-	                else {
-	                    targetColumnType = "NVARCHAR";
-	                    targetColumnLength = sourceColumnLength;
-	                }
-	            }
-	            else if (targetProductName.toUpperCase().contains("DERBY")) {
-	                if (sourceColumnLength > 32672) {
-	                    targetColumnType = "CLOB";
-	        			targetColumnLength = 0;
-	                }
-	                else {
-	                    targetColumnType = "VARCHAR";
-	                    targetColumnLength = sourceColumnLength;
-	                }
-	            }
-	            else if (targetProductName.toUpperCase().contains("FIREBIRD")) {
-	                if (sourceColumnLength > 4000) {
-	                    targetColumnType = "BLOB";
-	        			targetColumnLength = 0;
-	                }
-	                else {
-	                    targetColumnType = "VARCHAR";
-	                    targetColumnLength = sourceColumnLength;
-	                }
-	            }
-	            else if (targetProductName.toUpperCase().contains("TERADATA")) {
-	                if (sourceColumnLength > 4000) {
-	                    targetColumnType = "CLOB";
-	        			targetColumnLength = 0;
-	                }
-	                else {
-	                    targetColumnType = "VARCHAR";
-	                    targetColumnLength = sourceColumnLength;
-	                }
-	            }
-	            else if (targetProductName.toUpperCase().contains("POSTGRES")) {
-	                if (sourceColumnLength > 10000000) {
-	                    targetColumnType = "TEXT";
-	        			targetColumnLength = 0;
-	                }
-	                else {
-	                    targetColumnType = "VARCHAR";
-	                    targetColumnLength = sourceColumnLength;
-	                }
-	            }
-	            else if (targetProductName.toUpperCase().contains("MYSQL")) {
-	                if (sourceColumnLength > 255) {
-	                    targetColumnType = "LONGTEXT";
-	        			targetColumnLength = 0;
-	                }
-	                else {
-	                    targetColumnType = "NVARCHAR";
-	                    targetColumnLength = sourceColumnLength;
-	                }
-	            }
-	            else if (targetProductName.toUpperCase().contains("ANYWHERE")) {
-	                if (sourceColumnLength > 32767) {
-	                    targetColumnType = "TEXT";
-	        			targetColumnLength = 0;
-	                }
-	                else {
-	                    targetColumnType = "NVARCHAR";
-	                    targetColumnLength = sourceColumnLength;
-	                }
-	            }
-	            else if (targetProductName.toUpperCase().contains("VERTICA")) {
-	                if (sourceColumnLength > 65000) {
-	                    targetColumnType = "LONG VARCHAR";
-	                    if (sourceColumnLength > 2000000) {
-	                    	targetColumnLength = 2000000;
-	                    }
-	                    else {
-	                    	targetColumnLength = sourceColumnLength;
-	                    }
-	                }
-	                else {
-	                    targetColumnType = "VARCHAR";
-	                    targetColumnLength = sourceColumnLength;
-	                }
-	            }
-	            else if (targetProductName.toUpperCase().contains("NETEZZA")) {
-	                targetColumnType = "NVARCHAR";
-	                if (sourceColumnLength > 16000) {
-	        			targetColumnLength = 16000;
-	                }
-	                else {
-	                    targetColumnLength = sourceColumnLength;
-	                }
-	            }
-	            else if (targetProductName.toUpperCase().contains("INFORMIX")) {
-	                if ((sourceColumnLength > 255) && (sourceColumnLength <= 32739)) {
-	                    targetColumnType = "LVARCHAR";
-	        			targetColumnLength = sourceColumnLength;
-	                }
-	                else if (sourceColumnLength > 32739) {
-	                	targetColumnType = "TEXT";
-	        			targetColumnLength = 0;
-	                }
-	                else {
-	                    targetColumnType = "NVARCHAR";
-	                    targetColumnLength = sourceColumnLength;
-	                }
-	            }
-	            else if (targetProductName.toUpperCase().contains("HDB")) {
-	                if (sourceColumnLength > 5000) {
-	                    targetColumnType = "CLOB";
-	        			targetColumnLength = 0;
-	                }
-	                else {
-	                    targetColumnType = "NVARCHAR";
-	                    targetColumnLength = sourceColumnLength;
-	                }
-	            }
-	            else {
-	                targetColumnType = "NVARCHAR";
-	                if (
-	                	targetProductName.toUpperCase().contains("MICROSOFT") &&
-	                	sourceColumnLength > 4000
-	                ) {
-	                    targetColumnLength = -1;
-	                }
-	                else {
-	                    targetColumnLength = sourceColumnLength;
-	                }
-	            }
-	       		targetColumnPrecision = 0;
-	       		targetColumnScale = 0;
-	        }
-	        // CHAR and VARCHAR types
-	    	else if (sourceColumnType.contains("CHAR") && sourceColumnLength == 1) {
-	       		targetColumnType = "CHAR (1)";
-				targetColumnLength = 0;
-	       	}
-	    	else if (
-	    		(sourceColumnType.contains("CHAR") && sourceColumnLength > 1) ||
-	    		sourceColumnType.contains("GRAPHIC")
-	    	) {
-	    		if (targetProductName.toUpperCase().contains("ORACLE")) {
-	        		if (sourceColumnLength > 4000) {
-	        			targetColumnType = "CLOB";
-	        			targetColumnLength = 0;
-	        		}
-	        		else {
-	        			targetColumnType = "VARCHAR2";
-	        			targetColumnLength = sourceColumnLength;
-	        		}
-	    		}
-	    		else if (targetProductName.toUpperCase().contains("DB2")) {
-	        		if (sourceColumnLength > 32672) {
-	        			targetColumnType = "CLOB";
-	        			targetColumnLength = 0;
-	        		}
-	        		else {
-	        			targetColumnType = "VARCHAR";
-	        			targetColumnLength = sourceColumnLength;
-	        		}
-	    		}
-	            else if (targetProductName.toUpperCase().contains("DERBY")) {
-	                if (sourceColumnLength > 32672) {
-	                    targetColumnType = "CLOB";
-	        			targetColumnLength = sourceColumnLength;
-	                }
-	                else {
-	                    targetColumnType = "VARCHAR";
-	                    targetColumnLength = sourceColumnLength;
-	                }
-	            }
-	            else if (targetProductName.toUpperCase().contains("FIREBIRD")) {
-	                if (sourceColumnLength > 4000) {
-	                    targetColumnType = "BLOB";
-	        			targetColumnLength = 0;
-	                }
-	                else {
-	                    targetColumnType = "VARCHAR";
-	                    targetColumnLength = sourceColumnLength;
-	                }
-	            }
-	            else if (targetProductName.toUpperCase().contains("TERADATA")) {
-	                if (sourceColumnLength > 4000) {
-	                    targetColumnType = "CLOB";
-	        			targetColumnLength = 0;
-	                }
-	                else {
-	                    targetColumnType = "VARCHAR";
-	                    targetColumnLength = sourceColumnLength;
-	                }
-	            }
-	    		else if (targetProductName.toUpperCase().contains("POSTGRES")) {
-	        		if (sourceColumnLength > 10000000) {
-	        			targetColumnType = "TEXT";
-	        			targetColumnLength = 0;
-	        		}
-	        		else {
-	        			targetColumnType = "VARCHAR";
-	        			targetColumnLength = sourceColumnLength;
-	        		}
-	    		}
-	    		else if (targetProductName.toUpperCase().contains("MYSQL")) {
-	        		if (sourceColumnLength > 255) {
-	        			targetColumnType = "LONGTEXT";
-	        			targetColumnLength = 0;
-	        		}
-	        		else {
-	        			targetColumnType = "VARCHAR";
-	        			targetColumnLength = sourceColumnLength;
-	        		}
-	    		}
-	            else if (targetProductName.toUpperCase().contains("ANYWHERE")) {
-	                if (sourceColumnLength > 32767) {
-	                    targetColumnType = "TEXT";
-	        			targetColumnLength = 0;
-	                }
-	                else {
-	                    targetColumnType = "VARCHAR";
-	                    targetColumnLength = sourceColumnLength;
-	                }
-	            }
-	            else if (targetProductName.toUpperCase().contains("VERTICA")) {
-	                if (sourceColumnLength > 65000) {
-	                    targetColumnType = "LONG VARCHAR";
-	                    if (sourceColumnLength > 2000000) {
-	                    	targetColumnLength = 2000000;
-	                    }
-	                    else {
-	                    	targetColumnLength = sourceColumnLength;
-	                    }
-	                }
-	                else {
-	                    targetColumnType = "VARCHAR";
-	                    targetColumnLength = sourceColumnLength;
-	                }
-	            }
-	            else if (targetProductName.toUpperCase().contains("NETEZZA")) {
-	                targetColumnType = "VARCHAR";
-	                if (sourceColumnLength > 1000) {
-	        			targetColumnLength = 1000;
-	                }
-	                else {
-	                    targetColumnLength = sourceColumnLength;
-	                }
-	            }
-	            else if (targetProductName.toUpperCase().contains("INFORMIX")) {
-	                if ((sourceColumnLength > 255) && (sourceColumnLength <= 32739)) {
-	                    targetColumnType = "LVARCHAR";
-	        			targetColumnLength = 0;
-	                }
-	                else if (sourceColumnLength > 32739) {
-	                	targetColumnType = "TEXT";
-	        			targetColumnLength = 0;
-	                }
-	                else {
-	                    targetColumnType = "VARCHAR";
-	                    targetColumnLength = sourceColumnLength;
-	                }
-	            }
-	            else if (targetProductName.toUpperCase().contains("HDB")) {
-	                if (sourceColumnLength > 5000) {
-	                    targetColumnType = "CLOB";
-	        			targetColumnLength = 0;
-	                }
-	                else {
-	                    targetColumnType = "VARCHAR";
-	                    targetColumnLength = sourceColumnLength;
-	                }
-	            }
-	        	else {
-	    			targetColumnType = "VARCHAR";
-	    			if (
-	    				targetProductName.toUpperCase().contains("MICROSOFT") &&
-	    				sourceColumnLength > 4000
-	    			) {
-	    				targetColumnLength = -1;
-	    			}
-	    			else {
-	    				targetColumnLength = sourceColumnLength;
-	    			}
-	        	}
-	       		targetColumnPrecision = 0;
-	       		targetColumnScale = 0;
-	       	}
-	   		// Big text types
-	       	else if (
-	       			sourceColumnType.contains("CLOB") ||
-	       			sourceColumnType.contains("TEXT") ||
-	       			sourceColumnType.contains("JSON") ||
-	    	   		sourceColumnType.contains("SDO_GEOMETRY") ||
-	    	   		sourceColumnType.contains("SDO_RASTER")
-	       	) {
-	       		if (targetProductName.toUpperCase().contains("MYSQL")) {
-	        		targetColumnType = "LONGTEXT";
-	           		targetColumnLength = 0;
-	    		}
-	       		else if  (
-	           		targetProductName.toUpperCase().contains("POSTGRES") ||
-	           		targetProductName.toUpperCase().contains("INFORMIX")
-	           	) {
-	        		targetColumnType = "TEXT";
-	           		targetColumnLength = 0;
-	    		}
-	       		else if (targetProductName.toUpperCase().contains("MICROSOFT")) {
-	       			targetColumnType = "VARCHAR";
-	       			targetColumnLength = -1;
-	    		}
-	       		else if (targetProductName.toUpperCase().contains("NETEZZA")) {
-	       			targetColumnType = "VARCHAR";
-	       			targetColumnLength = 1000;
-	    		}
-	       		else if (
-	       			targetProductName.toUpperCase().contains("ORACLE") ||
-	       			targetProductName.toUpperCase().contains("DB2")
-	       		) {
-	        		targetColumnType = "CLOB";
-	           		targetColumnLength = 0;
-	    		}
-	       		else if (targetProductName.toUpperCase().contains("FIREBIRD")) {
-	            	targetColumnType = "BLOB";
-	               	targetColumnLength = 0;
-	        	}
-	       		else if (targetProductName.toUpperCase().contains("ANYWHERE")) {
-	                targetColumnType = "TEXT";
-	                targetColumnLength = 0;
-	       		}
-	       		else if (targetProductName.toUpperCase().contains("VERTICA")) {
-	       			targetColumnType = "LONG VARCHAR";
-	                targetColumnLength = 0;
-	       		}
-	       		else {
-	        		targetColumnType = "CLOB";
-	           		targetColumnLength = 0;
-	       		}
-	       	}
-	   		// XML type
-	       	else if (sourceColumnType.contains("XML")) {
-	       		if (targetProductName.toUpperCase().contains("MYSQL")) {
-	        		targetColumnType = "LONGTEXT";
-	    		}
-	       		else if (
-	       			targetProductName.toUpperCase().contains("POSTGRES") ||
-	       			targetProductName.toUpperCase().contains("INFORMIX")
-	       			) {
-	        		targetColumnType = "TEXT";
-	    		}
-	       		else if (targetProductName.toUpperCase().contains("ORACLE")) {
-	        		targetColumnType = "XMLTYPE";
-	    		}
-	       		else if (
-	           		targetProductName.toUpperCase().contains("H2") ||
-	       			targetProductName.toUpperCase().contains("HDB") ||
-	           		targetProductName.toUpperCase().contains("HSQL") ||
-	           		targetProductName.toUpperCase().contains("TERADATA")
-	           	) {
-	        		targetColumnType = "CLOB";
-	    		}
-	       		else if (targetProductName.toUpperCase().contains("FIREBIRD")) {
-	            	targetColumnType = "BLOB";
-	            	targetColumnTypeAttribute = "";
-	       			targetColumnLength = 4000;
-	       			//targetColumnLength = 32767;
-	        	}
-	       		else if (targetProductName.toUpperCase().contains("NETEZZA")) {
-	       			targetColumnType = "VARCHAR";
-	       			targetColumnLength = 1000;
-	    		}
-	       		else if (targetProductName.toUpperCase().contains("VERTICA")) {
-	           		targetColumnType = "LONG VARCHAR";
-	                targetColumnLength = 0;
-	           	}
-	       		else {
-	        		targetColumnType = "XML";
-	    		}
-	       	}
-	   		// BLOB types
-	       	else if (
-	       		(
-		       		sourceColumnType.contains("BLOB") ||
-		       		sourceColumnType.contains("BYTE") ||
-		       		sourceColumnType.contains("BFILE") ||
-		       		sourceColumnType.contains("LONG") ||
-		       		sourceColumnType.contains("IMAGE") ||
-		       		sourceColumnType.contains("BINARY") ||
-		       		sourceColumnType.contains("GEOGRAPHY") ||
-		       		sourceColumnType.contains("GEOMETRY") ||
-		       		sourceColumnType.contains("ARRAY") ||
-		       		sourceColumnType.contains("OTHER") ||
-		       		sourceColumnTypeAttribute.contains("FOR BIT DATA")
-	       		) &&
-	       		!(
-	    	       	sourceColumnType.contains("FLOAT") ||
-	    	       	sourceColumnType.contains("DOUBLE")
-	           	)
-	       	) {
-	       		if (targetProductName.toUpperCase().contains("POSTGRES")) {
-	        		targetColumnType = "BYTEA";
-	    		}
-	       		else if (targetProductName.toUpperCase().contains("INFORMIX")) {
-	        		targetColumnType = "BYTE";
-	    		}
-	       		else if (targetProductName.toUpperCase().contains("MICROSOFT")) {
-	        		targetColumnType = "VARBINARY";
-	        		targetColumnLength = -1;
-	    		}
-	       		else if (targetProductName.toUpperCase().contains("NETEZZA")) {
-	       			targetColumnType = "VARCHAR";
-	       			targetColumnLength = 1000;
-	    		}
-	       		else if (targetProductName.toUpperCase().contains("ANYWHERE")) {
-	        		targetColumnType = "IMAGE";
-	    		}
-	       		else if (targetProductName.toUpperCase().contains("VERTICA")) {
-	        		targetColumnType = "LONG VARBINARY";
-	    		}
-	       		else if (targetProductName.toUpperCase().contains("DERBY")) {
-	        		targetColumnType = "LONG VARCHAR FOR BIT DATA";
-	    		}
-	       		else if (targetProductName.toUpperCase().contains("FIREBIRD")) {
-	            	targetColumnType = "BLOB";
-	            	targetColumnTypeAttribute = "";
-	       			targetColumnLength = 0;
-	    		}
-	       		else {
-	        		targetColumnType = "BLOB";
-	    		}
-	       	}
-	   		// Date/time types
-	   		else if (
-	   			sourceColumnType.equalsIgnoreCase("TIME")
-	   		) {
-	       		if (
-	       			targetProductName.toUpperCase().contains("DB2") ||
-	       			targetProductName.toUpperCase().contains("DERBY") ||
-	       			targetProductName.toUpperCase().contains("FIREBIRD") ||
-	       			targetProductName.toUpperCase().contains("H2") ||
-	       			targetProductName.toUpperCase().contains("HDB") ||
-	       			targetProductName.toUpperCase().contains("HSQL") ||
-	       			targetProductName.toUpperCase().contains("MYSQL") ||
-	       			targetProductName.toUpperCase().contains("POSTGRE") ||
-	       			targetProductName.toUpperCase().contains("NETEZZA")
-	       		) {
-	               	targetColumnType = "TIME";
-	       		}
-	       	}
-	       	else if (
-	       			sourceColumnType.contains("DATE") ||
-	       			sourceColumnType.contains("TIME") ||
-	       			sourceColumnType.contains("YEAR")
-	       	) {
-	       		if (
-	       			targetProductName.toUpperCase().contains("ORACLE") ||
-	       			targetProductName.toUpperCase().contains("DB2")
-	       		) {
-	           		targetColumnType = "DATE";
-	       		}
-	       		else if (
-	       			targetProductName.toUpperCase().contains("DERBY") ||
-	       			targetProductName.toUpperCase().contains("FIREBIRD") ||
-	       			targetProductName.toUpperCase().contains("POSTGRE") ||
-	       			targetProductName.toUpperCase().contains("TERADATA")
-	       		) {
-	               	targetColumnType = "TIMESTAMP";
-	       		}
-	       		else if (targetProductName.toUpperCase().contains("INFORMIX")) {
-	           		targetColumnType = "DATETIME YEAR TO FRACTION(3)";
-	       		}
-	       		else if (targetProductName.toUpperCase().contains("HDB")) {
-	               	targetColumnType = "SECONDDATE";
-	       		}
-	       		else if (targetProductName.toUpperCase().contains("MYSQL")) {
-	                targetColumnType = "DATETIME";
-	           	}
-	       		else {
-	       			targetColumnType = "DATETIME";
-	       		}
-	       		targetColumnLength = 0;
-	       		targetColumnPrecision = 0;
-	       		targetColumnScale = 0;
-	       	}
-	   		// Interval type
-	       	else if (sourceColumnType.contains("INTERVAL")) {
-	       		if (targetProductName.toUpperCase().contains("POSTGRES")) {
-	           		targetColumnType = "INTERVAL";
-	       		}
-	       		else if (targetProductName.toUpperCase().contains("ORACLE")) {
-	           		targetColumnType = "VARCHAR2";
-	           		targetColumnLength = 255;
-	       		}
-	       		else {
-	           		targetColumnType = "VARCHAR";
-	           		targetColumnLength = 255;
-	       		}
-	       	}
-	   		// Double types
-	       	else if (
-	       		sourceColumnType.contains("DOUBLE") ||
-	       		sourceColumnType.contains("REAL")
-	       	) {
-	   			if (targetProductName.toUpperCase().contains("ORACLE")) {
-	   				targetColumnType = "BINARY_DOUBLE";
-	   			}
-	   			else if (targetProductName.toUpperCase().contains("MICROSOFT")) {
-	   				targetColumnType = "FLOAT";
-	   			}
-	   			else if (
-	   				targetProductName.toUpperCase().contains("POSTGRES") ||
-	   				targetProductName.toUpperCase().contains("INFORMIX") ||
-	   				targetProductName.toUpperCase().contains("TERADATA") ||
-	   				targetProductName.toUpperCase().contains("FIREBIRD") ||
-	   				targetProductName.toUpperCase().contains("VERTICA")
-	   			) {
-	   				targetColumnType = "DOUBLE PRECISION";
-	   			}
-	   			else {
-	   	       		targetColumnType = "DOUBLE";
-	   			}
-	       	}
-	   		// Numeric types
-	       	else if (
-	       			sourceColumnType.contains("NUMBER") ||
-	       			sourceColumnType.contains("NUMERIC") ||
-	       			sourceColumnType.contains("SERIAL") ||
-	       			sourceColumnType.contains("DEC") ||
-	       			sourceColumnType.contains("INT") ||
-	       			sourceColumnType.contains("FLO") ||
-	       			sourceColumnType.contains("IDENT")
-	       	) {
-	       		if (sourceColumnPrecision <= sourceColumnScale || sourceColumnScale < 0) {
-	       			targetColumnType = "FLOAT";
-	       		}
-	       		else {
-	       			if (targetProductName.toUpperCase().contains("ORACLE")) {
-	       				if (sourceColumnPrecision > 38) {
-		       				targetColumnType = "FLOAT";
-	       				}
-	       				else {
-		       				targetColumnType = "NUMBER";
-		           			targetColumnPrecision = sourceColumnPrecision;
-		           			targetColumnScale = sourceColumnScale;
-		       			}
-	       			}
-	       			else if (targetProductName.toUpperCase().contains("FIREBIRD") && sourceColumnPrecision > 18) {
-	       				targetColumnType = "FLOAT";
-	   				}
-	       			else if (targetProductName.toUpperCase().contains("MYSQL") && sourceColumnPrecision > 30) {
-	       				targetColumnType = "FLOAT";
-	   				}
-	       			else if (targetProductName.toUpperCase().contains("DB2") && sourceColumnPrecision > 31) {
-	       				targetColumnType = "DECFLOAT";
-	   				}
-	       			else if (targetProductName.toUpperCase().contains("DERBY") && sourceColumnPrecision > 31) {
-	       				targetColumnType = "FLOAT";
-	   				}
-	       			else if (targetProductName.toUpperCase().contains("TERADATA") && sourceColumnPrecision > 38) {
-	       				targetColumnType = "FLOAT";
-	   				}
-	       			else if (targetProductName.toUpperCase().contains("MICROSOFT") && sourceColumnPrecision > 38) {
-	       				targetColumnType = "FLOAT";
-	   				}
-	       			else if (targetProductName.toUpperCase().contains("HDB") && sourceColumnPrecision > 38) {
-	       				targetColumnType = "FLOAT";
-	   				}
-	       			else if (targetProductName.toUpperCase().contains("NETEZZA") && sourceColumnPrecision > 38) {
-	       				targetColumnType = "FLOAT";
-	   				}
-	       			else if (targetProductName.toUpperCase().contains("POSTGRES") && sourceColumnPrecision > 1000) {
-	       				targetColumnType = "DOUBLE PRECISION";
-	   				}
-	       			else if (targetProductName.toUpperCase().contains("ANYWHERE") && sourceColumnPrecision > 127) {
-	       				targetColumnType = "DOUBLE";
-	   				}
-	       			else if (targetProductName.toUpperCase().contains("VERTICA") && sourceColumnPrecision > 1024) {
-	       				targetColumnType = "DOUBLE PRECISION";
-	   				}
-	       			else if (targetProductName.toUpperCase().contains("INFORMIX")) {
-	       				if (sourceColumnPrecision > 32) {
-	           				targetColumnType = "FLOAT";
-	       				}
-	       				else {
-		       				targetColumnType = "DECIMAL";
-		           			targetColumnPrecision = sourceColumnPrecision;
-		           			targetColumnScale = sourceColumnScale;
-		       			}
-	   				}
-	       			else if (
-	       				targetProductName.toUpperCase().contains("POSTGRES") &&
-	       				sourceColumnType.contains("SERIAL")
-	       			) {
-	       				targetColumnType = "SERIAL";
-	   				}
-	       			else {
-	       				targetColumnType = "NUMERIC";
-	           			targetColumnPrecision = sourceColumnPrecision;
-	           			targetColumnScale = sourceColumnScale;
-	       			}
-	       		}    		
-	       	}
-	   		// Money type
-	       	else if (sourceColumnType.contains("MONEY")) {
-	       		if (
-	       			targetProductName.toUpperCase().contains("MICROSOFT") ||
-	       			targetProductName.toUpperCase().contains("POSTGRES") ||
-	       			targetProductName.toUpperCase().contains("INFORMIX")
-	       		) {
-	       			targetColumnType = "MONEY";
-	       		}
-	       		else {
-	       			if (targetProductName.toUpperCase().contains("ORACLE")) {
-	       				targetColumnType = "NUMBER";           				
-	       			}
-	       			else {
-	       				targetColumnType = "NUMERIC";
-	       			}
-	       			if (targetProductName.toUpperCase().contains("FIREBIRD")) {
-	           			targetColumnPrecision = 18;
-	       			}
-	       			else {
-	           			targetColumnPrecision = 22;
-	       			}
-	       			targetColumnScale = 5;
-	       		}    		
-	       	}
-	   		// Bit type
-	       	else if (sourceColumnType.contains("BIT")) {
-	       		if (
-	       			targetProductName.toUpperCase().contains("MYSQL") ||
-	       			targetProductName.toUpperCase().contains("POSTGRES")
-	       		) {
-	   				targetColumnType = "BIT";
-	   				targetColumnLength = sourceColumnLength;
-	       		}
-	       		else if (targetProductName.toUpperCase().contains("ORACLE")) {
-	       			targetColumnType = "NUMBER";
-	       		}
-	       		else {
-	       			targetColumnType = "NUMERIC";
-	       		}
-	       		//
-	   			if (targetProductName.toUpperCase().contains("ORACLE") && sourceColumnPrecision > 38) {
-	       			targetColumnType = "FLOAT";
-	   			}
-	   			else if (targetProductName.toUpperCase().contains("FIREBIRD") && sourceColumnPrecision > 18) {
-	   				targetColumnType = "FLOAT";
-				}
-	   			else if (targetProductName.toUpperCase().contains("MYSQL") && sourceColumnPrecision > 30) {
-	   				targetColumnType = "FLOAT";
-				}
-	   			else if (targetProductName.toUpperCase().contains("DB2") && sourceColumnPrecision > 31) {
-	   				targetColumnType = "DECFLOAT";
-				}
-	   			else if (targetProductName.toUpperCase().contains("DERBY") && sourceColumnPrecision > 31) {
-	   				targetColumnType = "FLOAT";
-				}
-	   			else if (targetProductName.toUpperCase().contains("TERADATA") && sourceColumnPrecision > 38) {
-	   				targetColumnType = "FLOAT";
-				}
-	   			else if (targetProductName.toUpperCase().contains("MICROSOFT") && sourceColumnPrecision > 38) {
-	   				targetColumnType = "FLOAT";
-				}
-	   			else if (targetProductName.toUpperCase().contains("HDB") && sourceColumnPrecision > 38) {
-	   				targetColumnType = "FLOAT";
-				}
-	   			else if (targetProductName.toUpperCase().contains("NETEZZA") && sourceColumnPrecision > 38) {
-	   				targetColumnType = "FLOAT";
-				}
-	   			else if (targetProductName.toUpperCase().contains("POSTGRES") && sourceColumnPrecision > 1000) {
-	   				targetColumnType = "DOUBLE PRECISION";
-				}
-	   			else if (targetProductName.toUpperCase().contains("ANYWHERE") && sourceColumnPrecision > 127) {
-	   				targetColumnType = "DOUBLE";
-				}
-	   			else if (targetProductName.toUpperCase().contains("VERTICA") && sourceColumnPrecision > 1024) {
-	   				targetColumnType = "DOUBLE PRECISION";
-				}
-	   			else if (targetProductName.toUpperCase().contains("INFORMIX") && sourceColumnPrecision > 32) {
-	       			targetColumnType = "FLOAT";
-				}
-	   			else {
-	   				targetColumnPrecision = sourceColumnPrecision;
-				}
-	       	}
-	   		// Boolean type
-	       	else if (sourceColumnType.contains("BOOL")) {
-	   			if (targetProductName.toUpperCase().contains("ORACLE")) {
-	   				targetColumnType = "NUMBER";
-	   	   			targetColumnPrecision = sourceColumnPrecision;
-	   	   			targetColumnScale = sourceColumnScale;
-	   			}
-	   			else if (
-	   	   			targetProductName.toUpperCase().contains("FIREBIRD") ||
-	   	   			targetProductName.toUpperCase().contains("ANYWHERE")
-	   	   	   	) {
-	   	   	   		targetColumnType = "INT";
-	   	   	   		targetColumnPrecision = 0;
-	   	   	   		targetColumnScale = 0;
-	   	   	   	}
-	   			else if (
-	   				targetProductName.toUpperCase().contains("DB2") ||
-	   				targetProductName.toUpperCase().contains("HDB") ||
-	   				targetProductName.toUpperCase().contains("MICROSOFT") ||
-	   				targetProductName.toUpperCase().contains("TERADATA")
-	   	   	   	) {
-	   	   			targetColumnType = "NUMERIC";
-	   	   	   		targetColumnPrecision = sourceColumnPrecision;
-	   	   	   		targetColumnScale = sourceColumnScale;
-	   	   		}
-	   			else {
-	   				targetColumnType = "BOOLEAN";
-	   			}
-	       	}
-	       	else {
-	       		targetColumnType = sourceColumnType;
-	       		targetColumnLength = sourceColumnLength;
-	   			targetColumnPrecision = sourceColumnPrecision;
-	   			targetColumnScale = sourceColumnScale;
-	       	}*/
-	 		
 		}
    		
     	// Column definition
