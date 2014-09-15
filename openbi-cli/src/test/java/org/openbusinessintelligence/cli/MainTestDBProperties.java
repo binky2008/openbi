@@ -53,6 +53,22 @@ public class MainTestDBProperties {
 	}
 
 	@Test
+	public void testExasol() {
+		
+		initArguments();
+		//
+		arguments[2] = "localhost_exasol_test";
+		arguments[4] = "";
+		// Perform test
+		try {
+			Main.main(arguments);
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
+
+	@Test
 	public void testFirebird() {
 		
 		initArguments();

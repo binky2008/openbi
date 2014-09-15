@@ -223,21 +223,25 @@ public class Main {
 			logger.info("Framework installed"); 
     	}
     	/*
-		* Execute a store procedure
+		* Execute a stored procedure
 		*/
 	    if (feature.equalsIgnoreCase("executeprocedure")) {
-			org.openbusinessintelligence.core.db.ProcedureBean procedure = new org.openbusinessintelligence.core.db.ProcedureBean();
+			logger.info("Execute statement or procedure");
 			
-			procedure.setPropertyFile(getOption("dbconnpropertyfile"));
-			procedure.setDatabaseDriver(getOption("dbdriverclass"));
-			procedure.setConnectionURL(getOption("dbconnectionurl"));
-			procedure.setUserName(getOption("dbusername"));
-			procedure.setPassWord(getOption("dbpassword"));
-			procedure.setProcedureName(getOption("dbprocedure"));
+	    	org.openbusinessintelligence.core.db.ConnectionBean connectionBean = new org.openbusinessintelligence.core.db.ConnectionBean();
+	    	connectionBean.setPropertyFile(getOption("dbconnpropertyfile"));
+	    	connectionBean.setKeyWordFile(getOption("dbconnkeywordfile"));
+	    	connectionBean.setDatabaseDriver(getOption("dbdriverclass"));
+	    	connectionBean.setConnectionURL(getOption("dbconnectionurl"));
+	    	connectionBean.setUserName(getOption("dbusername"));
+	    	connectionBean.setPassWord(getOption("dbpassword"));
 			
 			try {
-				procedure.openConnection();
-				procedure.execute();
+				connectionBean.openConnection();
+				org.openbusinessintelligence.core.db.ExecuteBean executeBean = new org.openbusinessintelligence.core.db.ExecuteBean();
+				executeBean.setProcedureName(getOption("dbprocedure"));
+				executeBean.setStatement(getOption("dbstatement"));
+				executeBean.execute();
 			}
 			catch (Exception e) {
 				logger.error("UNEXPECTED EXCEPTION");

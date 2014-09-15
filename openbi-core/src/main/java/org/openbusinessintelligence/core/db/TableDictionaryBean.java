@@ -158,8 +158,8 @@ public class TableDictionaryBean {
     	    while (rscol.next()) {
     	    	listName.add(rscol.getString("COLUMN_NAME"));
     	    	listType.add(rscol.getString("TYPE_NAME"));
-    	    	listLength.add(rscol.getInt("COLUMN_SIZE"));
-	    		listPrecision.add(rscol.getInt("COLUMN_SIZE"));
+        	    listLength.add(rscol.getInt("COLUMN_SIZE"));
+    	    	listPrecision.add(rscol.getInt("COLUMN_SIZE"));
 	    		listScale.add(rscol.getInt("DECIMAL_DIGITS"));
 	    		listJdbcType.add(rscol.getInt("DATA_TYPE"));
     	    }
@@ -183,9 +183,19 @@ public class TableDictionaryBean {
 	        for (int i = 1; i <= columnCount; i++) {
 	         	listName.add(rsmd.getColumnName(i).toUpperCase());
 	         	listType.add(rsmd.getColumnTypeName(i).toUpperCase());
-	         	listLength.add(rsmd.getColumnDisplaySize(i));
-	         	listPrecision.add(rsmd.getPrecision(i));
-	           	listScale.add(rsmd.getScale(i));
+    	    	if (
+    	    		productName.toUpperCase().contains("IMPALA") &&
+    	    		rsmd.getColumnTypeName(i).equalsIgnoreCase("DECIMAL")
+    	    	) {
+    	    		listLength.add(38);
+    	         	listPrecision.add(38);
+    	           	listScale.add(38);
+    	    	}
+    	    	else {
+    	         	listLength.add(rsmd.getColumnDisplaySize(i));
+    	         	listPrecision.add(rsmd.getPrecision(i));
+    	           	listScale.add(rsmd.getScale(i));
+    	    	}
 	           	listJdbcType.add(rsmd.getColumnType(i));
 	        }
 	        rs.close();

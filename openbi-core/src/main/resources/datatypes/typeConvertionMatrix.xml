@@ -273,6 +273,10 @@
 	    	<typeName>TIMESTAMP</typeName>
 	    </dbType>
 	    <dbType>
+	    	<productName>EXASOL</productName>
+	    	<typeName>TIMESTAMP</typeName>
+	    </dbType>
+	    <dbType>
 	    	<productName>FIREBIRD</productName>
 	    	<typeName>TIMESTAMP</typeName>
 	    </dbType>
@@ -304,6 +308,10 @@
 	    <dbType>
 	    	<productName>DEFAULT</productName>
 	    	<typeName>TIME</typeName>
+	    </dbType>
+	    <dbType>
+	    	<productName>EXASOL</productName>
+	    	<typeName>TIMESTAMP</typeName>
 	    </dbType>
 	    <dbType>
 	    	<productName>IMPALA</productName>
@@ -377,6 +385,10 @@
 	    </dbType>
 	    <dbType>
 	    	<productName>DERBY</productName>
+	    	<typeName>TIMESTAMP</typeName>
+	    </dbType>
+	    <dbType>
+	    	<productName>EXASOL</productName>
 	    	<typeName>TIMESTAMP</typeName>
 	    </dbType>
 	    <dbType>
@@ -485,6 +497,10 @@
 	    	<dataLength>255</dataLength>
 	    </dbType>
 	    <dbType>
+	    	<productName>EXASOL</productName>
+	    	<typeName>INTERVAL YEAR TO MONTH</typeName>
+	    </dbType>
+	    <dbType>
 	    	<productName>HSQL</productName>
 	    	<typeName>INTERVAL YEAR TO MONTH</typeName>
 	    </dbType>
@@ -520,6 +536,10 @@
 	    	<productName>DEFAULT</productName>
 	    	<typeName>VARCHAR</typeName>
 	    	<dataLength>255</dataLength>
+	    </dbType>
+	    <dbType>
+	    	<productName>EXASOL</productName>
+	    	<typeName>INTERVAL DAY TO SECOND</typeName>
 	    </dbType>
 	    <dbType>
 	    	<productName>HSQL</productName>
@@ -688,6 +708,10 @@
 	    	<oversizeTypeName>CLOB</oversizeTypeName>
 	    </dbType>
 	    <dbType>
+	    	<productName>EXASOL</productName>
+	    	<typeName>VARCHAR</typeName>
+	    </dbType>
+	    <dbType>
 	    	<productName>FIREBIRD</productName>
 	    	<typeName>VARCHAR</typeName>
 	    	<maxLength>4000</maxLength>
@@ -842,6 +866,10 @@
 	    	<typeName>CLOB</typeName>
 	    </dbType>
 	    <dbType>
+	    	<productName>EXASOL</productName>
+	    	<typeName>CLOB</typeName>
+	    </dbType>
+	    <dbType>
 	    	<productName>FIREBIRD</productName>
 	    	<typeName>BLOB</typeName>
 	    </dbType>
@@ -928,6 +956,10 @@
 	    	<oversizeTypeName>BLOB</oversizeTypeName>
 	    </dbType>
 	    <dbType>
+	    	<productName>EXASOL</productName>
+	    	<typeName>VARCHAR</typeName>
+	    </dbType>
+	    <dbType>
 	    	<productName>FIREBIRD</productName>
 	    	<typeName>BLOB</typeName>
 	    </dbType>
@@ -1012,6 +1044,10 @@
 	    <dbType>
 	    	<productName>DEFAULT</productName>
 	    	<typeName>BLOB</typeName>
+	    </dbType>
+	    <dbType>
+	    	<productName>EXASOL</productName>
+	    	<typeName>VARCHAR</typeName>
 	    </dbType>
 	    <dbType>
 	    	<productName>FIREBIRD</productName>

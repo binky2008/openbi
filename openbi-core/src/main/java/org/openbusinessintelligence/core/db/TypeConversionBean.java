@@ -663,14 +663,18 @@ public class TypeConversionBean {
 	        	sourceProductName.toUpperCase().contains("SQL SERVER") &&
 		   		sourceColumnType.toUpperCase().contains("TIMESTAMP")
 	   		) {
-	       		if (targetProductName.toUpperCase().contains("POSTGRES")) {
-	        		targetColumnType = "BYTEA";
+	        	if (targetProductName.toUpperCase().contains("EXASOL")) {
+	        		targetColumnType = "VARCHAR"
+	        				+ "";
 	    		}
 	       		else if (targetProductName.toUpperCase().contains("INFORMIX")) {
 	        		targetColumnType = "BYTE";
 	    		}
 	       		else if (targetProductName.toUpperCase().contains("NETEZZA")) {
 	        		targetColumnType = "VARCHAR";
+	    		}
+	       		else if (targetProductName.toUpperCase().contains("POSTGRES")) {
+	        		targetColumnType = "BYTEA";
 	    		}
 	       		else if (targetProductName.toUpperCase().contains("SQL ANYWHERE")) {
 	        		targetColumnType = "LONG BINARY";
@@ -730,7 +734,7 @@ public class TypeConversionBean {
    	         			) {
    	         				// Jdbc type match by name
    	         				matrixSourceTypeMatch = true;
-   	         				logger.debug("SOURCE MATCH BY NAME = " + nMatrixTargetSubTypeList.item(s).getChildNodes().item(0).getNodeValue());
+   	         				logger.debug("TARGET MATCH BY NAME = " + nMatrixTargetSubTypeList.item(s).getChildNodes().item(0).getNodeValue());
    	         			}
    	     			}
 	 				
@@ -801,8 +805,12 @@ public class TypeConversionBean {
    	 		if (!matrixProductScaleOptionMatch) {
    	 			matrixScaleOption = matrixDefaultScaleOption;
    	 		}
+   	 		
+   	 		logger.debug("LENGTH OPTION = " + matrixLengthOption);
+   	 		logger.debug("SCALE OPTION = " + matrixScaleOption);
    	 		   	   		
-   	   		// Double column length in case source type is binary and target is Netezza varchar
+   	 		lengthMultiplier = 1;
+   	   		// Double column length in case source type is binary and target is varchar
    	   		if (
    	   	   		!sourceColumnType.toUpperCase().contains("VAR") &&
    	   			!targetColumnTypeAttribute.toUpperCase().contains("BIT") &&
@@ -818,20 +826,24 @@ public class TypeConversionBean {
    	   			)
    	   		) {
    	   			if (
-   	   				sourceProductName.toUpperCase().contains("DERBY")
+   	   				!sourceProductName.toUpperCase().contains("DERBY") &&
+   	   				sourceColumnLength < 2147483647 / 4
    	   			) {
-   	   	   			lengthMultiplier = 2;
-   	   			}
-   	   			else {
-   	   				lengthMultiplier = 4;
-   	   			}
-   	   		}
-   	   		else {
-   	   			lengthMultiplier = 1;
+	   				lengthMultiplier = 4;
+	   			}
+   	   			else if (
+   	   	   			sourceProductName.toUpperCase().contains("DERBY") ||
+   	   	   			sourceColumnLength < 2147483647 / 2
+   	   	   		) {
+   	   	   	   		lengthMultiplier = 2;
+   	   	   		}
    	   		}
 
+   	   		logger.debug("LENGTH MULTIPLIER = " + lengthMultiplier);
+   	   		
    	 		// Set length and scale
    	 		if (matrixLengthOption && matrixScaleOption) {
+   	   	   		logger.debug("Set length (precision) AND scale");
    	 			if (
    	   	 			(
    	   	 				sourceColumnLength == 0 ||
@@ -868,6 +880,7 @@ public class TypeConversionBean {
    	 			}
    	 		}
    	 		else if (matrixLengthOption && !matrixScaleOption) {
+   	   	   		logger.debug("Set length (precision), NOT scale");
    	 			if (matrixTargetDataLength < 0) {
    					targetColumnLength = 0;
    					targetColumnType += "(MAX)";
@@ -880,15 +893,19 @@ public class TypeConversionBean {
    	   	 			) &&
    	   	 			matrixTargetMaxLength > 0
    	   	 		) {
+   	   	   	   		logger.debug("Set length to max allowed!");
    	   	 			targetColumnLength = matrixTargetMaxLength;
    	   	 		}
    	 			else if (matrixTargetDataLength > 0) {
+   	   	   	   		logger.debug("Use product specific data length!");
    					targetColumnLength = matrixTargetDataLength * lengthMultiplier;
    	 			}
    	 			else if (matrixTargetDefaultDataLength > 0) {
+   	   	   	   		logger.debug("Use default data length!");
    					targetColumnLength = matrixTargetDefaultDataLength;
    	 			}
    	 			else {
+   	   	   	   		logger.debug("Use source data length!");
    					targetColumnLength = sourceColumnLength * lengthMultiplier;
    	 			}
 				targetColumnPrecision = 0;
@@ -899,9 +916,6 @@ public class TypeConversionBean {
 				targetColumnPrecision = 0;
 				targetColumnScale = 0;
    	 		}
-   	 		
-   	 		logger.debug("LENGTH OPTION = " + matrixLengthOption);
-   	 		logger.debug("SCALE OPTION = " + matrixScaleOption);
 		}
    		
     	// Column definition

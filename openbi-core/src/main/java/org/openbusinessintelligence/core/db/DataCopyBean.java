@@ -289,6 +289,11 @@ public class DataCopyBean {
 	    		if (i > 0) {
 	    			queryText += ",";
 	    		}
+	    		
+	    		/*if (sourceCon.getDatabaseProductName().toUpperCase().contains("HIVE")) {
+	    			
+	    		}*/
+	    		
 		    	if (
 			    	!sourceCommonColumnTypes[i].toUpperCase().contains("VAR") &&
 			    	!sourceCommonColumnTypeAttribute[i].toUpperCase().contains("BIT") &&

@@ -1,3 +1,11 @@
+-- TEST
+drop user test;
+
+create user test@`%` identified by 'test';
+
+grant all privileges on test.* to test;
+
+
 -- SugarCRM
 drop user sugarcrm;
 
@@ -33,12 +41,14 @@ create database dwhstage;
 
 grant all privileges on dwhstage.* to dwhstage;
 
-commit;
 
+-- DWHREPORT
+drop user dwhreport;
 
--- TEST
-drop user test;
+create user dwhreport identified by 'dwhreport';
 
-create user test@`%` identified by 'test';
+drop database if exists dwhreport;
 
-grant all privileges on test.* to test;
+create database dwhreport;
+
+grant all privileges on dwhreport.* to dwhreport;

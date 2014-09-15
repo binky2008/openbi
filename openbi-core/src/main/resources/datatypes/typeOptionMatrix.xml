@@ -82,6 +82,10 @@
 	    	<maxDataLength>31</maxDataLength>
 	    </option>
 	    <option>
+			<productName>EXASOL</productName>
+	    	<maxDataLength>36</maxDataLength>
+	    </option>
+	    <option>
 			<productName>FIREBIRD</productName>
 	    	<maxDataLength>18</maxDataLength>
 	    </option>
@@ -138,6 +142,10 @@
 	    <option>
 			<productName>DB2</productName>
 	    	<maxDataLength>34</maxDataLength>
+	    </option>
+	    <option>
+			<productName>EXASOL</productName>
+	    	<lengthOption>false</lengthOption>
 	    </option>
 	    <option>
 			<productName>HDB</productName>
@@ -266,6 +274,10 @@
 	    	<maxDataLength>32672</maxDataLength>
 	    </option>
 	    <option>
+			<productName>EXASOL</productName>
+	    	<maxDataLength>2000000</maxDataLength>
+	    </option>
+	    <option>
 			<productName>FIREBIRD</productName>
 	    	<maxDataLength>4000</maxDataLength>
 	    </option>
@@ -362,6 +374,10 @@
 	    <option>
 			<productName>DERBY</productName>
 	    	<maxDataLength>215741641</maxDataLength>
+	    </option>
+	    <option>
+			<productName>EXASOL</productName>
+	    	<maxDataLength>2000000</maxDataLength>
 	    </option>
 	    <option>
 			<productName>FIREBIRD</productName>

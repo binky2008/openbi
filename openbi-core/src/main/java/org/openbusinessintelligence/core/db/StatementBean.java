@@ -59,15 +59,23 @@ public final class StatementBean {
        		(dataType.toUpperCase().contains("POINT")) ||
        		(dataType.toUpperCase().contains("FILE")) ||
        		(
-       			productName.contains("SQL SERVER") &&
+       			productName.toUpperCase().contains("SQL SERVER") &&
        			dataType.toUpperCase().contains("TIMESTAMP")
        		) ||
        		(
-           		productName.contains("ORACLE") &&
+               	productName.toUpperCase().contains("EXASOL") &&
+               	dataType.toUpperCase().contains("GEOMETRY")
+            ) ||
+       		(
+                productName.toUpperCase().contains("IMPALA") &&
+                dataType.toUpperCase().contains("DECIMAL")
+            ) ||
+       		(
+           		productName.toUpperCase().contains("ORACLE") &&
            		dataType.toUpperCase().contains("LONG")
            	) ||
 	    	(
-	    		productName.contains("DERBY") &&
+	    		productName.toUpperCase().contains("DERBY") &&
 			    (
 			    	dataType.toUpperCase().contains("LOB") ||
 			    	dataType.toUpperCase().contains("XML") ||

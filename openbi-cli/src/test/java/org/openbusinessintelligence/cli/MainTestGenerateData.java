@@ -65,6 +65,27 @@ public class MainTestGenerateData {
 	}
 
 	@Test
+	public void testExasol() {
+		
+		initArguments();
+		
+		// Target properties
+		arguments[2] = "localhost_exasol_test";
+		arguments[4] = "";
+		arguments[6] = "";
+		arguments[8] = "tab_test";
+		arguments[10] = "10";
+		
+		// Perform test
+		try {
+			Main.main(arguments);
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
+
+	@Test
 	public void testFirebird() {
 		
 		initArguments();

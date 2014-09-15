@@ -58,6 +58,27 @@ public class MainTestCopyTableFromHSQL {
 	}
 
 	@Test
+	public void testExasol() {
+		
+		initSource();
+		//
+		targetArgs[0] = "localhost_exasol_test";
+		targetArgs[1] = "";
+		targetArgs[2] = "test";
+		targetArgs[3] = "stg_hsql_tab_test";
+		//
+		MainTestCopyTableHelper.initSource(sourceArgs);
+		MainTestCopyTableHelper.initTarget(targetArgs);
+		// Perform test
+		try {
+			MainTestCopyTableHelper.execute();
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
+
+	@Test
 	public void testFirebird() {
 		
 		initSource();

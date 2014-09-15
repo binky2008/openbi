@@ -204,6 +204,11 @@
 		<argName>procedure name</argName>
 	</option>
 	<option>
+		<name>dbstatement</name>
+		<description>Statement</description>
+		<argName>statement string</argName>
+	</option>
+	<option>
 		<name>dbtype</name>
 		<description>Database type</description>
 		<argName>database type</argName>
