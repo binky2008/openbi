@@ -165,11 +165,75 @@ public class MainTestDBProperties {
 	}
 	
 	@Test
+	public void testInfobright() {
+		
+		initArguments();
+		//
+		arguments[2] = "localhost_infobright_test";
+		arguments[4] = "";
+		// Perform test
+		try {
+			Main.main(arguments);
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
+	
+	@Test
 	public void testInformix() {
 		
 		initArguments();
 		//
 		arguments[2] = "localhost_informix_test";
+		arguments[4] = "";
+		// Perform test
+		try {
+			Main.main(arguments);
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
+
+	@Test
+	public void testIQ() {
+		
+		initArguments();
+		//
+		arguments[2] = "localhost_iq_test_test";
+		arguments[4] = "";
+		// Perform test
+		try {
+			Main.main(arguments);
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
+
+	@Test
+	public void testMaxDB() {
+		
+		initArguments();
+		//
+		arguments[2] = "localhost_maxdb_maxdb_test";
+		arguments[4] = "";
+		// Perform test
+		try {
+			Main.main(arguments);
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
+
+	@Test
+	public void testMimer() {
+		
+		initArguments();
+		//
+		arguments[2] = "localhost_mimer_test_test";
 		arguments[4] = "";
 		// Perform test
 		try {
@@ -282,6 +346,22 @@ public class MainTestDBProperties {
 		initArguments();
 		//
 		arguments[2] = "localhost_teradata_test";
+		arguments[4] = "";
+		// Perform test
+		try {
+			Main.main(arguments);
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
+	
+	@Test
+	public void testVector() {
+		
+		initArguments();
+		//
+		arguments[2] = "localhost_vector_test";
 		arguments[4] = "";
 		// Perform test
 		try {

@@ -664,8 +664,7 @@ public class TypeConversionBean {
 		   		sourceColumnType.toUpperCase().contains("TIMESTAMP")
 	   		) {
 	        	if (targetProductName.toUpperCase().contains("EXASOL")) {
-	        		targetColumnType = "VARCHAR"
-	        				+ "";
+	        		targetColumnType = "VARCHAR";
 	    		}
 	       		else if (targetProductName.toUpperCase().contains("INFORMIX")) {
 	        		targetColumnType = "BYTE";

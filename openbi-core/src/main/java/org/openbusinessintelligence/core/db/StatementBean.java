@@ -100,11 +100,14 @@ public final class StatementBean {
             if (!(targetSchema == null || targetSchema.equals(""))) {
             	schemaPrefix = targetSchema + ".";
             }
-            if (productName.toUpperCase().contains("TERADATA")) {
+            if (productName.toUpperCase().contains("FIREBIRD")) {
+            	emptyText = "DELETE FROM " + schemaPrefix + targetTable;
+            }
+            else if (productName.toUpperCase().contains("TERADATA")) {
             	emptyText = "DELETE " + schemaPrefix + targetTable + " ALL";
             }
-            else if (productName.toUpperCase().contains("FIREBIRD")) {
-            	emptyText = "DELETE FROM " + schemaPrefix + targetTable;
+            else if (productName.toUpperCase().contains("VECTOR")) {
+            	emptyText = "MODIFY " + schemaPrefix + targetTable + " TO TRUNCATED";
             }
             else {
             	emptyText = "TRUNCATE TABLE " + schemaPrefix + targetTable;

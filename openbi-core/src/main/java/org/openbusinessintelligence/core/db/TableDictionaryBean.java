@@ -36,6 +36,8 @@ public class TableDictionaryBean {
     private String[] columnDefinition = null;
     private int[] columnJdbcType = null;
     
+    private ResultSet columnRS;
+    
     // Constructor
     public TableDictionaryBean() {
         super();
@@ -154,16 +156,21 @@ public class TableDictionaryBean {
         
        	if (sourceQuery == null || sourceQuery.equals("")) {
             DatabaseMetaData dbmd = sourceCon.getConnection().getMetaData();
-            ResultSet rscol = dbmd.getColumns(null, sourceSchema, sourceTable.toUpperCase(), null);
-    	    while (rscol.next()) {
-    	    	listName.add(rscol.getString("COLUMN_NAME"));
-    	    	listType.add(rscol.getString("TYPE_NAME"));
-        	    listLength.add(rscol.getInt("COLUMN_SIZE"));
-    	    	listPrecision.add(rscol.getInt("COLUMN_SIZE"));
-	    		listScale.add(rscol.getInt("DECIMAL_DIGITS"));
-	    		listJdbcType.add(rscol.getInt("DATA_TYPE"));
+            if (productName.toUpperCase().contains("VECTOR")) {
+                columnRS = dbmd.getColumns(null, sourceSchema, sourceTable.toLowerCase(), null);
+            }
+            else {
+                columnRS = dbmd.getColumns(null, sourceSchema, sourceTable.toUpperCase(), null);
+            }
+    	    while (columnRS.next()) {
+    	    	listName.add(columnRS.getString("COLUMN_NAME"));
+    	    	listType.add(columnRS.getString("TYPE_NAME"));
+        	    listLength.add(columnRS.getInt("COLUMN_SIZE"));
+    	    	listPrecision.add(columnRS.getInt("COLUMN_SIZE"));
+	    		listScale.add(columnRS.getInt("DECIMAL_DIGITS"));
+	    		listJdbcType.add(columnRS.getInt("DATA_TYPE"));
     	    }
-    	    rscol.close();
+    	    columnRS.close();
     		
             columnCount = listName.size();
             
@@ -262,6 +269,7 @@ public class TableDictionaryBean {
         		(
         			productName.toUpperCase().contains("DERBY") ||
         			productName.toUpperCase().contains("ANYWHERE") ||
+        			productName.toUpperCase().contains("IQ") ||
         			productName.toUpperCase().contains("VERTICA")
         		) &&
         		columnType[i].toUpperCase().contains("LONG")

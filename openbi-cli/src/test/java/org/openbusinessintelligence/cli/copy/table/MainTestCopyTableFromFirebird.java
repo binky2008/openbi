@@ -317,7 +317,7 @@ public class MainTestCopyTableFromFirebird {
 		targetArgs[0] = "localhost_teradata_test";
 		targetArgs[1] = "TDBKeywords";
 		targetArgs[2] = "test";
-		targetArgs[3] = "stg_derby_tab_test";
+		targetArgs[3] = "stg_firebird_tab_test";
 		//
 		MainTestCopyTableHelper.initSource(sourceArgs);
 		MainTestCopyTableHelper.initTarget(targetArgs);
@@ -338,7 +338,7 @@ public class MainTestCopyTableFromFirebird {
 		targetArgs[0] = "localhost_vertica_dwhdev_test";
 		targetArgs[1] = "";
 		targetArgs[2] = "";
-		targetArgs[3] = "stg_derby_tab_test";
+		targetArgs[3] = "stg_firebird_tab_test";
 		//
 		MainTestCopyTableHelper.initSource(sourceArgs);
 		MainTestCopyTableHelper.initTarget(targetArgs);

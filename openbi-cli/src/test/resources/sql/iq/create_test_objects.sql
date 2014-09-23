@@ -1,0 +1,38 @@
+DROP TABLE TAB_TEST;
+
+CREATE TABLE TAB_TEST(
+            COL_BIT BIT NULL,
+            --
+            COL_TINYINT TINYINT NULL ,
+            COL_SMALLINT SMALLINT NULL ,
+            COL_INT INT NULL,
+            COL_BIGINT BIGINT NULL,
+            --
+            COL_NUMERIC NUMERIC(127,50) NULL,
+            COL_DECIMAL DECIMAL(127,100) NULL,
+            --
+            COL_REAL REAL NULL,
+            COL_FLOAT FLOAT (53) NULL,
+            COL_DOUBLE DOUBLE NULL,
+            --
+            COL_MONEY MONEY NULL,
+            COL_SMALLMONEY SMALLMONEY NULL,
+            --
+            COL_CHAR CHAR (255) NULL,
+            COL_VARCHAR VARCHAR (32767) NULL,
+            COL_LONGVARCHAR LONG VARCHAR NULL,
+            COL_TEXT TEXT NULL,
+            COL_UNIQUEIDENTIFIERSTR UNIQUEIDENTIFIERSTR NULL,
+            --
+            COL_BINARY BINARY (255) NULL,
+            COL_VARBINARY VARBINARY (10) NULL,
+            COL_LONGVARBINARY LONG BINARY NULL,
+            COL_UNIQUEIDENTIFIER UNIQUEIDENTIFIER NULL,
+            COL_IMAGE IMAGE NULL,
+            --
+            COL_DATE DATE NULL,
+            COL_TIME TIME NULL,
+            COL_DATETIME DATETIME NULL,
+            COL_SMALLDATETIME SMALLDATETIME NULL,
+            COL_TIMESTAMP TIMESTAMP NULL
+        );

@@ -118,6 +118,7 @@
 	    <typeId>4</typeId>
 	    <typeName>INTEGER</typeName>
 	    <typeName>INT</typeName>
+	    <typeName>MEDIUMINT</typeName>
 	    <typeName>SERIAL</typeName>
 	    <dbType>
 	    	<productName>DEFAULT</productName>
@@ -691,6 +692,7 @@
 	    <typeName>LVARCHAR</typeName>
 	    <typeName>GRAPHIC</typeName>
 	    <typeName>VARGRAPHIC</typeName>
+	    <typeName>TINYTEXT</typeName>
 	    <dbType>
 	    	<productName>DEFAULT</productName>
 	    	<typeName>NVARCHAR</typeName>
@@ -849,6 +851,8 @@
 	<jdbcType>
 	    <typeId>2011</typeId>
 	    <typeName>TEXT</typeName>
+	    <typeName>MEDIUMTEXT</typeName>
+	    <typeName>LONGTEXT</typeName>
 	    <typeName>BINTEXT</typeName>
 	    <typeName>NCLOB</typeName>
 	    <typeName>DBCLOB</typeName>

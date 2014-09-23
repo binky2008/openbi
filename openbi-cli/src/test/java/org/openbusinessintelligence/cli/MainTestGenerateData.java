@@ -212,6 +212,27 @@ public class MainTestGenerateData {
 	}
 
 	@Test
+	public void testIQ() {
+		
+		initArguments();
+		
+		// Target properties
+		arguments[2] = "localhost_iq_test_test";
+		arguments[4] = "";
+		arguments[6] = "";
+		arguments[8] = "TAB_TEST";
+		arguments[10] = "10";
+		
+		// Perform test
+		try {
+			Main.main(arguments);
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
+
+	@Test
 	public void testMySQL() {
 		
 		initArguments();
@@ -347,6 +368,27 @@ public class MainTestGenerateData {
 		arguments[4] = "";
 		arguments[6] = "test";
 		arguments[8] = "tab_test";
+		arguments[10] = "10";
+		
+		// Perform test
+		try {
+			Main.main(arguments);
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
+
+	@Test
+	public void testVector() {
+		
+		initArguments();
+		
+		// Target properties
+		arguments[2] = "localhost_vector_test";
+		arguments[4] = "";
+		arguments[6] = "";
+		arguments[8] = "TAB_TEST";
 		arguments[10] = "10";
 		
 		// Perform test

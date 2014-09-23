@@ -237,7 +237,7 @@ public class RandomDataGeneratorBean {
 	    					logger.debug("SKIP");
 	    				}
 	    				else {*/
-			    			position++;
+			    		position++;
 		    			
 		    			dataManipulate.setColumnName(columnNames[i]);
 		    			dataManipulate.setPosition(position);

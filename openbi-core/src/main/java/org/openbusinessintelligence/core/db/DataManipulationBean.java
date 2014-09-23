@@ -103,6 +103,7 @@ public class DataManipulationBean {
 		else if (
 			targetProductName.contains("MICROSOFT") ||
 			targetProductName.contains("ANYWHERE") ||
+			targetProductName.contains("IQ") ||
 			targetProductName.contains("DERBY")
 	    ) {
 	       	if (targetTypeAttribute.contains("BIT")) {
@@ -110,6 +111,9 @@ public class DataManipulationBean {
 	    	}
 	       	else if (targetType.equals("UNIQUEIDENTIFIER")) {
 	        	sqlType = Types.BINARY;
+	      	}
+	       	else if (targetType.equalsIgnoreCase("UNIQUEIDENTIFIERSTR")) {
+	        	sqlType = Types.VARCHAR;
 	      	}
 	        else if (targetType.toUpperCase().contains("XML")) {
 	        	sqlType = Types.CLOB;
@@ -176,6 +180,9 @@ public class DataManipulationBean {
         else if (targetType.toUpperCase().equals("UNIQUEIDENTIFIER")) {
         	statement.setNull(position, Types.BINARY);
         }
+       	else if (targetType.equalsIgnoreCase("UNIQUEIDENTIFIERSTR")) {
+        	statement.setNull(position, Types.CHAR);
+      	}
         else if (targetType.toUpperCase().contains("CLOB")) {
         	statement.setNull(position, Types.CLOB);
       	}
