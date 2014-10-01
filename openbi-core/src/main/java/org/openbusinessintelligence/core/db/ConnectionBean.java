@@ -340,9 +340,15 @@ public class ConnectionBean {
 	   	// Get catalogues and schemas
 		logger.info("########################################");
 	   	logger.info("Found catalogs:");
-	   	ResultSet dbCatalogs = metadata.getCatalogs();    	
+	   	ResultSet dbCatalogs = metadata.getCatalogs();
+	   	ResultSetMetaData rsmd = dbCatalogs.getMetaData();
 	   	while (dbCatalogs.next()) {
-	   		logger.info(dbCatalogs.getString("TABLE_CAT"));
+	   		try {
+		   		logger.info(dbCatalogs.getString("TABLE_CAT"));
+	   		}
+	   		catch (Exception e) {
+		   		logger.info(dbCatalogs.getString(1));
+	   		}
 	   	}
 		logger.info("########################################");
 	   	logger.info("Found schemas:");

@@ -245,6 +245,22 @@ public class MainTestDBProperties {
 	}
 
 	@Test
+	public void testMonetDB() {
+		
+		initArguments();
+		//
+		arguments[2] = "localhost_monetdb_demo";
+		arguments[4] = "";
+		// Perform test
+		try {
+			Main.main(arguments);
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
+
+	@Test
 	public void testMySQL() {
 		
 		initArguments();
@@ -266,6 +282,22 @@ public class MainTestDBProperties {
 		initArguments();
 		//
 		arguments[2] = "localhost_netezza_test";
+		arguments[4] = "";
+		// Perform test
+		try {
+			Main.main(arguments);
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
+	
+	@Test
+	public void testNuoDB() {
+		
+		initArguments();
+		//
+		arguments[2] = "localhost_nuodb_test";
 		arguments[4] = "";
 		// Perform test
 		try {
