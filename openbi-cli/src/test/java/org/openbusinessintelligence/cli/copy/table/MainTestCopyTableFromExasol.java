@@ -161,6 +161,27 @@ public class MainTestCopyTableFromExasol {
 			fail("Exception: \n" + e);
 		}
 	}
+	
+	@Test
+	public void testImpala() {
+		
+		initSource();
+		//
+		targetArgs[0] = "localhost_impala_test";
+		targetArgs[1] = "";
+		targetArgs[2] = "default";
+		targetArgs[3] = "stg_exasol_tab_test";
+		//
+		MainTestCopyTableHelper.initSource(sourceArgs);
+		MainTestCopyTableHelper.initTarget(targetArgs);
+		// Perform test
+		try {
+			MainTestCopyTableHelper.execute();
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
 
 	@Test
 	public void testInformix() {
@@ -272,7 +293,7 @@ public class MainTestCopyTableFromExasol {
 		
 		initSource();
 		//
-		targetArgs[0] = "localhost_sybase_test";
+		targetArgs[0] = "localhost_sqlanywhere_test";
 		targetArgs[1] = "";
 		targetArgs[2] = "";
 		targetArgs[3] = "stg_exasol_tab_test";

@@ -1,6 +1,10 @@
 apply plugin: 'java'
 apply plugin: 'eclipse'
 
+dependencies {
+  compile project(':openbi-core')
+}
+
 sourceCompatibility = 1.7
 version = '0.1'
 

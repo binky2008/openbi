@@ -168,6 +168,11 @@
 	    	<productName>FIREBIRD</productName>
 	    	<maxLength>18</maxLength>
 	    </dbType>
+	    <dbType>
+	    	<productName>IMPALA</productName>
+	    	<typeName>DECIMAL</typeName>
+	    	<maxLength>38</maxLength>
+	    </dbType>
 	</jdbcType>
 	<!-- Approximate -->
 	<jdbcType>
@@ -286,6 +291,10 @@
 	    	<typeName>SECONDDATE</typeName>
 	    </dbType>
 	    <dbType>
+	    	<productName>IMPALA</productName>
+	    	<typeName>TIMESTAMP</typeName>
+	    </dbType>
+	    <dbType>
 	    	<productName>INFORMIX</productName>
 	    	<typeName>DATETIME YEAR TO FRACTION</typeName>
 	    	<dataLength>3</dataLength>
@@ -401,6 +410,10 @@
 	    	<typeName>SECONDDATE</typeName>
 	    </dbType>
 	    <dbType>
+	    	<productName>IMPALA</productName>
+	    	<typeName>TIMESTAMP</typeName>
+	    </dbType>
+	    <dbType>
 	    	<productName>INFORMIX</productName>
 	    	<typeName>DATETIME YEAR TO FRACTION</typeName>
 	    	<dataLength>3</dataLength>
@@ -431,6 +444,10 @@
 	    <dbType>
 	    	<productName>DB2</productName>
 	    	<typeName>DATE</typeName>
+	    </dbType>
+	    <dbType>
+	    	<productName>IMPALA</productName>
+	    	<typeName>STRING</typeName>
 	    </dbType>
 	    <!--
 	    <dbType>
@@ -506,6 +523,10 @@
 	    	<typeName>INTERVAL YEAR TO MONTH</typeName>
 	    </dbType>
 	    <dbType>
+	    	<productName>IMPALA</productName>
+	    	<typeName>STRING</typeName>
+	    </dbType>
+	    <dbType>
 	    	<productName>INFORMIX</productName>
 	    	<typeName>INTERVAL YEAR TO MONTH</typeName>
 	    </dbType>
@@ -547,6 +568,10 @@
 	    	<typeName>INTERVAL DAY TO SECOND</typeName>
 	    </dbType>
 	    <dbType>
+	    	<productName>IMPALA</productName>
+	    	<typeName>STRING</typeName>
+	    </dbType>
+	    <dbType>
 	    	<productName>INFORMIX</productName>
 	    	<typeName>INTERVAL DAY TO SECOND</typeName>
 	    </dbType>
@@ -584,6 +609,16 @@
 	    <typeName>ALPHANUM</typeName>
 	    <typeName>VARBIT</typeName>
 	    <typeName>LONG VARBIT</typeName>
+	    <typeName>TXID</typeName>
+	    <typeName>UUID</typeName>
+	    <typeName>CIDR</typeName>
+	    <typeName>INET</typeName>
+	    <typeName>MACADDR</typeName>
+	    <typeName>HIERARCHYID</typeName>
+	    <typeName>UNIQUEIDENTIFIER</typeName>
+	    <typeName>GEOGRAPHY</typeName>
+	    <typeName>GEOMETRY</typeName>
+	    <typeName>ROWID</typeName>
 	    <dbType>
 	    	<productName>DEFAULT</productName>
 	    	<typeName>VARCHAR</typeName>
@@ -857,6 +892,15 @@
 	    <typeName>NCLOB</typeName>
 	    <typeName>DBCLOB</typeName>
 	    <typeName>STRING</typeName>
+	    <typeName>TSQUERY</typeName>
+	    <typeName>TSVECTOR</typeName>
+	    <typeName>BOX</typeName>
+	    <typeName>CIRCLE</typeName>
+	    <typeName>LINE</typeName>
+	    <typeName>LSEG</typeName>
+	    <typeName>PATH</typeName>
+	    <typeName>POINT</typeName>
+	    <typeName>POLYGON</typeName>
 	    <dbType>
 	    	<productName>DEFAULT</productName>
 	    	<typeName>NCLOB</typeName>

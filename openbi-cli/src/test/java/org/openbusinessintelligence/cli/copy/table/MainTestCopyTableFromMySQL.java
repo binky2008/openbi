@@ -276,7 +276,7 @@ public class MainTestCopyTableFromMySQL {
 		
 		initSource();
 		//
-		targetArgs[0] = "localhost_sybase_test";
+		targetArgs[0] = "localhost_sqlanywhere_test";
 		targetArgs[1] = "";
 		targetArgs[2] = "";
 		targetArgs[3] = "stg_mysql_tab_test";

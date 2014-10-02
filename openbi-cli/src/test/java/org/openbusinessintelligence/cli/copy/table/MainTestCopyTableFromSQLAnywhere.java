@@ -10,7 +10,7 @@ public class MainTestCopyTableFromSQLAnywhere {
 	private String[] targetArgs = new String[4];
 	
 	private void initSource() {
-		sourceArgs[0] = "localhost_sybase_test";
+		sourceArgs[0] = "localhost_sqlanywhere_test";
 		sourceArgs[1] = "";
 		sourceArgs[2] = "";
 		sourceArgs[3] = "tab_test";
@@ -273,7 +273,7 @@ public class MainTestCopyTableFromSQLAnywhere {
 		
 		initSource();
 		//
-		targetArgs[0] = "localhost_sybase_test";
+		targetArgs[0] = "localhost_sqlanywhere_test";
 		targetArgs[1] = "";
 		targetArgs[2] = "";
 		targetArgs[3] = "stg_sqlany_tab_test";

@@ -381,7 +381,10 @@ public class DataCopyBean {
     	
     	// Empty table if data are not to be preserved
         logger.info("Preserve target data = " + preserveDataOption);
-        if (!preserveDataOption) {
+        if (
+        	!preserveDataOption &&
+        	!targetCon.getDatabaseProductName().toUpperCase().contains("IMPALA")
+        ) {
             logger.info("Truncate table");
             
             logger.debug(emptyText);
@@ -655,13 +658,17 @@ public class DataCopyBean {
 	    	rowCount++;
 	    	rowSinceCommit++;
 	    	if (rowSinceCommit==commitFrequency) {
-	    		targetCon.getConnection().commit();
+	    		if (!targetCon.getDatabaseProductName().toUpperCase().contains("IMPALA")) {
+		    		targetCon.getConnection().commit();
+	    		}
 	    		rowSinceCommit = 0;
 	    		logger.info(rowCount + " rows inserted");
 	    	}
 	    }
     	targetStmt.close();
-        targetCon.getConnection().commit();
+		if (!targetCon.getDatabaseProductName().toUpperCase().contains("IMPALA")) {
+    		targetCon.getConnection().commit();
+		}
 
 	    sourceRS.close();
 	    sourceStmt.close();

@@ -137,7 +137,7 @@ public class MainTestDBProperties {
 		
 		initArguments();
 		//
-		arguments[2] = "localhost_hsqldb_test";
+		arguments[2] = "localhost_hsql_test";
 		arguments[4] = "";
 		// Perform test
 		try {
@@ -213,6 +213,22 @@ public class MainTestDBProperties {
 	}
 
 	@Test
+	public void testMariaDB() {
+		
+		initArguments();
+		//
+		arguments[2] = "localhost_mariadb_test";
+		arguments[4] = "";
+		// Perform test
+		try {
+			Main.main(arguments);
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
+
+	@Test
 	public void testMaxDB() {
 		
 		initArguments();
@@ -244,7 +260,7 @@ public class MainTestDBProperties {
 		}
 	}
 
-	@Test
+	/*@Test
 	public void testMonetDB() {
 		
 		initArguments();
@@ -258,7 +274,7 @@ public class MainTestDBProperties {
 		catch (Exception e) {
 			fail("Exception: \n" + e);
 		}
-	}
+	}*/
 
 	@Test
 	public void testMySQL() {
@@ -345,7 +361,7 @@ public class MainTestDBProperties {
 		
 		initArguments();
 		//
-		arguments[2] = "localhost_sybase_test";
+		arguments[2] = "localhost_sqlanywhere_test";
 		arguments[4] = "";
 		// Perform test
 		try {

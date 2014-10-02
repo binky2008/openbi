@@ -272,7 +272,7 @@ public class MainTestCopyTableFromImpala {
 		
 		initSource();
 		//
-		targetArgs[0] = "localhost_sybase_test";
+		targetArgs[0] = "localhost_sqlanywhere_test";
 		targetArgs[1] = "";
 		targetArgs[2] = "";
 		targetArgs[3] = "stg_impala_tab_test";

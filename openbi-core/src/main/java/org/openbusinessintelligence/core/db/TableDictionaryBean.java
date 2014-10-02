@@ -159,8 +159,11 @@ public class TableDictionaryBean {
             if (productName.toUpperCase().contains("VECTOR")) {
                 columnRS = dbmd.getColumns(null, sourceSchema, sourceTable.toLowerCase(), null);
             }
-            else {
+            else if (!productName.toUpperCase().contains("MYSQL")) {
                 columnRS = dbmd.getColumns(null, sourceSchema, sourceTable.toUpperCase(), null);
+            }
+            else {
+                columnRS = dbmd.getColumns(null, sourceSchema, sourceTable, null);
             }
     	    while (columnRS.next()) {
     	    	listName.add(columnRS.getString("COLUMN_NAME"));

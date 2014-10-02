@@ -604,7 +604,7 @@ public class TypeConversionBean {
 				targetColumnScale = 0;
 	        }
 	   		// Oracle special types
-	        else if (sourceColumnType.contains("ROWID")) {
+	        /*else if (sourceColumnType.contains("ROWID")) {
 	        	targetColumnType = "VARCHAR";
 				targetColumnLength = 255;
 	        }
@@ -657,7 +657,7 @@ public class TypeConversionBean {
 	        	else {
 	        		targetColumnType = "TEXT";
 	        	}
-	        }
+	        }*/
 	   		// SQL Server special types
 	        else if (
 	        	sourceProductName.toUpperCase().contains("SQL SERVER") &&
@@ -688,7 +688,7 @@ public class TypeConversionBean {
 	        		targetColumnType = "BLOB";
 	    		}
 	        }
-	        else if (
+	        /*else if (
 		   		sourceColumnType.toUpperCase().contains("HIERARCHYID") ||
 		   		sourceColumnType.toUpperCase().contains("UNIQUEIDENTIFIER") ||
 		   		sourceColumnType.toUpperCase().contains("GEOGRAPHY") ||
@@ -701,7 +701,7 @@ public class TypeConversionBean {
 	        		targetColumnType = "VARCHAR";
 	        	}
 				targetColumnLength = 255;
-	        }
+	        }*/
    	 		
    	 		logger.debug("TARGET TYPE = " + targetColumnType);
    	        

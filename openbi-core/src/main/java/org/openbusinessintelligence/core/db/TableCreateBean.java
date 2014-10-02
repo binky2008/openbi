@@ -78,7 +78,13 @@ public class TableCreateBean {
     	DatabaseMetaData dbmd = targetCon.getConnection().getMetaData();
     	ResultSet tables;
 
-   		tables = dbmd.getTables(null, searchSchema, null, null);
+		logger.debug("Schema: " + searchSchema);
+		if (targetCon.getDatabaseProductName().toUpperCase().contains("IMPALA")) {
+	   		tables = dbmd.getTables(null, searchSchema.toLowerCase(), null, null);
+		}
+		else {
+	   		tables = dbmd.getTables(null, searchSchema, null, null);
+		}
    		
     	while(tables.next()) {
     		logger.debug("Found table: " + tables.getString(3));
