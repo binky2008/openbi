@@ -290,6 +290,10 @@
 	    	<maxDataLength>4000</maxDataLength>
 	    </option>
 	    <option>
+			<productName>IMPALA</productName>
+	    	<lengthOption>false</lengthOption>
+	    </option>
+	    <option>
 			<productName>INFORMIX</productName>
 	    	<maxDataLength>255</maxDataLength>
 	    </option>
@@ -299,7 +303,7 @@
 	    </option>
 	    <option>
 			<productName>NETEZZA</productName>
-	    	<maxDataLength>3000</maxDataLength>
+	    	<maxDataLength>1000</maxDataLength>
 	    </option>
 	    <option>
 			<productName>ORACLE</productName>
@@ -363,6 +367,7 @@
 	    <typeName>LONGBLOB</typeName>
 	    <typeName>BYTEA</typeName>
 	    <typeName>BFILE</typeName>
+	    <typeName>STRING</typeName>
 	    <option>
 			<productName>DEFAULT</productName>
 	    	<lengthOption>true</lengthOption>
@@ -428,7 +433,8 @@
 	    </option>
 	    <option>
 			<productName>DB2</productName>
-	    	<maxDataLength>1073741823</maxDataLength>
+	    	<!-- <maxDataLength>1073741823</maxDataLength> -->
+	    	<maxDataLength>100000</maxDataLength>
 	    </option>
 	</dbType>
 	<dbType>

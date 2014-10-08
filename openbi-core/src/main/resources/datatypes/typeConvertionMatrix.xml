@@ -49,6 +49,10 @@
 	    	<typeName>VARCHAR</typeName>
 	    </dbType>
 	    <dbType>
+	    	<productName>IMPALA</productName>
+	    	<typeName>STRING</typeName>
+	    </dbType>
+	    <dbType>
 	    	<productName>MYSQL</productName>
 	    	<typeName>VARCHAR</typeName>
 	    	<maxLength>256</maxLength>
@@ -345,6 +349,10 @@
 	    	<typeName>VARCHAR</typeName>
 	    	<dataLength>255</dataLength>
 	    </dbType>
+	    <dbType>
+	    	<productName>IMPALA</productName>
+	    	<typeName>STRING</typeName>
+	    </dbType>
 	    <!-- 
 	    <dbType>
 	    	<productName>HSQL</productName>
@@ -619,6 +627,8 @@
 	    <typeName>GEOGRAPHY</typeName>
 	    <typeName>GEOMETRY</typeName>
 	    <typeName>ROWID</typeName>
+	    <typeName>ENUM</typeName>
+	    <typeName>SET</typeName>
 	    <dbType>
 	    	<productName>DEFAULT</productName>
 	    	<typeName>VARCHAR</typeName>

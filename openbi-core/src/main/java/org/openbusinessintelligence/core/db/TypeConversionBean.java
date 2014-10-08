@@ -228,7 +228,9 @@ public class TypeConversionBean {
                	sourceColumnType.toUpperCase().contains("UNIQUEIDENTIFIER") ||
            		// Informix specific types
                	sourceColumnType.toUpperCase().contains("BINARY18") ||
-               	sourceColumnType.toUpperCase().contains("BINARYVAR")
+               	sourceColumnType.toUpperCase().contains("BINARYVAR") ||
+           		// Impala specific types
+               	sourceColumnType.toUpperCase().contains("STRING")
            	) {
        			// For TINY*, SMALL*, BIG* and DATE/TIME no length, precision and scale needed
        			if (targetProductName.toUpperCase().contains("ORACLE"))
@@ -298,6 +300,7 @@ public class TypeConversionBean {
             		targetProductName.toUpperCase().contains("FIREBIRD") ||
             		targetProductName.toUpperCase().contains("HDB") ||
             		targetProductName.toUpperCase().contains("HSQL") ||
+            		targetProductName.toUpperCase().contains("IMPALA") ||
             		targetProductName.toUpperCase().contains("INFORMIX") ||
             		targetProductName.toUpperCase().contains("NETEZZA") ||
             		targetProductName.toUpperCase().contains("SQL ANYWHERE") ||
@@ -594,7 +597,7 @@ public class TypeConversionBean {
    	 		}
    	 		
 	   		// MySQL special types
-	        if (
+	        /*if (
 	        	sourceColumnType.equalsIgnoreCase("ENUM") ||
 	        	sourceColumnType.equalsIgnoreCase("SET")
 	        ) {
@@ -604,7 +607,7 @@ public class TypeConversionBean {
 				targetColumnScale = 0;
 	        }
 	   		// Oracle special types
-	        /*else if (sourceColumnType.contains("ROWID")) {
+	        else if (sourceColumnType.contains("ROWID")) {
 	        	targetColumnType = "VARCHAR";
 				targetColumnLength = 255;
 	        }
@@ -665,6 +668,9 @@ public class TypeConversionBean {
 	   		) {
 	        	if (targetProductName.toUpperCase().contains("EXASOL")) {
 	        		targetColumnType = "VARCHAR";
+	    		}
+	       		else if (targetProductName.toUpperCase().contains("IMPALA")) {
+	        		targetColumnType = "STRING";
 	    		}
 	       		else if (targetProductName.toUpperCase().contains("INFORMIX")) {
 	        		targetColumnType = "BYTE";

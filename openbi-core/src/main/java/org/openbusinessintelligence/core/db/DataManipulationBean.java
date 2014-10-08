@@ -31,6 +31,7 @@ public class DataManipulationBean {
 	Object object = null;
 	//String className = "";
 	java.sql.SQLXML xml = null;
+	String blobToString;
     
 	int position;
 	
@@ -367,7 +368,10 @@ public class DataManipulationBean {
 			) {
 				if (
 					sourceProductName.toUpperCase().contains("MYSQL") &&
-					targetProductName.toUpperCase().contains("INFORMIX")
+					(
+						targetProductName.toUpperCase().contains("INFORMIX") ||
+						targetProductName.toUpperCase().contains("MYSQL")
+					)
 				) {
 				    statement.setBytes(position, resultSet.getBytes(columnName));
 				}
@@ -536,7 +540,19 @@ public class DataManipulationBean {
 				}
 			}
 			else if (targetType.toUpperCase().contains("STRING")) {
-				statement.setString(position, resultSet.getString(columnName));
+				if (
+					sourceType.toUpperCase().contains("BLOB") &&
+					(
+						sourceProductName.toUpperCase().contains("HSQL") ||
+						sourceProductName.toUpperCase().contains("ORACLE")
+					)
+				) {
+					blobToString = new String(resultSet.getBytes(columnName));
+					statement.setString(position, blobToString);
+				}
+				else {
+					statement.setString(position, resultSet.getString(columnName));
+				}
 			}
 			else {
 	    		statement.setObject(position, resultSet.getObject(columnName));

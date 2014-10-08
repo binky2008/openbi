@@ -164,6 +164,27 @@ public class MainTestCopyTableFromTeradata {
 	}
 	
 	@Test
+	public void testImpala() {
+		
+		initSource();
+		//
+		targetArgs[0] = "localhost_impala_test";
+		targetArgs[1] = "";
+		targetArgs[2] = "default";
+		targetArgs[3] = "stg_teradata_tab_test";
+		//
+		MainTestCopyTableHelper.initSource(sourceArgs);
+		MainTestCopyTableHelper.initTarget(targetArgs);
+		// Perform test
+		try {
+			MainTestCopyTableHelper.execute();
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
+	
+	@Test
 	public void testInformix() {
 		
 		initSource();
