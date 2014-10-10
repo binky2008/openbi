@@ -16,7 +16,7 @@ public class MainTestCopyTableHelper {
 		arguments[5]  = "-sourceschema";
 		arguments[7]  = "-sourcetable";
 		arguments[9]  = "-trgdbconnpropertyfile";
-		arguments[11]  = "-trgdbconnkeywordfile";
+		arguments[11] = "-trgdbconnkeywordfile";
 		arguments[13] = "-targetschema";
 		arguments[15] = "-targettable";
 		// Common options

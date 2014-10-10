@@ -1,0 +1,15 @@
+2014-10-10 17:30:10.224 [main] INFO  org.openbusinessintelligence.cli.Main - ###################################################################
+2014-10-10 17:30:10.226 [main] INFO  org.openbusinessintelligence.cli.Main - START
+2014-10-10 17:30:10.226 [main] INFO  org.openbusinessintelligence.cli.Main - Configure command line options
+2014-10-10 17:30:10.258 [main] INFO  org.openbusinessintelligence.cli.Main - Options configured
+2014-10-10 17:30:10.265 [main] INFO  org.openbusinessintelligence.cli.Main - Get database properties
+2014-10-10 17:30:10.269 [main] DEBUG org.openbusinessintelligence.cli.Main - dbconnkeywordfile: No such option
+2014-10-10 17:30:10.269 [main] DEBUG org.openbusinessintelligence.cli.Main - dbdriverclass: No such option
+2014-10-10 17:30:10.269 [main] DEBUG org.openbusinessintelligence.cli.Main - dbconnectionurl: No such option
+2014-10-10 17:30:10.270 [main] DEBUG org.openbusinessintelligence.cli.Main - dbusername: No such option
+2014-10-10 17:30:10.270 [main] DEBUG org.openbusinessintelligence.cli.Main - dbpassword: No such option
+2014-10-10 17:30:10.270 [main] INFO  org.openbusinessintelligence.core.db.ConnectionBean - Opening connection...
+2014-10-10 17:30:10.271 [main] INFO  org.openbusinessintelligence.core.db.ConnectionBean - Using property file localhost_sqlserver_test
+2014-10-10 17:30:10.271 [main] DEBUG org.openbusinessintelligence.core.db.ConnectionBean - databaseDriver = com.microsoft.sqlserver.jdbc.SQLServerDriver
+2014-10-10 17:30:10.271 [main] DEBUG org.openbusinessintelligence.core.db.ConnectionBean - connectionURL = jdbc:sqlserver://localhost:1433;database=test
+2014-10-10 17:30:10.272 [main] ERROR org.openbusinessintelligence.cli.Main - UNEXPECTED EXCEPTION

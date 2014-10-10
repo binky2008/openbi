@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ivy-module version="2.0" xmlns:m="http://ant.apache.org/ivy/maven">
-  <info organisation="openbi" module="openbi-cli" revision="0.1" status="integration" publication="20141008162438">
+  <info organisation="openbi" module="openbi-cli" revision="0.1" status="integration" publication="20141010173321">
     <description/>
   </info>
   <configurations>
@@ -19,11 +19,10 @@
     <dependency org="openbi" name="openbi-db" rev="0.1" conf="compile-&gt;default"/>
     <dependency org="openbi" name="openbi-etl" rev="0.1" conf="compile-&gt;default"/>
     <dependency org="org.apache.commons" name="commons-collections4" rev="4.+" conf="compile-&gt;default"/>
-    <dependency org="commons-logging" name="commons-logging" rev="1.+" conf="compile-&gt;default"/>
     <dependency org="commons-cli" name="commons-cli" rev="1.+" conf="compile-&gt;default"/>
     <dependency org="org.slf4j" name="slf4j-api" rev="1.+" conf="compile-&gt;default"/>
-    <dependency org="org.slf4j" name="slf4j-log4j12" rev="1.+" conf="compile-&gt;default"/>
-    <dependency org="log4j" name="log4j" rev="1.+" conf="compile-&gt;default"/>
+    <dependency org="org.apache.logging.log4j" name="log4j-core" rev="2.+" conf="compile-&gt;default"/>
+    <dependency org="org.apache.logging.log4j" name="log4j-slf4j-impl" rev="2.+" conf="compile-&gt;default"/>
     <dependency org="junit" name="junit" rev="4.+" conf="testCompile-&gt;default"/>
   </dependencies>
 </ivy-module>

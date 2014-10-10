@@ -1,7 +1,5 @@
 package org.openbusinessintelligence.core.db;
 
-import static org.junit.Assert.fail;
-
 import java.io.FileInputStream;
 import java.sql.*;
 import java.io.*;
