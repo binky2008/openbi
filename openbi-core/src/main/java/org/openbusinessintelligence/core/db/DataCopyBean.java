@@ -401,7 +401,7 @@ public class DataCopyBean {
         if (targetCon.getDatabaseProductName().toUpperCase().contains("ORACLE")) {
         	insertText += "/*+APPEND*/ ";
         }
-         insertText += "INTO " + tableIdentifier + " (";
+        insertText += "INTO " + tableIdentifier + " (";
         for (int i = 0; i < commonColumnNames.length; i++) {
         	if (i > 0) {
         		insertText += ",";
@@ -427,6 +427,36 @@ public class DataCopyBean {
 	    	insertParameter = "?";
 	    	if (i > 0) {
 	    		insertText = insertText + ",";
+	    	}
+	    	
+	    	if (
+		    	targetCon.getDatabaseProductName().toUpperCase().contains("HIVE") ||
+	    		targetCon.getDatabaseProductName().toUpperCase().contains("IMPALA")
+	    	) {
+		    	if (targetCommonColumnTypes[i].toUpperCase().contains("TINYINT")) {
+			    	insertParameter = "CAST(? AS TINYINT)";
+			    }
+		    	else if (targetCommonColumnTypes[i].toUpperCase().contains("SMALLINT")) {
+				    insertParameter = "CAST(? AS SMALLINT)";
+				}
+		    	else if (targetCommonColumnTypes[i].toUpperCase().contains("BIGINT")) {
+				    insertParameter = "CAST(? AS BIGINT)";
+				}
+		    	else if (targetCommonColumnTypes[i].toUpperCase().contains("INT")) {
+				    insertParameter = "CAST(? AS INT)";
+				}
+		    	else if (targetCommonColumnTypes[i].toUpperCase().contains("DECIMAL")) {
+				    insertParameter = "CAST(? AS DECIMAL)";
+				}
+		    	else if (targetCommonColumnTypes[i].toUpperCase().contains("DOUBLE")) {
+				    insertParameter = "CAST(? AS DOUBLE)";
+				}
+		    	else if (targetCommonColumnTypes[i].toUpperCase().contains("FLOAT")) {
+				    insertParameter = "CAST(? AS FLOAT)";
+				}
+		    	else if (targetCommonColumnTypes[i].toUpperCase().contains("REAL")) {
+				    insertParameter = "CAST(? AS REAL)";
+				}
 	    	}
 	    	
 	    	// Remove trailing blanks from strings derived from fixed length column types
@@ -494,7 +524,6 @@ public class DataCopyBean {
 		    		insertParameter = "RTRIM(?)";
 	    		}
 	    	}
-
 	   	   		
    	   		// Double column length in case source type is binary and target is Netezza varchar
    	   		if (

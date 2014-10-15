@@ -48,9 +48,9 @@ public class PrepareSchemaHelper {
 	public static void execute() throws Exception {
 		// Perform test
 		initArguments();
-		for (int i = 0; i < arguments.length; i++) {
+		/*for (int i = 0; i < arguments.length; i++) {
 			System.out.println(arguments[i]);
-		}
+		}*/
 		Main.main(arguments);
 		
 	}

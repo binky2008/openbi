@@ -166,12 +166,14 @@ public class TableDictionaryBean {
                 columnRS = dbmd.getColumns(null, sourceSchema, sourceTable, null);
             }
     	    while (columnRS.next()) {
-    	    	listName.add(columnRS.getString("COLUMN_NAME"));
-    	    	listType.add(columnRS.getString("TYPE_NAME"));
-        	    listLength.add(columnRS.getInt("COLUMN_SIZE"));
-    	    	listPrecision.add(columnRS.getInt("COLUMN_SIZE"));
-	    		listScale.add(columnRS.getInt("DECIMAL_DIGITS"));
-	    		listJdbcType.add(columnRS.getInt("DATA_TYPE"));
+    	    	if (columnRS.getString("TABLE_NAME").equalsIgnoreCase(sourceTable)) {
+        	    	listName.add(columnRS.getString("COLUMN_NAME"));
+        	    	listType.add(columnRS.getString("TYPE_NAME"));
+            	    listLength.add(columnRS.getInt("COLUMN_SIZE"));
+        	    	listPrecision.add(columnRS.getInt("COLUMN_SIZE"));
+    	    		listScale.add(columnRS.getInt("DECIMAL_DIGITS"));
+    	    		listJdbcType.add(columnRS.getInt("DATA_TYPE"));
+    	    	}
     	    }
     	    columnRS.close();
     		
@@ -327,6 +329,9 @@ public class TableDictionaryBean {
 
         logger.info("got column properties");
 
+        logger.info("getting pk properties");
+        columnPkPositions = new int[columnCount];
+
         // Get information about primary keys
         try {
         	int pkLength = 0;
@@ -375,6 +380,7 @@ public class TableDictionaryBean {
             else {
                 columnNonInPk = columnNames;
             }
+            logger.info("got pk properties");
 
         }
         catch (Exception e) {

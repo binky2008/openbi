@@ -16,47 +16,7 @@ public class PrepareSchemaFromMySQL {
 	}
 
 	@Test
-	public void testMySQLtoPostgreSQL() {
-		
-		initSource();
-		//
-		targetArgs[0] = "localhost_postgresql_postgres_sugarcrm";
-		targetArgs[1] = "";
-		targetArgs[2] = "sugarcrm";
-		//
-		PrepareSchemaHelper.initSource(sourceArgs);
-		PrepareSchemaHelper.initTarget(targetArgs);
-		// Perform test
-		try {
-			PrepareSchemaHelper.execute();
-		}
-		catch (Exception e) {
-			fail("Exception: \n" + e);
-		}
-	}
-
-	@Test
-	public void testMySQLtoOracle() {
-		
-		initSource();
-		//
-		targetArgs[0] = "localhost_oracle_sugarcrm";
-		targetArgs[1] = "";
-		targetArgs[2] = "sugarcrm";
-		//
-		PrepareSchemaHelper.initSource(sourceArgs);
-		PrepareSchemaHelper.initTarget(targetArgs);
-		// Perform test
-		try {
-			PrepareSchemaHelper.execute();
-		}
-		catch (Exception e) {
-			fail("Exception: \n" + e);
-		}
-	}
-
-	@Test
-	public void testMySQLtoDB2() {
+	public void testDB2() {
 		
 		initSource();
 		//
@@ -76,7 +36,147 @@ public class PrepareSchemaFromMySQL {
 	}
 
 	@Test
-	public void testMySQLtoInformix() {
+	public void testDerby() {
+		
+		initSource();
+		//
+		targetArgs[0] = "localhost_derby_dwhdev_sugarcrm";
+		targetArgs[1] = "";
+		targetArgs[2] = "sugarcrm";
+		//
+		PrepareSchemaHelper.initSource(sourceArgs);
+		PrepareSchemaHelper.initTarget(targetArgs);
+		// Perform test
+		try {
+			PrepareSchemaHelper.execute();
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
+
+	@Test
+	public void testExasol() {
+		
+		initSource();
+		//
+		targetArgs[0] = "localhost_exasol_sugarcrm";
+		targetArgs[1] = "";
+		targetArgs[2] = "sugarcrm";
+		//
+		PrepareSchemaHelper.initSource(sourceArgs);
+		PrepareSchemaHelper.initTarget(targetArgs);
+		// Perform test
+		try {
+			PrepareSchemaHelper.execute();
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
+
+	@Test
+	public void testFirebird() {
+		
+		initSource();
+		//
+		targetArgs[0] = "localhost_firebird_sugarcrm";
+		targetArgs[1] = "";
+		targetArgs[2] = "";
+		//
+		PrepareSchemaHelper.initSource(sourceArgs);
+		PrepareSchemaHelper.initTarget(targetArgs);
+		// Perform test
+		try {
+			PrepareSchemaHelper.execute();
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
+
+	@Test
+	public void testH2() {
+		
+		initSource();
+		//
+		targetArgs[0] = "localhost_h2_sugarcrm";
+		targetArgs[1] = "";
+		targetArgs[2] = "public";
+		//
+		PrepareSchemaHelper.initSource(sourceArgs);
+		PrepareSchemaHelper.initTarget(targetArgs);
+		// Perform test
+		try {
+			PrepareSchemaHelper.execute();
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
+
+	@Test
+	public void testHDB() {
+		
+		initSource();
+		//
+		targetArgs[0] = "localhost_hana_01_sugarcrm";
+		targetArgs[1] = "HDBKeywords";
+		targetArgs[2] = "sugarcrm";
+		//
+		PrepareSchemaHelper.initSource(sourceArgs);
+		PrepareSchemaHelper.initTarget(targetArgs);
+		// Perform test
+		try {
+			PrepareSchemaHelper.execute();
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
+
+	@Test
+	public void testHSQL() {
+		
+		initSource();
+		//
+		targetArgs[0] = "localhost_hsql_sugarcrm";
+		targetArgs[1] = "";
+		targetArgs[2] = "sugarcrm";
+		//
+		PrepareSchemaHelper.initSource(sourceArgs);
+		PrepareSchemaHelper.initTarget(targetArgs);
+		// Perform test
+		try {
+			PrepareSchemaHelper.execute();
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
+
+	@Test
+	public void testImpala() {
+		
+		initSource();
+		//
+		targetArgs[0] = "localhost_impala_sugarcrm";
+		targetArgs[1] = "IMPALAKeywords";
+		targetArgs[2] = "sugarcrm";
+		//
+		PrepareSchemaHelper.initSource(sourceArgs);
+		PrepareSchemaHelper.initTarget(targetArgs);
+		// Perform test
+		try {
+			PrepareSchemaHelper.execute();
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
+
+	@Test
+	public void testInformix() {
 		
 		initSource();
 		//
@@ -96,32 +196,12 @@ public class PrepareSchemaFromMySQL {
 	}
 
 	@Test
-	public void testMySQLtoSQLServer() {
+	public void testNetezza() {
 		
 		initSource();
 		//
-		targetArgs[0] = "localhost_sqlserver_sugarcrm";
+		targetArgs[0] = "localhost_netezza_sugarcrm";
 		targetArgs[1] = "";
-		targetArgs[2] = "dbo";
-		//
-		PrepareSchemaHelper.initSource(sourceArgs);
-		PrepareSchemaHelper.initTarget(targetArgs);
-		// Perform test
-		try {
-			PrepareSchemaHelper.execute();
-		}
-		catch (Exception e) {
-			fail("Exception: \n" + e);
-		}
-	}
-
-	@Test
-	public void testMySQLtoHANA() {
-		
-		initSource();
-		//
-		targetArgs[0] = "msas120i_hana_01_sugarcrm";
-		targetArgs[1] = "HDBKeywords";
 		targetArgs[2] = "sugarcrm";
 		//
 		PrepareSchemaHelper.initSource(sourceArgs);
@@ -136,12 +216,112 @@ public class PrepareSchemaFromMySQL {
 	}
 
 	@Test
-	public void testMySQLtoTeradata() {
+	public void testOracle() {
+		
+		initSource();
+		//
+		targetArgs[0] = "localhost_oracle_sugarcrm";
+		targetArgs[1] = "";
+		targetArgs[2] = "sugarcrm";
+		//
+		PrepareSchemaHelper.initSource(sourceArgs);
+		PrepareSchemaHelper.initTarget(targetArgs);
+		// Perform test
+		try {
+			PrepareSchemaHelper.execute();
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
+
+	@Test
+	public void testPostgreSQL() {
+		
+		initSource();
+		//
+		targetArgs[0] = "localhost_postgresql_postgres_sugarcrm";
+		targetArgs[1] = "";
+		targetArgs[2] = "sugarcrm";
+		//
+		PrepareSchemaHelper.initSource(sourceArgs);
+		PrepareSchemaHelper.initTarget(targetArgs);
+		// Perform test
+		try {
+			PrepareSchemaHelper.execute();
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
+
+	@Test
+	public void testSQLAnywhere() {
+		
+		initSource();
+		//
+		targetArgs[0] = "localhost_sqlanywhere_sugarcrm_sugarcrm";
+		targetArgs[1] = "";
+		targetArgs[2] = "sugarcrm";
+		//
+		PrepareSchemaHelper.initSource(sourceArgs);
+		PrepareSchemaHelper.initTarget(targetArgs);
+		// Perform test
+		try {
+			PrepareSchemaHelper.execute();
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
+
+	@Test
+	public void testSQLServer() {
+		
+		initSource();
+		//
+		targetArgs[0] = "localhost_sqlserver_sugarcrm";
+		targetArgs[1] = "";
+		targetArgs[2] = "";
+		//
+		PrepareSchemaHelper.initSource(sourceArgs);
+		PrepareSchemaHelper.initTarget(targetArgs);
+		// Perform test
+		try {
+			PrepareSchemaHelper.execute();
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
+
+	@Test
+	public void testTeradata() {
 		
 		initSource();
 		//
 		targetArgs[0] = "localhost_teradata_sugarcrm";
 		targetArgs[1] = "TDBKeywords";
+		targetArgs[2] = "sugarcrm";
+		//
+		PrepareSchemaHelper.initSource(sourceArgs);
+		PrepareSchemaHelper.initTarget(targetArgs);
+		// Perform test
+		try {
+			PrepareSchemaHelper.execute();
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
+
+	@Test
+	public void testVertica() {
+		
+		initSource();
+		//
+		targetArgs[0] = "localhost_vertica_dwhdev_sugarcrm";
+		targetArgs[1] = "";
 		targetArgs[2] = "sugarcrm";
 		//
 		PrepareSchemaHelper.initSource(sourceArgs);

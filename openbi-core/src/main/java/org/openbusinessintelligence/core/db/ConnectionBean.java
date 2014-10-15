@@ -99,7 +99,7 @@ public class ConnectionBean {
     	return maxRowSize;
     }
     
-    // Get normalizer obejct name
+    // Get normalized obejct name
     public String getNormalizedObjectName(String name, String prefix, String suffix) throws Exception {
 
     	String normalizedRoot = name;
@@ -109,23 +109,31 @@ public class ConnectionBean {
     	int prefixLength;
     	int suffixLength;
     	
-    	objectMaxLength = metadata.getMaxTableNameLength();
-    			
-		prefixLength = prefix.length();
-		suffixLength = suffix.length();
-		
-    	rootMaxLength = objectMaxLength - prefixLength - suffixLength;
-		
-		logger.debug("Object max length: " + objectMaxLength);
-		logger.debug("Prefix length: " + prefixLength);
-		logger.debug("Suffix length " + suffixLength);
-		logger.debug("Root max length: " + rootMaxLength);
+    	if (
+    		!databaseProductName.toUpperCase().contains("HIVE") &&
+    		!databaseProductName.toUpperCase().contains("IMPALA")
+    	) {
+        	objectMaxLength = metadata.getMaxTableNameLength();
+        	
+        	if (objectMaxLength > 0) {
+        		prefixLength = prefix.length();
+        		suffixLength = suffix.length();
+        		
+            	rootMaxLength = objectMaxLength - prefixLength - suffixLength;
+        		
+        		logger.debug("Object max length: " + objectMaxLength);
+        		logger.debug("Prefix length: " + prefixLength);
+        		logger.debug("Suffix length " + suffixLength);
+        		logger.debug("Root max length: " + rootMaxLength);
+            	
+        		if (name.length() > rootMaxLength) {
+        			logger.debug("Normalized root: " + name.substring(0, rootMaxLength - 1));
+        			normalizedRoot = name.substring(0, rootMaxLength - 1);
+        			logger.debug("Normalized name: " + normalizedName);
+        		}
+        	}
+    	}
     	
-		if (name.length() > rootMaxLength) {
-			logger.debug("Normalized root: " + name.substring(0, rootMaxLength - 1));
-			normalizedRoot = name.substring(0, rootMaxLength - 1);
-			logger.debug("Normalized name: " + normalizedName);
-		}
 		normalizedName = prefix + normalizedRoot + suffix;
     	
     	return normalizedName;
@@ -320,7 +328,15 @@ public class ConnectionBean {
 	   	}
 	   	try {
 		   	logger.debug("Getting quote string...");
-		   	quoteString = metadata.getIdentifierQuoteString();
+		   	if (
+		    	databaseProductName.toUpperCase().contains("HIVE") ||
+		    	databaseProductName.toUpperCase().contains("IMPALA")
+		    ) {
+			   	quoteString = "`";
+		   	}
+		   	else {
+			   	quoteString = metadata.getIdentifierQuoteString();
+		   	}
 		   	logger.debug("Quote string: " + quoteString);
 	   	}
 	   	catch (Exception e) {

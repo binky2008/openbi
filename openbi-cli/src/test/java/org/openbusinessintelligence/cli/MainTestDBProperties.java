@@ -154,7 +154,7 @@ public class MainTestDBProperties {
 		initArguments();
 		//
 		arguments[2] = "localhost_impala_test";
-		arguments[4] = "";
+		arguments[4] = "IMPALAKeywords";
 		// Perform test
 		try {
 			Main.main(arguments);

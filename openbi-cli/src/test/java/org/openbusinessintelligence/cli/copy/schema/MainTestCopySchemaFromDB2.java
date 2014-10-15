@@ -3,6 +3,7 @@ package org.openbusinessintelligence.cli.copy.schema;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
+import org.openbusinessintelligence.cli.prepare.PrepareSchemaHelper;
 
 public class MainTestCopySchemaFromDB2 {
 	
@@ -16,67 +17,7 @@ public class MainTestCopySchemaFromDB2 {
 	}
 
 	@Test
-	public void testDB2ToMySQL() {
-		
-		initSource();
-		//
-		targetArgs[0] = "localhost_mysql_dwhstage";
-		targetArgs[1] = "";
-		targetArgs[2] = "dwhstage";
-		//
-		MainTestCopySchemaHelper.initSource(sourceArgs);
-		MainTestCopySchemaHelper.initTarget(targetArgs);
-		// Perform test
-		try {
-			MainTestCopySchemaHelper.execute();
-		}
-		catch (Exception e) {
-			fail("Exception: \n" + e);
-		}
-	}
-
-	@Test
-	public void testDB2ToPostgreSQL() {
-		
-		initSource();
-		//
-		targetArgs[0] = "localhost_postgresql_postgres_dwhstage";
-		targetArgs[1] = "";
-		targetArgs[2] = "dwhstage";
-		//
-		MainTestCopySchemaHelper.initSource(sourceArgs);
-		MainTestCopySchemaHelper.initTarget(targetArgs);
-		// Perform test
-		try {
-			MainTestCopySchemaHelper.execute();
-		}
-		catch (Exception e) {
-			fail("Exception: \n" + e);
-		}
-	}
-
-	@Test
-	public void testDB2ToOracle() {
-		
-		initSource();
-		//
-		targetArgs[0] = "localhost_oracle_dwhstage";
-		targetArgs[1] = "";
-		targetArgs[2] = "dwhstage";
-		//
-		MainTestCopySchemaHelper.initSource(sourceArgs);
-		MainTestCopySchemaHelper.initTarget(targetArgs);
-		// Perform test
-		try {
-			MainTestCopySchemaHelper.execute();
-		}
-		catch (Exception e) {
-			fail("Exception: \n" + e);
-		}
-	}
-
-	@Test
-	public void testDB2ToDB2() {
+	public void testDB2() {
 		
 		initSource();
 		//
@@ -84,11 +25,11 @@ public class MainTestCopySchemaFromDB2 {
 		targetArgs[1] = "";
 		targetArgs[2] = "dwhstage";
 		//
-		MainTestCopySchemaHelper.initSource(sourceArgs);
-		MainTestCopySchemaHelper.initTarget(targetArgs);
+		PrepareSchemaHelper.initSource(sourceArgs);
+		PrepareSchemaHelper.initTarget(targetArgs);
 		// Perform test
 		try {
-			MainTestCopySchemaHelper.execute();
+			PrepareSchemaHelper.execute();
 		}
 		catch (Exception e) {
 			fail("Exception: \n" + e);
@@ -96,7 +37,147 @@ public class MainTestCopySchemaFromDB2 {
 	}
 
 	@Test
-	public void testDB2ToInformix() {
+	public void testDerby() {
+		
+		initSource();
+		//
+		targetArgs[0] = "localhost_derby_dwhdev_dwhstage";
+		targetArgs[1] = "";
+		targetArgs[2] = "dwhstage";
+		//
+		PrepareSchemaHelper.initSource(sourceArgs);
+		PrepareSchemaHelper.initTarget(targetArgs);
+		// Perform test
+		try {
+			PrepareSchemaHelper.execute();
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
+
+	@Test
+	public void testExasol() {
+		
+		initSource();
+		//
+		targetArgs[0] = "localhost_exasol_dwhstage";
+		targetArgs[1] = "";
+		targetArgs[2] = "dwhstage";
+		//
+		PrepareSchemaHelper.initSource(sourceArgs);
+		PrepareSchemaHelper.initTarget(targetArgs);
+		// Perform test
+		try {
+			PrepareSchemaHelper.execute();
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
+
+	@Test
+	public void testFirebird() {
+		
+		initSource();
+		//
+		targetArgs[0] = "localhost_firebird_dwhstage";
+		targetArgs[1] = "";
+		targetArgs[2] = "";
+		//
+		PrepareSchemaHelper.initSource(sourceArgs);
+		PrepareSchemaHelper.initTarget(targetArgs);
+		// Perform test
+		try {
+			PrepareSchemaHelper.execute();
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
+
+	@Test
+	public void testH2() {
+		
+		initSource();
+		//
+		targetArgs[0] = "localhost_h2_dev";
+		targetArgs[1] = "";
+		targetArgs[2] = "dwhstage";
+		//
+		PrepareSchemaHelper.initSource(sourceArgs);
+		PrepareSchemaHelper.initTarget(targetArgs);
+		// Perform test
+		try {
+			PrepareSchemaHelper.execute();
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
+
+	@Test
+	public void testHDB() {
+		
+		initSource();
+		//
+		targetArgs[0] = "localhost_hana_01_dwh_stage";
+		targetArgs[1] = "HDBKeywords";
+		targetArgs[2] = "dwh_stage";
+		//
+		PrepareSchemaHelper.initSource(sourceArgs);
+		PrepareSchemaHelper.initTarget(targetArgs);
+		// Perform test
+		try {
+			PrepareSchemaHelper.execute();
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
+
+	@Test
+	public void testHSQL() {
+		
+		initSource();
+		//
+		targetArgs[0] = "localhost_hsql_dwhdev";
+		targetArgs[1] = "";
+		targetArgs[2] = "dwhstage";
+		//
+		PrepareSchemaHelper.initSource(sourceArgs);
+		PrepareSchemaHelper.initTarget(targetArgs);
+		// Perform test
+		try {
+			PrepareSchemaHelper.execute();
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
+
+	@Test
+	public void testImpala() {
+		
+		initSource();
+		//
+		targetArgs[0] = "localhost_impala_dwhstage";
+		targetArgs[1] = "IMPALAKeywords";
+		targetArgs[2] = "dwhstage";
+		//
+		PrepareSchemaHelper.initSource(sourceArgs);
+		PrepareSchemaHelper.initTarget(targetArgs);
+		// Perform test
+		try {
+			PrepareSchemaHelper.execute();
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
+
+	@Test
+	public void testInformix() {
 		
 		initSource();
 		//
@@ -104,11 +185,11 @@ public class MainTestCopySchemaFromDB2 {
 		targetArgs[1] = "";
 		targetArgs[2] = "dwhstage";
 		//
-		MainTestCopySchemaHelper.initSource(sourceArgs);
-		MainTestCopySchemaHelper.initTarget(targetArgs);
+		PrepareSchemaHelper.initSource(sourceArgs);
+		PrepareSchemaHelper.initTarget(targetArgs);
 		// Perform test
 		try {
-			MainTestCopySchemaHelper.execute();
+			PrepareSchemaHelper.execute();
 		}
 		catch (Exception e) {
 			fail("Exception: \n" + e);
@@ -116,19 +197,119 @@ public class MainTestCopySchemaFromDB2 {
 	}
 
 	@Test
-	public void testDB2ToSQLServer() {
+	public void testMySQL() {
+		
+		initSource();
+		//
+		targetArgs[0] = "localhost_mysql_dwhstage";
+		targetArgs[1] = "";
+		targetArgs[2] = "dwhstage";
+		//
+		PrepareSchemaHelper.initSource(sourceArgs);
+		PrepareSchemaHelper.initTarget(targetArgs);
+		// Perform test
+		try {
+			PrepareSchemaHelper.execute();
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
+
+	@Test
+	public void testNetezza() {
+		
+		initSource();
+		//
+		targetArgs[0] = "localhost_netezza_dwhdev";
+		targetArgs[1] = "";
+		targetArgs[2] = "dwhstage";
+		//
+		PrepareSchemaHelper.initSource(sourceArgs);
+		PrepareSchemaHelper.initTarget(targetArgs);
+		// Perform test
+		try {
+			PrepareSchemaHelper.execute();
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
+
+	@Test
+	public void testOracle() {
+		
+		initSource();
+		//
+		targetArgs[0] = "localhost_oracle_dwhstage";
+		targetArgs[1] = "";
+		targetArgs[2] = "dwhstage";
+		//
+		PrepareSchemaHelper.initSource(sourceArgs);
+		PrepareSchemaHelper.initTarget(targetArgs);
+		// Perform test
+		try {
+			PrepareSchemaHelper.execute();
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
+
+	@Test
+	public void testPostgreSQL() {
+		
+		initSource();
+		//
+		targetArgs[0] = "localhost_postgresql_postgres_dwhstage";
+		targetArgs[1] = "";
+		targetArgs[2] = "dwhstage";
+		//
+		PrepareSchemaHelper.initSource(sourceArgs);
+		PrepareSchemaHelper.initTarget(targetArgs);
+		// Perform test
+		try {
+			PrepareSchemaHelper.execute();
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
+
+	@Test
+	public void testSQLAnywhere() {
+		
+		initSource();
+		//
+		targetArgs[0] = "localhost_sqlanywhere_dwhdev_dwhstage";
+		targetArgs[1] = "";
+		targetArgs[2] = "dwhstage";
+		//
+		PrepareSchemaHelper.initSource(sourceArgs);
+		PrepareSchemaHelper.initTarget(targetArgs);
+		// Perform test
+		try {
+			PrepareSchemaHelper.execute();
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
+
+	@Test
+	public void testSQLServer() {
 		
 		initSource();
 		//
 		targetArgs[0] = "localhost_sqlserver_dwh";
 		targetArgs[1] = "";
-		targetArgs[2] = "stage";
+		targetArgs[2] = "dwhstage";
 		//
-		MainTestCopySchemaHelper.initSource(sourceArgs);
-		MainTestCopySchemaHelper.initTarget(targetArgs);
+		PrepareSchemaHelper.initSource(sourceArgs);
+		PrepareSchemaHelper.initTarget(targetArgs);
 		// Perform test
 		try {
-			MainTestCopySchemaHelper.execute();
+			PrepareSchemaHelper.execute();
 		}
 		catch (Exception e) {
 			fail("Exception: \n" + e);
@@ -136,27 +317,7 @@ public class MainTestCopySchemaFromDB2 {
 	}
 
 	@Test
-	public void testDB2ToHANA() {
-		
-		initSource();
-		//
-		targetArgs[0] = "msas120i_hana_01_dwh_stage";
-		targetArgs[1] = "HDBKeywords";
-		targetArgs[2] = "dwh_stage";
-		//
-		MainTestCopySchemaHelper.initSource(sourceArgs);
-		MainTestCopySchemaHelper.initTarget(targetArgs);
-		// Perform test
-		try {
-			MainTestCopySchemaHelper.execute();
-		}
-		catch (Exception e) {
-			fail("Exception: \n" + e);
-		}
-	}
-
-	@Test
-	public void testDB2ToTeradata() {
+	public void testTeradata() {
 		
 		initSource();
 		//
@@ -164,11 +325,31 @@ public class MainTestCopySchemaFromDB2 {
 		targetArgs[1] = "TDBKeywords";
 		targetArgs[2] = "dwhstage";
 		//
-		MainTestCopySchemaHelper.initSource(sourceArgs);
-		MainTestCopySchemaHelper.initTarget(targetArgs);
+		PrepareSchemaHelper.initSource(sourceArgs);
+		PrepareSchemaHelper.initTarget(targetArgs);
 		// Perform test
 		try {
-			MainTestCopySchemaHelper.execute();
+			PrepareSchemaHelper.execute();
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
+
+	@Test
+	public void testVertica() {
+		
+		initSource();
+		//
+		targetArgs[0] = "localhost_vertica_dwhdev_dwhstage";
+		targetArgs[1] = "";
+		targetArgs[2] = "dwhstage";
+		//
+		PrepareSchemaHelper.initSource(sourceArgs);
+		PrepareSchemaHelper.initTarget(targetArgs);
+		// Perform test
+		try {
+			PrepareSchemaHelper.execute();
 		}
 		catch (Exception e) {
 			fail("Exception: \n" + e);
