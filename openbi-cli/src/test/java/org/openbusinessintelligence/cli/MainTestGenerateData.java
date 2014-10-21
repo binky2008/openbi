@@ -49,7 +49,7 @@ public class MainTestGenerateData {
 		initArguments();
 		
 		// Target properties
-		arguments[2] = "localhost_derby_dwhdev";
+		arguments[2] = "localhost_derby_dwhdev_test";
 		arguments[4] = "";
 		arguments[6] = "test";
 		arguments[8] = "tab_test";
@@ -259,7 +259,7 @@ public class MainTestGenerateData {
 		initArguments();
 		
 		// Target properties
-		arguments[2] = "localhost_netezza_test";
+		arguments[2] = "localhost_netezza_testdb_test";
 		arguments[4] = "";
 		arguments[6] = "";
 		arguments[8] = "tab_test";
@@ -280,7 +280,7 @@ public class MainTestGenerateData {
 		initArguments();
 		
 		// Target properties
-		arguments[2] = "localhost_oracle_test";
+		arguments[2] = "localhost_oracle_dwhdev_test";
 		arguments[4] = "";
 		arguments[6] = "";
 		arguments[8] = "tab_test";
@@ -385,7 +385,7 @@ public class MainTestGenerateData {
 		initArguments();
 		
 		// Target properties
-		arguments[2] = "localhost_vector_test";
+		arguments[2] = "localhost_vector_sample_test";
 		arguments[4] = "";
 		arguments[6] = "";
 		arguments[8] = "TAB_TEST";

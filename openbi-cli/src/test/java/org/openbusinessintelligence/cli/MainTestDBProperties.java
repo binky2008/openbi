@@ -41,7 +41,7 @@ public class MainTestDBProperties {
 		
 		initArguments();
 		//
-		arguments[2] = "localhost_derby_dwhdev";
+		arguments[2] = "localhost_derby_dwhdev_test";
 		arguments[4] = "";
 		// Perform test
 		try {
@@ -297,7 +297,7 @@ public class MainTestDBProperties {
 		
 		initArguments();
 		//
-		arguments[2] = "localhost_netezza_test";
+		arguments[2] = "localhost_netezza_testdb_test";
 		arguments[4] = "";
 		// Perform test
 		try {
@@ -329,7 +329,7 @@ public class MainTestDBProperties {
 		
 		initArguments();
 		//
-		arguments[2] = "localhost_oracle_test";
+		arguments[2] = "localhost_oracle_dwhdev_test";
 		arguments[4] = "";
 		// Perform test
 		try {
@@ -409,7 +409,7 @@ public class MainTestDBProperties {
 		
 		initArguments();
 		//
-		arguments[2] = "localhost_vector_test";
+		arguments[2] = "localhost_vector_sample_test";
 		arguments[4] = "";
 		// Perform test
 		try {

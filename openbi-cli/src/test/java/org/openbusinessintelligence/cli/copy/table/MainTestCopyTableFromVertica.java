@@ -42,7 +42,7 @@ public class MainTestCopyTableFromVertica {
 		
 		initSource();
 		//
-		targetArgs[0] = "localhost_derby_dwhdev";
+		targetArgs[0] = "localhost_derby_dwhdev_test";
 		targetArgs[1] = "";
 		targetArgs[2] = "test";
 		targetArgs[3] = "stg_vertica_tab_test";
@@ -231,7 +231,7 @@ public class MainTestCopyTableFromVertica {
 		
 		initSource();
 		//
-		targetArgs[0] = "localhost_netezza_test";
+		targetArgs[0] = "localhost_netezza_testdb_test";
 		targetArgs[1] = "";
 		targetArgs[2] = "test";
 		targetArgs[3] = "stg_vertica_tab_test";
@@ -252,7 +252,7 @@ public class MainTestCopyTableFromVertica {
 		
 		initSource();
 		//
-		targetArgs[0] = "localhost_oracle_test";
+		targetArgs[0] = "localhost_oracle_dwhdev_test";
 		targetArgs[1] = "";
 		targetArgs[2] = "test";
 		targetArgs[3] = "stg_vertica_tab_test";

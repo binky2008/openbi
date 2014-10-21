@@ -200,7 +200,7 @@ public class PrepareSchemaFromMySQL {
 		
 		initSource();
 		//
-		targetArgs[0] = "localhost_netezza_sugarcrm";
+		targetArgs[0] = "localhost_netezza_testdb_sugarcrm";
 		targetArgs[1] = "";
 		targetArgs[2] = "sugarcrm";
 		//
@@ -220,7 +220,7 @@ public class PrepareSchemaFromMySQL {
 		
 		initSource();
 		//
-		targetArgs[0] = "localhost_oracle_sugarcrm";
+		targetArgs[0] = "localhost_oracle_dwhdev_sugarcrm";
 		targetArgs[1] = "";
 		targetArgs[2] = "sugarcrm";
 		//
@@ -260,7 +260,7 @@ public class PrepareSchemaFromMySQL {
 		
 		initSource();
 		//
-		targetArgs[0] = "localhost_sqlanywhere_sugarcrm_sugarcrm";
+		targetArgs[0] = "localhost_sqlanywhere_sugarcrm";
 		targetArgs[1] = "";
 		targetArgs[2] = "sugarcrm";
 		//

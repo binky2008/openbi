@@ -82,7 +82,7 @@ public class MainTestETLXMLTable {
 		initArguments();
 		initSourceMySQL();
 		//
-		arguments[9] = "localhost_oracle_test";
+		arguments[9] = "localhost_oracle_dwhdev_test";
 		arguments[11] = "";
 		arguments[13] = "test";
 		arguments[15] = "stg_mys_tab_test";

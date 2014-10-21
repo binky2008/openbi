@@ -60,7 +60,7 @@ public class MainTestCopySchemaFromInformix {
 		
 		initSource();
 		//
-		targetArgs[0] = "localhost_oracle_dwhstage";
+		targetArgs[0] = "localhost_oracle_dwhdev_dwhstage";
 		targetArgs[1] = "";
 		targetArgs[2] = "dwhstage";
 		//

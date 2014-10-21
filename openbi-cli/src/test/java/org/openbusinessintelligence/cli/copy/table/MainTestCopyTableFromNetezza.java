@@ -10,7 +10,7 @@ public class MainTestCopyTableFromNetezza {
 	private String[] targetArgs = new String[4];
 	
 	private void initSource() {
-		sourceArgs[0] = "localhost_netezza_test";
+		sourceArgs[0] = "localhost_netezza_testdb_test";
 		sourceArgs[1] = "";
 		sourceArgs[2] = "test";
 		sourceArgs[3] = "tab_test";
@@ -42,7 +42,7 @@ public class MainTestCopyTableFromNetezza {
 		
 		initSource();
 		//
-		targetArgs[0] = "localhost_derby_dwhdev";
+		targetArgs[0] = "localhost_derby_dwhdev_test";
 		targetArgs[1] = "";
 		targetArgs[2] = "test";
 		targetArgs[3] = "stg_netezza_tab_test";
@@ -232,7 +232,7 @@ public class MainTestCopyTableFromNetezza {
 		
 		initSource();
 		//
-		targetArgs[0] = "localhost_netezza_test";
+		targetArgs[0] = "localhost_netezza_testdb_test";
 		targetArgs[1] = "";
 		targetArgs[2] = "test";
 		targetArgs[3] = "stg_netezza_tab_test";
@@ -253,7 +253,7 @@ public class MainTestCopyTableFromNetezza {
 		
 		initSource();
 		//
-		targetArgs[0] = "localhost_oracle_test";
+		targetArgs[0] = "localhost_oracle_dwhdev_test";
 		targetArgs[1] = "";
 		targetArgs[2] = "test";
 		targetArgs[3] = "stg_netezza_tab_test";

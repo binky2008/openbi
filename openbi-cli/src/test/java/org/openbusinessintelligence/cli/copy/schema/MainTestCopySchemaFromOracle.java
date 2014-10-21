@@ -10,7 +10,7 @@ public class MainTestCopySchemaFromOracle {
 	private String[] targetArgs = new String[3];
 	
 	private void initSource() {
-		sourceArgs[0] = "localhost_oracle_sugarcrm";
+		sourceArgs[0] = "localhost_oracle_dwhdev_sugarcrm";
 		sourceArgs[1] = "";
 		sourceArgs[2] = "sugarcrm";
 	}
@@ -60,7 +60,7 @@ public class MainTestCopySchemaFromOracle {
 		
 		initSource();
 		//
-		targetArgs[0] = "localhost_oracle_dwhstage";
+		targetArgs[0] = "localhost_oracle_dwhdev_dwhstage";
 		targetArgs[1] = "";
 		targetArgs[2] = "dwhstage";
 		//

@@ -3,7 +3,7 @@ package org.openbusinessintelligence.cli.copy.schema;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
-import org.openbusinessintelligence.cli.prepare.PrepareSchemaHelper;
+import org.openbusinessintelligence.cli.copy.schema.MainTestCopySchemaHelper;
 
 public class MainTestCopySchemaFromDB2 {
 	
@@ -25,11 +25,11 @@ public class MainTestCopySchemaFromDB2 {
 		targetArgs[1] = "";
 		targetArgs[2] = "dwhstage";
 		//
-		PrepareSchemaHelper.initSource(sourceArgs);
-		PrepareSchemaHelper.initTarget(targetArgs);
+		MainTestCopySchemaHelper.initSource(sourceArgs);
+		MainTestCopySchemaHelper.initTarget(targetArgs);
 		// Perform test
 		try {
-			PrepareSchemaHelper.execute();
+			MainTestCopySchemaHelper.execute();
 		}
 		catch (Exception e) {
 			fail("Exception: \n" + e);
@@ -45,11 +45,11 @@ public class MainTestCopySchemaFromDB2 {
 		targetArgs[1] = "";
 		targetArgs[2] = "dwhstage";
 		//
-		PrepareSchemaHelper.initSource(sourceArgs);
-		PrepareSchemaHelper.initTarget(targetArgs);
+		MainTestCopySchemaHelper.initSource(sourceArgs);
+		MainTestCopySchemaHelper.initTarget(targetArgs);
 		// Perform test
 		try {
-			PrepareSchemaHelper.execute();
+			MainTestCopySchemaHelper.execute();
 		}
 		catch (Exception e) {
 			fail("Exception: \n" + e);
@@ -65,11 +65,11 @@ public class MainTestCopySchemaFromDB2 {
 		targetArgs[1] = "";
 		targetArgs[2] = "dwhstage";
 		//
-		PrepareSchemaHelper.initSource(sourceArgs);
-		PrepareSchemaHelper.initTarget(targetArgs);
+		MainTestCopySchemaHelper.initSource(sourceArgs);
+		MainTestCopySchemaHelper.initTarget(targetArgs);
 		// Perform test
 		try {
-			PrepareSchemaHelper.execute();
+			MainTestCopySchemaHelper.execute();
 		}
 		catch (Exception e) {
 			fail("Exception: \n" + e);
@@ -81,15 +81,15 @@ public class MainTestCopySchemaFromDB2 {
 		
 		initSource();
 		//
-		targetArgs[0] = "localhost_firebird_dwhstage";
+		targetArgs[0] = "localhost_firebird_dwhdev_dwhstage";
 		targetArgs[1] = "";
 		targetArgs[2] = "";
 		//
-		PrepareSchemaHelper.initSource(sourceArgs);
-		PrepareSchemaHelper.initTarget(targetArgs);
+		MainTestCopySchemaHelper.initSource(sourceArgs);
+		MainTestCopySchemaHelper.initTarget(targetArgs);
 		// Perform test
 		try {
-			PrepareSchemaHelper.execute();
+			MainTestCopySchemaHelper.execute();
 		}
 		catch (Exception e) {
 			fail("Exception: \n" + e);
@@ -105,11 +105,11 @@ public class MainTestCopySchemaFromDB2 {
 		targetArgs[1] = "";
 		targetArgs[2] = "dwhstage";
 		//
-		PrepareSchemaHelper.initSource(sourceArgs);
-		PrepareSchemaHelper.initTarget(targetArgs);
+		MainTestCopySchemaHelper.initSource(sourceArgs);
+		MainTestCopySchemaHelper.initTarget(targetArgs);
 		// Perform test
 		try {
-			PrepareSchemaHelper.execute();
+			MainTestCopySchemaHelper.execute();
 		}
 		catch (Exception e) {
 			fail("Exception: \n" + e);
@@ -125,11 +125,11 @@ public class MainTestCopySchemaFromDB2 {
 		targetArgs[1] = "HDBKeywords";
 		targetArgs[2] = "dwh_stage";
 		//
-		PrepareSchemaHelper.initSource(sourceArgs);
-		PrepareSchemaHelper.initTarget(targetArgs);
+		MainTestCopySchemaHelper.initSource(sourceArgs);
+		MainTestCopySchemaHelper.initTarget(targetArgs);
 		// Perform test
 		try {
-			PrepareSchemaHelper.execute();
+			MainTestCopySchemaHelper.execute();
 		}
 		catch (Exception e) {
 			fail("Exception: \n" + e);
@@ -145,11 +145,11 @@ public class MainTestCopySchemaFromDB2 {
 		targetArgs[1] = "";
 		targetArgs[2] = "dwhstage";
 		//
-		PrepareSchemaHelper.initSource(sourceArgs);
-		PrepareSchemaHelper.initTarget(targetArgs);
+		MainTestCopySchemaHelper.initSource(sourceArgs);
+		MainTestCopySchemaHelper.initTarget(targetArgs);
 		// Perform test
 		try {
-			PrepareSchemaHelper.execute();
+			MainTestCopySchemaHelper.execute();
 		}
 		catch (Exception e) {
 			fail("Exception: \n" + e);
@@ -165,11 +165,11 @@ public class MainTestCopySchemaFromDB2 {
 		targetArgs[1] = "IMPALAKeywords";
 		targetArgs[2] = "dwhstage";
 		//
-		PrepareSchemaHelper.initSource(sourceArgs);
-		PrepareSchemaHelper.initTarget(targetArgs);
+		MainTestCopySchemaHelper.initSource(sourceArgs);
+		MainTestCopySchemaHelper.initTarget(targetArgs);
 		// Perform test
 		try {
-			PrepareSchemaHelper.execute();
+			MainTestCopySchemaHelper.execute();
 		}
 		catch (Exception e) {
 			fail("Exception: \n" + e);
@@ -185,11 +185,11 @@ public class MainTestCopySchemaFromDB2 {
 		targetArgs[1] = "";
 		targetArgs[2] = "dwhstage";
 		//
-		PrepareSchemaHelper.initSource(sourceArgs);
-		PrepareSchemaHelper.initTarget(targetArgs);
+		MainTestCopySchemaHelper.initSource(sourceArgs);
+		MainTestCopySchemaHelper.initTarget(targetArgs);
 		// Perform test
 		try {
-			PrepareSchemaHelper.execute();
+			MainTestCopySchemaHelper.execute();
 		}
 		catch (Exception e) {
 			fail("Exception: \n" + e);
@@ -205,11 +205,11 @@ public class MainTestCopySchemaFromDB2 {
 		targetArgs[1] = "";
 		targetArgs[2] = "dwhstage";
 		//
-		PrepareSchemaHelper.initSource(sourceArgs);
-		PrepareSchemaHelper.initTarget(targetArgs);
+		MainTestCopySchemaHelper.initSource(sourceArgs);
+		MainTestCopySchemaHelper.initTarget(targetArgs);
 		// Perform test
 		try {
-			PrepareSchemaHelper.execute();
+			MainTestCopySchemaHelper.execute();
 		}
 		catch (Exception e) {
 			fail("Exception: \n" + e);
@@ -221,15 +221,15 @@ public class MainTestCopySchemaFromDB2 {
 		
 		initSource();
 		//
-		targetArgs[0] = "localhost_netezza_dwhdev";
+		targetArgs[0] = "localhost_netezza_testdb_dwhstage";
 		targetArgs[1] = "";
 		targetArgs[2] = "dwhstage";
 		//
-		PrepareSchemaHelper.initSource(sourceArgs);
-		PrepareSchemaHelper.initTarget(targetArgs);
+		MainTestCopySchemaHelper.initSource(sourceArgs);
+		MainTestCopySchemaHelper.initTarget(targetArgs);
 		// Perform test
 		try {
-			PrepareSchemaHelper.execute();
+			MainTestCopySchemaHelper.execute();
 		}
 		catch (Exception e) {
 			fail("Exception: \n" + e);
@@ -241,15 +241,15 @@ public class MainTestCopySchemaFromDB2 {
 		
 		initSource();
 		//
-		targetArgs[0] = "localhost_oracle_dwhstage";
+		targetArgs[0] = "localhost_oracle_dwhdev_dwhstage";
 		targetArgs[1] = "";
 		targetArgs[2] = "dwhstage";
 		//
-		PrepareSchemaHelper.initSource(sourceArgs);
-		PrepareSchemaHelper.initTarget(targetArgs);
+		MainTestCopySchemaHelper.initSource(sourceArgs);
+		MainTestCopySchemaHelper.initTarget(targetArgs);
 		// Perform test
 		try {
-			PrepareSchemaHelper.execute();
+			MainTestCopySchemaHelper.execute();
 		}
 		catch (Exception e) {
 			fail("Exception: \n" + e);
@@ -265,11 +265,11 @@ public class MainTestCopySchemaFromDB2 {
 		targetArgs[1] = "";
 		targetArgs[2] = "dwhstage";
 		//
-		PrepareSchemaHelper.initSource(sourceArgs);
-		PrepareSchemaHelper.initTarget(targetArgs);
+		MainTestCopySchemaHelper.initSource(sourceArgs);
+		MainTestCopySchemaHelper.initTarget(targetArgs);
 		// Perform test
 		try {
-			PrepareSchemaHelper.execute();
+			MainTestCopySchemaHelper.execute();
 		}
 		catch (Exception e) {
 			fail("Exception: \n" + e);
@@ -285,11 +285,11 @@ public class MainTestCopySchemaFromDB2 {
 		targetArgs[1] = "";
 		targetArgs[2] = "dwhstage";
 		//
-		PrepareSchemaHelper.initSource(sourceArgs);
-		PrepareSchemaHelper.initTarget(targetArgs);
+		MainTestCopySchemaHelper.initSource(sourceArgs);
+		MainTestCopySchemaHelper.initTarget(targetArgs);
 		// Perform test
 		try {
-			PrepareSchemaHelper.execute();
+			MainTestCopySchemaHelper.execute();
 		}
 		catch (Exception e) {
 			fail("Exception: \n" + e);
@@ -303,13 +303,13 @@ public class MainTestCopySchemaFromDB2 {
 		//
 		targetArgs[0] = "localhost_sqlserver_dwh";
 		targetArgs[1] = "";
-		targetArgs[2] = "dwhstage";
+		targetArgs[2] = "stage";
 		//
-		PrepareSchemaHelper.initSource(sourceArgs);
-		PrepareSchemaHelper.initTarget(targetArgs);
+		MainTestCopySchemaHelper.initSource(sourceArgs);
+		MainTestCopySchemaHelper.initTarget(targetArgs);
 		// Perform test
 		try {
-			PrepareSchemaHelper.execute();
+			MainTestCopySchemaHelper.execute();
 		}
 		catch (Exception e) {
 			fail("Exception: \n" + e);
@@ -325,11 +325,11 @@ public class MainTestCopySchemaFromDB2 {
 		targetArgs[1] = "TDBKeywords";
 		targetArgs[2] = "dwhstage";
 		//
-		PrepareSchemaHelper.initSource(sourceArgs);
-		PrepareSchemaHelper.initTarget(targetArgs);
+		MainTestCopySchemaHelper.initSource(sourceArgs);
+		MainTestCopySchemaHelper.initTarget(targetArgs);
 		// Perform test
 		try {
-			PrepareSchemaHelper.execute();
+			MainTestCopySchemaHelper.execute();
 		}
 		catch (Exception e) {
 			fail("Exception: \n" + e);
@@ -345,11 +345,11 @@ public class MainTestCopySchemaFromDB2 {
 		targetArgs[1] = "";
 		targetArgs[2] = "dwhstage";
 		//
-		PrepareSchemaHelper.initSource(sourceArgs);
-		PrepareSchemaHelper.initTarget(targetArgs);
+		MainTestCopySchemaHelper.initSource(sourceArgs);
+		MainTestCopySchemaHelper.initTarget(targetArgs);
 		// Perform test
 		try {
-			PrepareSchemaHelper.execute();
+			MainTestCopySchemaHelper.execute();
 		}
 		catch (Exception e) {
 			fail("Exception: \n" + e);

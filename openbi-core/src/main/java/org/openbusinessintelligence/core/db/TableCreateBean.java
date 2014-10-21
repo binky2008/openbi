@@ -87,7 +87,7 @@ public class TableCreateBean {
 		}
    		
     	while(tables.next()) {
-    		logger.debug("Found table: " + tables.getString(3));
+    		logger.debug("Found table: " + tables.getString(2) + "." + tables.getString(3));
     		if (tables.getString(3).toUpperCase().equals(targetTable.toUpperCase())) {
     			tableExistsFlag = true;
         		logger.debug("Table exists");

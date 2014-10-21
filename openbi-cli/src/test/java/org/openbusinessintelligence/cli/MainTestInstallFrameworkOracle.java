@@ -25,7 +25,7 @@ public class MainTestInstallFrameworkOracle {
 		
 		initArguments();
 		
-		arguments[2] = "localhost_oracle_dwhadmin_test";
+		arguments[2] = "localhost_oracle_dwhdev_dwhadmin_test";
 		arguments[4] = "oracle/adminusr";
 		// Perform test
 		try {
