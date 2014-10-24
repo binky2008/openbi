@@ -23,4 +23,4 @@ CREATE USER dwhstage FROM DBC AS
 	PASSWORD  =  dwhstage,
 	PERMANENT = 209715200;
 
-grant select on DBC.UDTInfo to dwhstage;	
+grant select on DBC.UDTInfo to dwhstage;

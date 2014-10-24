@@ -2,6 +2,7 @@ apply plugin: 'application'
 apply plugin: 'java'
 apply plugin: 'eclipse'
 
+sourceCompatibility = 1.7
 version = '0.1'
 mainClassName = 'org.openbusinessintelligence.cli.Main'
 
@@ -34,8 +35,8 @@ dependencies {
 	//
     //runtime group: 'org.apache.hadoop', name: 'hadoop-common', version: '2.+'
     //runtime group: 'org.apache.hive', name: 'hive-jdbc', version: '0.+'
-	runtime fileTree(dir: 'C:/Program Files/Java/lib/jdbc')
-	runtime fileTree(dir: 'C:/Program Files/Java/lib/hadoop')
+	//runtime fileTree(dir: 'C:/Program Files/Java/lib/jdbc')
+	//runtime fileTree(dir: 'C:/Program Files/Java/lib/hadoop')
     testCompile group: 'junit', name: 'junit', version: '4.+'
 }
 
