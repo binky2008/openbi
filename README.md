@@ -3,12 +3,20 @@
 The Open BI Tools is a suite of tools to facilitate every day tasks in business intelligence and data warehousing projects.
 
 The software is in pre-release status.
+
+# Installation
+
+Download the latest release and unpack it in a folder you like.
+The command line tool is in the /bin fomder
+
+# Features
+
 At the moment only these features are supported:
 
 ## Print help
 Command: help
 
-Example:
+Example (on Windows):
 ```
 bin\openbi help
 ```
@@ -20,7 +28,7 @@ Options:
 - toadprojectfolder = folder where the project file is generated
 - toadprojectfileslocation = location of the included files
 
-Example:
+Example (on Windows):
 ```
 bin\openbi toadproject ^
 	-toadprojectname oracle-dwh-objects ^
@@ -38,7 +46,7 @@ Options:
 - dbconnpropertyfile = file in folder _datasources_ containing the above parameters
 - dbconnkeywordfile file in folder _conf_ containing a list of db reserved keywords
 
-Example:
+Example (on Windows):
 ```
 bin\openbi dbproperties ^
 	-dbconnpropertyfile localhost_mysql_test
@@ -70,7 +78,7 @@ _other options_
 - trgpreservedata = set true if target table must not be emptied
 - commitfrequency = rows for each commit
 
-Example:
+Example (on Windows):
 ```
 bin\openbi tablecopy ^
 	-srcdbconnpropertyfile localhost_mysql_test ^
