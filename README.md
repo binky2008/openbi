@@ -7,7 +7,7 @@ The software is in pre-release status.
 # Installation
 
 Download the latest release and unpack it in a folder you like.
-The command line tool is in the /bin fomder
+The command line tool is in the /bin folder
 
 # Features
 
