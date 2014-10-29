@@ -7,7 +7,17 @@ The software is in pre-release status.
 # Installation
 
 Download the latest release and unpack it in a folder you like.
-The command line tool is in the /bin folder
+The command line tool is in the _/bin_ folder.
+
+## JDBC Drivers
+
+JDBC drivers should be placed in the _/lib/jdbc_ folder. Drivers for Hive already reside in the _/lib/hadoop_ folder.
+
+## Data sources
+
+Files containing connection parameters to datasources should be placed in the _/datasources_ folder.
+
+Datasource files must have the extension _.properties_.
 
 # Features
 
@@ -61,7 +71,7 @@ _source connection_
 - srcdbconnectionurl = db connection url
 - srcdbusername = db login user
 - srcdbpassword = db password
-- srcdbconnpropertyfile = file in folder _datasources_ containing the above parameters
+- srcdbconnpropertyfile = file in folder _datasources_ containing the above parameters. The file must have the _.properties_ extension but must be referenced without extension in the command line call.
 - srcdbconnkeywordfile file in folder _conf_ containing a list of db reserved keywords
 
 _target connection_
