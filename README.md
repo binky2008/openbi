@@ -19,6 +19,10 @@ Files containing connection parameters to datasources should be placed in the _/
 
 Datasource files must have the extension _.properties_.
 
+## Logs
+
+Logs are generated in the folder _/log_.
+
 # Features
 
 At the moment only these features are supported:
