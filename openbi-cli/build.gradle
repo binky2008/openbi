@@ -3,7 +3,7 @@ apply plugin: 'java'
 apply plugin: 'eclipse'
 
 sourceCompatibility = 1.7
-version = '0.1'
+version = '0.2'
 mainClassName = 'org.openbusinessintelligence.cli.Main'
 
 dependencies {
