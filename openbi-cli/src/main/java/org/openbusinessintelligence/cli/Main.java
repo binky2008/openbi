@@ -202,7 +202,9 @@ public class Main {
 			}
 			
 			installer.setSourceConnection(connectionBean);
-			installer.setDatabaseType(getOption("dbtype"));
+			installer.setDatabaseProduct(getOption("dbproduct"));
+			installer.setCatalog(getOption("dbcatalog"));
+			installer.setSchema(getOption("dbschema"));
 			installer.setModule(getOption("module"));
 			
 			String parameterNames = getOption("parameternames");

@@ -15,6 +15,21 @@
 	
 	<!-- DB framework options -->
 	<option>
+		<name>dbproduct</name>
+		<description>DB Product</description>
+		<argName>dbproduct</argName>
+	</option>
+	<option>
+		<name>dbcatalog</name>
+		<description>Catalog</description>
+		<argName>dbcatalog</argName>
+	</option>
+	<option>
+		<name>dbschema</name>
+		<description>Schema</description>
+		<argName>dbschema</argName>
+	</option>
+	<option>
 		<name>module</name>
 		<description>Module</description>
 		<argName>module</argName>
@@ -207,11 +222,6 @@
 		<name>dbstatement</name>
 		<description>Statement</description>
 		<argName>statement string</argName>
-	</option>
-	<option>
-		<name>dbtype</name>
-		<description>Database type</description>
-		<argName>database type</argName>
 	</option>
 	
 	<!-- DB dictionary options -->
