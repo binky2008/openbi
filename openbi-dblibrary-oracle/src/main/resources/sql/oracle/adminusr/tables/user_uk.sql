@@ -1,0 +1,1 @@
+ALTER TABLE p#frm#user_t ADD (CONSTRAINT p#frm#user_uk UNIQUE (user_code));

@@ -1,1 +1,1 @@
-include "openbi-core", "openbi-etl", "openbi-cli", "openbi-repo", "openbi-dbframework", "openbi-dbframework-oracle", "openbi-dbframework-sqlsrv"
+include "openbi-core", "openbi-etl", "openbi-cli", "openbi-repo", "openbi-dblibrary", "openbi-dblibrary-oracle", "openbi-dblibrary-sqlsrv"

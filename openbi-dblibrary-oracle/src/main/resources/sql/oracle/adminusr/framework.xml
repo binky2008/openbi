@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<modules>
+	<module name="tool">
+		<script>packages/type/type-def.sql</script>
+		<script>packages/type/type-impl.sql</script>
+		<script>packages/dict/dict-def.sql</script>
+		<script>packages/dict/dict-impl.sql</script>
+		<script>packages/stmt/stmt-def.sql</script>
+		<script>packages/stmt/stmt-impl.sql</script>
+		<script>packages/ddls/ddls-def.sql</script>
+		<script>packages/ddls/ddls-impl.sql</script>
+		<script>packages/auth/auth-def.sql</script>
+		<script>packages/auth/auth-impl.sql</script>
+		<script>packages/enbl/enbl-def.sql</script>
+		<script>packages/enbl/enbl-impl.sql</script>
+	</module>
+	<module name="trac">
+		<script>tables/trac_t.sql</script>
+		<script delimiter=";">views/trac_v.sql</script>
+		<script>packages/trac_param/trac_param-def.sql</script>
+		<script>packages/trac/trac-def.sql</script>
+		<script>packages/trac/trac-impl.sql</script>
+	</module>
+	<module name="taxn">
+		<script>tables/user_t.sql</script>
+		<script delimiter=";">tables/user_uk.sql</script>
+		<script>tables/taxn_t.sql</script>
+		<script delimiter=";">tables/taxn_uk.sql</script>
+		<script delimiter=";">tables/taxn_data.sql</script>
+		<script>tables/taxn_user_t.sql</script>
+		<script delimiter=";">tables/taxn_user_uk.sql</script>
+		<script delimiter=";">views/taxn_v.sql</script>
+		<script delimiter=";">views/taxn_user_v.sql</script>
+		<script>packages/taxn/taxn-def.sql</script>
+		<script>packages/taxn/taxn-impl.sql</script>
+	</module>
+	<module name="mesr">
+		<script>tables/docu_t.sql</script>
+		<script>tables/mesr_query_t.sql</script>
+		<script delimiter=";">tables/mesr_query_uk.sql</script>
+		<script>tables/mesr_taxn_t.sql</script>
+		<script delimiter=";">tables/mesr_taxn_uk.sql</script>
+		<script>tables/mesr_keyfigure_t.sql</script>
+		<script delimiter=";">tables/mesr_keyfigure_uk.sql</script>
+		<script>tables/mesr_threshold_t.sql</script>
+		<script delimiter=";">tables/mesr_threshold_uk.sql</script>
+		<script>tables/mesr_exec_t.sql</script>
+		<script delimiter=";">views/mesr_query_v.sql</script>
+		<script delimiter=";">views/mesr_taxn_v.sql</script>
+		<script delimiter=";">views/mesr_keyfigure_v.sql</script>
+		<script delimiter=";">views/mesr_threshold_v.sql</script>
+		<script delimiter=";">views/mesr_meta_v.sql</script>
+		<script delimiter=";">views/mesr_exec_v.sql</script>
+		<script delimiter=";">views/mesr_exec_verify_v.sql</script>
+		<script>packages/docu_param/docu_param-def.sql</script>
+		<script>packages/docu/docu-def.sql</script>
+		<script>packages/docu/docu-impl.sql</script>
+		<script>packages/mesr/mesr-def.sql</script>
+		<script>packages/mesr/mesr-impl.sql</script>
+	</module>
+	<module name="stag">
+		<script>tables/stag_column_t.sql</script>
+		<script>tables/stag_column_check_t.sql</script>
+		<script>tables/stag_ddl_t.sql</script>
+		<script>tables/stag_object_t.sql</script>
+		<script delimiter=";">tables/stag_object_uk.sql</script>
+		<script>tables/stag_queue_t.sql</script>
+		<script delimiter=";">tables/stag_queue_uk.sql</script>
+		<script>tables/stag_queue_object_t.sql</script>
+		<script delimiter=";">tables/stag_queue_object_uk.sql</script>
+		<script>tables/stag_source_db_t.sql</script>
+		<script>tables/stag_source_t.sql</script>
+		<script>tables/stag_stat_type_t.sql</script>
+		<script>tables/stag_stat_t.sql</script>
+		<script>tables/stag_size_t.sql</script>
+		<script delimiter=";">tables/stag_size_uk.sql</script>
+		<script delimiter=";">views/stag_column_v.sql</script>
+		<script delimiter=";">views/stag_column_check_v.sql</script>
+		<script delimiter=";">views/stag_object_v.sql</script>
+		<script delimiter=";">views/stag_queue_object_v.sql</script>
+		<script delimiter=";">views/stag_queue_v.sql</script>
+		<script delimiter=";">views/stag_source_db_v.sql</script>
+		<script delimiter=";">views/stag_source_v.sql</script>
+		<script delimiter=";">views/stag_stat_last_v.sql</script>
+		<script delimiter=";">views/stag_stat_v.sql</script>
+		<script delimiter=";">views/stag_size_v.sql</script>
+		<script>packages/stag_param/stag_param-def.sql</script>
+		<script>packages/stag_stat/stag_stat-def.sql</script>
+		<script>packages/stag_stat/stag_stat-impl.sql</script>
+		<script>packages/stag_meta/stag_meta-def.sql</script>
+		<script>packages/stag_meta/stag_meta-impl.sql</script>
+		<script>packages/stag_ddl/stag_ddl-def.sql</script>
+		<script>packages/stag_ddl/stag_ddl-impl.sql</script>
+		<script>packages/stag_build/stag_build-def.sql</script>
+		<script>packages/stag_build/stag_build-impl.sql</script>
+		<script>packages/stag_ctl/stag_ctl-def.sql</script>
+		<script>packages/stag_ctl/stag_ctl-impl.sql</script>
+		<script>tables/stag_stat_type_data.sql</script>
+	</module>
+</modules>

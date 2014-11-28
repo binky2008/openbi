@@ -16,8 +16,7 @@ repositories {
 
 dependencies {
 	compile project(':openbi-core')
-	compile project(':openbi-db')
-	compile project(':openbi-dbframework')
+	compile project(':openbi-dblibrary')
 	compile project(':openbi-etl')
 	compile project(':openbi-repo')
 	compile project(':openbi-cli')
