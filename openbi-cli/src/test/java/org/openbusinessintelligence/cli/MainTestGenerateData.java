@@ -149,6 +149,27 @@ public class MainTestGenerateData {
 	}
 
 	@Test
+	public void testHive() {
+		
+		initArguments();
+		
+		// Target properties
+		arguments[2] = "localhost_hive_test";
+		arguments[4] = "";
+		arguments[6] = "default";
+		arguments[8] = "tab_test";
+		arguments[10] = "10";
+		
+		// Perform test
+		try {
+			Main.main(arguments);
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
+
+	@Test
 	public void testHSQL() {
 		
 		initArguments();

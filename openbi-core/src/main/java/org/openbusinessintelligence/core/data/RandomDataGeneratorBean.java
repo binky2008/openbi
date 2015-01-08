@@ -137,23 +137,28 @@ public class RandomDataGeneratorBean {
         if (!(targetSchema == null || targetSchema.equals(""))) {
         	schemaPrefix = targetSchema + ".";
         }
-        insertText += schemaPrefix + targetTable + " (";
-
-        statement = new StatementBean();
-        statement.setProductName(connection.getDatabaseProductName().toUpperCase());
+        insertText += schemaPrefix + targetTable + " ";
         
-		position = 0;
-        for (int i = 0; i < columnNames.length; i++) {
-        	if (statement.getColumnUsable (columnTypes[i])) {
-            	if (position > 0) {
-            		insertText += ",";
-            	}
-            	insertText += connection.getColumnIdentifier(columnNames[i]);
-    			position++;
-	    	}
+	    if (!connection.getDatabaseProductName().toUpperCase().contains("HIVE")) {
+	        insertText += " (";
+	
+	        statement = new StatementBean();
+	        statement.setProductName(connection.getDatabaseProductName().toUpperCase());
+	        
+			position = 0;
+	        for (int i = 0; i < columnNames.length; i++) {
+	        	if (statement.getColumnUsable (columnTypes[i])) {
+	            	if (position > 0) {
+	            		insertText += ",";
+	            	}
+	            	insertText += connection.getColumnIdentifier(columnNames[i]);
+	    			position++;
+		    	}
+	        }
+	        
+		    insertText += ") ";
         }
-        
-	    insertText += ") VALUES (";
+	    insertText += "VALUES (";
 	    
 		position = 0;
 	    for (int i = 0; i < columnNames.length; i++) {
@@ -345,7 +350,10 @@ public class RandomDataGeneratorBean {
 	    	rowCount++;
 	    	rowSinceCommit++;
 	    	if (rowSinceCommit==commitFrequency) {
-	            if (!connection.getDatabaseProductName().toUpperCase().contains("IMPALA")) {
+	            if (
+	            	!connection.getDatabaseProductName().toUpperCase().contains("HIVE") &&
+	            	!connection.getDatabaseProductName().toUpperCase().contains("IMPALA")
+	            ) {
 	                connection.getConnection().commit();
 	            }
 	    		rowSinceCommit = 0;
@@ -353,7 +361,10 @@ public class RandomDataGeneratorBean {
 	    	}
     	}
     	targetStmt.close();
-        if (!connection.getDatabaseProductName().toUpperCase().contains("IMPALA")) {
+        if (
+        	!connection.getDatabaseProductName().toUpperCase().contains("HIVE") &&
+        	!connection.getDatabaseProductName().toUpperCase().contains("IMPALA")
+        ) {
             connection.getConnection().commit();
         }
 

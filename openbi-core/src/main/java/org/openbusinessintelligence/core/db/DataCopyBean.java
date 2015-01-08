@@ -391,7 +391,9 @@ public class DataCopyBean {
            	targetStmt = targetCon.getConnection().prepareStatement(emptyText);
             targetStmt.executeUpdate();
             targetStmt.close();
-            targetCon.getConnection().commit();
+            if (!targetCon.getDatabaseProductName().toUpperCase().contains("HIVE")) {
+                targetCon.getConnection().commit();
+            }
             logger.info("Table truncated");
         }
         
@@ -401,27 +403,34 @@ public class DataCopyBean {
         if (targetCon.getDatabaseProductName().toUpperCase().contains("ORACLE")) {
         	insertText += "/*+APPEND*/ ";
         }
-        insertText += "INTO " + tableIdentifier + " (";
-        for (int i = 0; i < commonColumnNames.length; i++) {
-        	if (i > 0) {
-        		insertText += ",";
-        	}
-        	insertText += targetCon.getColumnIdentifier(commonColumnNames[i]);
+        insertText += "INTO ";
+        if (targetCon.getDatabaseProductName().toUpperCase().contains("HIVE")) {
+        	insertText += "TABLE ";
         }
-        
-        if (targetMapColumns!=null) {
-	       for (int i = 0; i < targetMapColumns.length; i++) {
-	    	   insertText += "," + targetMapColumns[i];
-	       }
-	    }
-	       
-	    if (targetDefaultColumns!=null) {
-	    	for (int i = 0; i < targetDefaultColumns.length; i++) {
-	          	insertText += "," + targetDefaultColumns[i];
+        insertText += tableIdentifier + " ";
+	        if (!targetCon.getDatabaseProductName().toUpperCase().contains("HIVE")) {
+	        insertText += " (";
+	        for (int i = 0; i < commonColumnNames.length; i++) {
+	        	if (i > 0) {
+	        		insertText += ",";
+	        	}
+	        	insertText += targetCon.getColumnIdentifier(commonColumnNames[i]);
 	        }
-	    }
-        
-	    insertText += ") VALUES (";
+	        
+	        if (targetMapColumns!=null) {
+		       for (int i = 0; i < targetMapColumns.length; i++) {
+		    	   insertText += "," + targetMapColumns[i];
+		       }
+		    }
+		       
+		    if (targetDefaultColumns!=null) {
+		    	for (int i = 0; i < targetDefaultColumns.length; i++) {
+		          	insertText += "," + targetDefaultColumns[i];
+		        }
+		    }
+		    insertText += ") ";
+        }
+	    insertText += "VALUES (";
 	    
 	    for (int i = 0; i < commonColumnNames.length; i++) {
 	    	insertParameter = "?";
@@ -430,7 +439,7 @@ public class DataCopyBean {
 	    	}
 	    	
 	    	if (
-		    	targetCon.getDatabaseProductName().toUpperCase().contains("HIVE") ||
+		    	//targetCon.getDatabaseProductName().toUpperCase().contains("HIVE") ||
 	    		targetCon.getDatabaseProductName().toUpperCase().contains("IMPALA")
 	    	) {
 		    	if (targetCommonColumnTypes[i].toUpperCase().contains("TINYINT")) {
@@ -520,6 +529,9 @@ public class DataCopyBean {
 	    		) {
 	    			insertParameter = "TRIM(TRAILING FROM ?)";
 	    		}
+	    		else if (targetCon.getDatabaseProductName().toUpperCase().contains("HIVE")) {
+		    		insertParameter = "?";
+		    	}
 	    		else {
 		    		insertParameter = "RTRIM(?)";
 	    		}
@@ -687,7 +699,10 @@ public class DataCopyBean {
 	    	rowCount++;
 	    	rowSinceCommit++;
 	    	if (rowSinceCommit==commitFrequency) {
-	    		if (!targetCon.getDatabaseProductName().toUpperCase().contains("IMPALA")) {
+	    		if (
+	    			!targetCon.getDatabaseProductName().toUpperCase().contains("HIVE") &&
+	    			!targetCon.getDatabaseProductName().toUpperCase().contains("IMPALA")
+	    		) {
 		    		targetCon.getConnection().commit();
 	    		}
 	    		rowSinceCommit = 0;
@@ -695,7 +710,10 @@ public class DataCopyBean {
 	    	}
 	    }
     	targetStmt.close();
-		if (!targetCon.getDatabaseProductName().toUpperCase().contains("IMPALA")) {
+		if (
+    		!targetCon.getDatabaseProductName().toUpperCase().contains("HIVE") &&
+    		!targetCon.getDatabaseProductName().toUpperCase().contains("IMPALA")
+    	) {
     		targetCon.getConnection().commit();
 		}
 

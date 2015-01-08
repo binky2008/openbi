@@ -172,7 +172,10 @@ public class DataManipulationBean {
      * Set null to a statement
      **/
     public void setNull() throws Exception {
-    	if (targetProductName.toUpperCase().contains("IMPALA")) {
+    	if (
+    		targetProductName.toUpperCase().contains("HIVE") ||
+    		targetProductName.toUpperCase().contains("IMPALA")
+    	) {
         	statement.setString(position, "");
     	}
     	else {
@@ -291,6 +294,7 @@ public class DataManipulationBean {
 			else if (
 				sourceType.toUpperCase().contains("BOOL") &&
 	    		(
+					targetProductName.toUpperCase().contains("HIVE") ||
 					sourceProductName.toUpperCase().contains("HIVE") ||
 					sourceProductName.toUpperCase().contains("IMPALA") ||
 		    		sourceProductName.toUpperCase().contains("INFORMIX") ||
@@ -302,6 +306,7 @@ public class DataManipulationBean {
 			}
 			else if (
 				targetType.toUpperCase().contains("BOOL") &&
+				targetProductName.toUpperCase().contains("HIVE") &&
 				targetProductName.toUpperCase().contains("IMPALA")
 			) {
 				statement.setBoolean(position, resultSet.getBoolean(columnName));
@@ -350,7 +355,12 @@ public class DataManipulationBean {
 	    		targetType.toUpperCase().contains("NUMERIC") ||
 	    		targetType.toUpperCase().contains("DECIMAL")
 			) {
-				statement.setBigDecimal(position, resultSet.getBigDecimal(columnName));
+				if (!targetProductName.toUpperCase().contains("HIVE")) {
+					statement.setBigDecimal(position, resultSet.getBigDecimal(columnName));
+				}
+				else {
+					statement.setDouble(position, resultSet.getDouble(columnName));
+				}
 			}
 			else if (
 			    targetType.equalsIgnoreCase("DECFLOAT") &&
@@ -385,13 +395,22 @@ public class DataManipulationBean {
 				statement.setTime(position, resultSet.getTime(columnName));
 			}
 			else if (
+				(
+					targetType.toUpperCase().contains("TIME") ||
+				    targetType.toUpperCase().contains("DATE")
+				) &&
+				(
+					targetProductName.toUpperCase().contains("HIVE") ||
+					targetProductName.toUpperCase().contains("IMPALA")
+				)
+			) {
+				statement.setString(position, resultSet.getString(columnName));
+			}
+			else if (
 			    targetType.toUpperCase().contains("TIMESTAMP") ||
 			    targetType.toUpperCase().contains("DATETIME")
 			) {
-				if (targetProductName.toUpperCase().contains("IMPALA")) {
-					statement.setString(position, resultSet.getString(columnName));
-				}
-				else if (
+				if (
 					sourceProductName.toUpperCase().contains("SQL ANYWHERE") &&
 					(
 						targetProductName.toUpperCase().contains("DB2") ||
@@ -464,8 +483,11 @@ public class DataManipulationBean {
 				targetType.toUpperCase().contains("BYTEA") ||
 				targetType.toUpperCase().contains("BINARY") ||
 				targetType.toUpperCase().contains("VARBYTE")
-			) { 
-				if (
+			) {
+				if (targetProductName.toUpperCase().contains("HIVE")) {
+					statement.setString(position, resultSet.getString(columnName));
+				}
+				else if (
 					targetProductName.toUpperCase().contains("FIREBIRD") &&
 					(
 						sourceType.toUpperCase().contains("CLOB") ||
@@ -575,11 +597,17 @@ public class DataManipulationBean {
 			else if (property == null) {
 				statement.setNull(position, getSQLType());
 			}
-			else if (targetProductName.toUpperCase().contains("IMPALA")) {
+			else if (
+				targetProductName.toUpperCase().contains("HIVE") ||
+				targetProductName.toUpperCase().contains("IMPALA")
+			) {
 				if (targetType.toUpperCase().contains("BOOLEAN")) {
 					statement.setBoolean(position, (boolean) property);
 				}
-				else if (targetType.toUpperCase().contains("INT")) {
+				else if (
+					targetType.toUpperCase().contains("DECIMAL") ||
+					targetType.toUpperCase().contains("INT")
+				) {
 					statement.setInt(position, (int) property);
 				}
 				else if (
@@ -588,14 +616,30 @@ public class DataManipulationBean {
 				) {
 					statement.setFloat(position, (float) property);
 				}
-				else if (targetType.toUpperCase().contains("DOUBLE")) {
+				else if (
+					targetType.toUpperCase().contains("DOUBLE")
+				) {
 					statement.setDouble(position, (double) property);
 				}
-				else if (targetType.toUpperCase().contains("TIME")) {
+				else if (
+					targetType.toUpperCase().contains("DATE") ||
+					targetType.toUpperCase().contains("TIME")
+				) {
 					statement.setString(position, String.valueOf(property));
 				}
-				else if (targetType.toUpperCase().contains("STRING")) {
+				else if (
+					targetType.toUpperCase().contains("CHAR") ||
+					targetType.toUpperCase().contains("STRING")
+				) {
 					statement.setString(position, (String) property);
+				}
+				else if (
+					targetType.toUpperCase().contains("BINARY")
+				) {
+					statement.setString(position, (String) property.toString());
+				}
+				else {
+					logger.error(columnName + ": " + targetType);
 				}
 			}
 			else {

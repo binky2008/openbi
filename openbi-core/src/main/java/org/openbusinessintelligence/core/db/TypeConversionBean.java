@@ -299,6 +299,7 @@ public class TypeConversionBean {
             		targetProductName.toUpperCase().contains("DERBY") ||
             		targetProductName.toUpperCase().contains("FIREBIRD") ||
             		targetProductName.toUpperCase().contains("HDB") ||
+            		targetProductName.toUpperCase().contains("HIVE") ||
             		targetProductName.toUpperCase().contains("HSQL") ||
             		targetProductName.toUpperCase().contains("IMPALA") ||
             		targetProductName.toUpperCase().contains("INFORMIX") ||
@@ -323,6 +324,12 @@ public class TypeConversionBean {
                     sourceColumnLength > 8000
                 ) {
                     targetColumnLength = -1;
+                }
+       			else if (
+       	       		sourceColumnType.toUpperCase().contains("BINARY") &&
+       	       		targetProductName.toUpperCase().contains("HIVE")
+       	       	) {
+                    targetColumnLength = 0;
                 }
                 else {
                    	targetColumnLength = sourceColumnLength;

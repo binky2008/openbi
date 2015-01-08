@@ -152,6 +152,10 @@
 	    	<maxDataLength>53</maxDataLength>
 	    </option>
 	    <option>
+	    	<productName>HIVE</productName>
+	    	<lengthOption>false</lengthOption>
+	    </option>
+	    <option>
 			<productName>HSQL</productName>
 	    	<maxDataLength>53</maxDataLength>
 	    </option>
@@ -286,6 +290,10 @@
 	    	<maxDataLength>5000</maxDataLength>
 	    </option>
 	    <option>
+			<productName>HIVE</productName>
+	    	<lengthOption>false</lengthOption>
+	    </option>
+	    <option>
 			<productName>HSQL</productName>
 	    	<maxDataLength>4000</maxDataLength>
 	    </option>
@@ -390,6 +398,10 @@
 	    </option>
 	    <option>
 			<productName>HDB</productName>
+	    	<lengthOption>false</lengthOption>
+	    </option>
+	    <option>
+			<productName>HIVE</productName>
 	    	<lengthOption>false</lengthOption>
 	    </option>
 	    <option>
