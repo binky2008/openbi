@@ -451,7 +451,7 @@ public class DataManipulationBean {
 			   	targetType.toUpperCase().contains("GRAPHIC") &&
 			   	targetProductName.toUpperCase().contains("DB2")
 			) {
-			statement.setString(position, resultSet.getString(columnName));
+				statement.setString(position, resultSet.getString(columnName));
 			}
 			else if (
 			   	sourceType.toUpperCase().contains("XML") &&
@@ -563,6 +563,17 @@ public class DataManipulationBean {
 			}
 			else if (targetType.toUpperCase().contains("STRING")) {
 				if (
+					(
+						sourceType.toUpperCase().contains("BLOB") ||
+						sourceType.toUpperCase().contains("BINARY") ||
+						sourceType.toUpperCase().contains("BYTE")
+					) &&
+					targetProductName.toUpperCase().contains("HIVE")
+				) {
+					// Cannot insert binaries into Hive Strings
+					setNull();
+				}
+				else if (
 					sourceType.toUpperCase().contains("BLOB") &&
 					(
 						sourceProductName.toUpperCase().contains("HSQL") ||

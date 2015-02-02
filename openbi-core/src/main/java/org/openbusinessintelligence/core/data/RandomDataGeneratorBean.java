@@ -256,7 +256,7 @@ public class RandomDataGeneratorBean {
 	    		    			dataManipulate.setObject(1);
 	              			}
 		              		else if (columnTypes[i].toUpperCase().contains("BIT")) {
-	    		    			dataManipulate.setObject("1010101010");
+	    		    			dataManipulate.setObject("1");
 	              			}
 		              		else if (columnTypes[i].toUpperCase().contains("BOOL")) {
 	    		    			dataManipulate.setObject(true);
