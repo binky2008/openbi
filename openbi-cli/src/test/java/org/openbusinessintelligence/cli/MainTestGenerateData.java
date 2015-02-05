@@ -343,9 +343,9 @@ public class MainTestGenerateData {
 		initArguments();
 		
 		// Target properties
-		arguments[2] = "localhost_sybase_test";
+		arguments[2] = "localhost_sqlanywhere_test";
 		arguments[4] = "";
-		arguments[6] = "";
+		arguments[6] = "test";
 		arguments[8] = "tab_test";
 		arguments[10] = "10";
 		

@@ -12,7 +12,7 @@ public class MainTestCopyTableFromSQLAnywhere {
 	private void initSource() {
 		sourceArgs[0] = "localhost_sqlanywhere_test";
 		sourceArgs[1] = "";
-		sourceArgs[2] = "";
+		sourceArgs[2] = "test";
 		sourceArgs[3] = "tab_test";
 	}
 
@@ -129,6 +129,27 @@ public class MainTestCopyTableFromSQLAnywhere {
 		targetArgs[0] = "localhost_hana_01_dwh_test";
 		targetArgs[1] = "HDBKeywords";
 		targetArgs[2] = "dwh_test";
+		targetArgs[3] = "stg_sqlany_tab_test";
+		//
+		MainTestCopyTableHelper.initSource(sourceArgs);
+		MainTestCopyTableHelper.initTarget(targetArgs);
+		// Perform test
+		try {
+			MainTestCopyTableHelper.execute();
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
+	
+	@Test
+	public void testHive() {
+		
+		initSource();
+		//
+		targetArgs[0] = "localhost_hive_test";
+		targetArgs[1] = "";
+		targetArgs[2] = "default";
 		targetArgs[3] = "stg_sqlany_tab_test";
 		//
 		MainTestCopyTableHelper.initSource(sourceArgs);

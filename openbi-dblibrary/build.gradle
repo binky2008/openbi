@@ -16,7 +16,6 @@ repositories {
 
 dependencies {
 	compile project(':openbi-core')
-	compile project(':openbi-dblibrary-oracle')
     compile group: 'org.slf4j', name: 'slf4j-api', version: '1.+'
 	compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.+'
 	compile group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: '2.+'

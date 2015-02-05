@@ -1,9 +1,9 @@
 -- TEST
-drop schema testdb.test cascade;
-
 drop user test;
 
 drop schema testdb.test cascade;
+
+create user test with password 'test';
 
 create schema testdb.test authorization test;
 
@@ -11,11 +11,11 @@ grant list on testdb to test;
 
 
 -- SugarCRM
-drop schema testdb.sugarcrm cascade;
-
 drop user sugarcrm;
 
 drop schema testdb.sugarcrm cascade;
+
+create user sugarcrm with password 'sugarcrm';
 
 create schema testdb.sugarcrm authorization sugarcrm;
 

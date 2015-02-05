@@ -679,6 +679,9 @@ public class TypeConversionBean {
 	       		else if (targetProductName.toUpperCase().contains("IMPALA")) {
 	        		targetColumnType = "STRING";
 	    		}
+	       		else if (targetProductName.toUpperCase().contains("HIVE")) {
+	        		targetColumnType = "STRING";
+	    		}
 	       		else if (targetProductName.toUpperCase().contains("INFORMIX")) {
 	        		targetColumnType = "BYTE";
 	    		}

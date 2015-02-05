@@ -563,12 +563,21 @@ public class DataManipulationBean {
 			}
 			else if (targetType.toUpperCase().contains("STRING")) {
 				if (
+					targetProductName.toUpperCase().contains("HIVE") &&
 					(
 						sourceType.toUpperCase().contains("BLOB") ||
 						sourceType.toUpperCase().contains("BINARY") ||
 						sourceType.toUpperCase().contains("BYTE")
 					) &&
-					targetProductName.toUpperCase().contains("HIVE")
+					(
+						sourceProductName.toUpperCase().contains("HDB") ||
+						sourceProductName.toUpperCase().contains("HSQL") ||
+						sourceProductName.toUpperCase().contains("INFORMIX") ||
+						sourceProductName.toUpperCase().contains("MYSQL") ||
+						sourceProductName.toUpperCase().contains("SQL ANYWHERE") ||
+						sourceProductName.toUpperCase().contains("SQL SERVER") ||
+						sourceProductName.toUpperCase().contains("TERADATA")
+					)
 				) {
 					// Cannot insert binaries into Hive Strings
 					setNull();

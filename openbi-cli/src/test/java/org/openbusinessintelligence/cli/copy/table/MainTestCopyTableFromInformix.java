@@ -143,6 +143,27 @@ public class MainTestCopyTableFromInformix {
 	}
 	
 	@Test
+	public void testHive() {
+		
+		initSource();
+		//
+		targetArgs[0] = "localhost_hive_test";
+		targetArgs[1] = "";
+		targetArgs[2] = "default";
+		targetArgs[3] = "stg_ifx_tab_test";
+		//
+		MainTestCopyTableHelper.initSource(sourceArgs);
+		MainTestCopyTableHelper.initTarget(targetArgs);
+		// Perform test
+		try {
+			MainTestCopyTableHelper.execute();
+		}
+		catch (Exception e) {
+			fail("Exception: \n" + e);
+		}
+	}
+	
+	@Test
 	public void testHSQL() {
 		
 		initSource();
