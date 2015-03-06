@@ -7,10 +7,10 @@
 		<class>org.openbusinessintelligence.load.entity.StageSource</class>
 		<class>org.openbusinessintelligence.load.entity.StageSourceDb</class>
 		<properties>
-			<property name="javax.persistence.jdbc.driver" value="oracle.jdbc.OracleDriver"/>
-			<property name="javax.persistence.jdbc.url" value="jdbc:oracle:thin:@edwh-db-dev:1522:edwh_dev"/>
-			<property name="javax.persistence.jdbc.user" value="edwh_adm"/>
-			<property name="javax.persistence.jdbc.password" value="minda"/>
+			<property name="javax.persistence.jdbc.driver" value="driver=com.mysql.jdbc.Driver"/>
+			<property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/dbadmin"/>
+			<property name="javax.persistence.jdbc.user" value="dbadmin"/>
+			<property name="javax.persistence.jdbc.password" value="dbadmin"/>
 		</properties>
 	</persistence-unit>
 </persistence>

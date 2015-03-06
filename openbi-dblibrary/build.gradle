@@ -1,6 +1,10 @@
 apply plugin: 'java'
 apply plugin: 'eclipse'
 
+eclipse.project {
+  natures 'org.springsource.ide.eclipse.gradle.core.nature'
+}
+
 sourceCompatibility = 1.8
 version = '0.1'
 
