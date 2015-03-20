@@ -2,9 +2,9 @@ apply plugin: 'application'
 apply plugin: 'java'
 apply plugin: 'eclipse'
 
-/*task wrapper(type: Wrapper) {
-	gradleVersion = '2.1'
-}*/
+task wrapper(type: Wrapper) {
+	gradleVersion = '2.3'
+}
 
 sourceCompatibility = 1.8
 version = '0.1'
