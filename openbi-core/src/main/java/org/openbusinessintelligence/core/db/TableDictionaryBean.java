@@ -307,6 +307,9 @@ public class TableDictionaryBean {
         	}
         	
         	// Source definition
+        	if (columnScale[i] < 0) {
+        		columnScale[i] = columnPrecision[i];
+        	}
         	if (columnScale[i] > 0) {
         		columnDefinition[i] += "(" + columnPrecision[i] + "," + columnScale[i] + ")";
         	}
@@ -328,17 +331,17 @@ public class TableDictionaryBean {
        	}
 
         logger.info("got column properties");
-
-        logger.info("getting pk properties");
-        columnPkPositions = new int[columnCount];
-
+    	
         // Get information about primary keys
-        try {
-        	int pkLength = 0;
-            if (
-            	!(sourceTable.equalsIgnoreCase("")) &&
-            	!(sourceTable == null)
-            ) {
+        
+        if (
+            !(sourceTable == null) &&
+        	!(sourceTable.equalsIgnoreCase(""))
+        ) {
+	        logger.info("getting pk properties");
+	        columnPkPositions = new int[columnCount];
+	        try {
+	        	int pkLength = 0;
                 String schema = null;
                 if (sourceTable.split("\\.").length==2) {
                     schema = sourceTable.split("\\.")[0];
@@ -358,36 +361,36 @@ public class TableDictionaryBean {
                         }
                     }
                 }
-                rspk.close();
-            }
-
-            if (pkLength>0) {
-                columnInPk = new String[pkLength];
-                columnNonInPk = new String[columnNames.length - pkLength];
-                int iPk = 0;
-                int nPk = 0;
-                for (int i = 0; i < columnNames.length; i++) {
-                    if (columnPkPositions[i]>=1) {
-                        columnInPk[iPk] = columnNames[i];
-                        iPk++;
-                    }
-                    else {
-                    	columnNonInPk[nPk] = columnNames[i];
-                        nPk++;
-                    }
-                }
-            }
-            else {
-                columnNonInPk = columnNames;
-            }
-            logger.info("got pk properties");
-
+	                rspk.close();
+	
+	            if (pkLength>0) {
+	                columnInPk = new String[pkLength];
+	                columnNonInPk = new String[columnNames.length - pkLength];
+	                int iPk = 0;
+	                int nPk = 0;
+	                for (int i = 0; i < columnNames.length; i++) {
+	                    if (columnPkPositions[i]>=1) {
+	                        columnInPk[iPk] = columnNames[i];
+	                        iPk++;
+	                    }
+	                    else {
+	                    	columnNonInPk[nPk] = columnNames[i];
+	                        nPk++;
+	                    }
+	                }
+	            }
+	            else {
+	                columnNonInPk = columnNames;
+	            }
+	            logger.info("got pk properties");
+	
+	        }
+	        catch (Exception e) {
+	            logger.error(e.toString());
+	            throw e;
+	        }
+	
+	        logger.info("got primary key information");
         }
-        catch (Exception e) {
-            logger.error(e.toString());
-            throw e;
-        }
-
-        logger.info("got primary key information");
     }
 }

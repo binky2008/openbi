@@ -5,7 +5,7 @@ eclipse.project {
   natures 'org.springsource.ide.eclipse.gradle.core.nature'
 }
 
-sourceCompatibility = 1.8
+sourceCompatibility = '1.7'
 version = '0.1'
 
 jar {
