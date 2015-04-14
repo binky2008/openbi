@@ -22,14 +22,19 @@ dependencies {
 	compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.+'
 	compile group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: '2.+'*/
 	// JDBC Drivers
-    /*compile group: 'org.hsqldb', name: 'hsqldb', version: '+'
-    compile group: 'com.h2database', name: 'h2', version: '+'
-    compile group: 'org.apache.derby', name: 'derbyclient', version: '+'
-    compile group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version: '+'
+    /*compile group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version: '+'
     compile group: 'mysql', name: 'mysql-connector-java', version: '+'
     compile group: 'org.postgresql', name: 'postgresql', version: '+'
     compile group: 'org.firebirdsql.jdbc', name: 'jaybird', version: '+'
     compile group: 'net.sourceforge.jtds', name: 'jtds', version: '+'*/
+    // RDBMSs
+	/*compile group: 'org.hsqldb', name: 'hsqldb', version: '+'
+    compile group: 'com.h2database', name: 'h2', version: '+'
+    compile group: 'org.apache.derby', name: 'derbyclient', version: '+'
+    compile group: 'org.apache.derby', name: 'derby', version: '+'
+    compile group: 'org.apache.derby', name: 'derbynet', version: '+'
+    compile group: 'org.apache.derby', name: 'derbytools', version: '+'
+    compile group: 'org.apache.derby', name: 'derbyoptionaltools', version: '+'*/
 	// Hive JDBC driver
     //runtime group: 'org.apache.hadoop', name: 'hadoop-common', version: '+'
     runtime group: 'org.apache.hive', name: 'hive-jdbc', version: '+'

@@ -9,8 +9,8 @@ public class InstallScriptCreator {
 
 	static final org.slf4j.Logger logger = LoggerFactory.getLogger(InstallScriptCreator.class);
 
-	private static FileInputBean installFile = new FileInputBean();
-	private static FileOutputBean scriptFile = new FileOutputBean();
+	private static FileImporter installFile = new FileImporter();
+	private static FileExporter scriptFile = new FileExporter();
 
 	public void createScript(String scriptName, String scriptDirectory, String rootDirectory, String installFileName) throws Exception {
 		
@@ -34,7 +34,7 @@ public class InstallScriptCreator {
 							installLine = installLine.substring(0,installLine.length()-1);
 						}
 						System.out.println("Script " + installLine + " added");
-						FileInputBean objectFile = new FileInputBean();
+						FileImporter objectFile = new FileImporter();
 						objectFile.setFilePath(rootDirectory + File.separatorChar + installLine);
 						writer.write("\n--Next object\n");
 						writer.write(objectFile.getString());

@@ -6,7 +6,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.jdbc.ScriptRunner;
-import org.openbusinessintelligence.core.db.ConnectionBean;
+import org.openbusinessintelligence.core.db.DBConnection;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -16,7 +16,7 @@ public class DBLibraryInstaller {
 	
 	static final org.slf4j.Logger logger = LoggerFactory.getLogger(DBLibraryInstaller.class);
 
-    private ConnectionBean connection = null;
+    private DBConnection connection = null;
     private String databaseProduct = "";
     private String catalog = "";
     private String schema = "";
@@ -30,7 +30,7 @@ public class DBLibraryInstaller {
     }
 
     // Set connection
-    public void setSourceConnection(ConnectionBean property) {
+    public void setSourceConnection(DBConnection property) {
     	connection = property;
     }
     

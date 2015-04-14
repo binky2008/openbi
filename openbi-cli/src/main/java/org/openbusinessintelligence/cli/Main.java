@@ -199,9 +199,9 @@ public class Main {
 	 * Helper class for creating connections
 	 */
 	
-	private static org.openbusinessintelligence.core.db.ConnectionBean createConnection(String argumentPrefix) {
+	private static org.openbusinessintelligence.core.db.DBConnection createConnection(String argumentPrefix) {
 		
-    	org.openbusinessintelligence.core.db.ConnectionBean connectionBean = new org.openbusinessintelligence.core.db.ConnectionBean();
+    	org.openbusinessintelligence.core.db.DBConnection connectionBean = new org.openbusinessintelligence.core.db.DBConnection();
     	connectionBean.setPropertyFile(getOption(argumentPrefix + "dbconnpropertyfile"));
     	connectionBean.setKeyWordFile(getOption(argumentPrefix + "dbconnkeywordfile"));
     	connectionBean.setDatabaseDriver(getOption(argumentPrefix + "dbdriverclass"));
@@ -251,11 +251,11 @@ public class Main {
 	}
 	
 	private static void sendEmail() throws Exception {
-    	org.openbusinessintelligence.core.mail.MailBean mailSender = new org.openbusinessintelligence.core.mail.MailBean();
+    	org.openbusinessintelligence.core.mail.Mailer mailSender = new org.openbusinessintelligence.core.mail.Mailer();
     	String mailContent = null;
     	if (cmd.hasOption("mailcontentsource")) {
 	   		if (getOption("mailcontentsource").equalsIgnoreCase("database")) {
-				org.openbusinessintelligence.core.db.QueryBean query = new org.openbusinessintelligence.core.db.QueryBean();
+				org.openbusinessintelligence.core.db.QueryExecutor query = new org.openbusinessintelligence.core.db.QueryExecutor();
 				query.setDatabaseDriver(getOption("dbdriverclass"));
 				query.setConnectionURL(getOption("dbconnectionurl"));
 				query.setUserName(getOption("dbusername"));
@@ -275,13 +275,13 @@ public class Main {
 				}
 		    	if (cmd.hasOption("mailcontenttype")) {
 						// Load the stylesheet
-				    FileInputBean fileInput = new FileInputBean();
-					fileInput = new FileInputBean();
+				    FileImporter fileInput = new FileImporter();
+					fileInput = new FileImporter();
 					fileInput.setDirectoryName("xsl");
 					fileInput.setFileName(getOption("mailcontentformat") + ".xsl");
 						// Get the transformed xml
 			    	ByteArrayOutputStream transformOut = new ByteArrayOutputStream();
-					TransformerBean transformer = new TransformerBean();
+					XMLTransformer transformer = new XMLTransformer();
 					transformer.setStyleSheet(fileInput.getReader());
 					transformer.setStreamInput(bufferIn);
 					transformer.setStreamOutput(transformOut);
@@ -290,7 +290,7 @@ public class Main {
 			    	if (getOption("mailcontenttype").equalsIgnoreCase("html")) {
 			    		mailContent = "";
 			    		if (cmd.hasOption("mailcontentstyle")) {
-			    			FileInputBean file = new FileInputBean();
+			    			FileImporter file = new FileImporter();
 							file.setDirectoryName("css");
 							file.setFileName(getOption("mailcontentstyle") + ".css");
 			    			mailContent += "<head><style>" + file.getString() + "</style></head>";
@@ -303,7 +303,7 @@ public class Main {
 		    	}
     		}
     		if (getOption("mailcontentsource").equalsIgnoreCase("file")) {
-				org.openbusinessintelligence.core.file.FileInputBean file = new org.openbusinessintelligence.core.file.FileInputBean();
+				org.openbusinessintelligence.core.file.FileImporter file = new org.openbusinessintelligence.core.file.FileImporter();
 				file.setDirectoryName(getOption("infilefolder"));
 				file.setFileName(getOption("infilename"));
 				mailContent = file.getString();
@@ -321,7 +321,7 @@ public class Main {
 	}
 	
 	private static void mergeFiles() throws Exception {
-		org.openbusinessintelligence.core.file.FileMergeBean fileMerge = new org.openbusinessintelligence.core.file.FileMergeBean();
+		org.openbusinessintelligence.core.file.FileMerger fileMerge = new org.openbusinessintelligence.core.file.FileMerger();
 		fileMerge.setInputZipFile(getOption("sourcezipfile"));
 		fileMerge.setInputDirectory(getOption("sourcedirectory"));
 		fileMerge.setOutputFileNames(getOption("outputfilenamelist").split(","));
@@ -342,7 +342,7 @@ public class Main {
 	private static void importCSVSeries() throws Exception {
     	String sourceZipFile = getOption("sourcezipfile");
     	if (!(sourceZipFile == null || sourceZipFile.equals(""))) {
-	    	org.openbusinessintelligence.core.db.ConnectionBean sourceConnectionBean = new org.openbusinessintelligence.core.db.ConnectionBean();
+	    	org.openbusinessintelligence.core.db.DBConnection sourceConnectionBean = new org.openbusinessintelligence.core.db.DBConnection();
 	    	sourceConnectionBean.setPropertyFile(getOption("srcdbconnpropertyfile"));
 	    	sourceConnectionBean.setDatabaseDriver(getOption("srcdbdriverclass"));
 	    	sourceConnectionBean.setConnectionURL("jdbc:relique:csv:zip:" + sourceZipFile);
@@ -350,11 +350,11 @@ public class Main {
 	    	sourceConnectionBean.setPassWord(getOption("srcdbpassword"));	 
 	    	//sourceConnectionBean.openConnection();
 			
-	    	org.openbusinessintelligence.core.db.ConnectionBean targetConnectionBean = createConnection("trg");
+	    	org.openbusinessintelligence.core.db.DBConnection targetConnectionBean = createConnection("trg");
 	    	targetConnectionBean.openConnection();
 	    	
 	    	// Import a series of csv files with the same structure in the same table
-			org.openbusinessintelligence.core.db.ImportCsvSeriesBean importCsvSeries = new org.openbusinessintelligence.core.db.ImportCsvSeriesBean();
+			org.openbusinessintelligence.core.db.CsvSeriesImporter importCsvSeries = new org.openbusinessintelligence.core.db.CsvSeriesImporter();
 			importCsvSeries.setSourceConnection(sourceConnectionBean);
 			importCsvSeries.setSourceZipFile(sourceZipFile);
 			importCsvSeries.setSourceWhereClause(getOption("sourcewhereclause"));
@@ -385,7 +385,7 @@ public class Main {
 	private static void getDatabaseProperties() throws Exception {
 		logger.info("Get database properties");
 		
-    	org.openbusinessintelligence.core.db.ConnectionBean connectionBean = createConnection("");
+    	org.openbusinessintelligence.core.db.DBConnection connectionBean = createConnection("");
 		
 		try {
 			connectionBean.openConnection();
@@ -402,7 +402,7 @@ public class Main {
 	private static void generateRandomData() throws Exception {
 		logger.info("Generate random data in database tables");
    		
-    	org.openbusinessintelligence.core.db.ConnectionBean targetConnectionBean = createConnection("trg");
+    	org.openbusinessintelligence.core.db.DBConnection targetConnectionBean = createConnection("trg");
     	
 		logger.info("Connection prepared");
 		
@@ -432,7 +432,7 @@ public class Main {
 			for (int i = 0; i < targetTableList.length; i++ ) {
 				// Copy the content of a source sql query into a target rdbms table
 				logger.info("Feeding table: " + targetTableList[i]);
-				org.openbusinessintelligence.core.data.RandomDataGeneratorBean generator = new org.openbusinessintelligence.core.data.RandomDataGeneratorBean();
+				org.openbusinessintelligence.core.data.RandomDataGenerator generator = new org.openbusinessintelligence.core.data.RandomDataGenerator();
 				
 				generator.setConnection(targetConnectionBean);
 				generator.setTargetSchema(targetSchema);
@@ -465,11 +465,11 @@ public class Main {
 	private static void executeProcedure() throws Exception {
 		logger.info("Execute statement or procedure");
 		
-    	org.openbusinessintelligence.core.db.ConnectionBean connectionBean = createConnection("");
+    	org.openbusinessintelligence.core.db.DBConnection connectionBean = createConnection("");
 		
 		try {
 			connectionBean.openConnection();
-			org.openbusinessintelligence.core.db.ExecuteBean executeBean = new org.openbusinessintelligence.core.db.ExecuteBean();
+			org.openbusinessintelligence.core.db.ProcedureExecutor executeBean = new org.openbusinessintelligence.core.db.ProcedureExecutor();
 			executeBean.setProcedureName(getOption("dbprocedure"));
 			executeBean.setStatement(getOption("dbstatement"));
 			executeBean.execute();
@@ -484,7 +484,7 @@ public class Main {
 	private static void installFramework() throws Exception {
 		logger.info("Install framework");
 		org.openbusinessintelligence.dblibrary.DBLibraryInstaller installer = new org.openbusinessintelligence.dblibrary.DBLibraryInstaller();
-		org.openbusinessintelligence.core.db.ConnectionBean connectionBean = createConnection("");
+		org.openbusinessintelligence.core.db.DBConnection connectionBean = createConnection("");
 		
 		try {
 			connectionBean.openConnection();
@@ -525,8 +525,8 @@ public class Main {
     	
 		logger.info("Copy an entire schema, a single table or the result of a query from a database to another");
 		
-    	org.openbusinessintelligence.core.db.ConnectionBean sourceConnectionBean = createConnection("src");
-    	org.openbusinessintelligence.core.db.ConnectionBean targetConnectionBean = createConnection("trg");
+    	org.openbusinessintelligence.core.db.DBConnection sourceConnectionBean = createConnection("src");
+    	org.openbusinessintelligence.core.db.DBConnection targetConnectionBean = createConnection("trg");
     	
 		logger.info("Source and target connections prepared");
 		
@@ -602,8 +602,8 @@ public class Main {
 				// Open target connection
 	    		targetConnectionBean.openConnection();
 				// Get source dictionary
-	    		org.openbusinessintelligence.core.db.DictionaryConversionBean dictionaryConversionBean = new org.openbusinessintelligence.core.db.DictionaryConversionBean();
-	    		org.openbusinessintelligence.core.db.TableCreateBean tableCreate = new org.openbusinessintelligence.core.db.TableCreateBean();
+	    		org.openbusinessintelligence.core.db.DictionaryConverter dictionaryConversionBean = new org.openbusinessintelligence.core.db.DictionaryConverter();
+	    		org.openbusinessintelligence.core.db.TableCreator tableCreate = new org.openbusinessintelligence.core.db.TableCreator();
 	    		dictionaryConversionBean.setSourceConnection(sourceConnectionBean);
 	    		dictionaryConversionBean.setTargetConnection(targetConnectionBean);
 	    		dictionaryConversionBean.setSourceSchema(sourceSchema);
@@ -635,7 +635,7 @@ public class Main {
    			for (int i = 0; i < targetTableList.length; i++ ) {
    				// Copy the content of a source sql query into a target rdbms table
 				logger.info("Feeding table: " + sourceTableList[i]);
-				org.openbusinessintelligence.core.db.DataCopyBean dataCopy = new org.openbusinessintelligence.core.db.DataCopyBean();
+				org.openbusinessintelligence.core.db.DataCopier dataCopy = new org.openbusinessintelligence.core.db.DataCopier();
 				dataCopy.setSourceConnection(sourceConnectionBean);
 				dataCopy.setSourceSchema(sourceSchema);
 				dataCopy.setSourceTable(sourceTableList[i]);
@@ -700,7 +700,7 @@ public class Main {
     	
 		logger.info("Copy an entire schema, a single table or the result of a query from a database to another");
 		
-    	org.openbusinessintelligence.core.db.ConnectionBean sourceConnectionBean = new org.openbusinessintelligence.core.db.ConnectionBean();
+    	org.openbusinessintelligence.core.db.DBConnection sourceConnectionBean = new org.openbusinessintelligence.core.db.DBConnection();
     	sourceConnectionBean.setPropertyFile(getOption("srcdbconnpropertyfile"));
     	sourceConnectionBean.setKeyWordFile(getOption("srcdbconnkeywordfile"));
     	sourceConnectionBean.setDatabaseDriver(getOption("srcdbdriverclass"));
@@ -755,7 +755,7 @@ public class Main {
 				
 				logger.debug("Table " + sourceTableList[i]);
 				
-				TableDictionaryBean sourceDictionary = new TableDictionaryBean();
+				DictionaryExtractor sourceDictionary = new DictionaryExtractor();
 		    	sourceDictionary.setSourceConnection(sourceConnectionBean);
 		    	sourceDictionary.setSourceTable(sourceTableList[i]);
 		    	sourceDictionary.setSourceQuery(sourceQuery);
@@ -765,13 +765,13 @@ public class Main {
 		    	
 				if (isAbap) {
 					// Generate and append abap dataflow
-					BodiAbapDataFlowBean abapDataFlow = new BodiAbapDataFlowBean();
+					BodiAbapDataFlow abapDataFlow = new BodiAbapDataFlow();
 					abapDataFlow.setSourceDataStore(bodiSourceDataStore);
 					abapDataFlow.setDataFlowName(bodiAbapDataFlowPrefix + "_" + sourceTableList[i]);
 					abapDataFlow.setSourceTableName(sourceTableList[i]);
 					export.appendChild(abapDataFlow.getElement(document));
 					// Generate and append dataflow
-					BodiDataFlowForAbapBean dataFlow = new BodiDataFlowForAbapBean();
+					BodiDataFlowForAbap dataFlow = new BodiDataFlowForAbap();
 					dataFlow.setAbapDataFlowName(bodiAbapDataFlowPrefix + "_" + targetTableList[i]);
 					dataFlow.setTargetDataStore(bodiTargetDataStore);
 					dataFlow.setTargetOwnerName(targetSchema);
@@ -803,7 +803,7 @@ public class Main {
 					//export.appendChild(bodiTargetTable.getElement(document));
 					
 					// Generate and append dataflow
-					BodiDataFlowBean dataFlow = new BodiDataFlowBean();
+					BodiDataFlow dataFlow = new BodiDataFlow();
 					dataFlow.setSourceDataStore(bodiSourceDataStore);
 					dataFlow.setTargetDataStore(bodiTargetDataStore);
 					dataFlow.setTargetOwnerName(targetSchema);
@@ -825,12 +825,12 @@ public class Main {
 					
 				}
 				// Generate and append workflow
-				BodiWorkFlowBean workFlow = new BodiWorkFlowBean();
+				BodiWorkFlow workFlow = new BodiWorkFlow();
 				workFlow.setDataFlowName(bodiDataFlowPrefix + "_" + targetTableList[i]);
 				workFlow.setWorkFlowName(bodiWorkFlowPrefix + "_" + targetTableList[i]);
 				export.appendChild(workFlow.getElement(document));
 				// Generate and append job
-				BodiJobBean job = new BodiJobBean();
+				BodiJob job = new BodiJob();
 				job.setWorkFlowName(bodiWorkFlowPrefix + "_" + targetTableList[i]);
 				job.setJobName(bodiJobPrefix + "_" + targetTableList[i]);
 				job.setStageSourceCode(sourceSchema);

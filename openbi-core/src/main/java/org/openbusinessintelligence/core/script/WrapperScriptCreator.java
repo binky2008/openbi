@@ -15,7 +15,7 @@ public class WrapperScriptCreator {
 	static final org.slf4j.Logger logger = LoggerFactory.getLogger(WrapperScriptCreator.class);
 
 	private static String rootDir = "";
-	private static FileOutputBean wrapperFile = new FileOutputBean();
+	private static FileExporter wrapperFile = new FileExporter();
 
 	// Create a project file
 	public void createWrapper(String scriptName, String rootDirectory, String defSubDirs) throws Exception {

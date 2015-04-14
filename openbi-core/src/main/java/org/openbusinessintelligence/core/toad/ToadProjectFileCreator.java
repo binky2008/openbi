@@ -16,7 +16,7 @@ public class ToadProjectFileCreator {
 
 	private static String projectTree;
 	private static String startTabs = "";
-	private static FileOutputBean projectFile = new FileOutputBean();
+	private static FileExporter projectFile = new FileExporter();
 
 	// Create a project file
 	public void createProject(String projectName, String projectDirectory, String rootDirectory) throws Exception {

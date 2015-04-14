@@ -1,6 +1,6 @@
 package org.openbusinessintelligence.dblibrary;
 
-import org.openbusinessintelligence.core.db.ConnectionBean;
+import org.openbusinessintelligence.core.db.DBConnection;
 import org.slf4j.LoggerFactory;
 
 public class DBLibraryManager {
