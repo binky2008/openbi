@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><entities>
+	<entity>
+		<entity-name>org.openbusinessintelligence.meta.entity.StageSource</entity-name>
+		<entity-width>211</entity-width>
+		<entity-height>346</entity-height>
+		<entity-X-Coordinate>280</entity-X-Coordinate>
+		<entity-Y-Coordinate>115</entity-Y-Coordinate>
+		<primary-collapsed>false</primary-collapsed>
+		<relation-collapsed>false</relation-collapsed>
+		<basic-collapsed>false</basic-collapsed>
+	</entity>
+
+	<entity>
+		<entity-name>org.openbusinessintelligence.meta.entity.StageSourceDb</entity-name>
+		<entity-width>160</entity-width>
+		<entity-height>246</entity-height>
+		<entity-X-Coordinate>20</entity-X-Coordinate>
+		<entity-Y-Coordinate>149</entity-Y-Coordinate>
+		<primary-collapsed>false</primary-collapsed>
+		<relation-collapsed>false</relation-collapsed>
+		<basic-collapsed>false</basic-collapsed>
+	</entity>
+
+	<entity>
+		<entity-name>org.openbusinessintelligence.meta.entity.StageObject</entity-name>
+		<entity-width>169</entity-width>
+		<entity-height>506</entity-height>
+		<entity-X-Coordinate>585</entity-X-Coordinate>
+		<entity-Y-Coordinate>79</entity-Y-Coordinate>
+		<primary-collapsed>false</primary-collapsed>
+		<relation-collapsed>false</relation-collapsed>
+		<basic-collapsed>false</basic-collapsed>
+	</entity>
+</entities>

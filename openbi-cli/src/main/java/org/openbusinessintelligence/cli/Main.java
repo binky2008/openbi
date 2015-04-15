@@ -71,6 +71,7 @@ public class Main {
     		}
 	    }
 
+	    logger.info("Feature: " + feature);
         // Print help
 	    if (feature.equalsIgnoreCase("help")) {
 			help();
@@ -97,8 +98,8 @@ public class Main {
     	}
 	    
     	// Install back-end side framework components
-	    if (feature.equalsIgnoreCase("installframework")) {
-	    	installFramework();
+	    if (feature.equalsIgnoreCase("installdblibrary")) {
+	    	installDBLibrary();
     	}
 	    
     	// Execute a stored procedure
@@ -481,7 +482,7 @@ public class Main {
 		}
 	}
 	
-	private static void installFramework() throws Exception {
+	private static void installDBLibrary() throws Exception {
 		logger.info("Install framework");
 		org.openbusinessintelligence.dblibrary.DBLibraryInstaller installer = new org.openbusinessintelligence.dblibrary.DBLibraryInstaller();
 		org.openbusinessintelligence.core.db.DBConnection connectionBean = createConnection("");

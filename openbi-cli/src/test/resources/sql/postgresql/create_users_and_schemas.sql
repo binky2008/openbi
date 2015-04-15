@@ -44,3 +44,15 @@ CREATE ROLE dwhreport LOGIN PASSWORD 'dwhreport' VALID UNTIL 'infinity';
 CREATE SCHEMA dwhreport AUTHORIZATION dwhreport;
 
 commit;
+
+
+-- User DBADMIN
+DROP SCHEMA IF EXISTS dbadmin CASCADE;
+
+DROP ROLE IF EXISTS dbadmin;
+
+CREATE ROLE dbadmin LOGIN PASSWORD 'dbadmin' VALID UNTIL 'infinity';
+
+CREATE SCHEMA dbadmin AUTHORIZATION dbadmin;
+
+commit;

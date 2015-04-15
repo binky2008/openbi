@@ -72,7 +72,7 @@ public class DBLibraryInstaller {
 		try {
 			DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
 			javax.xml.parsers.DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
-			frameworkXML = docBuilder.parse(Thread.currentThread().getContextClassLoader().getResource(path + "/framework.xml").toString());
+			frameworkXML = docBuilder.parse(Thread.currentThread().getContextClassLoader().getResource(path + "/dblibrary.xml").toString());
 			frameworkXML.getDocumentElement().normalize();
 		}
 		catch(Exception e) {

@@ -1,4 +1,4 @@
-package org.openbusinessintelligence.cli.framweork;
+package org.openbusinessintelligence.cli.dblibrary;
 
 import static org.junit.Assert.*;
 
@@ -6,12 +6,12 @@ import org.junit.Test;
 import org.openbusinessintelligence.cli.Main;
 import org.openbusinessintelligence.cli.prepare.PrepareSchemaHelper;
 
-public class MainTestInstallFramework {
+public class MainTestDBLibraryInstall {
 	
 	private String[] arguments = new String[15];
 	
 	private void prepareArguments() {
-		arguments[0]  = "installframework";
+		arguments[0]  = "installdblibrary";
 		arguments[1]  = "-dbconnpropertyfile";
 		arguments[3]  = "-dbproduct";
 		arguments[5]  = "-dbcatalog";
