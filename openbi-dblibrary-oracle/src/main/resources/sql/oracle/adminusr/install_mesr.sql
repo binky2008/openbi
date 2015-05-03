@@ -1,9 +1,9 @@
 /**
- * $Author: admin $
- * $Date: 2015-05-03 17:35:13 +0200 (So, 03 Mai 2015) $
- * $Revision: 5 $
- * $Id: install_mesr.sql 5 2015-05-03 15:35:13Z admin $
- * $HeadURL: http://192.168.178.61/svn/odk/oracle/adminusr/install_mesr.sql $
+ * $Author: nmarangoni $
+ * $Date: 2012-02-02 16:38:28 +0100 (Do, 02 Feb 2012) $
+ * $Revision: 2289 $
+ * $Id: install_stage.sql 2289 2012-02-02 15:38:28Z nmarangoni $
+ * $HeadURL: svn://qwp1466/svn_repository_bic/edwh/dwso/edwh_adm/install_stage.sql $
  */
 
 -- Tables

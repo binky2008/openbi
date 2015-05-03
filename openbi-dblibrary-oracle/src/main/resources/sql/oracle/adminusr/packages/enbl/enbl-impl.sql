@@ -1,11 +1,11 @@
 CREATE OR REPLACE PACKAGE BODY p#frm#enbl
 AS
    /**
-   * $Author: admin $
-   * $Date: 2015-05-03 17:35:13 +0200 (So, 03 Mai 2015) $
-   * $Revision: 5 $
-   * $Id: enbl-impl.sql 5 2015-05-03 15:35:13Z admin $
-   * $HeadURL: http://192.168.178.61/svn/odk/oracle/adminusr/packages/enbl/enbl-impl.sql $
+   * $Author: nmarangoni $
+   * $Date: $
+   * $Revision: $
+   * $Id: $
+   * $HeadURL: $
    */
    TYPE t_statement IS TABLE OF VARCHAR2 (1000);
 
@@ -179,6 +179,6 @@ AS
  * Package initialization
  */
 BEGIN
-   c_body_version := '$Id: enbl-impl.sql 5 2015-05-03 15:35:13Z admin $';
-   c_body_url := '$HeadURL: http://192.168.178.61/svn/odk/oracle/adminusr/packages/enbl/enbl-impl.sql $';
+   c_body_version := '$Id: $';
+   c_body_url := '$HeadURL: $';
 END p#frm#enbl;

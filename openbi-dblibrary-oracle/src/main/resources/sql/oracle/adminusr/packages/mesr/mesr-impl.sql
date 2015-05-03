@@ -1,11 +1,11 @@
 CREATE OR REPLACE PACKAGE BODY p#frm#mesr
 AS
    /**
-   * $Author: admin $
-   * $Date: 2015-05-03 17:35:13 +0200 (So, 03 Mai 2015) $
-   * $Revision: 5 $
-   * $Id: mesr-impl.sql 5 2015-05-03 15:35:13Z admin $
-   * $HeadURL: http://192.168.178.61/svn/odk/oracle/adminusr/packages/mesr/mesr-impl.sql $
+   * $Author: nmarangoni $
+   * $Date: $
+   * $Revision: $
+   * $Id: $
+   * $HeadURL: $
    */
    /**
    * Object name type
@@ -861,6 +861,6 @@ AS
  * Package initialization
  */
 BEGIN
-   c_body_version := '$Id: mesr-impl.sql 5 2015-05-03 15:35:13Z admin $';
-   c_body_url := '$HeadURL: http://192.168.178.61/svn/odk/oracle/adminusr/packages/mesr/mesr-impl.sql $';
+   c_body_version := '$Id: $';
+   c_body_url := '$HeadURL: $';
 END p#frm#mesr;

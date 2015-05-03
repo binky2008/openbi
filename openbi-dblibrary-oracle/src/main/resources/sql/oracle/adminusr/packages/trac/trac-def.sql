@@ -3,20 +3,20 @@ AS
    /**
    * APIs for Logging and Tracing in the table log_t on through DBMS_OUTPUT.
    *
-   * $Author: admin $
-   * $Date: 2015-05-03 17:35:13 +0200 (So, 03 Mai 2015) $
-   * $Revision: 5 $
-   * $Id: trac-def.sql 5 2015-05-03 15:35:13Z admin $
-   * $HeadURL: http://192.168.178.61/svn/odk/oracle/adminusr/packages/trac/trac-def.sql $
+   * $Author: nmarangoni $
+   * $Date: $
+   * $Revision: $
+   * $Id: $
+   * $HeadURL: $
    */
    /**
    * Package Spec Version String.
    */
-   c_spec_version   CONSTANT VARCHAR2 (400) := '$Id: trac-def.sql 5 2015-05-03 15:35:13Z admin $';
+   c_spec_version   CONSTANT VARCHAR2 (400) := '$Id: $';
    /**
    * Package spec repository URL.
    */
-   c_spec_url       CONSTANT VARCHAR2 (1024) := '$HeadURL: http://192.168.178.61/svn/odk/oracle/adminusr/packages/trac/trac-def.sql $';
+   c_spec_url       CONSTANT VARCHAR2 (1024) := '$HeadURL: $';
    /**
    * Package Body Version String.
    */

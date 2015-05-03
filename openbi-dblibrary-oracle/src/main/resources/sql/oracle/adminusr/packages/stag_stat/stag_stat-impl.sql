@@ -1,11 +1,11 @@
 CREATE OR REPLACE PACKAGE BODY p#frm#stag_stat
 AS
    /**
-   * $Author: admin $
-   * $Date: 2015-05-03 17:35:13 +0200 (So, 03 Mai 2015) $
-   * $Revision: 5 $
-   * $Id: stag_stat-impl.sql 5 2015-05-03 15:35:13Z admin $
-   * $HeadURL: http://192.168.178.61/svn/odk/oracle/adminusr/packages/stag_stat/stag_stat-impl.sql $
+   * $Author: nmarangoni $
+   * $Date: $
+   * $Revision: $
+   * $Id: $
+   * $HeadURL: $
    */
    FUNCTION prc_stat_begin (
       p_vc_source_code       VARCHAR2
@@ -139,6 +139,6 @@ AS
  * Package initialization
  */
 BEGIN
-   c_body_version := '$Id: stag_stat-impl.sql 5 2015-05-03 15:35:13Z admin $';
-   c_body_url := '$HeadURL: http://192.168.178.61/svn/odk/oracle/adminusr/packages/stag_stat/stag_stat-impl.sql $';
+   c_body_version := '$Id: $';
+   c_body_url := '$HeadURL: $';
 END p#frm#stag_stat;
