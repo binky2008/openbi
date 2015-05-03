@@ -82,6 +82,6 @@ AS
  * Package initialization
  */
 BEGIN
-   c_body_version := '$Id: $';
-   c_body_url := '$HeadURL: $';
+   c_body_version := '$Id: stmt-impl.sql 15 2015-05-03 16:17:11Z admin $';
+   c_body_url := '$HeadURL: http://192.168.178.61/svn/odk/oracle/adminusr/packages/stmt/stmt-impl.sql $';
 END p#frm#stmt;

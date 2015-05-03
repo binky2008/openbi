@@ -1,11 +1,11 @@
 CREATE OR REPLACE PACKAGE BODY p#frm#type
 AS
    /**
-   * $Author: nmarangoni $
-   * $Date: $
-   * $Revision: $
-   * $Id: $
-   * $HeadURL: $
+   * $Author: admin $
+   * $Date: 2015-05-03 18:17:11 +0200 (So, 03 Mai 2015) $
+   * $Revision: 15 $
+   * $Id: type-impl.sql 15 2015-05-03 16:17:11Z admin $
+   * $HeadURL: http://192.168.178.61/svn/odk/oracle/adminusr/packages/type/type-impl.sql $
    */
    /**
    * Max length of a pl/sql code block
@@ -345,6 +345,6 @@ AS
  * Package initialization
  */
 BEGIN
-   c_body_version := '$Id: $';
-   c_body_url := '$HeadURL: $';
+   c_body_version := '$Id: type-impl.sql 15 2015-05-03 16:17:11Z admin $';
+   c_body_url := '$HeadURL: http://192.168.178.61/svn/odk/oracle/adminusr/packages/type/type-impl.sql $';
 END p#frm#type;

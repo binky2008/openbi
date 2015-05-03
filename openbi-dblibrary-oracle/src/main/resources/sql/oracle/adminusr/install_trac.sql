@@ -1,9 +1,9 @@
 /**
- * $Author: nmarangoni $
- * $Date: 2012-02-02 16:38:28 +0100 (Do, 02 Feb 2012) $
- * $Revision: 2289 $
- * $Id: install_stage.sql 2289 2012-02-02 15:38:28Z nmarangoni $
- * $HeadURL: svn://qwp1466/svn_repository_bic/edwh/dwso/edwh_adm/install_stage.sql $
+ * $Author: admin $
+ * $Date: 2015-05-03 18:17:11 +0200 (So, 03 Mai 2015) $
+ * $Revision: 15 $
+ * $Id: install_trac.sql 15 2015-05-03 16:17:11Z admin $
+ * $HeadURL: http://192.168.178.61/svn/odk/oracle/adminusr/install_trac.sql $
  */
 
 @tables\trac_t.sql;

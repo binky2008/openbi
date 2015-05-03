@@ -3,20 +3,20 @@ CREATE OR REPLACE PACKAGE p#frm#enbl
 AS
    /**
    *
-   * $Author: $
-   * $Date: $
-   * $Revision: $
-   * $Id: $
-   * $HeadURL: $
+   * $Author: admin $
+   * $Date: 2015-05-03 18:17:11 +0200 (So, 03 Mai 2015) $
+   * $Revision: 15 $
+   * $Id: enbl-def.sql 15 2015-05-03 16:17:11Z admin $
+   * $HeadURL: http://192.168.178.61/svn/odk/oracle/adminusr/packages/enbl/enbl-def.sql $
    */
    /**
    * Package spec version string.
    */
-   c_spec_version   CONSTANT VARCHAR2 (1024) := '$Id: $';
+   c_spec_version   CONSTANT VARCHAR2 (1024) := '$Id: enbl-def.sql 15 2015-05-03 16:17:11Z admin $';
    /**
    * Package spec repository URL.
    */
-   c_spec_url       CONSTANT VARCHAR2 (1024) := '$HeadURL: $';
+   c_spec_url       CONSTANT VARCHAR2 (1024) := '$HeadURL: http://192.168.178.61/svn/odk/oracle/adminusr/packages/enbl/enbl-def.sql $';
    /**
    * Package body version string.
    */

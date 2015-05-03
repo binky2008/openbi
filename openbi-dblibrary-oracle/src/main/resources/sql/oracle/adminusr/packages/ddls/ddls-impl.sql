@@ -1,11 +1,11 @@
 CREATE OR REPLACE PACKAGE BODY p#frm#ddls
 AS
    /**
-   * $Author: nmarangoni $
-   * $Date: $
-   * $Revision: $
-   * $Id: $
-   * $HeadURL: $
+   * $Author: admin $
+   * $Date: 2015-05-03 18:17:11 +0200 (So, 03 Mai 2015) $
+   * $Revision: 15 $
+   * $Id: ddls-impl.sql 15 2015-05-03 16:17:11Z admin $
+   * $HeadURL: http://192.168.178.61/svn/odk/oracle/adminusr/packages/ddls/ddls-impl.sql $
    */
    PROCEDURE prc_set_text_param (
       p_vc_code_string   IN OUT CLOB
@@ -612,6 +612,6 @@ AS
    END prc_create_entity;
 BEGIN
    -- Versioning constants
-   c_body_version := '$Id: $';
-   c_body_url := '$HeadURL: $';
+   c_body_version := '$Id: ddls-impl.sql 15 2015-05-03 16:17:11Z admin $';
+   c_body_url := '$HeadURL: http://192.168.178.61/svn/odk/oracle/adminusr/packages/ddls/ddls-impl.sql $';
 END p#frm#ddls;

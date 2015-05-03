@@ -1,11 +1,11 @@
 CREATE OR REPLACE PACKAGE BODY p#frm#docu
 IS
    /**
-   * $Author: nmarangoni $
-   * $Date: $
-   * $Revision: $
-   * $Id: $
-   * $HeadURL: $
+   * $Author: admin $
+   * $Date: 2015-05-03 18:17:11 +0200 (So, 03 Mai 2015) $
+   * $Revision: 15 $
+   * $Id: docu-impl.sql 15 2015-05-03 16:17:11Z admin $
+   * $HeadURL: http://192.168.178.61/svn/odk/oracle/adminusr/packages/docu/docu-impl.sql $
    */
    TYPE l_line_array IS TABLE OF VARCHAR2 (4000)
       INDEX BY PLS_INTEGER;
@@ -385,6 +385,6 @@ IS
 * Package initialization
 */
 BEGIN
-   c_body_version := '$Id: $';
-   c_body_url := '$HeadURL: $';
+   c_body_version := '$Id: docu-impl.sql 15 2015-05-03 16:17:11Z admin $';
+   c_body_url := '$HeadURL: http://192.168.178.61/svn/odk/oracle/adminusr/packages/docu/docu-impl.sql $';
 END p#frm#docu;

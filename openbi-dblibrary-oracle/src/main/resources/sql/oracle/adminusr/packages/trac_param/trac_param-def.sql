@@ -2,11 +2,11 @@ CREATE OR REPLACE PACKAGE p#frm#trac_param
    AUTHID CURRENT_USER
 AS
    /**
-   * $Author: nmarangoni $
-   * $Date: $
-   * $Revision: $
-   * $Id: $
-   * $HeadURL: $
+   * $Author: admin $
+   * $Date: 2015-05-03 18:17:11 +0200 (So, 03 Mai 2015) $
+   * $Revision: 15 $
+   * $Id: trac_param-def.sql 15 2015-05-03 16:17:11Z admin $
+   * $HeadURL: http://192.168.178.61/svn/odk/oracle/adminusr/packages/trac_param/trac_param-def.sql $
    */
    --
    gc_log_off     CONSTANT NUMBER := 0;
