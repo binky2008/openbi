@@ -1,11 +1,11 @@
 CREATE OR REPLACE PACKAGE BODY p#frm#auth
 AS
    /**
-   * $Author: nmarangoni $
-   * $Date: $
-   * $Revision: $
-   * $Id: $
-   * $HeadURL: $
+   * $Author: admin $
+   * $Date: 2015-05-03 17:35:13 +0200 (So, 03 Mai 2015) $
+   * $Revision: 5 $
+   * $Id: auth-impl.sql 5 2015-05-03 15:35:13Z admin $
+   * $HeadURL: http://192.168.178.61/svn/odk/oracle/adminusr/packages/auth/auth-impl.sql $
    */
    TYPE t_statement IS TABLE OF VARCHAR2 (1000);
 
@@ -185,6 +185,6 @@ AS
  * Package initialization
  */
 BEGIN
-   c_body_version := '$Id: $';
-   c_body_url := '$HeadURL: $';
+   c_body_version := '$Id: auth-impl.sql 5 2015-05-03 15:35:13Z admin $';
+   c_body_url := '$HeadURL: http://192.168.178.61/svn/odk/oracle/adminusr/packages/auth/auth-impl.sql $';
 END p#frm#auth;

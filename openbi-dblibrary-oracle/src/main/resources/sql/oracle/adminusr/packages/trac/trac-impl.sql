@@ -1,11 +1,11 @@
 CREATE OR REPLACE PACKAGE BODY p#frm#trac
 AS
    /**
-   * $Author: nmarangoni $
-   * $Date: $
-   * $Revision: $
-   * $Id: $
-   * $HeadURL: $
+   * $Author: admin $
+   * $Date: 2015-05-03 17:35:13 +0200 (So, 03 Mai 2015) $
+   * $Revision: 5 $
+   * $Id: trac-impl.sql 5 2015-05-03 15:35:13Z admin $
+   * $HeadURL: http://192.168.178.61/svn/odk/oracle/adminusr/packages/trac/trac-impl.sql $
    */
    PROCEDURE purge (p_n_months IN NUMBER DEFAULT 12)
    IS
@@ -566,8 +566,8 @@ BEGIN
    END IF;
 
    --
-   c_body_version := '$Id: $';
-   c_body_url := '$HeadURL: $';
+   c_body_version := '$Id: trac-impl.sql 5 2015-05-03 15:35:13Z admin $';
+   c_body_url := '$HeadURL: http://192.168.178.61/svn/odk/oracle/adminusr/packages/trac/trac-impl.sql $';
 EXCEPTION
    WHEN OTHERS THEN
       -- Never ever stop working master procedure

@@ -1,11 +1,11 @@
 CREATE OR REPLACE PACKAGE BODY p#frm#dict
 AS
    /**
-   * $Author: nmarangoni $
-   * $Date: $
-   * $Revision: $
-   * $Id: $
-   * $HeadURL: $
+   * $Author: admin $
+   * $Date: 2015-05-03 17:35:13 +0200 (So, 03 Mai 2015) $
+   * $Revision: 5 $
+   * $Id: dict-impl.sql 5 2015-05-03 15:35:13Z admin $
+   * $HeadURL: http://192.168.178.61/svn/odk/oracle/adminusr/packages/dict/dict-impl.sql $
    */
    FUNCTION fct_column_in_list (
       p_vc_column_name    VARCHAR2
@@ -606,6 +606,6 @@ AS
    END fct_check_pk;
 BEGIN
    -- Versioning constants
-   c_body_version := '$Id: $';
-   c_body_url := '$HeadURL: $';
+   c_body_version := '$Id: dict-impl.sql 5 2015-05-03 15:35:13Z admin $';
+   c_body_url := '$HeadURL: http://192.168.178.61/svn/odk/oracle/adminusr/packages/dict/dict-impl.sql $';
 END p#frm#dict;

@@ -1,0 +1,17 @@
+/**
+ * $Author$
+ * $Date$
+ * $Revision$
+ * $Id$
+ * $HeadURL$
+ */
+
+@tables\trac_t.sql;
+
+-- Views
+@views\trac_v.sql;
+
+-- Packages
+@packages\trac_param\trac_param-def.sql;
+@packages\trac\trac-def.sql;
+@packages\trac\trac-impl.sql;

@@ -4,20 +4,20 @@ AS
    /**
    * Package containing general purpose functions and procedures
    *
-   * $Author: $
-   * $Date: $
-   * $Revision: $
-   * $Id: $
-   * $HeadURL: $
+   * $Author: admin $
+   * $Date: 2015-05-03 17:35:13 +0200 (So, 03 Mai 2015) $
+   * $Revision: 5 $
+   * $Id: docu_param-def.sql 5 2015-05-03 15:35:13Z admin $
+   * $HeadURL: http://192.168.178.61/svn/odk/oracle/adminusr/packages/docu_param/docu_param-def.sql $
    */
    /**
    * Package spec version string.
    */
-   c_spec_version     CONSTANT VARCHAR2 (1024) := '$Id: $';
+   c_spec_version     CONSTANT VARCHAR2 (1024) := '$Id: docu_param-def.sql 5 2015-05-03 15:35:13Z admin $';
    /**
    * Package spec repository URL.
    */
-   c_spec_url         CONSTANT VARCHAR2 (1024) := '$HeadURL: $';
+   c_spec_url         CONSTANT VARCHAR2 (1024) := '$HeadURL: http://192.168.178.61/svn/odk/oracle/adminusr/packages/docu_param/docu_param-def.sql $';
    /**
    * Package body version string.
    */

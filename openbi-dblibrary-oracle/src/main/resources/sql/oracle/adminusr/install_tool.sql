@@ -1,9 +1,9 @@
 /**
- * $Author: nmarangoni $
- * $Date: 2012-06-29 13:52:44 +0200 (Fr, 29 Jun 2012) $
- * $Revision: 2914 $
- * $Id: install_utl.sql 2914 2012-06-29 11:52:44Z nmarangoni $
- * $HeadURL: svn://qwd4067/svn_repository_bic/edwh/dwso/edwh_adm/install_utl.sql $
+ * $Author: admin $
+ * $Date: 2015-05-03 17:35:13 +0200 (So, 03 Mai 2015) $
+ * $Revision: 5 $
+ * $Id: install_tool.sql 5 2015-05-03 15:35:13Z admin $
+ * $HeadURL: http://192.168.178.61/svn/odk/oracle/adminusr/install_tool.sql $
  */
 
 purge recyclebin;

@@ -1,11 +1,11 @@
 CREATE OR REPLACE PACKAGE BODY p#frm#stag_ddl
 AS
    /**
-   * $Author: nmarangoni $
-   * $Date: $
-   * $Revision: $
-   * $Id: $
-   * $HeadURL: $
+   * $Author: admin $
+   * $Date: 2015-05-03 17:35:13 +0200 (So, 03 Mai 2015) $
+   * $Revision: 5 $
+   * $Id: stag_ddl-impl.sql 5 2015-05-03 15:35:13Z admin $
+   * $HeadURL: http://192.168.178.61/svn/odk/oracle/adminusr/packages/stag_ddl/stag_ddl-impl.sql $
    */
    /**
    * Templates for standard code tokens
@@ -4305,6 +4305,6 @@ AS
  * Package initialization
  */
 BEGIN
-   c_body_version := '$Id: $';
-   c_body_url := '$HeadURL: $';
+   c_body_version := '$Id: stag_ddl-impl.sql 5 2015-05-03 15:35:13Z admin $';
+   c_body_url := '$HeadURL: http://192.168.178.61/svn/odk/oracle/adminusr/packages/stag_ddl/stag_ddl-impl.sql $';
 END p#frm#stag_ddl;
