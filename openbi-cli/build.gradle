@@ -36,6 +36,9 @@ dependencies {
     compile group: 'org.postgresql', name: 'postgresql', version: '+'
     compile group: 'org.firebirdsql.jdbc', name: 'jaybird', version: '+'
     compile group: 'net.sourceforge.jtds', name: 'jtds', version: '+'
+    //compile group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version: '+'
+	//compile group: 'com.ingres.jdbc', name: 'iijdbc', version: '+'
+	compile group: 'com.nuodb.jdbc', name: 'nuodb-jdbc', version: '+'
 	// RDBMSs
     compile group: 'org.hsqldb', name: 'hsqldb', version: '+'
     compile group: 'com.h2database', name: 'h2', version: '+'
@@ -44,7 +47,6 @@ dependencies {
     compile group: 'org.apache.derby', name: 'derbynet', version: '+'
     compile group: 'org.apache.derby', name: 'derbytools', version: '+'
     compile group: 'org.apache.derby', name: 'derbyoptionaltools', version: '+'
-    //compile group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version: '+'
 	//runtime fileTree(dir: 'C:/Program Files/Java/lib/jdbc')
 	//runtime fileTree(dir: 'C:/Program Files/Java/lib/hive')
 	//

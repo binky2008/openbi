@@ -24,7 +24,9 @@ dependencies {
     compile group: 'mysql', name: 'mysql-connector-java', version: '+'
     compile group: 'org.postgresql', name: 'postgresql', version: '+'
     compile group: 'org.firebirdsql.jdbc', name: 'jaybird', version: '+'
-    compile group: 'net.sourceforge.jtds', name: 'jtds', version: '+'*/
+    compile group: 'net.sourceforge.jtds', name: 'jtds', version: '+'
+	compile group: 'com.ingres.jdbc', name: 'iijdbc', version: '+'
+	compile group: 'com.nuodb.jdbc', name: 'nuodb-jdbc', version: '+'*/
     // RDBMSs
 	/*compile group: 'org.hsqldb', name: 'hsqldb', version: '+'
     compile group: 'com.h2database', name: 'h2', version: '+'
