@@ -13,9 +13,7 @@ import javax.xml.transform.stream.StreamResult;
 import org.slf4j.*;
 import org.w3c.dom.*;
 import org.apache.commons.cli.*;
-import org.openbusinessintelligence.core.data.*;
 import org.openbusinessintelligence.core.db.*;
-import org.openbusinessintelligence.dblibrary.*;
 import org.openbusinessintelligence.core.file.*;
 import org.openbusinessintelligence.core.xml.*;
 import org.openbusinessintelligence.etl.sapds.*;
@@ -47,7 +45,7 @@ public class Main {
 
 		// Parse the command line arguments
 		configureCmdOptions();
-		CommandLineParser parser = new PosixParser();
+		CommandLineParser parser = new DefaultParser();
 		try {
 			cmd = parser.parse(cmdOptions, arguments);
 		}

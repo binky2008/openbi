@@ -3,10 +3,10 @@ apply plugin: 'java'
 apply plugin: 'eclipse'
 
 task wrapper(type: Wrapper) {
-	gradleVersion = '2.4'
+	gradleVersion = '2.5'
 }
 
-sourceCompatibility = '1.7'
+sourceCompatibility = '1.8'
 version = '0.1'
 mainClassName = 'org.openbusinessintelligence.cli.Main'
 

@@ -28,7 +28,7 @@ public class Main {
 		LOGGER.info("START");
 		
 		configureCmdOptions();
-		CommandLineParser parser = new PosixParser();
+		CommandLineParser parser = new DefaultParser();
 		try {
 			// parse the command line arguments
 			cmd = parser.parse(cmdOptions, args);

@@ -260,6 +260,13 @@ public class DataManipulator {
 
 			// Get object from source column except for RDBMS not supporting getObject method
 			if (
+				!(
+					sourceProductName.toUpperCase().contains("MYSQL") &&
+					(
+						sourceType.equalsIgnoreCase("DATETIME") ||
+						sourceType.equalsIgnoreCase("TIMESTAMP")
+					)
+				) &&
 				!sourceProductName.toUpperCase().contains("HIVE") &&
 				!sourceProductName.toUpperCase().contains("INFORMIX") &&
 				!(
@@ -321,7 +328,7 @@ public class DataManipulator {
 					sourceProductName.toUpperCase().contains("HIVE")
 				)
 			) {
-				statement.setInt(position, resultSet.getInt(columnName));
+				statement.setBigDecimal(position, resultSet.getBigDecimal(columnName));
 			}
 			else if (targetType.toUpperCase().contains("FLOAT")) {
 				statement.setFloat(position, resultSet.getFloat(columnName));
@@ -436,6 +443,15 @@ public class DataManipulator {
 					sourceType.equalsIgnoreCase("TIMESTAMP")
 				) {
 					statement.setTimestamp(position, java.sql.Timestamp.valueOf(resultSet.getString(columnName)));
+				}
+				else if (sourceProductName.toUpperCase().contains("MYSQL")) {
+					java.sql.Timestamp ts = null;
+					try {
+						ts = resultSet.getTimestamp(columnName);
+					}
+					catch (Exception ts_e) {
+					}
+					statement.setTimestamp(position, ts);
 				}
 				else {
 					statement.setTimestamp(position, resultSet.getTimestamp(columnName));

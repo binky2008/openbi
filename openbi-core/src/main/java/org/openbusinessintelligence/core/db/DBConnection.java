@@ -4,6 +4,8 @@ import java.io.FileInputStream;
 import java.sql.*;
 import java.io.*;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -184,9 +186,15 @@ public class DBConnection {
 
 		String identifier = "";
 		try {
-	    	if (keyWords.contains(columnName.toUpperCase()) || isNumber) {
-	    		identifier += quoteString + columnName.toUpperCase() + quoteString;
+	    	if (
+	    		isNumber ||
+	    		Pattern.compile("[^a-z0-9_ ]", Pattern.CASE_INSENSITIVE).matcher(columnName.toUpperCase()).find()
+	    	) {
+	    		identifier += quoteString + columnName + quoteString;
 	    	}
+	    	else if (keyWords.contains(columnName.toUpperCase())) {
+		    	identifier += quoteString + columnName.toUpperCase() + quoteString;
+		    }
 	    	else {
 	    		identifier += columnName;
 	    	}
@@ -236,7 +244,7 @@ public class DBConnection {
     		List<String> tableArray = new ArrayList<String>();
 	    	while (dbTables.next()) {
 	    		tableArray.add(dbTables.getString("TABLE_NAME"));
-	    		logger.info(dbTables.getString("TABLE_SCHEM") + "." + dbTables.getString("TABLE_NAME"));
+	    		logger.debug(dbTables.getString("TABLE_SCHEM") + "." + dbTables.getString("TABLE_NAME"));
 	    	}
 	    	tableList = new String[tableArray.size()];
 	    	int i = 0;
@@ -345,38 +353,38 @@ public class DBConnection {
 	   	try {
 		   	logger.debug("Getting max row size...");
 		   	maxRowSize = metadata.getMaxRowSize();
-		   	logger.info("Max row size: " + maxRowSize);
+		   	logger.debug("Max row size: " + maxRowSize);
 	   	}
 	   	catch (Exception e) {
 	   		logger.error(e.getMessage());
 	   	}
 	   	
 	   	// Get catalogues and schemas
-		logger.info("########################################");
-	   	logger.info("Found catalogs:");
+		logger.debug("########################################");
+	   	logger.debug("Found catalogs:");
 	   	ResultSet dbCatalogs = metadata.getCatalogs();
 	   	ResultSetMetaData rsmd = dbCatalogs.getMetaData();
 	   	while (dbCatalogs.next()) {
 	   		try {
-		   		logger.info(dbCatalogs.getString("TABLE_CAT"));
+		   		logger.debug(dbCatalogs.getString("TABLE_CAT"));
 	   		}
 	   		catch (Exception e) {
-		   		logger.info(dbCatalogs.getString(1));
+		   		logger.debug(dbCatalogs.getString(1));
 	   		}
 	   	}
-		logger.info("########################################");
-	   	logger.info("Found schemas:");
+		logger.debug("########################################");
+	   	logger.debug("Found schemas:");
 	   	ResultSet dbSchemas = metadata.getSchemas();
 	   	while (dbSchemas.next()) {
-	   		logger.info(dbSchemas.getString("TABLE_SCHEM"));
+	   		logger.debug(dbSchemas.getString("TABLE_SCHEM"));
 	   	}
 	   	
 	   	// Get types
-		logger.info("########################################");
-	   	logger.info("Found types:");
+		logger.debug("########################################");
+	   	logger.debug("Found types:");
 	   	ResultSet dbTypes = metadata.getTypeInfo();    	
 	   	while (dbTypes.next()) {
-	   		logger.info(dbTypes.getString("TYPE_NAME") + " " + dbTypes.getString("CREATE_PARAMS"));
+	   		logger.debug(dbTypes.getString("TYPE_NAME") + " " + dbTypes.getString("CREATE_PARAMS"));
 	   	}
     }
     
