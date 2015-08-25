@@ -135,10 +135,10 @@ public class Main {
  			if (nNode.getNodeType() == Node.ELEMENT_NODE) {
  				Element eElement = (Element) nNode;
  				//System.out.println("Option : " + eElement.getElementsByTagName("name").item(0).getChildNodes().item(0).getNodeValue());
- 				Option option = OptionBuilder.hasArg()
- 						.withArgName(eElement.getElementsByTagName("argName").item(0).getChildNodes().item(0).getNodeValue())
- 		                .withDescription(eElement.getElementsByTagName("description").item(0).getChildNodes().item(0).getNodeValue())
- 		                .create(eElement.getElementsByTagName("name").item(0).getChildNodes().item(0).getNodeValue());
+ 				Option option = Option.builder(eElement.getElementsByTagName("name").item(0).getChildNodes().item(0).getNodeValue()).hasArg()
+ 						.argName(eElement.getElementsByTagName("argName").item(0).getChildNodes().item(0).getNodeValue())
+ 		                .desc(eElement.getElementsByTagName("description").item(0).getChildNodes().item(0).getNodeValue())
+ 		                .build();
  				cmdOptions.addOption(option);
 		   }
 		}

@@ -163,10 +163,10 @@ public class Main {
  			Node nNode = nList.item(temp);
  			if (nNode.getNodeType() == Node.ELEMENT_NODE) {
  				Element eElement = (Element) nNode;
-				option = OptionBuilder.hasArg()
- 						.withArgName(eElement.getElementsByTagName("argName").item(0).getChildNodes().item(0).getNodeValue())
- 		                .withDescription(eElement.getElementsByTagName("description").item(0).getChildNodes().item(0).getNodeValue())
- 		                .create(eElement.getElementsByTagName("name").item(0).getChildNodes().item(0).getNodeValue());
+				option = Option.builder(eElement.getElementsByTagName("name").item(0).getChildNodes().item(0).getNodeValue()).hasArg()
+ 						.argName(eElement.getElementsByTagName("argName").item(0).getChildNodes().item(0).getNodeValue())
+ 		                .desc(eElement.getElementsByTagName("description").item(0).getChildNodes().item(0).getNodeValue())
+ 		                .build();
  				cmdOptions.addOption(option);
 		   }
 		}
